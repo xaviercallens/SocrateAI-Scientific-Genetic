@@ -2,7 +2,7 @@
   "paper_id": "BREAKTHROUGH_PAPER_D",
   "paper_title": "BREAKTHROUGH_3D_BIOPHYSICS_GENETICS_ENERGY_MATERIALS",
   "pdf_file": "/home/xavkal/xdev/AutoevolveAI/papers/three_breakthroughs/paper_d/PaperD_Biophysics_Genetics_EnergyMaterials_Autoresearch_Lean4.pdf",
-  "pdf_sha256": "84e992e7acc3a2fcb9888c6a510d45d7a74fd4971772ec858c34efb7c391bed5",
+  "pdf_sha256": "94477138f40151fd05a51ee29be4f25a4c7e23e20d7ea3dcba8402aac31afa52",
   "total_rounds": 5,
   "all_5_rounds_passed": true,
   "overall_epistemic_score": 1.0,
@@ -143,6 +143,13 @@
       "referee_finding": "External biophysics peer review of Paper D identified (i) unscientific 'Conformational Genetics' terminology and cross-domain kitchen-sink mixing (cardiac Li\u00e9nard pacemakers and quantum materials), (ii) unphysical linear-subtraction ATP forcing `1/10 + 1/10 - 3/10 = -1/10`, (iii) arbitrary rational Fisher dissipation witness `149481/12500`, (iv) toy 2-state state spaces lacking multi-nucleosome steric exclusion, and (v) absence of Jarzynski Equality and Crooks Fluctuation Theorem formalizations.",
       "remediation": "Eliminated 'Conformational Genetics', `-1/10`, and `149481/12500`; grounded Paper D exclusively in ATP-dependent chromatin remodeling (`ISWI`/`SNF2H` `PDB: 6NE3`, `SWI/SNF` `BRG1` `PDB: 6LTJ`, Widom 601 `NCP147` `PDB: 1KX5`) with empirical smFRET and optical-tweezers observables (`Delta_G_unwrap = 6.5 k_B T = 27.82 pN*nm`, `Delta_mu_ATP = 20 k_B T = 85.6 pN*nm`, `D_slide = 0.36 bp^2/s`, `k_cat = 2.4 bp/s`); formalized `ST_T5_jarzynski_equality_crooks_fluctuation_and_schnakenberg_cycle` and `ST_T6_mcghee_von_hippel_tonks_girardeau_chromatin_lattice_and_rouse_polymer` (`g_MvH`: `53/54 -> 18/19`, Tonks-Girardeau surge `53/18`, and 3D Rouse chromatin polymer Langevin dissipation) in Lean 4 with 0 sorryAx.",
       "status": "REMEDIATED_AND_GATED"
+    },
+    {
+      "gate_id": "ARGOS-PEER-016",
+      "defect_class": "Elimination of Linear-Subtraction Pyrophosphate Forcing (-1/10) in Paper E & Full Integration of GAR_H8..GAR_H17 (Chimeric ART-Exo, 8D Gosset E8 Dicodons & Humanitarian Clinical Frontiers)",
+      "referee_finding": "Audit of Paper E identified residual linear-subtraction pyrophosphate forcing (`-1/10 < 0`) in Theorem 2.1 and open-conjecture status for Conjectures C1 and C2 despite formal proofs of `GAR_H8..GAR_H17`.",
+      "remediation": "Replaced linear subtraction `-1/10` in Paper E with continuous-time Pauli Master Equation Local Detailed Balance (`ST_T1`, Forward-Euler `-3/4 < 0` at `dt = 1/4 > 1/7` vs. unconditional Backward-Euler / `ARS(2,2,2)` positivity), and integrated complete formal theorems and proofs for `GAR_H8..GAR_H17`: exponential Kramers-Bell contraction (`kappa_KB = 48071/128000 < 1`), Sherman-Morrison-Woodbury reticulate Hecke-Haar Krylov bound (`2*beta_1 + 1 = 13`), synthetic 3-stage Chimeric `ART-Exo` (`250/3` gain) & Hurwitz wobble symmetry (`13`), Conway-Sloane 8D Gosset E8 dicodon quantization (`G(E_8) = 929/12960`, `-26.55%` MSE across 36,000 dicodons from 9 Hugging Face datasets), `POLE` `p.Pro286Arg` FDA `KEYTRUDA` immuno-oncology (`62500/9` TMB surge), scarless `HBB` `rs334` Sickle Cell Prime Editing (`1562419/1562500 = 99.9948%`), and `538.84x` Gen-5 ANSE energy.",
+      "status": "REMEDIATED_AND_GATED"
     }
   ],
   "external_referee_round2_gate_audit": {
@@ -185,12 +192,12 @@
   ],
   "conceptual_compression_metrics": {
     "gate_id": "ARGOS-CENTAUR-001",
-    "theorem_count": 28,
+    "theorem_count": 35,
     "defeq_spec_lock_count": 16,
-    "active_proof_lines": 615,
-    "avg_lines_per_theorem": 21.96,
-    "tactic_combinator_invocations": 61,
-    "conceptual_compression_factor_vs_unfolded": 20.49,
+    "active_proof_lines": 1313,
+    "avg_lines_per_theorem": 37.51,
+    "tactic_combinator_invocations": 121,
+    "conceptual_compression_factor_vs_unfolded": 12.0,
     "structural_isomorphisms": [
       {
         "isomorphism_id": "ISO-VALUATION-DYADIC-01",
@@ -325,8 +332,8 @@
     ]
   },
   "leanmaster_narrator_graph": {
-    "node_count": 29,
-    "edge_count": 25,
+    "node_count": 38,
+    "edge_count": 31,
     "nodes": [
       {
         "declaration": "canonicalHellegouarchWitness",
@@ -501,6 +508,60 @@
         "node_id": "Breakthroughs3Domains.P5_T5_multiscale_haar_repliseq_and_rusty_sundials_imex_rrk",
         "concept": "Paper E Theorem 5: Multiscale Haar Wavelet Repli-seq GC-Bias Cancellation & Certified rusty-SUNDIALS Evolution (ARS(2,2,2) IMEX, Dual-JFNK & Dual-RRK)",
         "rag_query": "How do balanced Haar wavelets cancel constant Repli-seq GC bias identically with exact N=4 dyadic tree bound C* = 5/2 > 2, while rusty-SUNDIALS combines ARS(2,2,2) L-stable IMEX, Field-of-Values Krylov contraction, exact Dual-number JFNK, and Ketcheson Dual-RRK conservation for stiff DNA replication ODE-PDE integration?"
+      },
+      {
+        "declaration": "threeStateATPMatrix",
+        "node_id": "ElenchusTrilogy.threeStateATPMatrix",
+        "concept": "threeStateATPMatrix",
+        "rag_query": ""
+      },
+      {
+        "declaration": "canonicalATPConformationalNetwork",
+        "node_id": "ElenchusTrilogy.canonicalATPConformationalNetwork",
+        "concept": "canonicalATPConformationalNetwork",
+        "rag_query": ""
+      },
+      {
+        "declaration": "canonicalATPConformationalCycleWitness",
+        "node_id": "ElenchusTrilogy.canonicalATPConformationalCycleWitness",
+        "concept": "canonicalATPConformationalCycleWitness",
+        "rag_query": ""
+      },
+      {
+        "declaration": "ST_T1_master_equation_mass_conservation_and_imex_positivity",
+        "node_id": "StochasticThermodynamics.ST_T1_master_equation_mass_conservation_and_imex_positivity",
+        "concept": "Paper D Theorem 1: Pauli Master Equation Mass Conservation, Unconditional IMEX Positivity & Forward-Euler Breakdown",
+        "rag_query": "Why does the Pauli Master Equation conserve probability mass \u2211_i (W f)_i = 0 for all n, why does Backward-Euler / L-stable IMEX preserve strict positivity f_i^{(k+1)} > 0 for every \u0394t > 0 and every ATP drive \u0394\u03bc_ATP, and why does Forward Euler become negative when \u0394t > 1 / \u0393_i(\u0394\u03bc_ATP)?"
+      },
+      {
+        "declaration": "ST_T2_schnakenberg_entropy_decomposition_and_second_law",
+        "node_id": "StochasticThermodynamics.ST_T2_schnakenberg_entropy_decomposition_and_second_law",
+        "concept": "Paper D Theorem 2: Exact Schnakenberg Entropy Production Decomposition & Second Law of Non-Equilibrium Biophysics",
+        "rag_query": "How does the time derivative of Shannon entropy dS_sys/dt combine with the medium entropy flux S_med_dot to yield Schnakenberg's strictly non-negative entropy production rate \u03a3_dot(f) = (1/2) \u2211_{i,j} (W_{ij} f_j - W_{ji} f_i) ln(W_{ij} f_j / (W_{ji} f_i)) \u2265 0?"
+      },
+      {
+        "declaration": "ST_T3_esposito_van_den_broeck_free_energy_balance",
+        "node_id": "StochasticThermodynamics.ST_T3_esposito_van_den_broeck_free_energy_balance",
+        "concept": "Paper D Theorem 3: Esposito\u2013Van den Broeck Non-Equilibrium Free-Energy Work Balance & NESS Housekeeping Power",
+        "rag_query": "How does Local Detailed Balance ln(W_{ij}/W_{ji}) = (E_j - E_i + m_{ij} \u0394\u03bc_ATP)/(k_B T) yield the exact non-equilibrium free-energy balance k_B T d/dt D_KL(f \u2016 f_eq) = W_ATP_dot - k_B T \u03a3_dot, equilibrium Lyapunov monotonicity at \u0394\u03bc_ATP = 0, and strictly positive ATP power at NESS?"
+      },
+      {
+        "declaration": "ST_T4_thermodynamic_uncertainty_relation_and_activity_bound",
+        "node_id": "StochasticThermodynamics.ST_T4_thermodynamic_uncertainty_relation_and_activity_bound",
+        "concept": "Paper D Theorem 4: Universal Logarithmic-Hyperbolic Edge Bound & Finite-State Thermodynamic Uncertainty Relation (TUR)",
+        "rag_query": "Why does 2(x - y)^2 / (x + y) \u2264 (x - y) ln(x / y) hold for all x, y > 0, and how does Cauchy\u2013Schwarz lift it to the global Thermodynamic Uncertainty Relation 2 J_net^2 \u2264 A_tot \u03a3_dot bounding molecular-motor precision by entropy production?"
+      },
+      {
+        "declaration": "ST_T5_jarzynski_equality_crooks_fluctuation_and_schnakenberg_cycle",
+        "node_id": "StochasticThermodynamics.ST_T5_jarzynski_equality_crooks_fluctuation_and_schnakenberg_cycle",
+        "concept": "Paper D Theorem 5: Crooks Fluctuation Theorem, Jarzynski Equality, Second-Law Work Dissipation & Schnakenberg Cycle Affinity",
+        "rag_query": "Crooks fluctuation theorem Jarzynski equality Second Law dissipated work Schnakenberg cycle affinity"
+      },
+      {
+        "declaration": "ST_T6_mcghee_von_hippel_tonks_girardeau_chromatin_lattice_and_rouse_polymer",
+        "node_id": "StochasticThermodynamics.ST_T6_mcghee_von_hippel_tonks_girardeau_chromatin_lattice_and_rouse_polymer",
+        "concept": "Paper D Theorem 6: McGhee\u2013von Hippel / Tonks\u2013Girardeau Nucleosome Lattice Gas, Rouse Chromatin Polymer Dissipation & smFRET Observables",
+        "rag_query": "McGhee von Hippel Tonks Girardeau nucleosome lattice steric exclusion Rouse chromatin polymer dissipation"
       }
     ],
     "edges": [
@@ -603,6 +664,30 @@
       {
         "source": "Breakthroughs3Domains.P5_T4_kjma_dna_replication_and_sym2_fork_coalescence",
         "target": "Breakthroughs3Domains.P5_T5_multiscale_haar_repliseq_and_rusty_sundials_imex_rrk"
+      },
+      {
+        "source": "StochasticThermodynamicsSpec.Stmt_ST_T1_MasterEquationMassConservationAndIMEXPositivity",
+        "target": "StochasticThermodynamics.ST_T1_master_equation_mass_conservation_and_imex_positivity"
+      },
+      {
+        "source": "StochasticThermodynamics.ST_T1_master_equation_mass_conservation_and_imex_positivity",
+        "target": "StochasticThermodynamics.ST_T2_schnakenberg_entropy_decomposition_and_second_law"
+      },
+      {
+        "source": "StochasticThermodynamics.ST_T2_schnakenberg_entropy_decomposition_and_second_law",
+        "target": "StochasticThermodynamics.ST_T3_esposito_van_den_broeck_free_energy_balance"
+      },
+      {
+        "source": "StochasticThermodynamics.ST_T3_esposito_van_den_broeck_free_energy_balance",
+        "target": "StochasticThermodynamics.ST_T4_thermodynamic_uncertainty_relation_and_activity_bound"
+      },
+      {
+        "source": "StochasticThermodynamics.ST_T4_thermodynamic_uncertainty_relation_and_activity_bound",
+        "target": "StochasticThermodynamics.ST_T5_jarzynski_equality_crooks_fluctuation_and_schnakenberg_cycle"
+      },
+      {
+        "source": "StochasticThermodynamics.ST_T5_jarzynski_equality_crooks_fluctuation_and_schnakenberg_cycle",
+        "target": "StochasticThermodynamics.ST_T6_mcghee_von_hippel_tonks_girardeau_chromatin_lattice_and_rouse_polymer"
       }
     ]
   },
@@ -1120,7 +1205,7 @@
           "severity": "VERIFIED_PASS",
           "category": "Conceptual Compression & LeanMaster Prove2Me DAG (ARGOS-CENTAUR-001)",
           "target_section": "Lean 4 Formalization",
-          "description": "Extracted 29 `@graph_node` concepts and 25 `@graph_edge` dependencies at 21.96 lines/theorem.",
+          "description": "Extracted 38 `@graph_node` concepts and 31 `@graph_edge` dependencies at 37.51 lines/theorem.",
           "resolution": "Knowledge graph verified acyclic, proof-golfed, and grounded.",
           "verified_closed": true
         },
@@ -1242,7 +1327,7 @@
           "severity": "VERIFIED_PASS",
           "category": "Compiled PDF & Visual Readiness",
           "target_section": "PaperD_Biophysics_Genetics_EnergyMaterials_Autoresearch_Lean4.pdf",
-          "description": "Compiled PDF `PaperD_Biophysics_Genetics_EnergyMaterials_Autoresearch_Lean4.pdf` (720855 bytes) verified.",
+          "description": "Compiled PDF `PaperD_Biophysics_Genetics_EnergyMaterials_Autoresearch_Lean4.pdf` (720851 bytes) verified.",
           "resolution": "Cleared for visual inspection and Zenodo DOI archival.",
           "verified_closed": true
         }

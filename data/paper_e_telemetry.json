@@ -7,6 +7,8 @@
   "hopfield_error_m2_rational": "1/10000",
   "hopfield_error_m3_rational": "1/1000000",
   "hopfield_suppression_factor": 10000,
+  "forward_euler_stiff_dt_rational": "1/4",
+  "forward_euler_diag_factor_rational": "-3/4",
   "art_repeat_unit_length_nt": 200,
   "art_repeat_survival_m3_float": 0.999800019898681,
   "calugareanu_tw0_exact": 100,
@@ -33,6 +35,31 @@
   "kjma_unreplicated_s1_upper_rational": "1/115",
   "kjma_unreplicated_s1_float": 0.0024787521766663585,
   "dyadic_haar_repliseq_c_star_rational": "5/2",
+  "kramers_bell_t4_fifth_rational": "6107/5000",
+  "kramers_bell_t4_half_rational": "211/128",
+  "kramers_bell_high_torque_kappa_rational": "48071/128000",
+  "reticulate_woodbury_betti1": 6,
+  "reticulate_woodbury_krylov_bound": 13,
+  "chimeric_art_exo_fidelity_gain_rational": "250/3",
+  "hurwitz_wobble_norm_invariant": 13,
+  "gosset_e8_second_moment_rational": "929/12960",
+  "gosset_e8_vs_z8_ratio_rational": "929/1080",
+  "gosset_e8_empirical_mse_reduction_pct": 26.55,
+  "hexagonal_a2_empirical_mse_reduction_pct": 17.93,
+  "hf_datasets_count": 9,
+  "hf_total_sequences": 3600,
+  "hf_total_dicodons": 36000,
+  "agora_pade_sound_sq_rational": "52/45",
+  "top2a_inhibited_tau_eff_rational": "63/50",
+  "ucsc_pole_phylop_rational": "9953/1000",
+  "ucsc_pole_vs_tert_phylop_gap_rational": "1108454/100000",
+  "pole_p286r_tmb_rational": "12500/9",
+  "pole_p286r_immune_escape_hazard_rational": "1/1251",
+  "sickle_cell_hbb_prime_editing_purity_rational": "1562419/1562500",
+  "polg_antiviral_selectivity_index": 50000,
+  "anse_energy_baseline": 21.332917,
+  "anse_energy_gen5_elenchus": 0.03959007,
+  "anse_energy_total_reduction_factor": 538.84,
   "leanflow_mcp_3e": {
     "status": "verified",
     "tier": "B",
@@ -74,8 +101,8 @@
       "seed": null,
       "toolchain": "LeanFlow Domain 3E (rusty-SUNDIALS genetics + Karpathy Autoresearch C1/C2 + ExactQ)",
       "command": "",
-      "elapsed_s": 0.089257,
-      "timestamp": "2026-10-20T09:47:51.377132+00:00"
+      "elapsed_s": 0.09099,
+      "timestamp": "2026-10-20T20:07:35.459681+00:00"
     }
   },
   "leanflow_cert_3e": {
@@ -97,13 +124,14 @@
       "code_sha": "94e17ab",
       "seed": null,
       "toolchain": "leanprover/lean4:v4.34.1",
-      "command": "/mnt/data/home/xavkal/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /mnt/data/xdev-cache/tmp/tmpwta2ws6d.lean",
-      "elapsed_s": 1.147624,
-      "timestamp": "2026-10-20T09:47:52.530718+00:00"
+      "command": "/mnt/data/home/xavkal/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /mnt/data/xdev-cache/tmp/tmpkh75zby4.lean",
+      "elapsed_s": 1.124002,
+      "timestamp": "2026-10-20T20:07:36.589429+00:00"
     }
   },
   "figures": [
     "/home/xavkal/xdev/AutoevolveAI/papers/three_breakthroughs/paper_e/fig1_hopfield_art_proofreading_and_kjma.pdf",
-    "/home/xavkal/xdev/AutoevolveAI/papers/three_breakthroughs/paper_e/fig2_calugareanu_supercoiling_rrk_and_hecke.pdf"
+    "/home/xavkal/xdev/AutoevolveAI/papers/three_breakthroughs/paper_e/fig2_calugareanu_supercoiling_rrk_and_hecke.pdf",
+    "/home/xavkal/xdev/AutoevolveAI/papers/three_breakthroughs/paper_e/fig4_e8_dicodon_chimeric_art_exo_humanitarian_538x.pdf"
   ]
 }
