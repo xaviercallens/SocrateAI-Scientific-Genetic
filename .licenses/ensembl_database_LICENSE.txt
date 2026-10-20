@@ -1,0 +1,10 @@
+Ensembl Database Terms and Conditions Notification
+==================================================
+Timestamp: 2026-10-20T08:44:00+02:00
+Workspace: /home/xavkal/xdev/AutoevolveAI
+Skill: ensembl-database
+
+Notification:
+Please review the Ensembl terms and REST API policies at:
+https://useast.ensembl.org/index.html
+https://github.com/Ensembl/ensembl-rest/wiki

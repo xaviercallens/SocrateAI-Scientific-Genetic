@@ -1,0 +1,11 @@
+NCBI dbSNP Database Terms and Conditions Notification
+=====================================================
+Timestamp: 2026-10-20T08:32:30+02:00
+Workspace: /home/xavkal/xdev/AutoevolveAI
+Skill: dbsnp-database
+
+Notification:
+Please review the NCBI dbSNP Terms and Conditions, Usage Policies, and Disclaimers at:
+https://www.ncbi.nlm.nih.gov/snp/
+and NCBI's general disclaimer and copyright notice at:
+https://www.ncbi.nlm.nih.gov/home/about/policies/

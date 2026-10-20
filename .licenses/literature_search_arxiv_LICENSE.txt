@@ -1,0 +1,2 @@
+Notification: Users are reminded to check arXiv API terms at https://info.arxiv.org/help/api/index.html and respect paper licenses and rate limits (max 1 request per 3 seconds).
+Recorded At: 2026-09-22T10:31:12+02:00

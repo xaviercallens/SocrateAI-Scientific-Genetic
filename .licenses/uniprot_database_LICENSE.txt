@@ -1,0 +1,10 @@
+UniProt Database Terms and Conditions Notification
+==================================================
+Timestamp: 2026-10-20T08:44:00+02:00
+Workspace: /home/xavkal/xdev/AutoevolveAI
+Skill: uniprot-database
+
+Notification:
+Please review the UniProt licensing and API query terms at:
+https://www.uniprot.org/help/license
+https://www.uniprot.org/help/api_queries

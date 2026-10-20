@@ -1,0 +1,10 @@
+InterPro Database Terms and Conditions Notification
+===================================================
+Timestamp: 2026-10-20T08:44:00+02:00
+Workspace: /home/xavkal/xdev/AutoevolveAI
+Skill: interpro-database
+
+Notification:
+Please review the EMBL-EBI InterPro terms of use at:
+https://www.ebi.ac.uk/interpro/
+https://www.ebi.ac.uk/about/terms-of-use/

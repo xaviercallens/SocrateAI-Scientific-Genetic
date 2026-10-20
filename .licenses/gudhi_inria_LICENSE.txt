@@ -1,0 +1,21 @@
+Inria GUDHI Library (Geometry Understanding in Higher Dimensions) - License & Citation Notice
+=============================================================================================
+Upstream Documentation: https://gudhi.inria.fr/introduction/
+Upstream Repository:    https://github.com/GUDHI/gudhi-devel
+Installed Package:      gudhi 3.13.0 (via uv)
+
+1. License Summary:
+   - The core GUDHI C++ and Python library (SimplexTree, RipsComplex, CubicalComplex,
+     Persistent Cohomology, Persistence Representations) is distributed under the
+     MIT License (Expat).
+   - Specific geometric sub-modules interfacing with CGAL (such as AlphaComplex and
+     Bottleneck Distance) are subject to the GNU General Public License v3 (GPLv3)
+     in accordance with CGAL's open-source licensing.
+
+2. Required Scientific Citation:
+   - The GUDHI Project. GUDHI User and Reference Manual. GUDHI Editorial Board,
+     3.13.0 edition, 2026. https://gudhi.inria.fr/doc/latest/
+   - Maria C., Boissonnat J.-D., Glisse M., Yvinec M. (2014) The Gudhi Library:
+     Simplicial Complexes and Persistent Homology. In: Hong H., Yap C. (eds)
+      Mathematical Software – ICMS 2014. Lecture Notes in Computer Science, vol 8592.
+     Springer, Berlin, Heidelberg.

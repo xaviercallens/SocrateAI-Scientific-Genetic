@@ -1,0 +1,9 @@
+NCBI ClinVar Database Terms and Conditions Notification
+=======================================================
+Timestamp: 2026-10-20T08:44:00+02:00
+Workspace: /home/xavkal/xdev/AutoevolveAI
+Skill: clinvar-database
+
+Notification:
+Please review the NCBI ClinVar terms and disclaimers at:
+https://www.ncbi.nlm.nih.gov/clinvar/

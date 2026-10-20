@@ -1,0 +1,9 @@
+RCSB Protein Data Bank (PDB) Terms and Conditions Notification
+==============================================================
+Timestamp: 2026-10-20T08:44:00+02:00
+Workspace: /home/xavkal/xdev/AutoevolveAI
+Skill: pdb-database
+
+Notification:
+Please review the RCSB PDB usage and data policies at:
+https://www.rcsb.org/pages/usage-policy

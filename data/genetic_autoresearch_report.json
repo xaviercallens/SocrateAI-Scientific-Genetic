@@ -1,0 +1,892 @@
+{
+  "pipeline": "KARPATHY_AUTORESEARCH_13_TO_5_TO_3_GENETICS_ART_DNA_REPLICATION",
+  "goal_statement": "Discover, numerically benchmark in rusty-SUNDIALS & LeanFlow MCP, and formally verify in Lean 4 a new hyper-efficient ART Reverse Transcription & DNA Replication architecture (Torque-Haar-ART) resolving Conjectures C1 and C2 and minimizing the ANSE Bio-Computational Energy E_ART-DNA (Delta E = E_efficient - E_baseline < 0, >51x energy reduction).",
+  "total_hypotheses_screened": 13,
+  "selected_top5_formal_ids": [
+    "GAR.H1",
+    "GAR.H2",
+    "GAR.H3",
+    "GAR.H4",
+    "GAR.H5"
+  ],
+  "selected_top3_numeric_ids": [
+    "GAR.H1",
+    "GAR.H2",
+    "GAR.H3"
+  ],
+  "hypotheses_registry": [
+    {
+      "id": "GAR.H1",
+      "rank": 1,
+      "conjecture_link": "Conjecture C1 (Resolved)",
+      "theorem": "GAR_H1_conjecture_c1_torque_coupled_hopfield_and_bihelmholtz_cap",
+      "spec": "Stmt_GAR_H1_ConjectureC1TorqueCoupledHopfieldAndBiHelmholtzCap",
+      "pillar": "NSE (Bi-Helmholtz + BGK) + Hopfield-ART KPR",
+      "short_title": "Torque-Coupled Hopfield-ART Proofreading & Bi-Helmholtz Radii-Polynomial Contraction",
+      "D_proof": 0.98,
+      "C_bridge": 0.97,
+      "W_rat": 0.97,
+      "F_efficiency": 0.95,
+      "selected_top5": true,
+      "selected_top3_numeric": true,
+      "probability_score": 0.969
+    },
+    {
+      "id": "GAR.H2",
+      "rank": 2,
+      "conjecture_link": "Conjecture C2 (Resolved)",
+      "theorem": "GAR_H2_conjecture_c2_padic_haar_hecke_tree_diagonalization",
+      "spec": "Stmt_GAR_H2_ConjectureC2PAdicHaarHeckeTreeDiagonalization",
+      "pillar": "FLT (4-Regular Hecke Tree) + OpenAI Math (Haar Wavelets)",
+      "short_title": "p-Adic Balanced Haar Wavelet Diagonalization on 4-Regular (p=3) Hecke Coalescent Trees",
+      "D_proof": 0.96,
+      "C_bridge": 0.96,
+      "W_rat": 0.95,
+      "F_efficiency": 0.94,
+      "selected_top5": true,
+      "selected_top3_numeric": true,
+      "probability_score": 0.9535
+    },
+    {
+      "id": "GAR.H3",
+      "rank": 3,
+      "conjecture_link": "Unified Efficient ART Engine",
+      "theorem": "GAR_H3_quaternion_palindrome_slippage_parity_and_multi_origin_kjma",
+      "spec": "Stmt_GAR_H3_QuaternionPalindromeSlippageParityAndMultiOriginKJMA",
+      "pillar": "FLT (Deuring Quaternions) + OpenAI Math (KJMA Taylor-4)",
+      "short_title": "Quaternion-Palindrome Slippage Parity (Delta N = 12) & Synchronized K=2 Multi-Origin KJMA",
+      "D_proof": 0.95,
+      "C_bridge": 0.94,
+      "W_rat": 0.94,
+      "F_efficiency": 0.93,
+      "selected_top5": true,
+      "selected_top3_numeric": true,
+      "probability_score": 0.941
+    },
+    {
+      "id": "GAR.H4",
+      "rank": 4,
+      "conjecture_link": "Fork Coalescence & RNS Filter",
+      "theorem": "GAR_H4_sym2_coalescence_resonance_and_rns_kmer_alignment",
+      "spec": "Stmt_GAR_H4_Sym2CoalescenceResonanceAndRNSKmerAlignment",
+      "pillar": "OpenAI Math (Sym^2(L_2) Recurrence Lock + 3-Prime RNS-CRT)",
+      "short_title": "Sym^2(L_2) Bidirectional Fork-Coalescence Annihilation & RNS-CRT k-mer Inner Product",
+      "D_proof": 0.93,
+      "C_bridge": 0.91,
+      "W_rat": 0.92,
+      "F_efficiency": 0.9,
+      "selected_top5": true,
+      "selected_top3_numeric": false,
+      "probability_score": 0.9165
+    },
+    {
+      "id": "GAR.H5",
+      "rank": 5,
+      "conjecture_link": "Ultradian dNTP Clock & ANSE Goal",
+      "theorem": "GAR_H5_lienard_metabolic_clock_ars222_imex_and_energy_minimization",
+      "spec": "Stmt_GAR_H5_LienardMetabolicClockARS222IMEXAndEnergyMinimization",
+      "pillar": "NSE/Biophysics (Lienard Limit Cycle) + rusty-SUNDIALS ARS(2,2,2)",
+      "short_title": "Lienard Mg2+/dNTP Ultradian Metabolic Clock, ARS(2,2,2) IMEX & ANSE Energy Minimization (Delta E < 0)",
+      "D_proof": 0.91,
+      "C_bridge": 0.9,
+      "W_rat": 0.9,
+      "F_efficiency": 0.89,
+      "selected_top5": true,
+      "selected_top3_numeric": false,
+      "probability_score": 0.901
+    },
+    {
+      "id": "GAR.H6",
+      "rank": 6,
+      "conjecture_link": "Screened Baseline (Single Helmholtz)",
+      "theorem": "screened_out_single_helmholtz_dna_torsion",
+      "spec": "Screened_GAR_H6",
+      "pillar": "NSE (Leray-alpha m=1)",
+      "short_title": "Single-Helmholtz (m=1) DNA Torsion Filter (4m-2 = 2 <= 3 Borderline UV Weight)",
+      "D_proof": 0.82,
+      "C_bridge": 0.81,
+      "W_rat": 0.82,
+      "F_efficiency": 0.8,
+      "selected_top5": false,
+      "selected_top3_numeric": false,
+      "probability_score": 0.8135
+    },
+    {
+      "id": "GAR.H7",
+      "rank": 7,
+      "conjecture_link": "Screened Baseline (Equilibrium m=1)",
+      "theorem": "screened_out_equilibrium_single_stage_selection",
+      "spec": "Screened_GAR_H7",
+      "pillar": "Equilibrium Detailed Balance",
+      "short_title": "Single-Stage Equilibrium Base Selection (Error 1/100 vs. 1/1000000 for 3-Stage Hopfield-ART)",
+      "D_proof": 0.79,
+      "C_bridge": 0.78,
+      "W_rat": 0.79,
+      "F_efficiency": 0.77,
+      "selected_top5": false,
+      "selected_top3_numeric": false,
+      "probability_score": 0.7835
+    },
+    {
+      "id": "GAR.H8",
+      "rank": 8,
+      "conjecture_link": "Screened Baseline (Haar-Free Boxcar)",
+      "theorem": "screened_out_uncentered_repliseq_boxcar",
+      "spec": "Screened_GAR_H8",
+      "pillar": "OpenAI Math (Haar-Free Control)",
+      "short_title": "Uncentered Boxcar Windowing for Repli-seq Coverage (Linear GC Drift 1 + N)",
+      "D_proof": 0.77,
+      "C_bridge": 0.76,
+      "W_rat": 0.76,
+      "F_efficiency": 0.75,
+      "selected_top5": false,
+      "selected_top3_numeric": false,
+      "probability_score": 0.761
+    },
+    {
+      "id": "GAR.H9",
+      "rank": 9,
+      "conjecture_link": "Screened Obstruction (Explicit PPi)",
+      "theorem": "screened_out_explicit_pyrophosphate_forcing",
+      "spec": "Screened_GAR_H9",
+      "pillar": "NSE (BGK ForceStep Positivity Breakdown)",
+      "short_title": "Unbuffered Explicit Pyrophosphate Forcing (Positivity Breakdown F_0 = -1/10 < 0)",
+      "D_proof": 0.75,
+      "C_bridge": 0.74,
+      "W_rat": 0.74,
+      "F_efficiency": 0.71,
+      "selected_top5": false,
+      "selected_top3_numeric": false,
+      "probability_score": 0.737
+    },
+    {
+      "id": "GAR.H10",
+      "rank": 10,
+      "conjecture_link": "Screened Baseline (Unrelaxed RK4)",
+      "theorem": "screened_out_unrelaxed_rk4_supercoiling",
+      "spec": "Screened_GAR_H10",
+      "pillar": "rusty-SUNDIALS (Unrelaxed ERK)",
+      "short_title": "Unrelaxed Classical RK4 Plectoneme Integration (Secular Drift 2.13e-4 vs. Dual-RRK 6.68e-13)",
+      "D_proof": 0.72,
+      "C_bridge": 0.71,
+      "W_rat": 0.72,
+      "F_efficiency": 0.69,
+      "selected_top5": false,
+      "selected_top3_numeric": false,
+      "probability_score": 0.7115
+    },
+    {
+      "id": "GAR.H11",
+      "rank": 11,
+      "conjecture_link": "Screened Obstruction (Non-Coprime)",
+      "theorem": "screened_out_noncoprime_codon_lattice",
+      "spec": "Screened_GAR_H11",
+      "pillar": "FLT (Non-Coprime (3,6,9) Obstruction)",
+      "short_title": "Non-Coprime Redundant Codon Lattice (3,6,9) (3 | gcd(c_4, Delta) Semistability Loss)",
+      "D_proof": 0.69,
+      "C_bridge": 0.68,
+      "W_rat": 0.7,
+      "F_efficiency": 0.66,
+      "selected_top5": false,
+      "selected_top3_numeric": false,
+      "probability_score": 0.684
+    },
+    {
+      "id": "GAR.H12",
+      "rank": 12,
+      "conjecture_link": "Screened Obstruction (sigma=2 Weight)",
+      "theorem": "screened_out_sigma2_chromatin_wavepacket",
+      "spec": "Screened_GAR_H12",
+      "pillar": "NSE/Materials (sigma=2 Dyadic Divergence)",
+      "short_title": "Second-Order (sigma=2) Chromatin Wave-Packet Closure (Exponential Weight Divergence 2^N)",
+      "D_proof": 0.66,
+      "C_bridge": 0.65,
+      "W_rat": 0.66,
+      "F_efficiency": 0.64,
+      "selected_top5": false,
+      "selected_top3_numeric": false,
+      "probability_score": 0.6535
+    },
+    {
+      "id": "GAR.H13",
+      "rank": 13,
+      "conjecture_link": "Screened Baseline (Finite-Diff JVP)",
+      "theorem": "screened_out_finite_difference_jacobian",
+      "spec": "Screened_GAR_H13",
+      "pillar": "rusty-SUNDIALS (FD vs. Dual JVP)",
+      "short_title": "Finite-Difference Jacobian Approximation for Stiff Hopfield-ART ODE (O(h_fd) Truncation Error)",
+      "D_proof": 0.63,
+      "C_bridge": 0.62,
+      "W_rat": 0.63,
+      "F_efficiency": 0.6,
+      "selected_top5": false,
+      "selected_top3_numeric": false,
+      "probability_score": 0.6215
+    }
+  ],
+  "top3_numerical_benchmarks": {
+    "rust_sundials_genetics_tests_passed": true,
+    "top3_gar_h1_conjecture_c1": {
+      "gamma_0_rational": "1/100",
+      "fork_torque_rational": "1/5",
+      "gamma_effective_rational": "3/250",
+      "err3_torque_rational": "27/15625000",
+      "err3_torque_float": 1.728e-06,
+      "err3_topo_clamped_rational": "1/1000000",
+      "critical_stall_torque": 99,
+      "kappa_c1_rational": "5957/16000",
+      "kappa_c1_float": 0.3723125,
+      "poly_c1_rational": "-8443/16000000"
+    },
+    "top3_gar_h2_conjecture_c2": {
+      "sigma_rational": "3/10",
+      "mu_rational": "11/15",
+      "unpreconditioned_cond_rational": "25/3",
+      "unpreconditioned_cond_float": 8.333333333333334,
+      "haar_preconditioned_cond_rational": "1",
+      "richardson_iters_unprec_tol_1e12": 119,
+      "haar_direct_iters_tol_1e14": 1,
+      "hecke_paths_r4": 108,
+      "ramanujan_gap_4p_lt_p_plus_1_sq": "12 < 16",
+      "unprec_residual_trace_head": [
+        2.0,
+        1.519047619047619,
+        1.2346938775510203,
+        0.9377793974732749,
+        0.7622344856309873,
+        0.5789352402768689,
+        0.4705631263334151,
+        0.3574038983341894,
+        0.29050070554256724,
+        0.22064220254304523
+      ]
+    },
+    "top3_gar_h3_efficient_art_engine": {
+      "canonical_stem_norm": 200,
+      "slippage_stem_norm": 212,
+      "slippage_parity_defect": 12,
+      "canonical_duplex_norm": 40000,
+      "slippage_duplex_norm": 44944,
+      "kjma_k1_taylor4_denom": 115,
+      "kjma_k2_taylor4_denom": 1237,
+      "kjma_k2_s1_float": 6.14421235332821e-06,
+      "anse_energy_baseline_rational": "147197/6900",
+      "anse_energy_baseline_float": 21.33289855072464,
+      "anse_energy_efficient_rational": "24115822/57984375",
+      "anse_energy_efficient_float": 0.41590207706817567,
+      "anse_energy_delta_float": -20.91699647365646,
+      "anse_energy_improvement_factor": 51.29308009497557
+    },
+    "leanflow_mcp_3e": {
+      "status": "verified",
+      "tier": "B",
+      "summary": "Domain 3E (Genetics, Anthropic ART Reverse-Transcription & DNA Replication): Hopfield 3-stage error = 1/1000000 (10000x suppression), Conjecture C1 kappa_C1 = 5957/16000 < 1, Conjecture C2 Hecke-Haar cond = 25/3 -> 1, Calugareanu Lk_0 = 94 (sigma = -3/50), Bi-Helmholtz kappa_DNA = 5877/16000 < 1, ART palindrome duplex norm = 40000 (slippage defect = +12), Hecke r=4 paths = 108, KJMA S_2(1) <= 1/1237.",
+      "results": {
+        "domain": "3E_genetics_dna_replication_art",
+        "hopfield_err1_rational": "1/100",
+        "hopfield_err2_rational": "1/10000",
+        "hopfield_err3_rational": "1/1000000",
+        "hopfield_suppression_factor": 10000,
+        "hopfield_ode_mass_conserved": true,
+        "hopfield_ode_rhs_evals": 526,
+        "conjecture_c1_gamma_torque_rational": "3/250",
+        "conjecture_c1_err3_torque_rational": "27/15625000",
+        "conjecture_c1_kappa_rational": "5957/16000",
+        "conjecture_c1_poly_rational": "-8443/16000000",
+        "conjecture_c2_unprec_cond_rational": "25/3",
+        "conjecture_c2_haar_cond_rational": "1/1",
+        "calugareanu_lk0_exact": 94,
+        "superhelical_density_rational": "-3/50",
+        "bi_helmholtz_z_tail_rational": "1/3200",
+        "bi_helmholtz_kappa_dna_rational": "5877/16000",
+        "bi_helmholtz_poly_dna_rational": "-8523/16000000",
+        "art_repeat_stem_norm": 200,
+        "art_palindrome_duplex_norm": 40000,
+        "art_slippage_defect": 12,
+        "art_slippage_duplex_norm": 44944,
+        "hecke_coalescent_paths_r4": 108,
+        "kjma_unreplicated_s1": 0.0024787521766663585,
+        "kjma_multi_origin_s2": 6.14421235332821e-06,
+        "kjma_multi_origin_taylor4_12": 1237,
+        "anse_energy_baseline_rational": "147197/6900",
+        "anse_energy_efficient_rational": "24115822/57984375",
+        "anse_energy_speedup_ratio": 51.29308009497557
+      },
+      "artifacts": [],
+      "provenance": {
+        "code_sha": "94e17ab",
+        "seed": null,
+        "toolchain": "LeanFlow Domain 3E (rusty-SUNDIALS genetics + Karpathy Autoresearch C1/C2 + ExactQ)",
+        "command": "",
+        "elapsed_s": 0.095644,
+        "timestamp": "2026-10-20T07:23:04.030425+00:00"
+      }
+    },
+    "leanflow_cert_3e": {
+      "status": "verified",
+      "tier": "A",
+      "summary": "Verified 1 theorem(s) in Lean 4.34.1 with standard/empty axioms.",
+      "results": {
+        "theorems": [
+          "cert_domain_3e_genetics_dna_art"
+        ],
+        "axioms_by_theorem": {
+          "cert_domain_3e_genetics_dna_art": []
+        },
+        "all_axioms": [],
+        "compiler_output": "'cert_domain_3e_genetics_dna_art' does not depend on any axioms"
+      },
+      "artifacts": [],
+      "provenance": {
+        "code_sha": "94e17ab",
+        "seed": null,
+        "toolchain": "leanprover/lean4:v4.34.1",
+        "command": "/mnt/data/home/xavkal/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /mnt/data/xdev-cache/tmp/tmpubzur0o9.lean",
+        "elapsed_s": 1.244704,
+        "timestamp": "2026-10-20T07:23:05.281072+00:00"
+      }
+    }
+  },
+  "gudhi_tda_genetic_telemetry": {
+    "engine": "Inria GUDHI 3.13.0",
+    "upstream_urls": [
+      "https://gudhi.inria.fr/introduction/",
+      "https://github.com/GUDHI/gudhi-devel"
+    ],
+    "license_file": ".licenses/gudhi_inria_LICENSE.txt",
+    "lean4_theorem": "GAR_H6_gudhi_tda_euler_poincare_and_repli_seq_persistence",
+    "pillar1_tert_3d_alphacomplex": {
+      "structure_file": "results/three_breakthroughs/structures/AF-O14746-F1-model_v6.cif",
+      "full_num_vertices": 1132,
+      "full_num_simplices": 32397,
+      "full_top_h1_interval_angstrom_sq": [
+        5.2885,
+        348.691
+      ],
+      "full_top_h1_lifetime_angstrom_sq": 343.4026,
+      "full_top_h2_cavity_lifetime_angstrom_sq": 47.4982,
+      "domain1_ten_num_vertices": 178,
+      "domain1_ten_num_simplices": 4531,
+      "domain1_ten_max_h1_lifetime_angstrom_sq": 19.9823,
+      "domain2_catalytic_ring_num_vertices": 807,
+      "domain2_catalytic_ring_num_simplices": 22493,
+      "domain2_top_h1_interval_angstrom_sq": [
+        4.9244,
+        96.8309
+      ],
+      "domain2_top_h1_lifetime_angstrom_sq": 91.9065,
+      "domain2_catalytic_tunnel_radius_angstrom": 9.8403,
+      "domain2_catalytic_tunnel_diameter_angstrom": 19.6805,
+      "domain2_top_h2_cavity_lifetime_angstrom_sq": 30.1499,
+      "bottleneck_distance_full_vs_domain2_h1": 171.7013,
+      "bottleneck_distance_full_vs_domain2_h2": 23.7491
+    },
+    "pillar2_supercoiled_dna_ripscomplex": {
+      "critical_torque_tau0_rational": "63/20",
+      "relaxed_tau_2_0_h1_intervals_nm": [
+        [
+          0.5235,
+          17.3205
+        ]
+      ],
+      "buckled_tau_4_0_h1_intervals_nm": [
+        [
+          2.2644,
+          6.7369
+        ],
+        [
+          0.7168,
+          6.9436
+        ]
+      ],
+      "relaxed_h1_loop_count": 1,
+      "buckled_plectoneme_h1_loop_count": 2,
+      "bottleneck_distance_relaxed_vs_buckled_h1_nm": 8.3985
+    },
+    "pillar3_hecke_tree_and_art_hairpin_simplextree": {
+      "pure_hecke_tree_l3_vertices": 22,
+      "pure_hecke_tree_l3_edges": 21,
+      "pure_hecke_tree_betti_numbers": [
+        1,
+        0
+      ],
+      "pure_hecke_tree_euler_characteristic": 1,
+      "art_hairpin_stems_added": 6,
+      "augmented_edges": 27,
+      "augmented_betti_numbers": [
+        1,
+        6
+      ],
+      "augmented_euler_characteristic": -5
+    },
+    "pillar4_repliseq_multi_origin_cubicalcomplex": {
+      "repli_profile_timing": [
+        5.0,
+        1.0,
+        6.0,
+        2.0,
+        7.5,
+        1.5,
+        6.5,
+        2.5,
+        8.0
+      ],
+      "origin_count_k": 4,
+      "h0_intervals": [
+        [
+          2.0,
+          6.0
+        ],
+        [
+          2.5,
+          6.5
+        ],
+        [
+          1.5,
+          7.5
+        ],
+        [
+          1.0,
+          "inf"
+        ]
+      ],
+      "finite_fork_coalescence_lifetimes": [
+        6.0,
+        4.0,
+        4.0
+      ],
+      "total_coalescence_persistence": 14.0
+    }
+  },
+  "multi_database_biological_grounding": {
+    "subproject": "BREAKTHROUGH_3E_GENETICS_DNA_REPLICATION_ART",
+    "skills_exercised": [
+      "dbsnp-database",
+      "clinvar-database",
+      "ensembl-database",
+      "uniprot-database",
+      "interpro-database",
+      "alphafold-database-fetch-and-analyze",
+      "pdb-database",
+      "gudhi-inria-tda"
+    ],
+    "assembly_default": "GRCh38 (GCF_000001405.40)",
+    "species_default": "human (Homo sapiens, tax_id=9606)",
+    "dbsnp_variants": [
+      {
+        "rsid": "rs1057519943",
+        "gene": "POLE",
+        "grch38_vcf": "chr12:132676598:G>C",
+        "hgvs_coding": "NM_006231.4:c.857C>G",
+        "hgvs_protein": "p.Pro286Arg",
+        "variant_type": "snv",
+        "clinical_significances": [
+          "likely-pathogenic",
+          "established-risk-allele",
+          "drug-response",
+          "uncertain-significance"
+        ],
+        "mechanistic_link": "Mutates Pro286Arg inside POLE 3'->5' exonuclease domain (IPR006133), collapsing 3-stage Hopfield proofreading E_3 = gamma^3 = 1.728e-6 toward 1-stage E_1 = gamma = 1.2e-2 (SBS10/SBS14 hypermutator phenotype)."
+      },
+      {
+        "rsid": "rs2736100",
+        "gene": "TERT",
+        "grch38_vcf": "chr5:1286401:C>A",
+        "variant_type": "snv",
+        "gnomad_genomes_maf": 0.480778,
+        "topmed_maf": 0.471707,
+        "mechanistic_link": "Canonical human Telomerase Reverse Transcriptase (TERT) locus variant grounding RNA-templated tandem-repeat synthesis analogous to bacteriophage ART."
+      },
+      {
+        "rsid": "rs471692",
+        "gene": "TOP2A",
+        "grch38_vcf": "chr17:40400518:T>C",
+        "variant_type": "snv",
+        "gnomad_exomes_maf": 0.193648,
+        "topmed_maf": 0.158733,
+        "mechanistic_link": "Canonical human DNA Topoisomerase II alpha (TOP2A) variant grounding supercoiling torque relaxation (Gamma = 1/5, LOEUF = 0.44452) in Conjecture C1."
+      },
+      {
+        "rsid": "rs5744934",
+        "gene": "POLE",
+        "grch38_vcf": "chr12:132643940:T>G",
+        "variant_type": "snv",
+        "clinical_significances": [
+          "benign"
+        ],
+        "gnomad_exomes_maf": 0.129253,
+        "mechanistic_link": "High-frequency benign POLE polymorphism control preserving 3-stage Hopfield proofreading."
+      }
+    ],
+    "clinvar_records": {
+      "pole_total_pathogenic_count": 1891,
+      "variants": [
+        {
+          "variant_id": "376500",
+          "dbsnp_rsid": "rs1057519943",
+          "grch38_vcf": "chr12:132676598:G>C",
+          "title": "NM_006231.4(POLE):c.857C>G (p.Pro286Arg)",
+          "clinical_significance": "Conflicting classifications of pathogenicity (Likely pathogenic per POLE/POLD1 Guidelines PMID:37848928; REVEL=0.837; SBS10/SBS14 ultramutation)",
+          "domain": "3'->5' exonuclease proofreading hotspot (exon 9)"
+        },
+        {
+          "variant_id": "4919266",
+          "title": "NM_006231.4(POLE):c.830A>G (p.Glu277Gly)",
+          "clinical_significance": "Likely pathogenic",
+          "condition": "POLE-related disorder"
+        }
+      ]
+    },
+    "ensembl_and_vep": {
+      "genes": {
+        "POLE": {
+          "ensg": "ENSG00000177084",
+          "mane_select_transcript": "ENST00000320574",
+          "location": "chr12:132623753-132687376",
+          "strand": -1
+        },
+        "TERT": {
+          "ensg": "ENSG00000164362",
+          "location": "chr5:1253147-1295086",
+          "strand": -1
+        },
+        "TOP2A": {
+          "ensg": "ENSG00000131747",
+          "mane_select_transcript": "ENST00000423485",
+          "location": "chr17:40388521-40417941",
+          "strand": -1
+        }
+      },
+      "vep_rs1057519943_pole_p286": {
+        "transcript": "ENST00000320574",
+        "sift": "deleterious (0)",
+        "polyphen": "probably_damaging (1)",
+        "alphamissense_class": "likely_pathogenic",
+        "alphamissense_pathogenicity_p286r": 0.9962,
+        "alphamissense_pathogenicity_p286l": 0.9855,
+        "alphamissense_pathogenicity_p286h": 0.9977,
+        "conservation": 1.53,
+        "dosage_sensitivity_haplo": 0.924213524844063,
+        "loeuf": 0.75997
+      },
+      "vep_rs471692_top2a": {
+        "transcript": "ENST00000423485",
+        "consequence": "intron_variant",
+        "conservation": -3.24,
+        "dosage_sensitivity_haplo": 0.808514154687152,
+        "dosage_sensitivity_triplo": 0.564262689289664,
+        "loeuf": 0.44452
+      }
+    },
+    "uniprot_and_interpro": {
+      "reviewed_reverse_transcriptase_count": 259,
+      "proteins": {
+        "Q07864": {
+          "id": "DPOE1_HUMAN",
+          "gene": "POLE",
+          "length_aa": 2286,
+          "key_interpro_domains": [
+            "IPR006133 (DNA-directed DNA polymerase, family B, exonuclease domain)",
+            "IPR006172 (DNA-directed DNA polymerase, family B)",
+            "IPR023211 (DNA polymerase, palm domain superfamily)",
+            "IPR043502 (DNA/RNA polymerase superfamily)"
+          ],
+          "has_exonuclease_domain_ipr006133": true
+        },
+        "O14746": {
+          "id": "TERT_HUMAN",
+          "gene": "TERT",
+          "length_aa": 1132,
+          "key_interpro_domains": [
+            "IPR000477 (Reverse transcriptase domain)",
+            "IPR021891 (Telomerase ribonucleoprotein complex - RNA-binding domain)",
+            "IPR043502 (DNA/RNA polymerase superfamily)",
+            "IPR049139 (Telomerase reverse transcriptase, C-terminal extension)"
+          ],
+          "has_exonuclease_domain_ipr006133": false
+        },
+        "P11388": {
+          "id": "TOP2A_HUMAN",
+          "gene": "TOP2A",
+          "length_aa": 1531,
+          "key_interpro_domains": [
+            "IPR003594 (Histidine kinase/HSP90-like ATPase domain)",
+            "IPR006171 (TOPRIM domain)",
+            "IPR002205 (DNA topoisomerase, type IIA, domain A)"
+          ]
+        }
+      }
+    },
+    "alphafold_and_pdb_structures": {
+      "alphafold_O14746_tert": {
+        "accession": "O14746",
+        "global_plddt": 80.19,
+        "fraction_very_high_plddt": 0.583,
+        "fraction_confident_plddt": 0.211,
+        "fraction_low_plddt": 0.039,
+        "fraction_very_low_plddt": 0.167,
+        "pae_matrix_shape": [
+          1132,
+          1132
+        ],
+        "pae_mean_angstrom": 15.46,
+        "pae_max_angstrom": 31.0,
+        "rigid_domains_detected": 2,
+        "domain_1_residues": "1-178 (178 AAs, TEN domain)",
+        "domain_2_residues": "326-1132 (807 AAs, TRBD + IPR000477 Reverse Transcriptase + CTE core)"
+      },
+      "rcsb_pdb_entries": [
+        {
+          "rcsb_id": "7BG9",
+          "title": "The catalytic core lobe of human telomerase in complex with a telomeric DNA substrate",
+          "method": "ELECTRON MICROSCOPY",
+          "resolution_angstrom": 3.8,
+          "deposited_atom_count": 14233
+        },
+        {
+          "rcsb_id": "4FM9",
+          "title": "Human topoisomerase II alpha bound to DNA",
+          "method": "X-RAY DIFFRACTION",
+          "resolution_angstrom": 2.901,
+          "deposited_atom_count": 6582
+        },
+        {
+          "rcsb_id": "6HV9",
+          "title": "S. cerevisiae CMG-Pol epsilon-DNA",
+          "method": "ELECTRON MICROSCOPY",
+          "resolution_angstrom": 4.98,
+          "deposited_atom_count": 47617
+        }
+      ]
+    },
+    "licenses_created": {
+      "gudhi-inria-tda": ".licenses/gudhi_inria_LICENSE.txt"
+    },
+    "gudhi_inria_tda": {
+      "engine": "Inria GUDHI 3.13.0",
+      "upstream_urls": [
+        "https://gudhi.inria.fr/introduction/",
+        "https://github.com/GUDHI/gudhi-devel"
+      ],
+      "license_file": ".licenses/gudhi_inria_LICENSE.txt",
+      "lean4_theorem": "GAR_H6_gudhi_tda_euler_poincare_and_repli_seq_persistence",
+      "pillar1_tert_3d_alphacomplex": {
+        "structure_file": "results/three_breakthroughs/structures/AF-O14746-F1-model_v6.cif",
+        "full_num_vertices": 1132,
+        "full_num_simplices": 32397,
+        "full_top_h1_interval_angstrom_sq": [
+          5.2885,
+          348.691
+        ],
+        "full_top_h1_lifetime_angstrom_sq": 343.4026,
+        "full_top_h2_cavity_lifetime_angstrom_sq": 47.4982,
+        "domain1_ten_num_vertices": 178,
+        "domain1_ten_num_simplices": 4531,
+        "domain1_ten_max_h1_lifetime_angstrom_sq": 19.9823,
+        "domain2_catalytic_ring_num_vertices": 807,
+        "domain2_catalytic_ring_num_simplices": 22493,
+        "domain2_top_h1_interval_angstrom_sq": [
+          4.9244,
+          96.8309
+        ],
+        "domain2_top_h1_lifetime_angstrom_sq": 91.9065,
+        "domain2_catalytic_tunnel_radius_angstrom": 9.8403,
+        "domain2_catalytic_tunnel_diameter_angstrom": 19.6805,
+        "domain2_top_h2_cavity_lifetime_angstrom_sq": 30.1499,
+        "bottleneck_distance_full_vs_domain2_h1": 171.7013,
+        "bottleneck_distance_full_vs_domain2_h2": 23.7491
+      },
+      "pillar2_supercoiled_dna_ripscomplex": {
+        "critical_torque_tau0_rational": "63/20",
+        "relaxed_tau_2_0_h1_intervals_nm": [
+          [
+            0.5235,
+            17.3205
+          ]
+        ],
+        "buckled_tau_4_0_h1_intervals_nm": [
+          [
+            2.2644,
+            6.7369
+          ],
+          [
+            0.7168,
+            6.9436
+          ]
+        ],
+        "relaxed_h1_loop_count": 1,
+        "buckled_plectoneme_h1_loop_count": 2,
+        "bottleneck_distance_relaxed_vs_buckled_h1_nm": 8.3985
+      },
+      "pillar3_hecke_tree_and_art_hairpin_simplextree": {
+        "pure_hecke_tree_l3_vertices": 22,
+        "pure_hecke_tree_l3_edges": 21,
+        "pure_hecke_tree_betti_numbers": [
+          1,
+          0
+        ],
+        "pure_hecke_tree_euler_characteristic": 1,
+        "art_hairpin_stems_added": 6,
+        "augmented_edges": 27,
+        "augmented_betti_numbers": [
+          1,
+          6
+        ],
+        "augmented_euler_characteristic": -5
+      },
+      "pillar4_repliseq_multi_origin_cubicalcomplex": {
+        "repli_profile_timing": [
+          5.0,
+          1.0,
+          6.0,
+          2.0,
+          7.5,
+          1.5,
+          6.5,
+          2.5,
+          8.0
+        ],
+        "origin_count_k": 4,
+        "h0_intervals": [
+          [
+            2.0,
+            6.0
+          ],
+          [
+            2.5,
+            6.5
+          ],
+          [
+            1.5,
+            7.5
+          ],
+          [
+            1.0,
+            "inf"
+          ]
+        ],
+        "finite_fork_coalescence_lifetimes": [
+          6.0,
+          4.0,
+          4.0
+        ],
+        "total_coalescence_persistence": 14.0
+      }
+    }
+  },
+  "figure_path": "/home/xavkal/xdev/AutoevolveAI/papers/three_breakthroughs/paper_e/fig3_karpathy_autoresearch_c1_c2_efficient_art.pdf",
+  "hf_genomic_benchmarks_tda_validation": {
+    "bridge_id": "XGUDHI_DEVEL_LEANFLOW_RUSTY_SUNDIALS_HF_GENOMIC_BRIDGE",
+    "target_repository": "https://github.com/xaviercallens/SocrateAI-Scientific-Genetic",
+    "huggingface_authenticated": true,
+    "huggingface_user": "callensxavier",
+    "xgudhi_devel_repository": {
+      "repository_url": "https://github.com/xaviercallens/xgudhi-devel",
+      "local_clone_path": "sub_projects/xgudhi_devel/xgudhi-devel",
+      "clone_present": true,
+      "gudhi_python_runtime_version": "3.13.0",
+      "cpp_module_count": 26,
+      "key_cpp_modules": [
+        "Alpha_complex",
+        "Bottleneck_distance",
+        "Persistence_representations",
+        "Persistent_cohomology",
+        "Rips_complex",
+        "Simplex_tree"
+      ]
+    },
+    "leanflow_mcp_link": {
+      "domain_3e_solver_status": "verified",
+      "domain_3e_lean_certificate": "verified",
+      "xgudhi_hecke_hairpin_betti_euler_certificate": "verified",
+      "certified_betti_vector": [
+        1,
+        6,
+        0
+      ],
+      "certified_euler_characteristic": -5
+    },
+    "rusty_sundials_link": {
+      "status": "CERTIFIED",
+      "genetics_crate": "sundials-core::genetics",
+      "tda_struct": "XgudhiTdaSimplicialBettiReport",
+      "tda_method": "EfficientArtReplicationEngine::certify_xgudhi_tda_simplicial_betti"
+    },
+    "huggingface_genomic_benchmarks_summary": {
+      "datasets_evaluated": 3,
+      "total_sequences_evaluated": 1200,
+      "total_deuring_quaternion_norm_checks": 12000,
+      "total_deuring_quaternion_norm_defects": 0,
+      "total_simplicial_euler_poincare_checks": 1200,
+      "total_simplicial_euler_poincare_defects": 0,
+      "datasets": [
+        {
+          "dataset_id": "katarinagresova/Genomic_Benchmarks_human_nontata_promoters",
+          "description": "Human Non-TATA Promoters vs. Control (251 bp, CpG/Origin-Rich Hairpin Topology)",
+          "total_sequences_evaluated": 400,
+          "positive_sequences": 200,
+          "negative_sequences": 200,
+          "deuring_quaternion_norm_checks": 4000,
+          "deuring_quaternion_norm_exact": 4000,
+          "deuring_norm_exact_rate": 1.0,
+          "simplicial_euler_poincare_checks": 400,
+          "simplicial_euler_poincare_exact": 400,
+          "positive_mean_gc_fraction": 0.6298,
+          "negative_mean_gc_fraction": 0.4772,
+          "positive_mean_deuring_codon_norm": 52.66,
+          "negative_mean_deuring_codon_norm": 46.82,
+          "positive_mean_hairpin_betti1": 18.455,
+          "negative_mean_hairpin_betti1": 15.57,
+          "positive_mean_cubical_h0_persistence": 6.1619,
+          "negative_mean_cubical_h0_persistence": 6.7781,
+          "positive_mean_haar_detail_energy": 0.2299,
+          "negative_mean_haar_detail_energy": 0.2631
+        },
+        {
+          "dataset_id": "katarinagresova/Genomic_Benchmarks_demo_coding_vs_intergenomic_seqs",
+          "description": "Coding Exons vs. Intergenomic DNA (200 bp, Deuring Quaternion Codon Reading-Frame Coherence)",
+          "total_sequences_evaluated": 400,
+          "positive_sequences": 200,
+          "negative_sequences": 200,
+          "deuring_quaternion_norm_checks": 4000,
+          "deuring_quaternion_norm_exact": 4000,
+          "deuring_norm_exact_rate": 1.0,
+          "simplicial_euler_poincare_checks": 400,
+          "simplicial_euler_poincare_exact": 400,
+          "positive_mean_gc_fraction": 0.408,
+          "negative_mean_gc_fraction": 0.5424,
+          "positive_mean_deuring_codon_norm": 42.62,
+          "negative_mean_deuring_codon_norm": 49.13,
+          "positive_mean_hairpin_betti1": 12.325,
+          "negative_mean_hairpin_betti1": 11.58,
+          "positive_mean_cubical_h0_persistence": 5.1881,
+          "negative_mean_cubical_h0_persistence": 5.4887,
+          "positive_mean_haar_detail_energy": 0.2571,
+          "negative_mean_haar_detail_energy": 0.2665
+        },
+        {
+          "dataset_id": "katarinagresova/Genomic_Benchmarks_human_enhancers_cohn",
+          "description": "Human Enhancers vs. Control (500 bp, Multi-Origin Sublevel Cubical Persistence)",
+          "total_sequences_evaluated": 400,
+          "positive_sequences": 200,
+          "negative_sequences": 200,
+          "deuring_quaternion_norm_checks": 4000,
+          "deuring_quaternion_norm_exact": 4000,
+          "deuring_norm_exact_rate": 1.0,
+          "simplicial_euler_poincare_checks": 400,
+          "simplicial_euler_poincare_exact": 400,
+          "positive_mean_gc_fraction": 0.4654,
+          "negative_mean_gc_fraction": 0.3871,
+          "positive_mean_deuring_codon_norm": 45.48,
+          "negative_mean_deuring_codon_norm": 40.41,
+          "positive_mean_hairpin_betti1": 34.605,
+          "negative_mean_hairpin_betti1": 36.225,
+          "positive_mean_cubical_h0_persistence": 14.0444,
+          "negative_mean_cubical_h0_persistence": 13.6056,
+          "positive_mean_haar_detail_energy": 0.2605,
+          "negative_mean_haar_detail_energy": 0.2477
+        }
+      ]
+    }
+  }
+}

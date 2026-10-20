@@ -1,0 +1,120 @@
+{
+  "engine": "Inria GUDHI 3.13.0",
+  "upstream_urls": [
+    "https://gudhi.inria.fr/introduction/",
+    "https://github.com/GUDHI/gudhi-devel"
+  ],
+  "license_file": ".licenses/gudhi_inria_LICENSE.txt",
+  "lean4_theorem": "GAR_H6_gudhi_tda_euler_poincare_and_repli_seq_persistence",
+  "pillar1_tert_3d_alphacomplex": {
+    "structure_file": "results/three_breakthroughs/structures/AF-O14746-F1-model_v6.cif",
+    "full_num_vertices": 1132,
+    "full_num_simplices": 32397,
+    "full_top_h1_interval_angstrom_sq": [
+      5.2885,
+      348.691
+    ],
+    "full_top_h1_lifetime_angstrom_sq": 343.4026,
+    "full_top_h2_cavity_lifetime_angstrom_sq": 47.4982,
+    "domain1_ten_num_vertices": 178,
+    "domain1_ten_num_simplices": 4531,
+    "domain1_ten_max_h1_lifetime_angstrom_sq": 19.9823,
+    "domain2_catalytic_ring_num_vertices": 807,
+    "domain2_catalytic_ring_num_simplices": 22493,
+    "domain2_top_h1_interval_angstrom_sq": [
+      4.9244,
+      96.8309
+    ],
+    "domain2_top_h1_lifetime_angstrom_sq": 91.9065,
+    "domain2_catalytic_tunnel_radius_angstrom": 9.8403,
+    "domain2_catalytic_tunnel_diameter_angstrom": 19.6805,
+    "domain2_top_h2_cavity_lifetime_angstrom_sq": 30.1499,
+    "bottleneck_distance_full_vs_domain2_h1": 171.7013,
+    "bottleneck_distance_full_vs_domain2_h2": 23.7491
+  },
+  "pillar2_supercoiled_dna_ripscomplex": {
+    "critical_torque_tau0_rational": "63/20",
+    "relaxed_tau_2_0_h1_intervals_nm": [
+      [
+        0.5235,
+        17.3205
+      ]
+    ],
+    "buckled_tau_4_0_h1_intervals_nm": [
+      [
+        2.2644,
+        6.7369
+      ],
+      [
+        0.7168,
+        6.9436
+      ]
+    ],
+    "relaxed_h1_loop_count": 1,
+    "buckled_plectoneme_h1_loop_count": 2,
+    "bottleneck_distance_relaxed_vs_buckled_h1_nm": 8.3985
+  },
+  "pillar3_hecke_tree_and_art_hairpin_simplextree": {
+    "pure_hecke_tree_l3_vertices": 22,
+    "pure_hecke_tree_l3_edges": 21,
+    "pure_hecke_tree_betti_numbers": [
+      1,
+      0
+    ],
+    "pure_hecke_tree_euler_characteristic": 1,
+    "art_hairpin_stems_added": 6,
+    "augmented_edges": 27,
+    "augmented_betti_numbers": [
+      1,
+      6
+    ],
+    "augmented_euler_characteristic": -5
+  },
+  "pillar4_repliseq_multi_origin_cubicalcomplex": {
+    "repli_profile_timing": [
+      5.0,
+      1.0,
+      6.0,
+      2.0,
+      7.5,
+      1.5,
+      6.5,
+      2.5,
+      8.0
+    ],
+    "origin_count_k": 4,
+    "h0_intervals": [
+      [
+        2.0,
+        6.0
+      ],
+      [
+        2.5,
+        6.5
+      ],
+      [
+        1.5,
+        7.5
+      ],
+      [
+        1.0,
+        "inf"
+      ]
+    ],
+    "finite_fork_coalescence_lifetimes": [
+      6.0,
+      4.0,
+      4.0
+    ],
+    "total_coalescence_persistence": 14.0
+  },
+  "xgudhi_devel_leanflow_sundials_bridge": {
+    "xgudhi_repo": "https://github.com/xaviercallens/xgudhi-devel",
+    "local_clone": "sub_projects/xgudhi_devel/xgudhi-devel",
+    "leanflow_betti_euler_certified": true,
+    "rusty_sundials_tda_certified": true,
+    "hf_total_sequences_evaluated": 1200,
+    "hf_total_deuring_norm_checks": 12000,
+    "hf_total_euler_poincare_checks": 1200
+  }
+}

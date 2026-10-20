@@ -1,0 +1,245 @@
+{
+  "paper_id": "BREAKTHROUGH_PAPER_E",
+  "breakthrough_id": "BREAKTHROUGH_3E_GENETICS_DNA_REPLICATION_ART",
+  "domain": "3E_MATHEMATICAL_GENETICS_ANTHROPIC_ART_DNA_REPLICATION",
+  "hopfield_gamma_rational": "1/100",
+  "hopfield_error_m1_rational": "1/100",
+  "hopfield_error_m2_rational": "1/10000",
+  "hopfield_error_m3_rational": "1/1000000",
+  "hopfield_suppression_factor": 10000,
+  "art_repeat_unit_length_nt": 200,
+  "art_repeat_survival_m3_float": 0.999800019898681,
+  "calugareanu_tw0_exact": 100,
+  "calugareanu_wr0_exact": -6,
+  "calugareanu_lk0_exact": 94,
+  "calugareanu_sigma0_rational": "-3/50",
+  "bihelmholtz_dna_alpha_prime_rational": "1/25",
+  "bihelmholtz_dna_ztail_rational": "1/3200",
+  "bihelmholtz_dna_kappa_rational": "5877/16000",
+  "bihelmholtz_dna_poly_rational": "-8523/16000000",
+  "art_palindrome_quat_witness": [
+    8,
+    6,
+    8,
+    6
+  ],
+  "art_palindrome_stem_norm": 200,
+  "art_palindrome_duplex_norm": 40000,
+  "hecke_coalescent_prime_p": 3,
+  "hecke_coalescent_degree": 4,
+  "hecke_coalescent_paths_r4": 108,
+  "kjma_avrami_phi1_rational": "6",
+  "kjma_taylor4_exp6_rational": "115",
+  "kjma_unreplicated_s1_upper_rational": "1/115",
+  "kjma_unreplicated_s1_float": 0.0024787521766663585,
+  "dyadic_haar_repliseq_c_star_rational": "5/2",
+  "leanflow_mcp_3e": {
+    "status": "verified",
+    "tier": "B",
+    "summary": "Domain 3E (Genetics, Anthropic ART Reverse-Transcription & DNA Replication): Hopfield 3-stage error = 1/1000000 (10000x suppression), Conjecture C1 kappa_C1 = 5957/16000 < 1, Conjecture C2 Hecke-Haar cond = 25/3 -> 1, Calugareanu Lk_0 = 94 (sigma = -3/50), Bi-Helmholtz kappa_DNA = 5877/16000 < 1, ART palindrome duplex norm = 40000 (slippage defect = +12), Hecke r=4 paths = 108, KJMA S_2(1) <= 1/1237.",
+    "results": {
+      "domain": "3E_genetics_dna_replication_art",
+      "hopfield_err1_rational": "1/100",
+      "hopfield_err2_rational": "1/10000",
+      "hopfield_err3_rational": "1/1000000",
+      "hopfield_suppression_factor": 10000,
+      "hopfield_ode_mass_conserved": true,
+      "hopfield_ode_rhs_evals": 526,
+      "conjecture_c1_gamma_torque_rational": "3/250",
+      "conjecture_c1_err3_torque_rational": "27/15625000",
+      "conjecture_c1_kappa_rational": "5957/16000",
+      "conjecture_c1_poly_rational": "-8443/16000000",
+      "conjecture_c2_unprec_cond_rational": "25/3",
+      "conjecture_c2_haar_cond_rational": "1/1",
+      "calugareanu_lk0_exact": 94,
+      "superhelical_density_rational": "-3/50",
+      "bi_helmholtz_z_tail_rational": "1/3200",
+      "bi_helmholtz_kappa_dna_rational": "5877/16000",
+      "bi_helmholtz_poly_dna_rational": "-8523/16000000",
+      "art_repeat_stem_norm": 200,
+      "art_palindrome_duplex_norm": 40000,
+      "art_slippage_defect": 12,
+      "art_slippage_duplex_norm": 44944,
+      "hecke_coalescent_paths_r4": 108,
+      "kjma_unreplicated_s1": 0.0024787521766663585,
+      "kjma_multi_origin_s2": 6.14421235332821e-06,
+      "kjma_multi_origin_taylor4_12": 1237,
+      "anse_energy_baseline_rational": "147197/6900",
+      "anse_energy_efficient_rational": "24115822/57984375",
+      "anse_energy_speedup_ratio": 51.29308009497557
+    },
+    "artifacts": [],
+    "provenance": {
+      "code_sha": "94e17ab",
+      "seed": null,
+      "toolchain": "LeanFlow Domain 3E (rusty-SUNDIALS genetics + Karpathy Autoresearch C1/C2 + ExactQ)",
+      "command": "",
+      "elapsed_s": 0.095644,
+      "timestamp": "2026-10-20T07:23:04.030425+00:00"
+    }
+  },
+  "leanflow_cert_3e": {
+    "status": "verified",
+    "tier": "A",
+    "summary": "Verified 1 theorem(s) in Lean 4.34.1 with standard/empty axioms.",
+    "results": {
+      "theorems": [
+        "cert_domain_3e_genetics_dna_art"
+      ],
+      "axioms_by_theorem": {
+        "cert_domain_3e_genetics_dna_art": []
+      },
+      "all_axioms": [],
+      "compiler_output": "'cert_domain_3e_genetics_dna_art' does not depend on any axioms"
+    },
+    "artifacts": [],
+    "provenance": {
+      "code_sha": "94e17ab",
+      "seed": null,
+      "toolchain": "leanprover/lean4:v4.34.1",
+      "command": "/mnt/data/home/xavkal/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /mnt/data/xdev-cache/tmp/tmpubzur0o9.lean",
+      "elapsed_s": 1.244704,
+      "timestamp": "2026-10-20T07:23:05.281072+00:00"
+    }
+  },
+  "figures": [
+    "/home/xavkal/xdev/AutoevolveAI/papers/three_breakthroughs/paper_e/fig1_hopfield_art_proofreading_and_kjma.pdf",
+    "/home/xavkal/xdev/AutoevolveAI/papers/three_breakthroughs/paper_e/fig2_calugareanu_supercoiling_rrk_and_hecke.pdf",
+    "/home/xavkal/xdev/AutoevolveAI/papers/three_breakthroughs/paper_e/fig3_karpathy_autoresearch_c1_c2_efficient_art.pdf"
+  ],
+  "karpathy_autoresearch_13_to_5_to_3": {
+    "total_screened": 13,
+    "top5_formal": [
+      "GAR.H1",
+      "GAR.H2",
+      "GAR.H3",
+      "GAR.H4",
+      "GAR.H5"
+    ],
+    "top3_numeric": [
+      "GAR.H1",
+      "GAR.H2",
+      "GAR.H3"
+    ],
+    "conjecture_c1_kappa_rational": "5957/16000",
+    "conjecture_c1_poly_rational": "-8443/16000000",
+    "conjecture_c1_err3_torque_rational": "27/15625000",
+    "conjecture_c2_unprec_cond_rational": "25/3",
+    "conjecture_c2_haar_cond_rational": "1",
+    "gar_h3_slippage_defect": 12,
+    "gar_h3_slippage_duplex_norm": 44944,
+    "gar_h3_multi_origin_taylor4_12": 1237,
+    "anse_energy_improvement_factor": 51.29308009497557
+  },
+  "gudhi_tda_genetic_telemetry": {
+    "engine": "Inria GUDHI 3.13.0",
+    "upstream_urls": [
+      "https://gudhi.inria.fr/introduction/",
+      "https://github.com/GUDHI/gudhi-devel"
+    ],
+    "license_file": ".licenses/gudhi_inria_LICENSE.txt",
+    "lean4_theorem": "GAR_H6_gudhi_tda_euler_poincare_and_repli_seq_persistence",
+    "pillar1_tert_3d_alphacomplex": {
+      "structure_file": "results/three_breakthroughs/structures/AF-O14746-F1-model_v6.cif",
+      "full_num_vertices": 1132,
+      "full_num_simplices": 32397,
+      "full_top_h1_interval_angstrom_sq": [
+        5.2885,
+        348.691
+      ],
+      "full_top_h1_lifetime_angstrom_sq": 343.4026,
+      "full_top_h2_cavity_lifetime_angstrom_sq": 47.4982,
+      "domain1_ten_num_vertices": 178,
+      "domain1_ten_num_simplices": 4531,
+      "domain1_ten_max_h1_lifetime_angstrom_sq": 19.9823,
+      "domain2_catalytic_ring_num_vertices": 807,
+      "domain2_catalytic_ring_num_simplices": 22493,
+      "domain2_top_h1_interval_angstrom_sq": [
+        4.9244,
+        96.8309
+      ],
+      "domain2_top_h1_lifetime_angstrom_sq": 91.9065,
+      "domain2_catalytic_tunnel_radius_angstrom": 9.8403,
+      "domain2_catalytic_tunnel_diameter_angstrom": 19.6805,
+      "domain2_top_h2_cavity_lifetime_angstrom_sq": 30.1499,
+      "bottleneck_distance_full_vs_domain2_h1": 171.7013,
+      "bottleneck_distance_full_vs_domain2_h2": 23.7491
+    },
+    "pillar2_supercoiled_dna_ripscomplex": {
+      "critical_torque_tau0_rational": "63/20",
+      "relaxed_tau_2_0_h1_intervals_nm": [
+        [
+          0.5235,
+          17.3205
+        ]
+      ],
+      "buckled_tau_4_0_h1_intervals_nm": [
+        [
+          2.2644,
+          6.7369
+        ],
+        [
+          0.7168,
+          6.9436
+        ]
+      ],
+      "relaxed_h1_loop_count": 1,
+      "buckled_plectoneme_h1_loop_count": 2,
+      "bottleneck_distance_relaxed_vs_buckled_h1_nm": 8.3985
+    },
+    "pillar3_hecke_tree_and_art_hairpin_simplextree": {
+      "pure_hecke_tree_l3_vertices": 22,
+      "pure_hecke_tree_l3_edges": 21,
+      "pure_hecke_tree_betti_numbers": [
+        1,
+        0
+      ],
+      "pure_hecke_tree_euler_characteristic": 1,
+      "art_hairpin_stems_added": 6,
+      "augmented_edges": 27,
+      "augmented_betti_numbers": [
+        1,
+        6
+      ],
+      "augmented_euler_characteristic": -5
+    },
+    "pillar4_repliseq_multi_origin_cubicalcomplex": {
+      "repli_profile_timing": [
+        5.0,
+        1.0,
+        6.0,
+        2.0,
+        7.5,
+        1.5,
+        6.5,
+        2.5,
+        8.0
+      ],
+      "origin_count_k": 4,
+      "h0_intervals": [
+        [
+          2.0,
+          6.0
+        ],
+        [
+          2.5,
+          6.5
+        ],
+        [
+          1.5,
+          7.5
+        ],
+        [
+          1.0,
+          "inf"
+        ]
+      ],
+      "finite_fork_coalescence_lifetimes": [
+        6.0,
+        4.0,
+        4.0
+      ],
+      "total_coalescence_persistence": 14.0
+    }
+  }
+}

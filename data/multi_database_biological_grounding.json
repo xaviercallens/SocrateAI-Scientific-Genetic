@@ -1,0 +1,316 @@
+{
+  "subproject": "BREAKTHROUGH_3E_GENETICS_DNA_REPLICATION_ART",
+  "skills_exercised": [
+    "dbsnp-database",
+    "clinvar-database",
+    "ensembl-database",
+    "uniprot-database",
+    "interpro-database",
+    "alphafold-database-fetch-and-analyze",
+    "pdb-database",
+    "gudhi-inria-tda"
+  ],
+  "assembly_default": "GRCh38 (GCF_000001405.40)",
+  "species_default": "human (Homo sapiens, tax_id=9606)",
+  "dbsnp_variants": [
+    {
+      "rsid": "rs1057519943",
+      "gene": "POLE",
+      "grch38_vcf": "chr12:132676598:G>C",
+      "hgvs_coding": "NM_006231.4:c.857C>G",
+      "hgvs_protein": "p.Pro286Arg",
+      "variant_type": "snv",
+      "clinical_significances": [
+        "likely-pathogenic",
+        "established-risk-allele",
+        "drug-response",
+        "uncertain-significance"
+      ],
+      "mechanistic_link": "Mutates Pro286Arg inside POLE 3'->5' exonuclease domain (IPR006133), collapsing 3-stage Hopfield proofreading E_3 = gamma^3 = 1.728e-6 toward 1-stage E_1 = gamma = 1.2e-2 (SBS10/SBS14 hypermutator phenotype)."
+    },
+    {
+      "rsid": "rs2736100",
+      "gene": "TERT",
+      "grch38_vcf": "chr5:1286401:C>A",
+      "variant_type": "snv",
+      "gnomad_genomes_maf": 0.480778,
+      "topmed_maf": 0.471707,
+      "mechanistic_link": "Canonical human Telomerase Reverse Transcriptase (TERT) locus variant grounding RNA-templated tandem-repeat synthesis analogous to bacteriophage ART."
+    },
+    {
+      "rsid": "rs471692",
+      "gene": "TOP2A",
+      "grch38_vcf": "chr17:40400518:T>C",
+      "variant_type": "snv",
+      "gnomad_exomes_maf": 0.193648,
+      "topmed_maf": 0.158733,
+      "mechanistic_link": "Canonical human DNA Topoisomerase II alpha (TOP2A) variant grounding supercoiling torque relaxation (Gamma = 1/5, LOEUF = 0.44452) in Conjecture C1."
+    },
+    {
+      "rsid": "rs5744934",
+      "gene": "POLE",
+      "grch38_vcf": "chr12:132643940:T>G",
+      "variant_type": "snv",
+      "clinical_significances": [
+        "benign"
+      ],
+      "gnomad_exomes_maf": 0.129253,
+      "mechanistic_link": "High-frequency benign POLE polymorphism control preserving 3-stage Hopfield proofreading."
+    }
+  ],
+  "clinvar_records": {
+    "pole_total_pathogenic_count": 1891,
+    "variants": [
+      {
+        "variant_id": "376500",
+        "dbsnp_rsid": "rs1057519943",
+        "grch38_vcf": "chr12:132676598:G>C",
+        "title": "NM_006231.4(POLE):c.857C>G (p.Pro286Arg)",
+        "clinical_significance": "Conflicting classifications of pathogenicity (Likely pathogenic per POLE/POLD1 Guidelines PMID:37848928; REVEL=0.837; SBS10/SBS14 ultramutation)",
+        "domain": "3'->5' exonuclease proofreading hotspot (exon 9)"
+      },
+      {
+        "variant_id": "4919266",
+        "title": "NM_006231.4(POLE):c.830A>G (p.Glu277Gly)",
+        "clinical_significance": "Likely pathogenic",
+        "condition": "POLE-related disorder"
+      }
+    ]
+  },
+  "ensembl_and_vep": {
+    "genes": {
+      "POLE": {
+        "ensg": "ENSG00000177084",
+        "mane_select_transcript": "ENST00000320574",
+        "location": "chr12:132623753-132687376",
+        "strand": -1
+      },
+      "TERT": {
+        "ensg": "ENSG00000164362",
+        "location": "chr5:1253147-1295086",
+        "strand": -1
+      },
+      "TOP2A": {
+        "ensg": "ENSG00000131747",
+        "mane_select_transcript": "ENST00000423485",
+        "location": "chr17:40388521-40417941",
+        "strand": -1
+      }
+    },
+    "vep_rs1057519943_pole_p286": {
+      "transcript": "ENST00000320574",
+      "sift": "deleterious (0)",
+      "polyphen": "probably_damaging (1)",
+      "alphamissense_class": "likely_pathogenic",
+      "alphamissense_pathogenicity_p286r": 0.9962,
+      "alphamissense_pathogenicity_p286l": 0.9855,
+      "alphamissense_pathogenicity_p286h": 0.9977,
+      "conservation": 1.53,
+      "dosage_sensitivity_haplo": 0.924213524844063,
+      "loeuf": 0.75997
+    },
+    "vep_rs471692_top2a": {
+      "transcript": "ENST00000423485",
+      "consequence": "intron_variant",
+      "conservation": -3.24,
+      "dosage_sensitivity_haplo": 0.808514154687152,
+      "dosage_sensitivity_triplo": 0.564262689289664,
+      "loeuf": 0.44452
+    }
+  },
+  "uniprot_and_interpro": {
+    "reviewed_reverse_transcriptase_count": 259,
+    "proteins": {
+      "Q07864": {
+        "id": "DPOE1_HUMAN",
+        "gene": "POLE",
+        "length_aa": 2286,
+        "key_interpro_domains": [
+          "IPR006133 (DNA-directed DNA polymerase, family B, exonuclease domain)",
+          "IPR006172 (DNA-directed DNA polymerase, family B)",
+          "IPR023211 (DNA polymerase, palm domain superfamily)",
+          "IPR043502 (DNA/RNA polymerase superfamily)"
+        ],
+        "has_exonuclease_domain_ipr006133": true
+      },
+      "O14746": {
+        "id": "TERT_HUMAN",
+        "gene": "TERT",
+        "length_aa": 1132,
+        "key_interpro_domains": [
+          "IPR000477 (Reverse transcriptase domain)",
+          "IPR021891 (Telomerase ribonucleoprotein complex - RNA-binding domain)",
+          "IPR043502 (DNA/RNA polymerase superfamily)",
+          "IPR049139 (Telomerase reverse transcriptase, C-terminal extension)"
+        ],
+        "has_exonuclease_domain_ipr006133": false
+      },
+      "P11388": {
+        "id": "TOP2A_HUMAN",
+        "gene": "TOP2A",
+        "length_aa": 1531,
+        "key_interpro_domains": [
+          "IPR003594 (Histidine kinase/HSP90-like ATPase domain)",
+          "IPR006171 (TOPRIM domain)",
+          "IPR002205 (DNA topoisomerase, type IIA, domain A)"
+        ]
+      }
+    }
+  },
+  "alphafold_and_pdb_structures": {
+    "alphafold_O14746_tert": {
+      "accession": "O14746",
+      "global_plddt": 80.19,
+      "fraction_very_high_plddt": 0.583,
+      "fraction_confident_plddt": 0.211,
+      "fraction_low_plddt": 0.039,
+      "fraction_very_low_plddt": 0.167,
+      "pae_matrix_shape": [
+        1132,
+        1132
+      ],
+      "pae_mean_angstrom": 15.46,
+      "pae_max_angstrom": 31.0,
+      "rigid_domains_detected": 2,
+      "domain_1_residues": "1-178 (178 AAs, TEN domain)",
+      "domain_2_residues": "326-1132 (807 AAs, TRBD + IPR000477 Reverse Transcriptase + CTE core)"
+    },
+    "rcsb_pdb_entries": [
+      {
+        "rcsb_id": "7BG9",
+        "title": "The catalytic core lobe of human telomerase in complex with a telomeric DNA substrate",
+        "method": "ELECTRON MICROSCOPY",
+        "resolution_angstrom": 3.8,
+        "deposited_atom_count": 14233
+      },
+      {
+        "rcsb_id": "4FM9",
+        "title": "Human topoisomerase II alpha bound to DNA",
+        "method": "X-RAY DIFFRACTION",
+        "resolution_angstrom": 2.901,
+        "deposited_atom_count": 6582
+      },
+      {
+        "rcsb_id": "6HV9",
+        "title": "S. cerevisiae CMG-Pol epsilon-DNA",
+        "method": "ELECTRON MICROSCOPY",
+        "resolution_angstrom": 4.98,
+        "deposited_atom_count": 47617
+      }
+    ]
+  },
+  "licenses_created": {
+    "gudhi-inria-tda": ".licenses/gudhi_inria_LICENSE.txt"
+  },
+  "gudhi_inria_tda": {
+    "engine": "Inria GUDHI 3.13.0",
+    "upstream_urls": [
+      "https://gudhi.inria.fr/introduction/",
+      "https://github.com/GUDHI/gudhi-devel"
+    ],
+    "license_file": ".licenses/gudhi_inria_LICENSE.txt",
+    "lean4_theorem": "GAR_H6_gudhi_tda_euler_poincare_and_repli_seq_persistence",
+    "pillar1_tert_3d_alphacomplex": {
+      "structure_file": "results/three_breakthroughs/structures/AF-O14746-F1-model_v6.cif",
+      "full_num_vertices": 1132,
+      "full_num_simplices": 32397,
+      "full_top_h1_interval_angstrom_sq": [
+        5.2885,
+        348.691
+      ],
+      "full_top_h1_lifetime_angstrom_sq": 343.4026,
+      "full_top_h2_cavity_lifetime_angstrom_sq": 47.4982,
+      "domain1_ten_num_vertices": 178,
+      "domain1_ten_num_simplices": 4531,
+      "domain1_ten_max_h1_lifetime_angstrom_sq": 19.9823,
+      "domain2_catalytic_ring_num_vertices": 807,
+      "domain2_catalytic_ring_num_simplices": 22493,
+      "domain2_top_h1_interval_angstrom_sq": [
+        4.9244,
+        96.8309
+      ],
+      "domain2_top_h1_lifetime_angstrom_sq": 91.9065,
+      "domain2_catalytic_tunnel_radius_angstrom": 9.8403,
+      "domain2_catalytic_tunnel_diameter_angstrom": 19.6805,
+      "domain2_top_h2_cavity_lifetime_angstrom_sq": 30.1499,
+      "bottleneck_distance_full_vs_domain2_h1": 171.7013,
+      "bottleneck_distance_full_vs_domain2_h2": 23.7491
+    },
+    "pillar2_supercoiled_dna_ripscomplex": {
+      "critical_torque_tau0_rational": "63/20",
+      "relaxed_tau_2_0_h1_intervals_nm": [
+        [
+          0.5235,
+          17.3205
+        ]
+      ],
+      "buckled_tau_4_0_h1_intervals_nm": [
+        [
+          2.2644,
+          6.7369
+        ],
+        [
+          0.7168,
+          6.9436
+        ]
+      ],
+      "relaxed_h1_loop_count": 1,
+      "buckled_plectoneme_h1_loop_count": 2,
+      "bottleneck_distance_relaxed_vs_buckled_h1_nm": 8.3985
+    },
+    "pillar3_hecke_tree_and_art_hairpin_simplextree": {
+      "pure_hecke_tree_l3_vertices": 22,
+      "pure_hecke_tree_l3_edges": 21,
+      "pure_hecke_tree_betti_numbers": [
+        1,
+        0
+      ],
+      "pure_hecke_tree_euler_characteristic": 1,
+      "art_hairpin_stems_added": 6,
+      "augmented_edges": 27,
+      "augmented_betti_numbers": [
+        1,
+        6
+      ],
+      "augmented_euler_characteristic": -5
+    },
+    "pillar4_repliseq_multi_origin_cubicalcomplex": {
+      "repli_profile_timing": [
+        5.0,
+        1.0,
+        6.0,
+        2.0,
+        7.5,
+        1.5,
+        6.5,
+        2.5,
+        8.0
+      ],
+      "origin_count_k": 4,
+      "h0_intervals": [
+        [
+          2.0,
+          6.0
+        ],
+        [
+          2.5,
+          6.5
+        ],
+        [
+          1.5,
+          7.5
+        ],
+        [
+          1.0,
+          "inf"
+        ]
+      ],
+      "finite_fork_coalescence_lifetimes": [
+        6.0,
+        4.0,
+        4.0
+      ],
+      "total_coalescence_persistence": 14.0
+    }
+  }
+}

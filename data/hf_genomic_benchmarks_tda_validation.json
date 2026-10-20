@@ -1,0 +1,114 @@
+{
+  "bridge_id": "XGUDHI_DEVEL_LEANFLOW_RUSTY_SUNDIALS_HF_GENOMIC_BRIDGE",
+  "target_repository": "https://github.com/xaviercallens/SocrateAI-Scientific-Genetic",
+  "huggingface_authenticated": true,
+  "huggingface_user": "callensxavier",
+  "xgudhi_devel_repository": {
+    "repository_url": "https://github.com/xaviercallens/xgudhi-devel",
+    "local_clone_path": "sub_projects/xgudhi_devel/xgudhi-devel",
+    "clone_present": true,
+    "gudhi_python_runtime_version": "3.13.0",
+    "cpp_module_count": 26,
+    "key_cpp_modules": [
+      "Alpha_complex",
+      "Bottleneck_distance",
+      "Persistence_representations",
+      "Persistent_cohomology",
+      "Rips_complex",
+      "Simplex_tree"
+    ]
+  },
+  "leanflow_mcp_link": {
+    "domain_3e_solver_status": "verified",
+    "domain_3e_lean_certificate": "verified",
+    "xgudhi_hecke_hairpin_betti_euler_certificate": "verified",
+    "certified_betti_vector": [
+      1,
+      6,
+      0
+    ],
+    "certified_euler_characteristic": -5
+  },
+  "rusty_sundials_link": {
+    "status": "CERTIFIED",
+    "genetics_crate": "sundials-core::genetics",
+    "tda_struct": "XgudhiTdaSimplicialBettiReport",
+    "tda_method": "EfficientArtReplicationEngine::certify_xgudhi_tda_simplicial_betti"
+  },
+  "huggingface_genomic_benchmarks_summary": {
+    "datasets_evaluated": 3,
+    "total_sequences_evaluated": 1200,
+    "total_deuring_quaternion_norm_checks": 12000,
+    "total_deuring_quaternion_norm_defects": 0,
+    "total_simplicial_euler_poincare_checks": 1200,
+    "total_simplicial_euler_poincare_defects": 0,
+    "datasets": [
+      {
+        "dataset_id": "katarinagresova/Genomic_Benchmarks_human_nontata_promoters",
+        "description": "Human Non-TATA Promoters vs. Control (251 bp, CpG/Origin-Rich Hairpin Topology)",
+        "total_sequences_evaluated": 400,
+        "positive_sequences": 200,
+        "negative_sequences": 200,
+        "deuring_quaternion_norm_checks": 4000,
+        "deuring_quaternion_norm_exact": 4000,
+        "deuring_norm_exact_rate": 1.0,
+        "simplicial_euler_poincare_checks": 400,
+        "simplicial_euler_poincare_exact": 400,
+        "positive_mean_gc_fraction": 0.6298,
+        "negative_mean_gc_fraction": 0.4772,
+        "positive_mean_deuring_codon_norm": 52.66,
+        "negative_mean_deuring_codon_norm": 46.82,
+        "positive_mean_hairpin_betti1": 18.455,
+        "negative_mean_hairpin_betti1": 15.57,
+        "positive_mean_cubical_h0_persistence": 6.1619,
+        "negative_mean_cubical_h0_persistence": 6.7781,
+        "positive_mean_haar_detail_energy": 0.2299,
+        "negative_mean_haar_detail_energy": 0.2631
+      },
+      {
+        "dataset_id": "katarinagresova/Genomic_Benchmarks_demo_coding_vs_intergenomic_seqs",
+        "description": "Coding Exons vs. Intergenomic DNA (200 bp, Deuring Quaternion Codon Reading-Frame Coherence)",
+        "total_sequences_evaluated": 400,
+        "positive_sequences": 200,
+        "negative_sequences": 200,
+        "deuring_quaternion_norm_checks": 4000,
+        "deuring_quaternion_norm_exact": 4000,
+        "deuring_norm_exact_rate": 1.0,
+        "simplicial_euler_poincare_checks": 400,
+        "simplicial_euler_poincare_exact": 400,
+        "positive_mean_gc_fraction": 0.408,
+        "negative_mean_gc_fraction": 0.5424,
+        "positive_mean_deuring_codon_norm": 42.62,
+        "negative_mean_deuring_codon_norm": 49.13,
+        "positive_mean_hairpin_betti1": 12.325,
+        "negative_mean_hairpin_betti1": 11.58,
+        "positive_mean_cubical_h0_persistence": 5.1881,
+        "negative_mean_cubical_h0_persistence": 5.4887,
+        "positive_mean_haar_detail_energy": 0.2571,
+        "negative_mean_haar_detail_energy": 0.2665
+      },
+      {
+        "dataset_id": "katarinagresova/Genomic_Benchmarks_human_enhancers_cohn",
+        "description": "Human Enhancers vs. Control (500 bp, Multi-Origin Sublevel Cubical Persistence)",
+        "total_sequences_evaluated": 400,
+        "positive_sequences": 200,
+        "negative_sequences": 200,
+        "deuring_quaternion_norm_checks": 4000,
+        "deuring_quaternion_norm_exact": 4000,
+        "deuring_norm_exact_rate": 1.0,
+        "simplicial_euler_poincare_checks": 400,
+        "simplicial_euler_poincare_exact": 400,
+        "positive_mean_gc_fraction": 0.4654,
+        "negative_mean_gc_fraction": 0.3871,
+        "positive_mean_deuring_codon_norm": 45.48,
+        "negative_mean_deuring_codon_norm": 40.41,
+        "positive_mean_hairpin_betti1": 34.605,
+        "negative_mean_hairpin_betti1": 36.225,
+        "positive_mean_cubical_h0_persistence": 14.0444,
+        "negative_mean_cubical_h0_persistence": 13.6056,
+        "positive_mean_haar_detail_energy": 0.2605,
+        "negative_mean_haar_detail_energy": 0.2477
+      }
+    ]
+  }
+}
