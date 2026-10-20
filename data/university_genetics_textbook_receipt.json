@@ -1,0 +1,17 @@
+{
+  "textbook_title": "Mathematical Genetics, Non-Equilibrium Chromatin Biophysics, and Neuro-Symbolic Formal Verification in Lean 4",
+  "sections_count": 10,
+  "theorems_count": 10,
+  "analytical_proofs_count": 10,
+  "lean4_listings_count": 10,
+  "university_exercises_count": 10,
+  "overfull_hbox_count": 0,
+  "undefined_references_count": 0,
+  "undefined_citations_count": 0,
+  "page_count": 20,
+  "tex_path": "/home/xavkal/xdev/AutoevolveAI/papers/university_genetics_textbook/University_Textbook_Mathematical_Genetics_Biophysics_Lean4.tex",
+  "pdf_path": "/home/xavkal/xdev/AutoevolveAI/papers/university_genetics_textbook/University_Textbook_Mathematical_Genetics_Biophysics_Lean4.pdf",
+  "pdf_size_bytes": 856949,
+  "pdf_sha256": "5d932111ae9ef24987d3707ae05e35062f008ff7e320f449b4a65dbf2e922959",
+  "markdown_companion_path": "/home/xavkal/xdev/AutoevolveAI/docs/UNIVERSITY_TEXTBOOK_MATHEMATICAL_GENETICS_LEAN4.md"
+}
