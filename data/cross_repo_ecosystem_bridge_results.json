@@ -1,0 +1,215 @@
+{
+  "benchmark_suite": "Cross-Repository Ecosystem Integration Bridge (GAR.H11 & GAR.H12)",
+  "repositories_integrated": [
+    "https://github.com/xaviercallens/OptimalEnergyAI",
+    "https://github.com/xaviercallens/triangular-universal-optimality-lean",
+    "https://github.com/xaviercallens/SocrateAI-CohnKumar-8D-Numeric",
+    "https://github.com/xaviercallens/XHillock",
+    "https://github.com/xaviercallens/SocrateAI-Scientific-Agora-Physique-Cinetique",
+    "https://github.com/xaviercallens/SocrateAI-Scientific-QuantumFluids",
+    "https://github.com/xaviercallens/GWAYA-GwenLayaOpenModel",
+    "https://github.com/xaviercallens/runux-ai-runtime"
+  ],
+  "gar_h11_e8_and_a2_lattice_quantization": {
+    "lean4_theorem": "GAR_H11_GossetE8DicodonLatticeQuantizerAndA2HexOptimality",
+    "source_repos": [
+      "OptimalEnergyAI (src/oai_ml/core/quantise.py)",
+      "triangular-universal-optimality-lean",
+      "SocrateAI-CohnKumar-8D-Numeric",
+      "XHillock"
+    ],
+    "exact_nsm_z8_str": "1/12",
+    "exact_nsm_e8_str": "929/12960",
+    "exact_ratio_e8_z8_str": "929/1080",
+    "exact_ratio_e8_z8_float": 0.8601851851851852,
+    "exact_e8_mse_saving_pct": 13.9815,
+    "exact_e8_coding_gain_db": 0.6541,
+    "exact_a2_vs_z2_squared_ratio_str": "25/27",
+    "kissing_numbers": {
+      "Z8": 16,
+      "D8": 112,
+      "E8": 240,
+      "E8_over_Z8_ratio": 15
+    },
+    "monte_carlo_262k": {
+      "G_Z8_mc": 0.083351,
+      "G_Z8_ref": 0.083333,
+      "G_D8_mc": 0.07595,
+      "G_E8_mc": 0.071649,
+      "G_E8_ref": 0.071682,
+      "G_A2_mc": 0.080202,
+      "G_A2_ref": 0.080188
+    },
+    "half_integer_coset_witness": {
+      "query_point": [
+        0.49,
+        0.49,
+        0.49,
+        0.49,
+        0.49,
+        0.49,
+        0.49,
+        0.49
+      ],
+      "nearest_e8_codeword": [
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5
+      ],
+      "nearest_z8_codeword": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "e8_norm_squared": 2.0,
+      "err_sq_e8": 0.0008,
+      "err_sq_z8": 1.9208
+    },
+    "hf_16000_dicodons_by_dataset": {
+      "Promoters (Non-TATA)": {
+        "num_dicodons": 4000,
+        "scale_factor": 2.401,
+        "mse_per_dim_Z8": 0.08294,
+        "mse_per_dim_D8_norm": 0.075624,
+        "mse_per_dim_E8": 0.071459,
+        "e8_vs_z8_mse_reduction_pct": 13.843,
+        "mse_per_dim_Z2": 0.083892,
+        "mse_per_dim_A2": 0.080903,
+        "a2_vs_z2_mse_reduction_pct": 3.564
+      },
+      "Coding vs. Intergenomic": {
+        "num_dicodons": 4000,
+        "scale_factor": 1.9263,
+        "mse_per_dim_Z8": 0.08304,
+        "mse_per_dim_D8_norm": 0.07566,
+        "mse_per_dim_E8": 0.071524,
+        "e8_vs_z8_mse_reduction_pct": 13.869,
+        "mse_per_dim_Z2": 0.081907,
+        "mse_per_dim_A2": 0.081756,
+        "a2_vs_z2_mse_reduction_pct": 0.184
+      },
+      "Human Enhancers (Cohn)": {
+        "num_dicodons": 4000,
+        "scale_factor": 4.0444,
+        "mse_per_dim_Z8": 0.083803,
+        "mse_per_dim_D8_norm": 0.076255,
+        "mse_per_dim_E8": 0.071308,
+        "e8_vs_z8_mse_reduction_pct": 14.91,
+        "mse_per_dim_Z2": 0.083461,
+        "mse_per_dim_A2": 0.08024,
+        "a2_vs_z2_mse_reduction_pct": 3.859
+      },
+      "Open Chromatin (OCR)": {
+        "num_dicodons": 4000,
+        "scale_factor": 2.9365,
+        "mse_per_dim_Z8": 0.083273,
+        "mse_per_dim_D8_norm": 0.075781,
+        "mse_per_dim_E8": 0.072032,
+        "e8_vs_z8_mse_reduction_pct": 13.498,
+        "mse_per_dim_Z2": 0.083609,
+        "mse_per_dim_A2": 0.080941,
+        "a2_vs_z2_mse_reduction_pct": 3.191
+      }
+    },
+    "hf_16000_dicodons_mean": {
+      "mean_mse_Z8": 0.083264,
+      "mean_mse_D8_norm": 0.07583,
+      "mean_mse_E8": 0.071581,
+      "mean_e8_vs_z8_reduction_pct": 14.032,
+      "mean_a2_vs_z2_reduction_pct": 2.713
+    }
+  },
+  "gar_h12_agora_kinetic_pade_and_anse_gen3": {
+    "lean4_theorem": "GAR_H12_AgoraKineticTransportKernelAndThirdGenAnseEnergy",
+    "source_repos": [
+      "SocrateAI-Scientific-Agora-Physique-Cinetique (agora_mcp/server.py)",
+      "SocrateAI-Scientific-QuantumFluids",
+      "GWAYA-GwenLayaOpenModel",
+      "runux-ai-runtime (TurboQuant SIMD)"
+    ],
+    "agora_pade_approximants": {
+      "M1": {
+        "M": 1,
+        "variable": "u = 1/s^2",
+        "series_coefficients": [
+          "0",
+          "1/3",
+          "1/5"
+        ],
+        "P": "u/3",
+        "Q": "1 - 3*u/5",
+        "P_coefficients": [
+          "0",
+          "1/3"
+        ],
+        "Q_coefficients": [
+          "1",
+          "-3/5"
+        ]
+      },
+      "M2": {
+        "M": 2,
+        "variable": "u = 1/s^2",
+        "series_coefficients": [
+          "0",
+          "1/3",
+          "1/5",
+          "1/7",
+          "1/9"
+        ],
+        "P": "-23*u**2/135 + u/3",
+        "Q": "5*u**2/21 - 10*u/9 + 1",
+        "P_coefficients": [
+          "0",
+          "1/3",
+          "-23/135"
+        ],
+        "Q_coefficients": [
+          "1",
+          "-10/9",
+          "5/21"
+        ]
+      }
+    },
+    "agora_zero_sound_roots": {
+      "weak_coupling_F0_5_3": {
+        "M1_u_exact": "45/52",
+        "M1_s_squared_exact": "52/45",
+        "M1_s_numeric": 1.0749676997731399,
+        "M2_s_numeric": 1.1173819508619292,
+        "M4_s_numeric": 1.12268023213878
+      },
+      "strong_coupling_F0_93_10": {
+        "M1_u_exact": "10/37",
+        "M1_s_squared_exact": "37/10",
+        "M1_s_numeric": 1.9235384061671346,
+        "M2_s_numeric": 1.9290827246464348,
+        "M4_s_numeric": 1.929117298752376
+      }
+    },
+    "anse_4gen_energy_progression": {
+      "E_gwaya_unverified_gate": 1000000.0,
+      "E_baseline_float": 21.33289855,
+      "E_baseline_exact": "147197/6900",
+      "E_Gen1_Efficient_ART_float": 0.41590208,
+      "E_Gen1_speedup_x": 51.29,
+      "E_Gen2_Chimeric_ART_Exo_float": 0.13481207,
+      "E_Gen2_speedup_x": 158.24,
+      "E_Gen3_E8_TurboQuant_ART_float": 0.09583059,
+      "E_Gen3_E8_TurboQuant_ART_exact": "800161493/8349750000",
+      "E_Gen3_speedup_x": 222.61,
+      "E_Gen3_vs_Gen2_reduction_pct": 28.92
+    }
+  },
+  "figure_generated": "assets/fig5_cross_repo_ecosystem_e8_agora_gwaya.png"
+}
