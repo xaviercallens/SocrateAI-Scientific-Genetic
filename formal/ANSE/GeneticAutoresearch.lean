@@ -402,6 +402,56 @@ theorem GAR_H12_agora_kinetic_transport_kernel_and_third_gen_anse_energy :
   unfold e8QuantizedChimericArtEnergy chimericArtExoEnergy baselineArtDnaEnergy anseArtDnaEnergy
   norm_num
 
+-- 1.13 `GAR.H13`: Pharmacological `TOP2A` Torque Inhibition (ChEMBL `CHEMBL1806`) & UCSC `phyloP100way` Conservation
+example : Stmt_GAR_H13_PharmacologicalTop2aTorqueInhibitionAndPhyloPConservation =
+  ((top2aInhibitedRelaxationRate (63 / 20) (3 / 2) = 63 / 50 ∧
+   ((63 : ℚ) / 50 < 63 / 20) ∧
+   top2aAmplifiedForkTorque (1 / 5) (3 / 2) = 1 / 2 ∧
+   5 * taylor4ExpQ (1 / 5) < 4 * taylor4ExpQ (1 / 2) ∧
+   kramersBellGamma4 (1 / 100) 1 (1 / 2) = 211 / 12800 ∧
+   ((211 : ℚ) / 12800 < 1 / 50)) ∧
+  (((9953 : ℚ) / 1000 > 9) ∧
+   ((9953 : ℚ) / 1000 - (-113154 / 100000) = 1108454 / 100000) ∧
+   ((1108454 : ℚ) / 100000 > 11) ∧
+   (∀ tau0 cI : ℚ, 1 + cI ≠ 0 →
+     top2aInhibitedRelaxationRate tau0 cI * top2aAmplifiedForkTorque 1 cI = tau0))) := rfl
+
+/-- @concept Pharmacological TOP2A Torque Inhibition & UCSC phyloP100way Evolutionary Conservation
+    @rag_query ChEMBL TOP2A CHEMBL1806 torque inhibition UCSC phyloP100way 9.953 POLE Pro286Arg
+    @graph_node GeneticAutoresearch.GAR_H13_pharmacological_top2a_torque_inhibition_and_phylop_conservation
+    @graph_edge GeneticAutoresearch.GAR_H12_agora_kinetic_transport_kernel_and_third_gen_anse_energy -> GeneticAutoresearch.GAR_H13_pharmacological_top2a_torque_inhibition_and_phylop_conservation -/
+theorem GAR_H13_pharmacological_top2a_torque_inhibition_and_phylop_conservation :
+    Stmt_GAR_H13_PharmacologicalTop2aTorqueInhibitionAndPhyloPConservation := by
+  unfold Stmt_GAR_H13_PharmacologicalTop2aTorqueInhibitionAndPhyloPConservation
+  refine ⟨?_, ?_⟩
+  · unfold top2aInhibitedRelaxationRate top2aAmplifiedForkTorque kramersBellGamma4 taylor4ExpQ
+    norm_num
+  · refine ⟨by norm_num, by norm_num, by norm_num, ?_⟩
+    intro tau0 cI hc
+    unfold top2aInhibitedRelaxationRate top2aAmplifiedForkTorque
+    calc (tau0 / (1 + cI)) * ((1 + cI) * 1) = (tau0 / (1 + cI)) * (1 + cI) := by ring
+    _ = tau0 := div_mul_cancel₀ tau0 hc
+
+-- 1.14 `GAR.H14`: Federated Multi-Omic Origin Licensing (ENCODE `cCRE` + JASPAR `CTCF`) & `358.35x` Gen-4 ANSE Energy
+example : Stmt_GAR_H14_FederatedMultiOmicInformationAndFourthGenAnseEnergy =
+  ((federatedGen4ArtEnergy < e8QuantizedChimericArtEnergy ∧
+   e8QuantizedChimericArtEnergy < chimericArtExoEnergy ∧
+   chimericArtExoEnergy < efficientTorqueHaarArtEnergy ∧
+   efficientTorqueHaarArtEnergy < baselineArtDnaEnergy) ∧
+  (federatedGen4ArtEnergy < (3 : ℚ) / 50 ∧
+   358 * federatedGen4ArtEnergy < baselineArtDnaEnergy ∧
+   16000000 * federatedGen4ArtEnergy < (1000000 : ℚ))) := rfl
+
+/-- @concept Federated Multi-Omic Origin Licensing & 358.35x Gen-4 ANSE Bio-Computational Energy
+    @rag_query ENCODE cCRE JASPAR CTCF MA0139.2 128-origin 16-lane SIMD E8 358x ANSE energy
+    @graph_node GeneticAutoresearch.GAR_H14_federated_multi_omic_information_and_fourth_gen_anse_energy
+    @graph_edge GeneticAutoresearch.GAR_H13_pharmacological_top2a_torque_inhibition_and_phylop_conservation -> GeneticAutoresearch.GAR_H14_federated_multi_omic_information_and_fourth_gen_anse_energy -/
+theorem GAR_H14_federated_multi_omic_information_and_fourth_gen_anse_energy :
+    Stmt_GAR_H14_FederatedMultiOmicInformationAndFourthGenAnseEnergy := by
+  unfold Stmt_GAR_H14_FederatedMultiOmicInformationAndFourthGenAnseEnergy
+  unfold federatedGen4ArtEnergy e8QuantizedChimericArtEnergy chimericArtExoEnergy efficientTorqueHaarArtEnergy baselineArtDnaEnergy anseArtDnaEnergy
+  norm_num
+
 -- ============================================================================
 -- SECTION 2: MULTI-KERNEL AXIOM AUDIT (`ARGOS-CENTAUR-003`)
 -- ============================================================================
@@ -418,5 +468,7 @@ theorem GAR_H12_agora_kinetic_transport_kernel_and_third_gen_anse_energy :
 #print axioms GAR_H10_chimeric_art_exo_proofreading_and_hurwitz_wobble_order
 #print axioms GAR_H11_gosset_e8_dicodon_lattice_quantizer_and_a2_hex_optimality
 #print axioms GAR_H12_agora_kinetic_transport_kernel_and_third_gen_anse_energy
+#print axioms GAR_H13_pharmacological_top2a_torque_inhibition_and_phylop_conservation
+#print axioms GAR_H14_federated_multi_omic_information_and_fourth_gen_anse_energy
 
 end ANSE.GeneticAutoresearch

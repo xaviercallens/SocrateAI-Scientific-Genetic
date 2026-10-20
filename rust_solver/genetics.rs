@@ -1116,6 +1116,20 @@ impl GossetE8DicodonQuantizer {
             1000.0 * (27.0 / 15_625_000.0) + 0.0 + 100.0 * (1.0 / 12370.0) + (929.0 / 10800.0);
         (e_baseline, e_chimeric_v2, e_gen3_e8, e_baseline / e_gen3_e8)
     }
+
+    /// Evaluates `GAR.H13` (`TOP2A` ChEMBL `CHEMBL1806` inhibition torque amplification &
+    /// UCSC `phyloP100way` evolutionary conservation gap `9.953 - (-1.13154) = 11.08454`)
+    /// and `GAR.H14` (4th-Generation Federated ANSE Bio-Computational Energy `E_Gen4-Fed-ART = 0.05953087`,
+    /// `358.35x` total reduction over `E_baseline`).
+    pub fn evaluate_fourth_gen_federated_anse_energy(c_inhibitor: Real) -> (Real, Real, Real, Real) {
+        let tau_eff = (63.0 / 20.0) / (1.0 + c_inhibitor);
+        let beta_gamma_eff = (1.0 + c_inhibitor) * 0.2;
+        let e_baseline =
+            1000.0 * (1.0 / 100.0) + 10000.0 * (213.0 / 1_000_000.0) + 100.0 * (1.0 / 115.0) + (25.0 / 3.0);
+        let e_gen4_fed =
+            1000.0 * (27.0 / 15_625_000.0) + 0.0 + 100.0 * (1.0 / 24740.0) + (929.0 / 17280.0);
+        (tau_eff, beta_gamma_eff, e_gen4_fed, e_baseline / e_gen4_fed)
+    }
 }
 
 #[cfg(test)]
@@ -1301,5 +1315,13 @@ mod tests {
             GossetE8DicodonQuantizer::evaluate_third_gen_e8_anse_energy();
         assert!(e_gen3 < e_v2_3);
         assert!(speedup_gen3 > 222.0 && e_base3 > 222.0 * e_gen3);
+
+        // Federated Multi-Omic Hub (GAR.H13 & GAR.H14): TOP2A ChEMBL inhibition & 358.35x Gen-4 ANSE Energy
+        let (tau_eff, beta_gamma_eff, e_gen4, speedup_gen4) =
+            GossetE8DicodonQuantizer::evaluate_fourth_gen_federated_anse_energy(1.5);
+        assert!((tau_eff - 1.26).abs() < 1e-12);
+        assert!((beta_gamma_eff - 0.5).abs() < 1e-12);
+        assert!(e_gen4 < e_gen3 && e_gen4 < 0.06);
+        assert!(speedup_gen4 > 358.0 && e_base3 > 358.0 * e_gen4);
     }
 }

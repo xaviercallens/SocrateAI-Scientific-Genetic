@@ -1,0 +1,1 @@
+Notified user at 2026-10-20T11:29:16.047908+00:00 to review JASPAR Terms of Use at https://jaspar.elixir.no/ and https://jaspar.elixir.no/api/

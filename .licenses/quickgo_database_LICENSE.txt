@@ -1,0 +1,1 @@
+Notified user at 2026-10-20T11:29:16.047908+00:00 to review EMBL-EBI QuickGO Terms at https://www.ebi.ac.uk/QuickGO/ and https://www.ebi.ac.uk/QuickGO/api/index.html
