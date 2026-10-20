@@ -220,6 +220,34 @@ theorem GAR_H6_gudhi_tda_euler_poincare_and_repli_seq_persistence :
   · refine ⟨by auto_eq, by auto_eq, by auto_eq, by auto_eq⟩
   · refine ⟨by auto_eq, by auto_eq, by auto_eq, by auto_eq, by auto_eq, by auto_bound, by auto_bound⟩
 
+-- 1.7 `GAR.H7`: Exact Bi-Helmholtz Quartic Factorization & Chargaff Strand-Symmetry Involution
+example : Stmt_GAR_H7_BiHelmholtzExactQuarticFactorizationAndChargaffInvolution =
+  ((∀ u : ℚ,
+    (1 + u) ^ 4 - (256 / 27 : ℚ) * u =
+      (1 / 27 : ℚ) * (1 - 3 * u) ^ 2 * (27 + 14 * u + 3 * u ^ 2) ∧
+    (27 + 14 * u + 3 * u ^ 2 : ℚ) = 3 * (u + 7 / 3) ^ 2 + 32 / 3 ∧
+    (0 : ℚ) < 3 * (u + 7 / 3) ^ 2 + 32 / 3) ∧
+  (∀ nA nT nG nC : ℤ,
+    watsonCrickPerm nT nA nC nG = (nA, nT, nG, nC) ∧
+    chargaffSkewBasis nT nA nC nG =
+      (nA + nT + nG + nC, -(nA - nT), -(nG - nC), -(nA + nG - nT - nC)))) := rfl
+
+/-- @concept Exact Bi-Helmholtz Quartic Factorization & Chargaff Strand-Symmetry Involution
+    @rag_query BiHelmholtz quartic factorization Chargaff skew basis Watson Crick involution
+    @graph_node GeneticAutoresearch.GAR_H7_bihelmholtz_exact_quartic_factorization_and_chargaff_involution
+    @graph_edge GeneticAutoresearch.GAR_H6_gudhi_tda_euler_poincare_and_repli_seq_persistence -> GeneticAutoresearch.GAR_H7_bihelmholtz_exact_quartic_factorization_and_chargaff_involution -/
+theorem GAR_H7_bihelmholtz_exact_quartic_factorization_and_chargaff_involution :
+    Stmt_GAR_H7_BiHelmholtzExactQuarticFactorizationAndChargaffInvolution := by
+  unfold Stmt_GAR_H7_BiHelmholtzExactQuarticFactorizationAndChargaffInvolution
+  refine ⟨?_, ?_⟩
+  · intro u
+    refine ⟨by ring, by ring, ?_⟩
+    positivity
+  · intro nA nT nG nC
+    unfold watsonCrickPerm chargaffSkewBasis
+    refine ⟨rfl, ?_⟩
+    ext <;> ring
+
 -- ============================================================================
 -- SECTION 2: MULTI-KERNEL AXIOM AUDIT (`ARGOS-CENTAUR-003`)
 -- ============================================================================
@@ -230,5 +258,6 @@ theorem GAR_H6_gudhi_tda_euler_poincare_and_repli_seq_persistence :
 #print axioms GAR_H4_sym2_coalescence_resonance_and_rns_kmer_alignment
 #print axioms GAR_H5_lienard_metabolic_clock_ars222_imex_and_energy_minimization
 #print axioms GAR_H6_gudhi_tda_euler_poincare_and_repli_seq_persistence
+#print axioms GAR_H7_bihelmholtz_exact_quartic_factorization_and_chargaff_involution
 
 end ANSE.GeneticAutoresearch

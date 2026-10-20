@@ -231,4 +231,37 @@ def Stmt_GAR_H6_GudhiTdaEulerPoincareAndRepliSeqPersistence : Prop :=
    ((183813 : ℝ) / 2000 > 90) ∧
    ((199823 : ℝ) / 10000 < 20))
 
+-- ============================================================================
+-- 7. `GAR.H7` (Peer-Review Remediation): EXACT BI-HELMHOLTZ FACTORIZATION & CHARGAFF BASIS
+-- ============================================================================
+
+/-- Fixed-point-free Watson–Crick nucleotide complementation permutation
+    `(n_A, n_T, n_G, n_C) ↦ (n_T, n_A, n_C, n_G)`. -/
+def watsonCrickPerm (nA nT nG nC : ℤ) : ℤ × ℤ × ℤ × ℤ :=
+  (nT, nA, nC, nG)
+
+/-- Chargaff strand-symmetry transform mapping `(n_A, n_T, n_G, n_C)` to
+    `(s_total, δ_AT, δ_GC, δ_RY) = (n_A + n_T + n_G + n_C, n_A - n_T, n_G - n_C, n_A + n_G - n_T - n_C)`. -/
+def chargaffSkewBasis (nA nT nG nC : ℤ) : ℤ × ℤ × ℤ × ℤ :=
+  (nA + nT + nG + nC, nA - nT, nG - nC, nA + nG - nT - nC)
+
+/-- `Stmt_GAR_H7_BiHelmholtzExactQuarticFactorizationAndChargaffInvolution`:
+    Remediates External Peer Review Critiques 2.3 and 3.1:
+    (a) Exact degree-4 Bi-Helmholtz polynomial factorization over `ℚ`:
+        `(1 + u)^4 - (256 / 27) * u = (1 / 27) * (1 - 3 * u)^2 * (27 + 14 * u + 3 * u^2)`
+        and strict positivity `27 + 14 * u + 3 * u^2 = 3 * (u + 7 / 3)^2 + 32 / 3 > 0`;
+    (b) Fixed-point-free Watson–Crick permutation `π_WC(n_A, n_T, n_G, n_C) = (n_T, n_A, n_C, n_G)`
+        is strictly involutory and, in the Chargaff skew basis `(s_total, δ_AT, δ_GC, δ_RY)`,
+        acts identically as quaternion conjugation `(s_total, -δ_AT, -δ_GC, -δ_RY)`. -/
+def Stmt_GAR_H7_BiHelmholtzExactQuarticFactorizationAndChargaffInvolution : Prop :=
+  (∀ u : ℚ,
+    (1 + u) ^ 4 - (256 / 27 : ℚ) * u =
+      (1 / 27 : ℚ) * (1 - 3 * u) ^ 2 * (27 + 14 * u + 3 * u ^ 2) ∧
+    (27 + 14 * u + 3 * u ^ 2 : ℚ) = 3 * (u + 7 / 3) ^ 2 + 32 / 3 ∧
+    (0 : ℚ) < 3 * (u + 7 / 3) ^ 2 + 32 / 3) ∧
+  (∀ nA nT nG nC : ℤ,
+    watsonCrickPerm nT nA nC nG = (nA, nT, nG, nC) ∧
+    chargaffSkewBasis nT nA nC nG =
+      (nA + nT + nG + nC, -(nA - nT), -(nG - nC), -(nA + nG - nT - nC)))
+
 end ANSE.GeneticAutoresearch
