@@ -35,6 +35,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from leanflow_mcp import lean_certify, ode_solve_frontier  # noqa: E402
+
 from sub_projects.rusty_sundials.rusty_sundials_bridge_harness import (  # noqa: E402
     certify_rusty_sundials_backbone,
 )
