@@ -1,0 +1,4 @@
+Open Targets Platform License Notification
+Terms URL: https://platform-docs.opentargets.org/licence
+Recorded Timestamp: 2026-10-20T12:25:30+02:00
+User notified to review Open Targets Platform license terms prior to querying target-disease associations and tractability telemetry for POLE (ENSG00000177084), TERT (ENSG00000164362), and TOP2A (ENSG00000131747).

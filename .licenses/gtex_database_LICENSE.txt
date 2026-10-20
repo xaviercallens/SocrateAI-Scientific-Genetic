@@ -1,0 +1,4 @@
+GTEx Portal License Notification
+Terms URLs: https://gtexportal.org/home/license and https://gtexportal.org/home/documentationPage#gtexApi
+Recorded Timestamp: 2026-10-20T12:28:15+02:00
+User notified to review GTEx Portal license and API terms prior to retrieving baseline median tissue expression (TPM) for POLE, TERT, and TOP2A.

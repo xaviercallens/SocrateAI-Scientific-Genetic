@@ -1,0 +1,65 @@
+{
+  "hugging_face_4_datasets_summary": {
+    "Promoters (Non-TATA)": {
+      "hf_dataset_id": "katarinagresova/Genomic_Benchmarks_human_nontata_promoters",
+      "sequences_evaluated": 400,
+      "positive_betti1_mean": 57.65,
+      "positive_betti1_std": 8.950279325250134,
+      "negative_betti1_mean": 54.775,
+      "negative_betti1_std": 8.411561983365514,
+      "positive_cpg_mean": 0.06968,
+      "negative_cpg_mean": 0.01682
+    },
+    "Coding vs. Intergenomic": {
+      "hf_dataset_id": "katarinagresova/Genomic_Benchmarks_demo_coding_vs_intergenomic_seqs",
+      "sequences_evaluated": 400,
+      "positive_betti1_mean": 37.105,
+      "positive_betti1_std": 6.460183820914077,
+      "negative_betti1_mean": 36.165,
+      "negative_betti1_std": 6.961880133986795,
+      "positive_cpg_mean": 0.010351758793969847,
+      "negative_cpg_mean": 0.039472361809045224
+    },
+    "Human Enhancers (Cohn)": {
+      "hf_dataset_id": "katarinagresova/Genomic_Benchmarks_human_enhancers_cohn",
+      "sequences_evaluated": 400,
+      "positive_betti1_mean": 163.575,
+      "positive_betti1_std": 14.632647573149569,
+      "negative_betti1_mean": 161.63,
+      "negative_betti1_std": 16.605815246473146,
+      "positive_cpg_mean": 0.016102204408817634,
+      "negative_cpg_mean": 0.007214428857715432
+    },
+    "Open Chromatin (OCR)": {
+      "hf_dataset_id": "katarinagresova/Genomic_Benchmarks_human_ocr_ensembl",
+      "sequences_evaluated": 400,
+      "positive_betti1_mean": 86.23,
+      "positive_betti1_std": 48.63863793323164,
+      "negative_betti1_mean": 86.055,
+      "negative_betti1_std": 46.39786606084379,
+      "positive_cpg_mean": 0.009647019002385647,
+      "negative_cpg_mean": 0.01019623389869351
+    }
+  },
+  "total_hf_sequences_evaluated": 1600,
+  "total_hf_codon_pairs_evaluated": 16000,
+  "hurwitz_wobble_invariance_pass_rate": 1.0,
+  "ten_scientific_skills_integrated": [
+    "dbsnp-database (rs1057519943 POLE, rs2736100 TERT, rs471692 TOP2A)",
+    "clinvar-database (1,891 pathogenic POLE variants, Variation ID 376500)",
+    "ensembl-database (AlphaMissense=0.9962, SIFT=0, PolyPhen=1, LOEUF)",
+    "uniprot-database (POLE Q07864, TERT O14746, TOP2A P11388)",
+    "interpro-database (IPR000477 RT vs IPR006133 3'->5' Exonuclease)",
+    "alphafold-database-fetch-and-analyze (AF-O14746-F1 1132 AA & PAE Superdomains)",
+    "pdb-database (6HV9 Replisome, 7BG9 Telomerase, 4FM9 TOP2A)",
+    "opentargets-database (POLE 673 diseases MONDO_0014038, TERT 1,638 diseases MONDO_0013521, TOP2A SM Tractability)",
+    "gnomad-database (TOP2A pLI=0.99991 LOEUF=0.44452, TERT LOEUF=0.52214, POLE LOEUF=0.75997)",
+    "gtex-database (GTEx v10 TPM: TOP2A 164.64 TPM lymphocytes, POLE 73.37 TPM cerebellum, TERT 2.16 TPM testis)"
+  ],
+  "generated_figures": [
+    "assets/fig1_hero_chimeric_art_exo_3d_gudhi_tda.png",
+    "assets/fig2_hf_genomic_benchmarks_and_10skill_omic_atlas.png",
+    "assets/fig3_lean4_stochastic_thermodynamics_and_kramers_bell.png",
+    "assets/fig4_rusty_sundials_reticulate_haar_and_anse_energy.png"
+  ]
+}

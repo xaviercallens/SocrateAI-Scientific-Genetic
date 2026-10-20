@@ -1,0 +1,4 @@
+gnomAD Database License Notification
+Terms URLs: https://gnomad.broadinstitute.org/policies and https://gnomad.broadinstitute.org/data#api
+Recorded Timestamp: 2026-10-20T12:28:15+02:00
+User notified to review gnomAD policies and API terms prior to retrieving gene constraint metrics (pLI, LOEUF / oe_lof_upper, missense Z) for POLE, TERT, and TOP2A.
