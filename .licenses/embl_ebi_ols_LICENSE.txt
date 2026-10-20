@@ -1,0 +1,3 @@
+EMBL-EBI Ontology Lookup Service (OLS4) Terms of Use
+Source: EMBL-EBI (https://www.ebi.ac.uk/ols4 & https://www.ebi.ac.uk/about/terms-of-use)
+License: Creative Commons Attribution 4.0 International (CC BY 4.0) / EMBL-EBI Terms of Use.

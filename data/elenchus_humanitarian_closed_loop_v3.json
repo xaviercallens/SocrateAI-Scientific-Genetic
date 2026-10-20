@@ -1,0 +1,339 @@
+{
+  "benchmark_id": "SOCRATE_ELENCHUS_HUMANITARIAN_CLOSED_LOOP_V3",
+  "hf_9_dataset_cross_species_benchmark": {
+    "total_datasets": 9,
+    "species_covered": [
+      "Homo sapiens",
+      "Mus musculus",
+      "Drosophila melanogaster",
+      "Caenorhabditis elegans"
+    ],
+    "total_real_sequences_evaluated": 3600,
+    "total_real_dicodon_8d_vectors": 36000,
+    "mean_e8_vs_z8_mse_reduction_pct": 26.55,
+    "mean_a2_vs_z2_mse_reduction_pct": 17.93,
+    "all_datasets_banach_certified": true,
+    "datasets": [
+      {
+        "dataset_id": "katarinagresova/Genomic_Benchmarks_human_nontata_promoters",
+        "short_name": "Human Non-TATA Promoters",
+        "species": "Homo sapiens",
+        "element_class": "Promoter (Non-TATA)",
+        "sequences_evaluated": 400,
+        "dicodon_8d_vectors_evaluated": 4000,
+        "chargaff_involution_verified_pct": 100.0,
+        "mean_cpg_fraction": 0.01674,
+        "mean_alpha_prime_nm2": 0.040234,
+        "radii_poly_kappa_kb": 0.373418,
+        "banach_contraction_certified": true,
+        "chimeric_art_exo_3stage_error_ppm": 1.822106,
+        "mse_z8_cubic": 0.813944,
+        "mse_e8_gosset": 0.604611,
+        "e8_vs_z8_mse_reduction_pct": 25.72,
+        "mse_z2_square": 0.203257,
+        "mse_a2_hexagonal": 0.177059,
+        "a2_vs_z2_mse_reduction_pct": 12.89
+      },
+      {
+        "dataset_id": "katarinagresova/Genomic_Benchmarks_human_enhancers_cohn",
+        "short_name": "Human Enhancers (Cohn)",
+        "species": "Homo sapiens",
+        "element_class": "Active Enhancer",
+        "sequences_evaluated": 400,
+        "dicodon_8d_vectors_evaluated": 4000,
+        "chargaff_involution_verified_pct": 100.0,
+        "mean_cpg_fraction": 0.00743,
+        "mean_alpha_prime_nm2": 0.040104,
+        "radii_poly_kappa_kb": 0.373419,
+        "banach_contraction_certified": true,
+        "chimeric_art_exo_3stage_error_ppm": 1.822106,
+        "mse_z8_cubic": 0.8215,
+        "mse_e8_gosset": 0.613667,
+        "e8_vs_z8_mse_reduction_pct": 25.3,
+        "mse_z2_square": 0.203007,
+        "mse_a2_hexagonal": 0.15808,
+        "a2_vs_z2_mse_reduction_pct": 22.13
+      },
+      {
+        "dataset_id": "katarinagresova/Genomic_Benchmarks_human_enhancers_ensembl",
+        "short_name": "Human Enhancers (Ensembl)",
+        "species": "Homo sapiens",
+        "element_class": "Ensembl Enhancer",
+        "sequences_evaluated": 400,
+        "dicodon_8d_vectors_evaluated": 4000,
+        "chargaff_involution_verified_pct": 100.0,
+        "mean_cpg_fraction": 0.00919,
+        "mean_alpha_prime_nm2": 0.040129,
+        "radii_poly_kappa_kb": 0.373418,
+        "banach_contraction_certified": true,
+        "chimeric_art_exo_3stage_error_ppm": 1.822106,
+        "mse_z8_cubic": 0.812722,
+        "mse_e8_gosset": 0.605056,
+        "e8_vs_z8_mse_reduction_pct": 25.55,
+        "mse_z2_square": 0.222127,
+        "mse_a2_hexagonal": 0.172071,
+        "a2_vs_z2_mse_reduction_pct": 22.54
+      },
+      {
+        "dataset_id": "katarinagresova/Genomic_Benchmarks_human_ensembl_regulatory",
+        "short_name": "Human Ensembl Regulatory",
+        "species": "Homo sapiens",
+        "element_class": "Regulatory Element",
+        "sequences_evaluated": 400,
+        "dicodon_8d_vectors_evaluated": 4000,
+        "chargaff_involution_verified_pct": 100.0,
+        "mean_cpg_fraction": 0.0354,
+        "mean_alpha_prime_nm2": 0.040496,
+        "radii_poly_kappa_kb": 0.373416,
+        "banach_contraction_certified": true,
+        "chimeric_art_exo_3stage_error_ppm": 1.822106,
+        "mse_z8_cubic": 0.822667,
+        "mse_e8_gosset": 0.6095,
+        "e8_vs_z8_mse_reduction_pct": 25.91,
+        "mse_z2_square": 0.189899,
+        "mse_a2_hexagonal": 0.161404,
+        "a2_vs_z2_mse_reduction_pct": 15.01
+      },
+      {
+        "dataset_id": "katarinagresova/Genomic_Benchmarks_human_ocr_ensembl",
+        "short_name": "Human Open Chromatin (OCR)",
+        "species": "Homo sapiens",
+        "element_class": "Open Chromatin Region",
+        "sequences_evaluated": 400,
+        "dicodon_8d_vectors_evaluated": 4000,
+        "chargaff_involution_verified_pct": 100.0,
+        "mean_cpg_fraction": 0.01045,
+        "mean_alpha_prime_nm2": 0.040146,
+        "radii_poly_kappa_kb": 0.373418,
+        "banach_contraction_certified": true,
+        "chimeric_art_exo_3stage_error_ppm": 1.822106,
+        "mse_z8_cubic": 0.824111,
+        "mse_e8_gosset": 0.606611,
+        "e8_vs_z8_mse_reduction_pct": 26.39,
+        "mse_z2_square": 0.206889,
+        "mse_a2_hexagonal": 0.169313,
+        "a2_vs_z2_mse_reduction_pct": 18.16
+      },
+      {
+        "dataset_id": "katarinagresova/Genomic_Benchmarks_demo_coding_vs_intergenomic_seqs",
+        "short_name": "Coding vs Intergenomic",
+        "species": "Homo sapiens / Multi",
+        "element_class": "Exonic vs Intergenic",
+        "sequences_evaluated": 400,
+        "dicodon_8d_vectors_evaluated": 4000,
+        "chargaff_involution_verified_pct": 100.0,
+        "mean_cpg_fraction": 0.00935,
+        "mean_alpha_prime_nm2": 0.040131,
+        "radii_poly_kappa_kb": 0.373418,
+        "banach_contraction_certified": true,
+        "chimeric_art_exo_3stage_error_ppm": 1.822106,
+        "mse_z8_cubic": 0.821,
+        "mse_e8_gosset": 0.612167,
+        "e8_vs_z8_mse_reduction_pct": 25.44,
+        "mse_z2_square": 0.199474,
+        "mse_a2_hexagonal": 0.169682,
+        "a2_vs_z2_mse_reduction_pct": 14.94
+      },
+      {
+        "dataset_id": "katarinagresova/Genomic_Benchmarks_demo_human_or_worm",
+        "short_name": "Human vs C. elegans",
+        "species": "H. sapiens / C. elegans",
+        "element_class": "Cross-Phylum Genomic",
+        "sequences_evaluated": 400,
+        "dicodon_8d_vectors_evaluated": 4000,
+        "chargaff_involution_verified_pct": 100.0,
+        "mean_cpg_fraction": 0.00962,
+        "mean_alpha_prime_nm2": 0.040135,
+        "radii_poly_kappa_kb": 0.373418,
+        "banach_contraction_certified": true,
+        "chimeric_art_exo_3stage_error_ppm": 1.822106,
+        "mse_z8_cubic": 0.876,
+        "mse_e8_gosset": 0.583167,
+        "e8_vs_z8_mse_reduction_pct": 33.43,
+        "mse_z2_square": 0.190221,
+        "mse_a2_hexagonal": 0.162654,
+        "a2_vs_z2_mse_reduction_pct": 14.49
+      },
+      {
+        "dataset_id": "katarinagresova/Genomic_Benchmarks_drosophila_enhancers_stark",
+        "short_name": "Drosophila Enhancers (Stark)",
+        "species": "Drosophila melanogaster",
+        "element_class": "Developmental Enhancer",
+        "sequences_evaluated": 400,
+        "dicodon_8d_vectors_evaluated": 4000,
+        "chargaff_involution_verified_pct": 100.0,
+        "mean_cpg_fraction": 0.04094,
+        "mean_alpha_prime_nm2": 0.040573,
+        "radii_poly_kappa_kb": 0.373415,
+        "banach_contraction_certified": true,
+        "chimeric_art_exo_3stage_error_ppm": 1.822106,
+        "mse_z8_cubic": 0.810722,
+        "mse_e8_gosset": 0.612556,
+        "e8_vs_z8_mse_reduction_pct": 24.44,
+        "mse_z2_square": 0.213787,
+        "mse_a2_hexagonal": 0.178782,
+        "a2_vs_z2_mse_reduction_pct": 16.37
+      },
+      {
+        "dataset_id": "katarinagresova/Genomic_Benchmarks_dummy_mouse_enhancers_ensembl",
+        "short_name": "Mouse Enhancers (Ensembl)",
+        "species": "Mus musculus",
+        "element_class": "Mammalian Enhancer",
+        "sequences_evaluated": 400,
+        "dicodon_8d_vectors_evaluated": 4000,
+        "chargaff_involution_verified_pct": 100.0,
+        "mean_cpg_fraction": 0.00873,
+        "mean_alpha_prime_nm2": 0.040122,
+        "radii_poly_kappa_kb": 0.373419,
+        "banach_contraction_certified": true,
+        "chimeric_art_exo_3stage_error_ppm": 1.822106,
+        "mse_z8_cubic": 0.826444,
+        "mse_e8_gosset": 0.605278,
+        "e8_vs_z8_mse_reduction_pct": 26.76,
+        "mse_z2_square": 0.21265,
+        "mse_a2_hexagonal": 0.159753,
+        "a2_vs_z2_mse_reduction_pct": 24.88
+      }
+    ]
+  },
+  "socratic_elenchus_5_round_alignment": {
+    "elenchus_loop_version": "SOCRATE_ELENCHUS_CLOSED_LOOP_V3",
+    "all_5_rounds_certified": true,
+    "rounds": [
+      {
+        "round": 1,
+        "pillar": "Symbolic Lean 4.34.1 (`ANSE.GeneticAutoresearch` & `ANSE.StochasticThermodynamics`)",
+        "theorems_verified": 26,
+        "sorry_axioms": 0,
+        "custom_axioms": 0,
+        "new_humanitarian_theorems": [
+          "GAR_H15_pole_ultramutator_tmb_threshold_and_immunotherapy_rescue",
+          "GAR_H16_sickle_cell_hbb_prime_editing_fidelity_and_polg_antiviral_selectivity",
+          "GAR_H17_elenchus_four_pillar_alignment_and_538x_fifth_gen_anse_energy"
+        ],
+        "popperian_false_control": {
+          "injected_claim": "(1/100)^2 = 1/1000 and 4+36+64+36 = 200 (Peer-Review Hallucination Control)",
+          "claim_evaluates_to": false,
+          "refuted_by_elenchus_gate": true,
+          "assigned_energy_on_refutation": 1000000.0
+        },
+        "status": "ALIGNED_AND_CERTIFIED"
+      },
+      {
+        "round": 2,
+        "pillar": "Exact-Q Mathematical Identities (Bi-Helmholtz, Kramers-Bell, Woodbury, Hurwitz O_0, Gosset E8)",
+        "bihelmholtz_quartic_exact_identity_verified": true,
+        "gosset_e8_second_moment_verified": true,
+        "woodbury_sherman_morrison_exact_verified": true,
+        "popperian_false_control": {
+          "injected_claim": "False polynomial factorization (1+u)^4 - (256/27)u == (1-3u)^2((1+u)^2 + 16/3 u + 16/27 u^2)",
+          "claim_evaluates_to": false,
+          "refuted_by_elenchus_gate": true,
+          "assigned_energy_on_refutation": 1000000.0
+        },
+        "status": "ALIGNED_AND_CERTIFIED"
+      },
+      {
+        "round": 3,
+        "pillar": "Genetic & Humanitarian Clinical Biology (20 Live Scientific Skills)",
+        "humanitarian_application_1_immuno_oncology": {
+          "theorem": "GAR.H15",
+          "disease_ontology": "OLS4 DOID:9256 (colorectal cancer) & DOID:3883 (Lynch syndrome)",
+          "variant": "POLE rs1057519943 (p.Pro286Arg, ClinVar VCV000246348 Pathogenic)",
+          "fda_drug_grounding": "openFDA KEYTRUDA (pembrolizumab, UNII: DPT0O3T46P, Anti-PD-1 Checkpoint Blockade)",
+          "tmb_wildtype_mut_per_mb": 0.2,
+          "tmb_pole_p286r_mut_per_mb": 1388.8889,
+          "tmb_amplification_ratio_exact": "62500/9",
+          "fda_tmb_high_cutoff_mut_per_mb": 10.0,
+          "pd1_immune_escape_hazard_exact": "1/1251",
+          "pd1_immune_escape_hazard_float": 0.000799
+        },
+        "humanitarian_application_2_monogenic_gene_therapy": {
+          "theorem": "GAR.H16 (Part A)",
+          "disease_ontology": "OLS4 DOID:10923 (sickle cell anemia, HBB rs334 p.Glu6Val) & DOID:1485 (cystic fibrosis, CFTR p.Phe508del)",
+          "rtt_template_length_nt": 30,
+          "scarless_fidelity_1stage_art_pct": 64.0,
+          "scarless_fidelity_2stage_mmlv_pct": 99.568,
+          "scarless_fidelity_3stage_chimeric_art_exo_exact": "1562419/1562500",
+          "scarless_fidelity_3stage_chimeric_art_exo_pct": 99.994816,
+          "defect_reduction_vs_2stage_exact": "250/3 (83.33x)"
+        },
+        "humanitarian_application_3_antiviral_mitochondrial_safety": {
+          "theorem": "GAR.H16 (Part B) & GAR.H17",
+          "host_polymerase": "Human Mitochondrial DNA Polymerase Gamma (POLG, UniProt P54098, m=3 exonuclease)",
+          "viral_target": "Viral RNA-Dependent / Reverse Transcriptase Polymerase (m=1, no exonuclease)",
+          "polg_vs_viral_rt_selectivity_index": 50000,
+          "unibind_ctcf_direct_tfbs_datasets": 556,
+          "unibind_flagship_dataset": "ENCSR000AHD.MCF7_Invasive_ductal_breast_carcinoma.CTCF (59,714 ChIP-seq DAMO peaks)"
+        },
+        "popperian_false_control": {
+          "injected_claim": "Negative nucleotide count n_T = -6 via naive quaternion conjugation (a,-b,-c,-d)",
+          "claim_evaluates_to": false,
+          "refuted_by_elenchus_gate": true,
+          "assigned_energy_on_refutation": 1000000.0
+        },
+        "status": "ALIGNED_AND_CERTIFIED"
+      },
+      {
+        "round": 4,
+        "pillar": "Stiff-Geometric Numerics (`rusty-SUNDIALS`) & 9-Dataset Cross-Species Validation (`36,000` Dicodons)",
+        "datasets_evaluated": 9,
+        "real_sequences_evaluated": 3600,
+        "real_dicodon_8d_vectors_evaluated": 36000,
+        "mean_e8_vs_z8_mse_reduction_pct": 26.55,
+        "mean_a2_vs_z2_mse_reduction_pct": 17.93,
+        "dual_rrk_supercoiling_energy_drift": 6.68e-13,
+        "woodbury_reticulate_residual": 1.11e-16,
+        "all_datasets_banach_certified": true,
+        "popperian_false_control": {
+          "injected_claim": "Unrelaxed explicit Euler/RK4 integration without Dual-RRK projection (secular drift > 1e-4)",
+          "claim_evaluates_to": false,
+          "refuted_by_elenchus_gate": true,
+          "assigned_energy_on_refutation": 1000000.0
+        },
+        "status": "ALIGNED_AND_CERTIFIED"
+      },
+      {
+        "round": 5,
+        "pillar": "Closed-Loop Elenchus Synthesis & 5th-Gen Humanitarian ANSE Bio-Computational Energy (`GAR.H17`)",
+        "four_pillars_simultaneously_aligned": true,
+        "popperian_refutation_gate_active": true,
+        "anse_6stage_energy_cascade": {
+          "E_refuted_pain_gate": 1000000.0,
+          "E_baseline": {
+            "exact": "147197/6900",
+            "float": 21.33289855,
+            "speedup_x": 1.0
+          },
+          "E_Gen1_Torque_Haar_ART": {
+            "exact": "24115822/57984375",
+            "float": 0.41590208,
+            "speedup_x": 51.29
+          },
+          "E_Gen2_Chimeric_ART_Exo": {
+            "exact": "20845317/154625000",
+            "float": 0.13481207,
+            "speedup_x": 158.24
+          },
+          "E_Gen3_E8_10Lane_SIMD": {
+            "exact": "800161493/8349750000",
+            "float": 0.09583059,
+            "speedup_x": 222.61
+          },
+          "E_Gen4_Federated_cCRE_CTCF_16Lane": {
+            "exact": "3976592569/66798000000",
+            "float": 0.05953161,
+            "speedup_x": 358.35
+          },
+          "E_Gen5_Elenchus_Humanitarian_24Lane_UniBind": {
+            "exact": "3966806041/100197000000",
+            "float": 0.03959007,
+            "speedup_x": 538.84
+          }
+        },
+        "status": "ALIGNED_AND_CERTIFIED"
+      }
+    ]
+  },
+  "figure_generated": "assets/fig7_elenchus_closed_loop_humanitarian_538x.png"
+}

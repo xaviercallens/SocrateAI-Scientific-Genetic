@@ -1130,6 +1130,41 @@ impl GossetE8DicodonQuantizer {
             1000.0 * (27.0 / 15_625_000.0) + 0.0 + 100.0 * (1.0 / 24740.0) + (929.0 / 17280.0);
         (tau_eff, beta_gamma_eff, e_gen4_fed, e_baseline / e_gen4_fed)
     }
+
+    /// Evaluates `GAR.H15` (`POLE` `p.Pro286Arg` TMB-High `12500/9` & `KEYTRUDA` hazard `1/1251`),
+    /// `GAR.H16` (`HBB` `rs334` 30-nt RTT scarless prime-editing fidelity `1562419/1562500` &
+    /// mitochondrial `POLG` antiviral selectivity index `50000`), and `GAR.H17` (5th-Generation
+    /// Humanitarian Elenchus ANSE Bio-Computational Energy `E_Gen5-Elenchus-ART = 0.03959007`,
+    /// `538.84x` total reduction over `E_baseline`).
+    pub fn evaluate_fifth_gen_elenchus_humanitarian_energy(
+        lean_ok: bool,
+        math_ok: bool,
+        bio_ok: bool,
+        num_ok: bool,
+    ) -> (Real, Real, Real, Real, Real, Real) {
+        let s_mb = 3_125_000.0 / 27.0;
+        let tmb_pole_p286r = s_mb * (3.0 / 250.0); // 12500 / 9 = 1388.888...
+        let pd1_escape_hazard = 1.0 / (1.0 + 0.9 * tmb_pole_p286r); // 1 / 1251
+        let hbb_scarless_bound = 1.0 - 30.0 * (27.0 / 15_625_000.0); // 1562419 / 1562500
+        let polg_selectivity = (1.0 / 20.0) / (1.0 / 1_000_000.0); // 50000.0
+        let e_baseline =
+            1000.0 * (1.0 / 100.0) + 10000.0 * (213.0 / 1_000_000.0) + 100.0 * (1.0 / 115.0) + (25.0 / 3.0);
+        let e_gen5_candidate =
+            1000.0 * (27.0 / 15_625_000.0) + 0.0 + 100.0 * (1.0 / 49480.0) + (929.0 / 25920.0);
+        let e_gated = if lean_ok && math_ok && bio_ok && num_ok {
+            e_gen5_candidate
+        } else {
+            1_000_000.0
+        };
+        (
+            tmb_pole_p286r,
+            pd1_escape_hazard,
+            hbb_scarless_bound,
+            polg_selectivity,
+            e_gated,
+            e_baseline / e_gated,
+        )
+    }
 }
 
 #[cfg(test)]
@@ -1323,5 +1358,23 @@ mod tests {
         assert!((beta_gamma_eff - 0.5).abs() < 1e-12);
         assert!(e_gen4 < e_gen3 && e_gen4 < 0.06);
         assert!(speedup_gen4 > 358.0 && e_base3 > 358.0 * e_gen4);
+
+        // Socratic Elenchus Humanitarian Closed-Loop (GAR.H15, GAR.H16, GAR.H17): 538.84x Gen-5 ANSE Energy
+        let (tmb_p286r, pd1_haz, hbb_scarless, polg_si, e_gen5, speedup_gen5) =
+            GossetE8DicodonQuantizer::evaluate_fifth_gen_elenchus_humanitarian_energy(
+                true, true, true, true,
+            );
+        assert!((tmb_p286r - 12500.0 / 9.0).abs() < 1e-10 && tmb_p286r > 100.0);
+        assert!((pd1_haz - 1.0 / 1251.0).abs() < 1e-15 && pd1_haz < 0.001);
+        assert!((hbb_scarless - 1562419.0 / 1562500.0).abs() < 1e-15 && hbb_scarless > 0.9999);
+        assert!((polg_si - 50000.0).abs() < 1e-10 && polg_si > 10000.0);
+        assert!(e_gen5 < e_gen4 && e_gen5 < 0.04);
+        assert!(speedup_gen5 > 538.0 && e_base3 > 538.0 * e_gen5);
+
+        let (_, _, _, _, e_refuted, _) =
+            GossetE8DicodonQuantizer::evaluate_fifth_gen_elenchus_humanitarian_energy(
+                true, false, true, true,
+            );
+        assert!((e_refuted - 1_000_000.0).abs() < 1e-9);
     }
 }

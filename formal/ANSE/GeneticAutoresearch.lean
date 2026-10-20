@@ -452,6 +452,78 @@ theorem GAR_H14_federated_multi_omic_information_and_fourth_gen_anse_energy :
   unfold federatedGen4ArtEnergy e8QuantizedChimericArtEnergy chimericArtExoEnergy efficientTorqueHaarArtEnergy baselineArtDnaEnergy anseArtDnaEnergy
   norm_num
 
+-- 1.15 `GAR.H15`: Precision Immuno-Oncology (`POLE` `p.Pro286Arg` TMB-High & `KEYTRUDA` Rescue)
+example : Stmt_GAR_H15_PoleUltramutatorTmbThresholdAndImmunotherapyRescue =
+  ((∀ sMb γ : ℚ, sMb ≠ 0 → γ ≠ 0 →
+    somaticTmbFromError sMb γ / somaticTmbFromError sMb (γ ^ 3) = 1 / (γ ^ 2)) ∧
+  (somaticTmbFromError (3125000 / 27) (27 / 15625000) = 1 / 5 ∧
+   ((1 : ℚ) / 5 < 10) ∧
+   somaticTmbFromError (3125000 / 27) (3 / 250) = 12500 / 9 ∧
+   ((100 : ℚ) < 12500 / 9) ∧
+   ((12500 : ℚ) / 9) / (1 / 5) = 62500 / 9 ∧
+   pd1ImmuneEscapeHazard (9 / 10) (12500 / 9) = 1 / 1251 ∧
+   ((1 : ℚ) / 1251 < 1 / 1000))) := rfl
+
+/-- @concept Precision Immuno-Oncology POLE P286R Ultramutator TMB-High & KEYTRUDA PD-1 Rescue
+    @rag_query POLE Pro286Arg TMB-High 12500/9 pembrolizumab KEYTRUDA openFDA DOID:9256
+    @graph_node GeneticAutoresearch.GAR_H15_pole_ultramutator_tmb_threshold_and_immunotherapy_rescue
+    @graph_edge GeneticAutoresearch.GAR_H14_federated_multi_omic_information_and_fourth_gen_anse_energy -> GeneticAutoresearch.GAR_H15_pole_ultramutator_tmb_threshold_and_immunotherapy_rescue -/
+theorem GAR_H15_pole_ultramutator_tmb_threshold_and_immunotherapy_rescue :
+    Stmt_GAR_H15_PoleUltramutatorTmbThresholdAndImmunotherapyRescue := by
+  unfold Stmt_GAR_H15_PoleUltramutatorTmbThresholdAndImmunotherapyRescue
+  refine ⟨?_, ?_⟩
+  · intro sMb γ hs hγ
+    unfold somaticTmbFromError
+    field_simp [hs, hγ]
+  · unfold somaticTmbFromError pd1ImmuneEscapeHazard
+    norm_num
+
+-- 1.16 `GAR.H16`: Scarless `HBB` `rs334` Prime Editing & Mitochondrial `POLG` Antiviral Selectivity
+example : Stmt_GAR_H16_SickleCellHbbPrimeEditingFidelityAndPolgAntiviralSelectivity =
+  ((primeEditingScarlessLowerBound 30 (3 / 250) = 16 / 25 ∧
+   primeEditingScarlessLowerBound 30 (9 / 62500) = 6223 / 6250 ∧
+   primeEditingScarlessLowerBound 30 (27 / 15625000) = 1562419 / 1562500 ∧
+   ((9999 : ℚ) / 10000 < 1562419 / 1562500) ∧
+   (30 * (9 / 62500 : ℚ)) / (30 * (27 / 15625000)) = 250 / 3) ∧
+  (antiviralSelectivityIndex (1 / 20) ((1 / 100 : ℚ) ^ 3) = 50000 ∧
+   ((10000 : ℚ) < 50000))) := rfl
+
+/-- @concept Scarless HBB rs334 Prime Editing Fidelity & Mitochondrial POLG Antiviral Selectivity
+    @rag_query HBB rs334 sickle cell DOID:10923 prime editing Chimeric ART-Exo POLG antiviral selectivity
+    @graph_node GeneticAutoresearch.GAR_H16_sickle_cell_hbb_prime_editing_fidelity_and_polg_antiviral_selectivity
+    @graph_edge GeneticAutoresearch.GAR_H15_pole_ultramutator_tmb_threshold_and_immunotherapy_rescue -> GeneticAutoresearch.GAR_H16_sickle_cell_hbb_prime_editing_fidelity_and_polg_antiviral_selectivity -/
+theorem GAR_H16_sickle_cell_hbb_prime_editing_fidelity_and_polg_antiviral_selectivity :
+    Stmt_GAR_H16_SickleCellHbbPrimeEditingFidelityAndPolgAntiviralSelectivity := by
+  unfold Stmt_GAR_H16_SickleCellHbbPrimeEditingFidelityAndPolgAntiviralSelectivity
+  unfold primeEditingScarlessLowerBound antiviralSelectivityIndex
+  norm_num
+
+-- 1.17 `GAR.H17`: Socratic Elenchus 4-Pillar Alignment Gate & `538.84x` 5th-Gen Humanitarian ANSE Energy
+example : Stmt_GAR_H17_ElenchusFourPillarAlignmentAnd538xFifthGenAnseEnergy =
+  ((elenchusFourPillarGate true true true true elenchusGen5ArtEnergy = elenchusGen5ArtEnergy ∧
+   elenchusFourPillarGate false true true true elenchusGen5ArtEnergy = elenchusRefutedPainEnergy ∧
+   elenchusFourPillarGate true false true true elenchusGen5ArtEnergy = elenchusRefutedPainEnergy ∧
+   elenchusFourPillarGate true true false true elenchusGen5ArtEnergy = elenchusRefutedPainEnergy ∧
+   elenchusFourPillarGate true true true false elenchusGen5ArtEnergy = elenchusRefutedPainEnergy) ∧
+  (elenchusGen5ArtEnergy < federatedGen4ArtEnergy ∧
+   federatedGen4ArtEnergy < e8QuantizedChimericArtEnergy ∧
+   e8QuantizedChimericArtEnergy < chimericArtExoEnergy ∧
+   chimericArtExoEnergy < efficientTorqueHaarArtEnergy ∧
+   efficientTorqueHaarArtEnergy < baselineArtDnaEnergy) ∧
+  (elenchusGen5ArtEnergy < (1 : ℚ) / 25 ∧
+   538 * elenchusGen5ArtEnergy < baselineArtDnaEnergy ∧
+   25000000 * elenchusGen5ArtEnergy < elenchusRefutedPainEnergy)) := rfl
+
+/-- @concept Socratic Elenchus 4-Pillar Alignment Gate & 538.84x 5th-Gen Humanitarian ANSE Energy
+    @rag_query Elenchus 4-pillar gate UniBind CTCF 24-lane SIMD E8 538x ANSE bio-computational energy
+    @graph_node GeneticAutoresearch.GAR_H17_elenchus_four_pillar_alignment_and_538x_fifth_gen_anse_energy
+    @graph_edge GeneticAutoresearch.GAR_H16_sickle_cell_hbb_prime_editing_fidelity_and_polg_antiviral_selectivity -> GeneticAutoresearch.GAR_H17_elenchus_four_pillar_alignment_and_538x_fifth_gen_anse_energy -/
+theorem GAR_H17_elenchus_four_pillar_alignment_and_538x_fifth_gen_anse_energy :
+    Stmt_GAR_H17_ElenchusFourPillarAlignmentAnd538xFifthGenAnseEnergy := by
+  unfold Stmt_GAR_H17_ElenchusFourPillarAlignmentAnd538xFifthGenAnseEnergy
+  unfold elenchusFourPillarGate elenchusRefutedPainEnergy elenchusGen5ArtEnergy federatedGen4ArtEnergy e8QuantizedChimericArtEnergy chimericArtExoEnergy efficientTorqueHaarArtEnergy baselineArtDnaEnergy anseArtDnaEnergy
+  norm_num
+
 -- ============================================================================
 -- SECTION 2: MULTI-KERNEL AXIOM AUDIT (`ARGOS-CENTAUR-003`)
 -- ============================================================================
@@ -470,5 +542,8 @@ theorem GAR_H14_federated_multi_omic_information_and_fourth_gen_anse_energy :
 #print axioms GAR_H12_agora_kinetic_transport_kernel_and_third_gen_anse_energy
 #print axioms GAR_H13_pharmacological_top2a_torque_inhibition_and_phylop_conservation
 #print axioms GAR_H14_federated_multi_omic_information_and_fourth_gen_anse_energy
+#print axioms GAR_H15_pole_ultramutator_tmb_threshold_and_immunotherapy_rescue
+#print axioms GAR_H16_sickle_cell_hbb_prime_editing_fidelity_and_polg_antiviral_selectivity
+#print axioms GAR_H17_elenchus_four_pillar_alignment_and_538x_fifth_gen_anse_energy
 
 end ANSE.GeneticAutoresearch

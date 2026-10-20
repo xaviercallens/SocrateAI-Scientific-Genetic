@@ -1,0 +1,4 @@
+openFDA Terms of Service & License
+Source: U.S. Food and Drug Administration (https://open.fda.gov/license/)
+License: Creative Commons CC0 1.0 Universal Public Domain Dedication (with openFDA Terms of Service).
+Disclaimer: Do not rely on openFDA to make decisions regarding medical care. Always speak to your health provider about the risks and benefits of FDA-regulated products.

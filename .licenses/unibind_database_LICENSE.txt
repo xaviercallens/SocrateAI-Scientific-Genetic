@@ -1,0 +1,4 @@
+UniBind Database License
+Source: UniBind (https://unibind.uio.no/)
+License: Creative Commons Attribution 4.0 International (CC BY 4.0).
+Citation: Puig et al. (2021) UniBind: maps of high-confidence direct TF-DNA interactions across nine species. BMC Genomics 22, 482.

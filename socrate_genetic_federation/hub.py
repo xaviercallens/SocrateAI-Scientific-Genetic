@@ -122,7 +122,12 @@ FEDERATED_17_SKILLS_REGISTRY: list[dict[str, Any]] = [
     {"id": 15, "skill": "jaspar-database", "target": "CTCF (MA0139.2, 15 bp) & MYC (tax-id 9606)", "metric": "Exact 15-bp CTCF PFM/PWM Shannon information = 16.14 bits (GAR.H14)"},
     {"id": 16, "skill": "chembl-database", "target": "TOP2A (CHEMBL1806) Bioactivities", "metric": "Normalized IC50 (20,000–100,000 nM) & torque inhibition τ_eff = τ_0/(1+c_I) (GAR.H13)"},
     {"id": 17, "skill": "clinical-trials-database", "target": "POLE (82 trials, NCT04262089) & TERT (86 trials, NCT03946358)", "metric": "168 ClinicalTrials.gov studies grounding POLE-EDM & hTERT immunotherapy"},
+    {"id": 18, "skill": "openfda-database", "target": "KEYTRUDA (pembrolizumab, UNII: DPT0O3T46P) & ETOPOSIDE (UNII: 6PLQ3CP4P3)", "metric": "FDA TMB-High (>=10 mut/Mb) PD-1 blockade rescue & TOP2A inhibition labels (GAR.H15)"},
+    {"id": 19, "skill": "unibind-database", "target": "Homo sapiens CTCF Direct TF-DNA Interactions (556 ChIP-seq DAMO datasets)", "metric": "ENCSR000AHD.MCF7.CTCF (59,714 direct binding peaks) insulating replication origins (GAR.H17)"},
+    {"id": 20, "skill": "embl-ebi-ols", "target": "DOID:9256 (colorectal cancer), DOID:10923 (sickle cell anemia), DOID:1485 (cystic fibrosis)", "metric": "EMBL-EBI OLS4 disease ontology grounding for POLE, HBB rs334 & CFTR gene therapy (GAR.H15-H16)"},
 ]
+
+FEDERATED_20_SKILLS_REGISTRY = FEDERATED_17_SKILLS_REGISTRY
 
 FEDERATED_23_THEOREMS_REGISTRY: list[str] = [
     "ST_T1_master_equation_mass_conservation_and_imex_positivity",
@@ -148,7 +153,12 @@ FEDERATED_23_THEOREMS_REGISTRY: list[str] = [
     "GAR_H12_agora_kinetic_transport_kernel_and_third_gen_anse_energy",
     "GAR_H13_pharmacological_top2a_torque_inhibition_and_phylop_conservation",
     "GAR_H14_federated_multi_omic_information_and_fourth_gen_anse_energy",
+    "GAR_H15_pole_ultramutator_tmb_threshold_and_immunotherapy_rescue",
+    "GAR_H16_sickle_cell_hbb_prime_editing_fidelity_and_polg_antiviral_selectivity",
+    "GAR_H17_elenchus_four_pillar_alignment_and_538x_fifth_gen_anse_energy",
 ]
+
+FEDERATED_26_THEOREMS_REGISTRY = FEDERATED_23_THEOREMS_REGISTRY
 
 
 class FederatedGeneticHub:
