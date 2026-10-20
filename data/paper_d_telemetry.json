@@ -1,41 +1,37 @@
 {
   "paper_id": "BREAKTHROUGH_PAPER_D",
-  "breakthrough_id": "BREAKTHROUGH_3D_ATP_CHROMATIN_REMODELING_STOCHASTIC_THERMODYNAMICS",
-  "domain": "ATP_DEPENDENT_CHROMATIN_REMODELING_JARZYNSKI_CROOKS_MCGHEE_VON_HIPPEL_LATTICE_DYNAMICS",
-  "biological_systems": {
-    "iswi_remodeler": {
-      "gene": "SMARCA5 / SNF2H",
-      "uniprot_id": "O60264",
-      "pdb_id": "6NE3",
-      "resolution_angstrom": 3.90,
-      "binding_site": "SHL-2"
-    },
-    "swi_snf_remodeler": {
-      "gene": "SMARCA4 / BRG1",
-      "uniprot_id": "P51532",
-      "pdb_id": "6LTJ",
-      "resolution_angstrom": 3.70,
-      "complex": "Human BAF nucleosome complex"
-    },
-    "nucleosome_core_particle": {
-      "template": "Widom 601 NCP147",
-      "pdb_id": "1KX5",
-      "resolution_angstrom": 1.94,
-      "footprint_bp": 147
-    }
-  },
-  "smfret_and_optical_tweezers_observables": {
-    "temperature_kelvin": 310.0,
-    "kt_pn_nm": 4.28,
-    "delta_mu_atp_kt": 20.0,
-    "delta_mu_atp_pn_nm": 85.6,
-    "outer_turn_20bp_unwrap_barrier_kt": 6.5,
-    "outer_turn_20bp_unwrap_barrier_pn_nm": 27.82,
-    "elementary_step_bp": 1.0,
-    "elementary_step_nm": 0.34,
-    "remodeling_burst_bp_range": [3, 7],
-    "passive_sliding_diffusion_bp2_s": 0.36,
-    "catalytic_sliding_velocity_bp_s": 2.4
+  "breakthrough_id": "BREAKTHROUGH_3D_BIOPHYSICS_GENETICS_ENERGY_MATERIALS",
+  "domain": "3D_NON_EQUILIBRIUM_STOCHASTIC_THERMODYNAMICS_ATP_CHROMATIN_REMODELING",
+  "biological_system": {
+    "primary_complex": "ATP-Dependent Chromatin Remodeling Complex (ISWI / SNF2H & SWI/SNF / BRG1 on Widom 601 Nucleosome Core Particle)",
+    "pdb_structures": [
+      {
+        "pdb_id": "6NE3",
+        "uniprot": "O60264",
+        "gene": "SMARCA5 (SNF2H)",
+        "resolution_A": 3.9
+      },
+      {
+        "pdb_id": "6LTJ",
+        "uniprot": "P51532",
+        "gene": "SMARCA4 (BRG1)",
+        "resolution_A": 3.7
+      },
+      {
+        "pdb_id": "1KX5",
+        "uniprot": "P62805",
+        "gene": "NCP147 (Widom 601)",
+        "resolution_A": 1.94
+      }
+    ],
+    "temperature_K": 310.0,
+    "kBT_pN_nm": 4.28,
+    "delta_mu_ATP_kBT": 20.0,
+    "delta_mu_ATP_pN_nm": 85.6,
+    "unwrap_barrier_20bp_kBT": 6.5,
+    "unwrap_barrier_20bp_pN_nm": 27.82,
+    "passive_sliding_diffusion_bp2_per_s": 0.36,
+    "active_remodeling_velocity_bp_per_s": 2.4
   },
   "atp_cycle_w_plus": 6,
   "atp_cycle_w_minus": 1,
@@ -46,31 +42,27 @@
   "atp_cycle_sigma_dot_ness": 8.958797,
   "atp_cycle_tur_lhs_rational": "50/9",
   "atp_cycle_tur_rational_coeff": "10/63",
-  "atp_cycle_tur_ratio": 0.265768,
+  "atp_cycle_tur_ratio": 0.088589,
   "forward_euler_stiff_dt_rational": "1/4",
   "forward_euler_diag_factor_rational": "-3/4",
-  "jarzynski_crooks_fluctuation_theorem": {
-    "lean_theorem": "ST_T5_jarzynski_equality_crooks_fluctuation_and_schnakenberg_cycle",
-    "unwrap_free_energy_kt": 6.5,
-    "mean_pulling_work_kt": 8.5,
-    "dissipated_work_kt": 2.0,
-    "second_law_verified": true
+  "jarzynski_crooks_fluctuation": {
+    "delta_F_unwrap_kBT": 6.5,
+    "delta_F_unwrap_pN_nm": 27.82,
+    "mean_forward_work_kBT": 8.5,
+    "mean_dissipated_work_kBT": 2.0,
+    "jarzynski_estimator_kBT": 6.5
   },
-  "mcghee_von_hippel_tonks_girardeau_lattice": {
-    "lean_theorem": "ST_T6_mcghee_von_hippel_tonks_girardeau_chromatin_lattice_and_rouse_polymer",
+  "chromatin_lattice_gas": {
     "nucleosome_footprint_bp": 147,
     "euchromatin_nrl_bp": 200,
     "heterochromatin_nrl_bp": 165,
-    "mcghee_steric_euchromatin_rational": "53/54",
-    "mcghee_steric_heterochromatin_rational": "18/19",
-    "tonks_girardeau_pressure_euchromatin_rational": "1/53",
-    "tonks_girardeau_pressure_heterochromatin_rational": "1/18",
-    "tonks_girardeau_pressure_surge_rational": "53/18",
-    "tonks_girardeau_pressure_surge_float": 2.944444
+    "mcghee_von_hippel_euchromatin_rational": "53/54",
+    "mcghee_von_hippel_heterochromatin_rational": "18/19",
+    "tonks_girardeau_pressure_ratio_rational": "53/18"
   },
   "figures": [
-    "papers/fig1_stochastic_thermodynamics_imex_positivity.pdf",
-    "papers/fig2_schnakenberg_tur_precision_bound.pdf",
-    "papers/fig3_jarzynski_crooks_mcghee_chromatin.pdf"
+    "/home/xavkal/xdev/AutoevolveAI/papers/three_breakthroughs/paper_d/fig1_stochastic_thermodynamics_imex_positivity.pdf",
+    "/home/xavkal/xdev/AutoevolveAI/papers/three_breakthroughs/paper_d/fig2_schnakenberg_tur_precision_bound.pdf",
+    "/home/xavkal/xdev/AutoevolveAI/papers/three_breakthroughs/paper_d/fig3_jarzynski_crooks_mcghee_chromatin.pdf"
   ]
 }

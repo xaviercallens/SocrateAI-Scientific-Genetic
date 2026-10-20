@@ -1,0 +1,266 @@
+{
+  "trilogy": "FIVE_BREAKTHROUGHS_FRONTIER_PAPERS_3A_3B_3C_3D_3E",
+  "published_count": 5,
+  "receipts": [
+    {
+      "deposition_id": 23483643,
+      "doi": "10.5281/zenodo.23483643",
+      "doi_url": "https://doi.org/10.5281/zenodo.23483643",
+      "record_url": "https://zenodo.org/record/23483643",
+      "state": "done",
+      "submitted": true,
+      "title": "Discretization-Free 3D Stellarator Guiding-Center Plasma Confinement, Dual-Number Relaxation Runge-Kutta Conservation in rusty-SUNDIALS, and Villani Grazing-Collision Landau Fisher Monotonicity Verified in Lean 4",
+      "uploaded_files": [
+        {
+          "filename": "PaperA_Stellarator_Fusion_DualRRK_Villani_LeanFlow.pdf",
+          "size_bytes": 397800,
+          "sha256": "7439a4ffe6e115814ecd2d94e51d4d03c9c105a966b70f08b1ce04e922dab8e3"
+        },
+        {
+          "filename": "PaperA_Stellarator_Fusion_DualRRK_Villani_LeanFlow.tex",
+          "size_bytes": 21596,
+          "sha256": "07569f940dd01c8c2db593103ae8d916e205aa9b8d021a719b57bea8ebd22837"
+        },
+        {
+          "filename": "paper_a_telemetry.json",
+          "size_bytes": 2956,
+          "sha256": "d39522ba98de75e884baefd0acd7174fda7d0d56d9fcb56e323cde0874dd3c42"
+        },
+        {
+          "filename": "breakthrough_3a_stellarator_fusion_opus_5round_peer_review.json",
+          "size_bytes": 63394,
+          "sha256": "38c369cba69c8df24db4ce25ec69fb2f6f5df6a166a1c3ad1b235d7b8757e03d"
+        },
+        {
+          "filename": "Breakthroughs3DomainsSpec.lean",
+          "size_bytes": 23888,
+          "sha256": "8fb4501c4f8bbd2d18e8d1b18e0e5b03434da7f02dc560c05ac11c00edbb2b3d"
+        },
+        {
+          "filename": "Breakthroughs3Domains.lean",
+          "size_bytes": 26123,
+          "sha256": "c84764bb7b651a0d32a0fe3775ddfd94d0131fac0b242b1370bcdf1055585f77"
+        },
+        {
+          "filename": "MensuraElenchusThreeMissions.lean",
+          "size_bytes": 11432,
+          "sha256": "9d9190b7394f451b3bd49228c1c582f0cd2301377882f051d395c98391dc8cce"
+        },
+        {
+          "filename": "LeanMasterAutoTactics.lean",
+          "size_bytes": 3518,
+          "sha256": "2a206c4e2a2c28b55c9985c5213f9d95a589b5cfc0aa22ebfb10534b95ca8493"
+        }
+      ],
+      "paper_code": "PAPER_A_DOMAIN_3A_STELLARATOR_FUSION"
+    },
+    {
+      "deposition_id": 23483647,
+      "doi": "10.5281/zenodo.23483647",
+      "doi_url": "https://doi.org/10.5281/zenodo.23483647",
+      "record_url": "https://zenodo.org/record/23483647",
+      "state": "done",
+      "submitted": true,
+      "title": "Scale-Dual Subgrid Regularization of 3D Navier-Stokes, the Helmholtz Leray-alpha Isomorphism, Zero-Inertial-Distortion Optimality, and Continuum Galerkin Computer-Assisted Proofs in Lean 4",
+      "uploaded_files": [
+        {
+          "filename": "PaperB_NavierStokes_Hurricane_Mensura_DualScale_CAP.pdf",
+          "size_bytes": 553769,
+          "sha256": "6fe3d9643fe0471a68fdf0139ea2922f589be2461d451f3f86dd1094e0272b65"
+        },
+        {
+          "filename": "PaperB_NavierStokes_Hurricane_Mensura_DualScale_CAP.tex",
+          "size_bytes": 36871,
+          "sha256": "76bf647e0d479890f732d71424071488f5fcef6a4de4d7c8cee62e1f56a7c5e8"
+        },
+        {
+          "filename": "paper_b_telemetry.json",
+          "size_bytes": 6060,
+          "sha256": "d3a17fe2e289de1599ddc0b56182479869ab642527a57d9c0e80d251d26a14b5"
+        },
+        {
+          "filename": "breakthrough_3b_navier_stokes_mensura_cap_opus_5round_peer_review.json",
+          "size_bytes": 65752,
+          "sha256": "9229a18990d7fabacbcf03c11643c0fcda500179c474108ecf8885055e23b067"
+        },
+        {
+          "filename": "Breakthroughs3DomainsSpec.lean",
+          "size_bytes": 23888,
+          "sha256": "8fb4501c4f8bbd2d18e8d1b18e0e5b03434da7f02dc560c05ac11c00edbb2b3d"
+        },
+        {
+          "filename": "Breakthroughs3Domains.lean",
+          "size_bytes": 26123,
+          "sha256": "c84764bb7b651a0d32a0fe3775ddfd94d0131fac0b242b1370bcdf1055585f77"
+        },
+        {
+          "filename": "MensuraElenchusThreeMissions.lean",
+          "size_bytes": 11432,
+          "sha256": "9d9190b7394f451b3bd49228c1c582f0cd2301377882f051d395c98391dc8cce"
+        },
+        {
+          "filename": "LeanMasterAutoTactics.lean",
+          "size_bytes": 3518,
+          "sha256": "2a206c4e2a2c28b55c9985c5213f9d95a589b5cfc0aa22ebfb10534b95ca8493"
+        }
+      ],
+      "paper_code": "PAPER_B_DOMAIN_3B_NAVIER_STOKES_MENSURA_CAP"
+    },
+    {
+      "deposition_id": 23483649,
+      "doi": "10.5281/zenodo.23483649",
+      "doi_url": "https://doi.org/10.5281/zenodo.23483649",
+      "record_url": "https://zenodo.org/record/23483649",
+      "state": "done",
+      "submitted": true,
+      "title": "Post-Quantum Cryptography from the FLT Modular Machinery: Hellegouarch Minimal Weierstrass Semistability, Dual-Isogeny Endomorphism Rings, Half-Integral Deuring Quaternion Orders, and Verified SQIsign in Rust and Lean 4",
+      "uploaded_files": [
+        {
+          "filename": "PaperC_FLT_Modular_PQC_SQIsign_Quantum_Rust_Lean4.pdf",
+          "size_bytes": 601608,
+          "sha256": "b5887681eb4b5ee64685cfd230dc9fc48f75d0555e0c24b492160addd736abac"
+        },
+        {
+          "filename": "PaperC_FLT_Modular_PQC_SQIsign_Quantum_Rust_Lean4.tex",
+          "size_bytes": 31792,
+          "sha256": "3ffa05a835301b58157c1325fbd2e4493f6caad2efcf1e5282f958a52cb3a14e"
+        },
+        {
+          "filename": "paper_c_telemetry.json",
+          "size_bytes": 3201,
+          "sha256": "7075b36a7b6f62f6f3862cdb857a56bf3b078befb438d06bd98c259c7773ed1e"
+        },
+        {
+          "filename": "breakthrough_3c_flt_pqc_quantum_opus_5round_peer_review.json",
+          "size_bytes": 64362,
+          "sha256": "0421302ebd90305da40e6eeb6888df10721e2ed532152c00b8d2ab48990ae016"
+        },
+        {
+          "filename": "Breakthroughs3DomainsSpec.lean",
+          "size_bytes": 23888,
+          "sha256": "8fb4501c4f8bbd2d18e8d1b18e0e5b03434da7f02dc560c05ac11c00edbb2b3d"
+        },
+        {
+          "filename": "Breakthroughs3Domains.lean",
+          "size_bytes": 26123,
+          "sha256": "c84764bb7b651a0d32a0fe3775ddfd94d0131fac0b242b1370bcdf1055585f77"
+        },
+        {
+          "filename": "MensuraElenchusThreeMissions.lean",
+          "size_bytes": 11432,
+          "sha256": "9d9190b7394f451b3bd49228c1c582f0cd2301377882f051d395c98391dc8cce"
+        },
+        {
+          "filename": "LeanMasterAutoTactics.lean",
+          "size_bytes": 3518,
+          "sha256": "2a206c4e2a2c28b55c9985c5213f9d95a589b5cfc0aa22ebfb10534b95ca8493"
+        }
+      ],
+      "paper_code": "PAPER_C_DOMAIN_3C_FLT_PQC_QUANTUM"
+    },
+    {
+      "deposition_id": 23510019,
+      "doi": "10.5281/zenodo.23510019",
+      "doi_url": "https://doi.org/10.5281/zenodo.23510019",
+      "record_url": "https://zenodo.org/record/23510019",
+      "state": "done",
+      "submitted": true,
+      "title": "Formalizing Non-Equilibrium Stochastic Thermodynamics, Jarzynski-Crooks Fluctuation Theorems, and ATP-Dependent Chromatin Remodeling Lattice Dynamics in Lean 4",
+      "uploaded_files": [
+        {
+          "filename": "PaperD_Biophysics_Genetics_EnergyMaterials_Autoresearch_Lean4.pdf",
+          "size_bytes": 720855,
+          "sha256": "84e992e7acc3a2fcb9888c6a510d45d7a74fd4971772ec858c34efb7c391bed5"
+        },
+        {
+          "filename": "PaperD_Biophysics_Genetics_EnergyMaterials_Autoresearch_Lean4.tex",
+          "size_bytes": 55759,
+          "sha256": "324d0dea7ed76ec4bf5d86c854e6ac4d4646fa84d4f4b1cedc26c61262edeeee"
+        },
+        {
+          "filename": "paper_d_telemetry.json",
+          "size_bytes": 2431,
+          "sha256": "b5cba46e15c7d8b007f830ce7863301e8691149630fd216cddf3d0ed0567ee25"
+        },
+        {
+          "filename": "breakthrough_3d_biophysics_genetics_energy_materials_opus_5round_peer_review.json",
+          "size_bytes": 82005,
+          "sha256": "bfe43dabc17ebc43b76b457bbdfd737e4a3c5394cc5194956b261afcc4e291dc"
+        },
+        {
+          "filename": "StochasticThermodynamicsSpec.lean",
+          "size_bytes": 19895,
+          "sha256": "45e8f06bdb69b85f4356e22c5bb360d79bc88f011b3e207fc1312f9982de793f"
+        },
+        {
+          "filename": "StochasticThermodynamics.lean",
+          "size_bytes": 39846,
+          "sha256": "ccdfb55918a49a2158d8fb1ef74467830ec8a68797629602e9095cbfbba78dd6"
+        },
+        {
+          "filename": "Breakthroughs3DomainsSpec.lean",
+          "size_bytes": 36517,
+          "sha256": "b5aebab8a5b99092d711d768ac797b7b6879f9371cc41e62180563347a689cc8"
+        },
+        {
+          "filename": "Breakthroughs3Domains.lean",
+          "size_bytes": 44247,
+          "sha256": "3c1b2c8f5ec7550d32ef98615a301a6355e536c678e5b3ff09593ac915372597"
+        }
+      ],
+      "paper_code": "PAPER_D_DOMAIN_3D_BIOPHYSICS_GENETICS_ENERGY_MATERIALS"
+    },
+    {
+      "deposition_id": 23490729,
+      "doi": "10.5281/zenodo.23490729",
+      "doi_url": "https://doi.org/10.5281/zenodo.23490729",
+      "record_url": "https://zenodo.org/record/23490729",
+      "state": "done",
+      "submitted": true,
+      "title": "Non-Equilibrium Genetic Proofreading, Array-Associated Reverse Transcription (ART) Repeat Fidelity, and Topological DNA Supercoiling in LeanFlow, rusty-SUNDIALS, and Lean 4",
+      "uploaded_files": [
+        {
+          "filename": "PaperE_Genetics_DNAReplication_ART_LeanFlow_RustySundials_Lean4.pdf",
+          "size_bytes": 615083,
+          "sha256": "3f59a295fa4d4bc891810a06888b2940bd64a2d8fac912fb6436e17c472b498d"
+        },
+        {
+          "filename": "PaperE_Genetics_DNAReplication_ART_LeanFlow_RustySundials_Lean4.tex",
+          "size_bytes": 34628,
+          "sha256": "1c63f9b9b0f4b4b6ccdcb690f6d00ac7b377e513ee8847ab8583f50bf714eeb9"
+        },
+        {
+          "filename": "paper_e_telemetry.json",
+          "size_bytes": 3761,
+          "sha256": "877b6d09c9c9f1effb19134dad2843bd2616b357445d38a17b1f96ff265e502f"
+        },
+        {
+          "filename": "breakthrough_3e_genetics_dna_replication_art_opus_5round_peer_review.json",
+          "size_bytes": 74483,
+          "sha256": "723f57c9807e2ec02060e807fe153f9a7ae44d4eda3236615cda02dda6152229"
+        },
+        {
+          "filename": "Breakthroughs3DomainsSpec.lean",
+          "size_bytes": 36428,
+          "sha256": "939f0116e532708a7bf561dbd6880eab5088429a66f605bc64ec8d2acbe9e2f7"
+        },
+        {
+          "filename": "Breakthroughs3Domains.lean",
+          "size_bytes": 42665,
+          "sha256": "ffb78a6cd316ff7bc53c48c365ed46316ab2283a1c6134edb808a107980c2d0b"
+        },
+        {
+          "filename": "MensuraElenchusThreeMissions.lean",
+          "size_bytes": 11432,
+          "sha256": "9d9190b7394f451b3bd49228c1c582f0cd2301377882f051d395c98391dc8cce"
+        },
+        {
+          "filename": "LeanMasterAutoTactics.lean",
+          "size_bytes": 3518,
+          "sha256": "2a206c4e2a2c28b55c9985c5213f9d95a589b5cfc0aa22ebfb10534b95ca8493"
+        }
+      ],
+      "paper_code": "PAPER_E_DOMAIN_3E_GENETICS_DNA_REPLICATION_ART"
+    }
+  ]
+}

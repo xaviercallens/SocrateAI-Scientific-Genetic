@@ -2,7 +2,7 @@
   "paper_id": "BREAKTHROUGH_PAPER_D",
   "paper_title": "BREAKTHROUGH_3D_BIOPHYSICS_GENETICS_ENERGY_MATERIALS",
   "pdf_file": "/home/xavkal/xdev/AutoevolveAI/papers/three_breakthroughs/paper_d/PaperD_Biophysics_Genetics_EnergyMaterials_Autoresearch_Lean4.pdf",
-  "pdf_sha256": "7fb6551ec4a0b4a90676878bfad2293685322f622505aacd29b811f3ffa2e678",
+  "pdf_sha256": "84e992e7acc3a2fcb9888c6a510d45d7a74fd4971772ec858c34efb7c391bed5",
   "total_rounds": 5,
   "all_5_rounds_passed": true,
   "overall_epistemic_score": 1.0,
@@ -136,6 +136,13 @@
       "referee_finding": "External peer review of Paper E identified (i) a false polynomial factorization `(1 + alpha' k^2)^4 - (256/27) alpha' k^2 = (1 - 3 alpha' k^2)^2 ((1 + alpha' k^2)^2 + 16/3 alpha' k^2 + 16/27 (alpha')^2 k^4)` in the proof of Theorem 2.2, (ii) OCR/arithmetic ambiguities (`10006`, `1/100000`, `4+36+64+36=200`), (iii) naive identification of non-negative nucleotide counts with quaternion conjugation without passing to the Chargaff strand-symmetry eigenbasis, (iv) forced 'Hellegouarch Genetic Code Distance' terminology, and (v) internal 'Karpathy autoresearch 13-to-5-to-3 Genetic Funnel' pipeline jargon.",
       "remediation": "Formalized `GAR_H7_bihelmholtz_exact_quartic_factorization_and_chargaff_involution` in Lean 4 proving `(1+u)^4 - (256/27)u = (1/27)(1-3u)^2(27 + 14u + 3u^2) = (1/27)(1-3u)^2[3(u+7/3)^2 + 32/3] >= 0` and proving that fixed-point-free Watson-Crick permutation `pi_WC(n_A,n_T,n_G,n_C)=(n_T,n_A,n_C,n_G)` acts as quaternion conjugation in the Chargaff skew eigenbasis `(s_tot, delta_AT, delta_GC, delta_RY)`, replaced infinite p-adic trees with finite depth-r clades on the 4-state Jukes-Cantor graph K_4, clarified that `(15,16,31)` is a shared-library coprimality lemma, and stripped all 'Karpathy autoresearch 13-to-5-to-3' jargon from Paper E.",
       "status": "REMEDIATED_AND_GATED"
+    },
+    {
+      "gate_id": "ARGOS-PEER-015",
+      "defect_class": "ATP-Dependent Chromatin Remodeling Grounding, Jarzynski-Crooks Fluctuation Theorems & McGhee-von Hippel / Tonks-Girardeau Lattice Gas Gate",
+      "referee_finding": "External biophysics peer review of Paper D identified (i) unscientific 'Conformational Genetics' terminology and cross-domain kitchen-sink mixing (cardiac Li\u00e9nard pacemakers and quantum materials), (ii) unphysical linear-subtraction ATP forcing `1/10 + 1/10 - 3/10 = -1/10`, (iii) arbitrary rational Fisher dissipation witness `149481/12500`, (iv) toy 2-state state spaces lacking multi-nucleosome steric exclusion, and (v) absence of Jarzynski Equality and Crooks Fluctuation Theorem formalizations.",
+      "remediation": "Eliminated 'Conformational Genetics', `-1/10`, and `149481/12500`; grounded Paper D exclusively in ATP-dependent chromatin remodeling (`ISWI`/`SNF2H` `PDB: 6NE3`, `SWI/SNF` `BRG1` `PDB: 6LTJ`, Widom 601 `NCP147` `PDB: 1KX5`) with empirical smFRET and optical-tweezers observables (`Delta_G_unwrap = 6.5 k_B T = 27.82 pN*nm`, `Delta_mu_ATP = 20 k_B T = 85.6 pN*nm`, `D_slide = 0.36 bp^2/s`, `k_cat = 2.4 bp/s`); formalized `ST_T5_jarzynski_equality_crooks_fluctuation_and_schnakenberg_cycle` and `ST_T6_mcghee_von_hippel_tonks_girardeau_chromatin_lattice_and_rouse_polymer` (`g_MvH`: `53/54 -> 18/19`, Tonks-Girardeau surge `53/18`, and 3D Rouse chromatin polymer Langevin dissipation) in Lean 4 with 0 sorryAx.",
+      "status": "REMEDIATED_AND_GATED"
     }
   ],
   "external_referee_round2_gate_audit": {
@@ -180,10 +187,10 @@
     "gate_id": "ARGOS-CENTAUR-001",
     "theorem_count": 28,
     "defeq_spec_lock_count": 16,
-    "active_proof_lines": 609,
-    "avg_lines_per_theorem": 21.75,
+    "active_proof_lines": 615,
+    "avg_lines_per_theorem": 21.96,
     "tactic_combinator_invocations": 61,
-    "conceptual_compression_factor_vs_unfolded": 20.69,
+    "conceptual_compression_factor_vs_unfolded": 20.49,
     "structural_isomorphisms": [
       {
         "isomorphism_id": "ISO-VALUATION-DYADIC-01",
@@ -226,9 +233,9 @@
         "verified": true
       },
       {
-        "check_id": "BT-STOCHASTIC-THERMODYNAMICS-SCHNACKENBERG-ESPOSITO-TUR",
-        "lean_artifact": "B3D_ST1..ST4 & B3D_T1: d/dt S_sys, Schnakenberg Sigma_dot >= 0, Esposito-Van den Broeck balance, TUR 2 J^2 <= A_tot Sigma_dot",
-        "backtranslated_meaning": "Pauli master equation mass conservation & IMEX positivity, Schnakenberg 2nd law, Esposito-Van den Broeck KL balance, and TUR bound",
+        "check_id": "BT-STOCHASTIC-THERMODYNAMICS-SCHNACKENBERG-ESPOSITO-TUR-JARZYNSKI-MCGHEE",
+        "lean_artifact": "ST_T1..ST_T6: Pauli Master Eq & IMEX Positivity, Schnakenberg 2nd Law, Esposito-Van den Broeck Balance, TUR Bound, Jarzynski-Crooks Fluctuation Theorems, and McGhee-von Hippel / Tonks-Girardeau Chromatin Lattice Gas",
+        "backtranslated_meaning": "Pauli master equation mass conservation & IMEX positivity, Schnakenberg 2nd law, Esposito-Van den Broeck KL balance, TUR bound, Crooks/Jarzynski equality, and McGhee-von Hippel / Tonks-Girardeau / Rouse chromatin polymer physics",
         "verified": true
       }
     ]
@@ -605,8 +612,8 @@
       "round_theme": "Epistemic Ledger, Inhabitation Gate & DefEq Specification Lock Audit",
       "lead_auditor_model": "claude-opus-4-6",
       "co_auditor_model": "gemini-4-argon",
-      "checks_executed": 9,
-      "checks_passed": 9,
+      "checks_executed": 10,
+      "checks_passed": 10,
       "findings": [
         {
           "round_index": 1,
@@ -658,8 +665,8 @@
           "reviewer_model": "gemini-4-argon",
           "severity": "VERIFIED_PASS",
           "category": "Theorem Presence in Lean Module",
-          "target_section": "B3D_ST1_master_equation_mass_conservation_and_imex_positivity",
-          "description": "Theorem `B3D_ST1_master_equation_mass_conservation_and_imex_positivity` present and kernel-verified in Lean 4 module.",
+          "target_section": "ST_T1_master_equation_mass_conservation_and_imex_positivity",
+          "description": "Theorem `ST_T1_master_equation_mass_conservation_and_imex_positivity` present and kernel-verified in Lean 4 module.",
           "resolution": "Verified against compiled `.olean` artifact.",
           "verified_closed": true
         },
@@ -669,8 +676,8 @@
           "reviewer_model": "gemini-4-argon",
           "severity": "VERIFIED_PASS",
           "category": "Theorem Presence in Lean Module",
-          "target_section": "B3D_ST2_schnakenberg_entropy_decomposition_and_second_law",
-          "description": "Theorem `B3D_ST2_schnakenberg_entropy_decomposition_and_second_law` present and kernel-verified in Lean 4 module.",
+          "target_section": "ST_T2_schnakenberg_entropy_decomposition_and_second_law",
+          "description": "Theorem `ST_T2_schnakenberg_entropy_decomposition_and_second_law` present and kernel-verified in Lean 4 module.",
           "resolution": "Verified against compiled `.olean` artifact.",
           "verified_closed": true
         },
@@ -680,8 +687,8 @@
           "reviewer_model": "gemini-4-argon",
           "severity": "VERIFIED_PASS",
           "category": "Theorem Presence in Lean Module",
-          "target_section": "B3D_ST3_esposito_van_den_broeck_free_energy_balance",
-          "description": "Theorem `B3D_ST3_esposito_van_den_broeck_free_energy_balance` present and kernel-verified in Lean 4 module.",
+          "target_section": "ST_T3_esposito_van_den_broeck_free_energy_balance",
+          "description": "Theorem `ST_T3_esposito_van_den_broeck_free_energy_balance` present and kernel-verified in Lean 4 module.",
           "resolution": "Verified against compiled `.olean` artifact.",
           "verified_closed": true
         },
@@ -691,8 +698,8 @@
           "reviewer_model": "gemini-4-argon",
           "severity": "VERIFIED_PASS",
           "category": "Theorem Presence in Lean Module",
-          "target_section": "B3D_ST4_thermodynamic_uncertainty_relation_and_activity_bound",
-          "description": "Theorem `B3D_ST4_thermodynamic_uncertainty_relation_and_activity_bound` present and kernel-verified in Lean 4 module.",
+          "target_section": "ST_T4_thermodynamic_uncertainty_relation_and_activity_bound",
+          "description": "Theorem `ST_T4_thermodynamic_uncertainty_relation_and_activity_bound` present and kernel-verified in Lean 4 module.",
           "resolution": "Verified against compiled `.olean` artifact.",
           "verified_closed": true
         },
@@ -702,8 +709,19 @@
           "reviewer_model": "gemini-4-argon",
           "severity": "VERIFIED_PASS",
           "category": "Theorem Presence in Lean Module",
-          "target_section": "B3D_T1_conformational_gibbs_relaxation_and_atp_forcing",
-          "description": "Theorem `B3D_T1_conformational_gibbs_relaxation_and_atp_forcing` present and kernel-verified in Lean 4 module.",
+          "target_section": "ST_T5_jarzynski_equality_crooks_fluctuation_and_schnakenberg_cycle",
+          "description": "Theorem `ST_T5_jarzynski_equality_crooks_fluctuation_and_schnakenberg_cycle` present and kernel-verified in Lean 4 module.",
+          "resolution": "Verified against compiled `.olean` artifact.",
+          "verified_closed": true
+        },
+        {
+          "round_index": 1,
+          "reviewer_id": "R1-Gemini4Argon-SpecLock",
+          "reviewer_model": "gemini-4-argon",
+          "severity": "VERIFIED_PASS",
+          "category": "Theorem Presence in Lean Module",
+          "target_section": "ST_T6_mcghee_von_hippel_tonks_girardeau_chromatin_lattice_and_rouse_polymer",
+          "description": "Theorem `ST_T6_mcghee_von_hippel_tonks_girardeau_chromatin_lattice_and_rouse_polymer` present and kernel-verified in Lean 4 module.",
           "resolution": "Verified against compiled `.olean` artifact.",
           "verified_closed": true
         }
@@ -716,8 +734,8 @@
       "round_theme": "Human Analytical Demonstration, Operator Derivation & Terminology Precision",
       "lead_auditor_model": "claude-opus-4-6",
       "co_auditor_model": "gemini-3.1-pro",
-      "checks_executed": 11,
-      "checks_passed": 11,
+      "checks_executed": 12,
+      "checks_passed": 12,
       "findings": [
         {
           "round_index": 2,
@@ -725,8 +743,8 @@
           "reviewer_model": "gemini-3.1-pro",
           "severity": "VERIFIED_PASS",
           "category": "1-to-1 Theorem-to-LaTeX Parity",
-          "target_section": "B3D_ST1_master_equation_mass_conservation_and_imex_positivity",
-          "description": "Lean 4 theorem `B3D_ST1_master_equation_mass_conservation_and_imex_positivity` explicitly cited and proved in LaTeX manuscript.",
+          "target_section": "ST_T1_master_equation_mass_conservation_and_imex_positivity",
+          "description": "Lean 4 theorem `ST_T1_master_equation_mass_conservation_and_imex_positivity` explicitly cited and proved in LaTeX manuscript.",
           "resolution": "1-to-1 human proof block matched to Lean signature.",
           "verified_closed": true
         },
@@ -736,8 +754,8 @@
           "reviewer_model": "gemini-3.1-pro",
           "severity": "VERIFIED_PASS",
           "category": "1-to-1 Theorem-to-LaTeX Parity",
-          "target_section": "B3D_ST2_schnakenberg_entropy_decomposition_and_second_law",
-          "description": "Lean 4 theorem `B3D_ST2_schnakenberg_entropy_decomposition_and_second_law` explicitly cited and proved in LaTeX manuscript.",
+          "target_section": "ST_T2_schnakenberg_entropy_decomposition_and_second_law",
+          "description": "Lean 4 theorem `ST_T2_schnakenberg_entropy_decomposition_and_second_law` explicitly cited and proved in LaTeX manuscript.",
           "resolution": "1-to-1 human proof block matched to Lean signature.",
           "verified_closed": true
         },
@@ -747,8 +765,8 @@
           "reviewer_model": "gemini-3.1-pro",
           "severity": "VERIFIED_PASS",
           "category": "1-to-1 Theorem-to-LaTeX Parity",
-          "target_section": "B3D_ST3_esposito_van_den_broeck_free_energy_balance",
-          "description": "Lean 4 theorem `B3D_ST3_esposito_van_den_broeck_free_energy_balance` explicitly cited and proved in LaTeX manuscript.",
+          "target_section": "ST_T3_esposito_van_den_broeck_free_energy_balance",
+          "description": "Lean 4 theorem `ST_T3_esposito_van_den_broeck_free_energy_balance` explicitly cited and proved in LaTeX manuscript.",
           "resolution": "1-to-1 human proof block matched to Lean signature.",
           "verified_closed": true
         },
@@ -758,8 +776,8 @@
           "reviewer_model": "gemini-3.1-pro",
           "severity": "VERIFIED_PASS",
           "category": "1-to-1 Theorem-to-LaTeX Parity",
-          "target_section": "B3D_ST4_thermodynamic_uncertainty_relation_and_activity_bound",
-          "description": "Lean 4 theorem `B3D_ST4_thermodynamic_uncertainty_relation_and_activity_bound` explicitly cited and proved in LaTeX manuscript.",
+          "target_section": "ST_T4_thermodynamic_uncertainty_relation_and_activity_bound",
+          "description": "Lean 4 theorem `ST_T4_thermodynamic_uncertainty_relation_and_activity_bound` explicitly cited and proved in LaTeX manuscript.",
           "resolution": "1-to-1 human proof block matched to Lean signature.",
           "verified_closed": true
         },
@@ -769,8 +787,19 @@
           "reviewer_model": "gemini-3.1-pro",
           "severity": "VERIFIED_PASS",
           "category": "1-to-1 Theorem-to-LaTeX Parity",
-          "target_section": "B3D_T1_conformational_gibbs_relaxation_and_atp_forcing",
-          "description": "Lean 4 theorem `B3D_T1_conformational_gibbs_relaxation_and_atp_forcing` explicitly cited and proved in LaTeX manuscript.",
+          "target_section": "ST_T5_jarzynski_equality_crooks_fluctuation_and_schnakenberg_cycle",
+          "description": "Lean 4 theorem `ST_T5_jarzynski_equality_crooks_fluctuation_and_schnakenberg_cycle` explicitly cited and proved in LaTeX manuscript.",
+          "resolution": "1-to-1 human proof block matched to Lean signature.",
+          "verified_closed": true
+        },
+        {
+          "round_index": 2,
+          "reviewer_id": "R2-Gemini31Pro-MathParity",
+          "reviewer_model": "gemini-3.1-pro",
+          "severity": "VERIFIED_PASS",
+          "category": "1-to-1 Theorem-to-LaTeX Parity",
+          "target_section": "ST_T6_mcghee_von_hippel_tonks_girardeau_chromatin_lattice_and_rouse_polymer",
+          "description": "Lean 4 theorem `ST_T6_mcghee_von_hippel_tonks_girardeau_chromatin_lattice_and_rouse_polymer` explicitly cited and proved in LaTeX manuscript.",
           "resolution": "1-to-1 human proof block matched to Lean signature.",
           "verified_closed": true
         },
@@ -781,7 +810,7 @@
           "severity": "VERIFIED_PASS",
           "category": "Complete Human Analytical Demonstrations",
           "target_section": "Mathematical Proofs",
-          "description": "Manuscript contains 5 formal `theorem`/`proposition`/`lemma` environments and 5 complete human `proof` environments.",
+          "description": "Manuscript contains 6 formal `theorem`/`proposition`/`lemma` environments and 6 complete human `proof` environments.",
           "resolution": "Every theorem/proposition/lemma has a complete step-by-step analytical demonstration.",
           "verified_closed": true
         },
@@ -838,8 +867,8 @@
       "round_theme": "Physical Conservation, Diophantine Witness, Input Context & Telemetry Lock",
       "lead_auditor_model": "claude-opus-4-6",
       "co_auditor_model": "gemini-3.1-pro",
-      "checks_executed": 13,
-      "checks_passed": 13,
+      "checks_executed": 19,
+      "checks_passed": 19,
       "findings": [
         {
           "round_index": 3,
@@ -892,7 +921,18 @@
           "severity": "VERIFIED_PASS",
           "category": "Table-Figure-Prose Numerical Lock (LL-25a)",
           "target_section": "Numerical Verification & Tables",
-          "description": "Verified exact numerical token `-1/10` in manuscript matches certified telemetry.",
+          "description": "Verified exact numerical token `53/54` in manuscript matches certified telemetry.",
+          "resolution": "Cross-checked against JSON artifact.",
+          "verified_closed": true
+        },
+        {
+          "round_index": 3,
+          "reviewer_id": "R3-Opus-TelemetryLock",
+          "reviewer_model": "claude-opus-4-6",
+          "severity": "VERIFIED_PASS",
+          "category": "Table-Figure-Prose Numerical Lock (LL-25a)",
+          "target_section": "Numerical Verification & Tables",
+          "description": "Verified exact numerical token `18/19` in manuscript matches certified telemetry.",
           "resolution": "Cross-checked against JSON artifact.",
           "verified_closed": true
         },
@@ -904,6 +944,28 @@
           "category": "Table-Figure-Prose Numerical Lock (LL-25a)",
           "target_section": "Numerical Verification & Tables",
           "description": "Verified exact numerical token `53/18` in manuscript matches certified telemetry.",
+          "resolution": "Cross-checked against JSON artifact.",
+          "verified_closed": true
+        },
+        {
+          "round_index": 3,
+          "reviewer_id": "R3-Opus-TelemetryLock",
+          "reviewer_model": "claude-opus-4-6",
+          "severity": "VERIFIED_PASS",
+          "category": "Table-Figure-Prose Numerical Lock (LL-25a)",
+          "target_section": "Numerical Verification & Tables",
+          "description": "Verified exact numerical token `27.82` in manuscript matches certified telemetry.",
+          "resolution": "Cross-checked against JSON artifact.",
+          "verified_closed": true
+        },
+        {
+          "round_index": 3,
+          "reviewer_id": "R3-Opus-TelemetryLock",
+          "reviewer_model": "claude-opus-4-6",
+          "severity": "VERIFIED_PASS",
+          "category": "Table-Figure-Prose Numerical Lock (LL-25a)",
+          "target_section": "Numerical Verification & Tables",
+          "description": "Verified exact numerical token `85.6` in manuscript matches certified telemetry.",
           "resolution": "Cross-checked against JSON artifact.",
           "verified_closed": true
         },
@@ -926,6 +988,39 @@
           "category": "Table-Figure-Prose Numerical Lock (LL-25a)",
           "target_section": "Numerical Verification & Tables",
           "description": "Verified exact numerical token `8.9588` in manuscript matches certified telemetry.",
+          "resolution": "Cross-checked against JSON artifact.",
+          "verified_closed": true
+        },
+        {
+          "round_index": 3,
+          "reviewer_id": "R3-Opus-TelemetryLock",
+          "reviewer_model": "claude-opus-4-6",
+          "severity": "VERIFIED_PASS",
+          "category": "Table-Figure-Prose Numerical Lock (LL-25a)",
+          "target_section": "Numerical Verification & Tables",
+          "description": "Verified exact numerical token `6NE3` in manuscript matches certified telemetry.",
+          "resolution": "Cross-checked against JSON artifact.",
+          "verified_closed": true
+        },
+        {
+          "round_index": 3,
+          "reviewer_id": "R3-Opus-TelemetryLock",
+          "reviewer_model": "claude-opus-4-6",
+          "severity": "VERIFIED_PASS",
+          "category": "Table-Figure-Prose Numerical Lock (LL-25a)",
+          "target_section": "Numerical Verification & Tables",
+          "description": "Verified exact numerical token `6LTJ` in manuscript matches certified telemetry.",
+          "resolution": "Cross-checked against JSON artifact.",
+          "verified_closed": true
+        },
+        {
+          "round_index": 3,
+          "reviewer_id": "R3-Opus-TelemetryLock",
+          "reviewer_model": "claude-opus-4-6",
+          "severity": "VERIFIED_PASS",
+          "category": "Table-Figure-Prose Numerical Lock (LL-25a)",
+          "target_section": "Numerical Verification & Tables",
+          "description": "Verified exact numerical token `1KX5` in manuscript matches certified telemetry.",
           "resolution": "Cross-checked against JSON artifact.",
           "verified_closed": true
         },
@@ -1025,7 +1120,7 @@
           "severity": "VERIFIED_PASS",
           "category": "Conceptual Compression & LeanMaster Prove2Me DAG (ARGOS-CENTAUR-001)",
           "target_section": "Lean 4 Formalization",
-          "description": "Extracted 29 `@graph_node` concepts and 25 `@graph_edge` dependencies at 21.75 lines/theorem.",
+          "description": "Extracted 29 `@graph_node` concepts and 25 `@graph_edge` dependencies at 21.96 lines/theorem.",
           "resolution": "Knowledge graph verified acyclic, proof-golfed, and grounded.",
           "verified_closed": true
         },
@@ -1147,7 +1242,7 @@
           "severity": "VERIFIED_PASS",
           "category": "Compiled PDF & Visual Readiness",
           "target_section": "PaperD_Biophysics_Genetics_EnergyMaterials_Autoresearch_Lean4.pdf",
-          "description": "Compiled PDF `PaperD_Biophysics_Genetics_EnergyMaterials_Autoresearch_Lean4.pdf` (618719 bytes) verified.",
+          "description": "Compiled PDF `PaperD_Biophysics_Genetics_EnergyMaterials_Autoresearch_Lean4.pdf` (720855 bytes) verified.",
           "resolution": "Cleared for visual inspection and Zenodo DOI archival.",
           "verified_closed": true
         }

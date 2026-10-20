@@ -4,6 +4,8 @@
 
 [![Lean 4.34.1](https://img.shields.io/badge/Lean_4.34.1-28_Theorems_%7C_0_sorryAx-brightgreen)](./formal/ANSE/GeneticAutoresearch.lean)
 [![Stochastic Thermo](https://img.shields.io/badge/Mathlib4-Pauli_Master_Eq_%7C_Jarzynski--Crooks_%7C_McGhee--von_Hippel-success)](./formal/ANSE/StochasticThermodynamics.lean)
+[![Zenodo DOI](https://img.shields.io/badge/Zenodo_DOI-10.5281%2Fzenodo.23510019-1f6feb)](https://doi.org/10.5281/zenodo.23510019)
+[![Peer Review](https://img.shields.io/badge/Claude_Opus_4.6_Peer_Review-5%2F5_Rounds_PASSED_%7C_Score_1.00-blueviolet)](./data/breakthrough_3d_biophysics_genetics_energy_materials_opus_5round_peer_review.json)
 [![Federated Hub](https://img.shields.io/badge/Federation-14_Repos_%7C_Socratic_Elenchus_v3-00b4d8)](./socrate_genetic_federation/elenchus_loop.py)
 [![GUDHI TDA](https://img.shields.io/badge/Inria_GUDHI-3.13.0_Persistent_Homology-blue)](./xgudhi_tda/xgudhi_leanflow_sundials_bridge.py)
 [![Rust Solver](https://img.shields.io/badge/rusty--SUNDIALS-v6.4.0_%7C_103%2F103_Tests-orange)](./rust_solver/genetics.rs)
@@ -321,9 +323,15 @@ cd formal && lake build ANSE.StochasticThermodynamics ANSE.GeneticAutoresearch
 
 ---
 
-## 9. Documentation & Publication Links
+## 9. Zenodo DOI Publications, 5-Round Adversarial Peer Review & Documentation Links
+
+| Manuscript / Artifact | Zenodo DOI & Record URL | 5-Round `claude-opus-4-6` Adversarial Peer Review |
+| :--- | :--- | :--- |
+| **[Paper D: Formalizing Non-Equilibrium Stochastic Thermodynamics, Jarzynski–Crooks Fluctuation Theorems, and ATP-Dependent Chromatin Remodeling Lattice Dynamics in Lean 4](./papers/PaperD_Biophysics_Genetics_EnergyMaterials_Autoresearch_Lean4.pdf)** (`ST.T1`–`ST.T6`, `ISWI`/`SNF2H` `PDB: 6NE3`, `SWI/SNF` `BRG1` `PDB: 6LTJ`, `NCP147` `PDB: 1KX5`) | **[`10.5281/zenodo.23510019`](https://doi.org/10.5281/zenodo.23510019)**<br>([`https://zenodo.org/record/23510019`](https://zenodo.org/record/23510019)) | **`5 / 5` Rounds PASSED (`Score = 1.00`, `APPROVED_FOR_ZENODO_PUBLICATION`)**<br>[`data/breakthrough_3d_biophysics_genetics_energy_materials_opus_5round_peer_review.json`](./data/breakthrough_3d_biophysics_genetics_energy_materials_opus_5round_peer_review.json) |
+| **[Paper E: Mathematical Genetics, `ART` Replication, Chimeric `ART-Exo` & Inria GUDHI TDA in Lean 4](./papers/PaperE_Genetics_DNAReplication_ART_LeanFlow_RustySundials_Lean4.pdf)** (`B3E.T1`–`B3E.T5` & `GAR.H1`–`GAR.H17`) | **[`10.5281/zenodo.23308857`](https://doi.org/10.5281/zenodo.23308857)**<br>([`https://zenodo.org/record/23308857`](https://zenodo.org/record/23308857)) | **`5 / 5` Rounds PASSED (`Score = 1.00`, `APPROVED_FOR_ZENODO_PUBLICATION`)** |
+
 - **[Research Directions & 2026–2028 Roadmap](./docs/RESEARCH_DIRECTIONS_AND_ROADMAP.md)**
 - **[Architecture & Lean 4 Theorem Catalog](./docs/ARCHITECTURE_AND_LEAN4_CATALOG.md)**
 - **[Claude Opus 4.6 Controversy & Epistemic Audit](./docs/CONTROVERSY_AND_EPISTEMIC_AUDIT.md)**
 - **[Full Paper E PDF Manuscript (Mathematical Genetics, `ART` Replication & GUDHI TDA in Lean 4)](./papers/PaperE_Genetics_DNAReplication_ART_LeanFlow_RustySundials_Lean4.pdf)**
-- **[Full Paper D PDF Manuscript (Non-Equilibrium Stochastic Thermodynamics & ATP Master Equations in Lean 4)](./papers/PaperD_Biophysics_Genetics_EnergyMaterials_Autoresearch_Lean4.pdf)**
+- **[Full Paper D PDF Manuscript (Non-Equilibrium Stochastic Thermodynamics, Jarzynski–Crooks & Chromatin Remodeling in Lean 4)](./papers/PaperD_Biophysics_Genetics_EnergyMaterials_Autoresearch_Lean4.pdf)**
