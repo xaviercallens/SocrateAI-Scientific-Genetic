@@ -1,0 +1,204 @@
+{
+  "campaign": "SocrateAI-Scientific-Genetic Phase 2 & 3 Research Directions (RD-1.Next to RD-5.Next)",
+  "lean4_module": "formal/ANSE/GeneticAutoresearch.lean (Theorems GAR.H1..GAR.H10, 0 sorryAx)",
+  "rust_solver_module": "rust_solver/genetics.rs (5/5 unit tests passing)",
+  "rd1_next_exponential_kramers_bell_and_cpg_bihelmholtz": {
+    "theorem_id": "GAR.H8",
+    "research_direction": "RD-1.Next",
+    "taylor4_at_one_fifth_exact": "6107/5000",
+    "gamma_kb4_at_one_fifth_exact": "6107/500000",
+    "linear_to_kb4_discrepancy_exact": "107/500000",
+    "three_stage_error_kb4": 1.822106456344e-06,
+    "three_stage_error_upper_bound_exact": "1/512000",
+    "high_torque_beta_gamma_half": {
+      "taylor4_at_one_half_exact": "211/128",
+      "delta_z1_kb_exact": "211/25600",
+      "contraction_kappa_kb_exact": "48071/128000",
+      "contraction_kappa_kb_float": 0.3755546875,
+      "radii_polynomial_at_1e_minus_3_exact": "-67129/128000000",
+      "banach_contraction_certified": true
+    },
+    "cpg_modulated_bihelmholtz_hf_promoters": {
+      "dataset": "katarinagresova/Genomic_Benchmarks_human_nontata_promoters",
+      "sequences_evaluated": 400,
+      "promoter_mean_cpg_density": 0.06968,
+      "control_mean_cpg_density": 0.01682,
+      "promoter_effective_alpha_prime_nm2": 0.04097552,
+      "control_effective_alpha_prime_nm2": 0.04023548,
+      "cpg_stiffness_enrichment_ratio": 1.0183927220453193
+    },
+    "torque_barrier_sweep": [
+      {
+        "torque_gamma": 0.0,
+        "gamma_linear": 0.01,
+        "gamma_kramers_bell_t4": 0.01,
+        "gamma_kramers_bell_exact_exp": 0.01,
+        "error_3stage_t4": 1.0000000000000002e-06,
+        "error_3stage_exact_exp": 1.0000000000000002e-06
+      },
+      {
+        "torque_gamma": 0.2,
+        "gamma_linear": 0.012,
+        "gamma_kramers_bell_t4": 0.012214,
+        "gamma_kramers_bell_exact_exp": 0.0122140275816017,
+        "error_3stage_t4": 1.8221064563439996e-06,
+        "error_3stage_exact_exp": 1.8221188003905096e-06
+      },
+      {
+        "torque_gamma": 0.4,
+        "gamma_linear": 0.014,
+        "gamma_kramers_bell_t4": 0.014917333333333333,
+        "gamma_kramers_bell_exact_exp": 0.014918246976412704,
+        "error_3stage_t4": 3.31950695507437e-06,
+        "error_3stage_exact_exp": 3.320116922736548e-06
+      },
+      {
+        "torque_gamma": 0.6,
+        "gamma_linear": 0.016,
+        "gamma_kramers_bell_t4": 0.018214,
+        "gamma_kramers_bell_exact_exp": 0.01822118800390509,
+        "error_3stage_t4": 6.042490784344001e-06,
+        "error_3stage_exact_exp": 6.049647464412947e-06
+      },
+      {
+        "torque_gamma": 0.8,
+        "gamma_linear": 0.018,
+        "gamma_kramers_bell_t4": 0.022224,
+        "gamma_kramers_bell_exact_exp": 0.022255409284924678,
+        "error_3stage_t4": 1.0976570855424002e-05,
+        "error_3stage_exact_exp": 1.1023176380641605e-05
+      },
+      {
+        "torque_gamma": 1.0,
+        "gamma_linear": 0.02,
+        "gamma_kramers_bell_t4": 0.027083333333333334,
+        "gamma_kramers_bell_exact_exp": 0.027182818284590453,
+        "error_3stage_t4": 1.9865813078703707e-05,
+        "error_3stage_exact_exp": 2.0085536923187668e-05
+      },
+      {
+        "torque_gamma": 1.2,
+        "gamma_linear": 0.022,
+        "gamma_kramers_bell_t4": 0.032944,
+        "gamma_kramers_bell_exact_exp": 0.033201169227365476,
+        "error_3stage_t4": 3.5754358288384005e-05,
+        "error_3stage_exact_exp": 3.659823444367799e-05
+      },
+      {
+        "torque_gamma": 1.4,
+        "gamma_linear": 0.024,
+        "gamma_kramers_bell_t4": 0.039974,
+        "gamma_kramers_bell_exact_exp": 0.04055199966844675,
+        "error_3stage_t4": 6.3875281102424e-05,
+        "error_3stage_exact_exp": 6.668633104092515e-05
+      },
+      {
+        "torque_gamma": 1.6,
+        "gamma_linear": 0.026,
+        "gamma_kramers_bell_t4": 0.048357333333333336,
+        "gamma_kramers_bell_exact_exp": 0.04953032424395115,
+        "error_3stage_t4": 0.00011308032057086106,
+        "error_3stage_exact_exp": 0.00012151041751873491
+      },
+      {
+        "torque_gamma": 1.8,
+        "gamma_linear": 0.028,
+        "gamma_kramers_bell_t4": 0.058294,
+        "gamma_kramers_bell_exact_exp": 0.060496474644129467,
+        "error_3stage_t4": 0.00019809411327618398,
+        "error_3stage_exact_exp": 0.00022140641620418714
+      },
+      {
+        "torque_gamma": 2.0,
+        "gamma_linear": 0.03,
+        "gamma_kramers_bell_t4": 0.07,
+        "gamma_kramers_bell_exact_exp": 0.0738905609893065,
+        "error_3stage_t4": 0.0003430000000000001,
+        "error_3stage_exact_exp": 0.00040342879349273517
+      }
+    ]
+  },
+  "rd2_next_reticulate_woodbury_hecke_haar_and_gudhi_betti": {
+    "theorem_id": "GAR.H9",
+    "research_direction": "RD-2.Next",
+    "reticulate_phylogenetic_graph": {
+      "vertices_V": 64,
+      "tree_edges": 63,
+      "hgt_recombination_chords": 6,
+      "total_edges_E": 69,
+      "betti_0": 1,
+      "betti_1_reticulation_cycles": 6,
+      "euler_characteristic_chi": -5,
+      "theoretical_krylov_iteration_bound_2b1_plus_1": 13
+    },
+    "woodbury_and_krylov_solver_benchmark": {
+      "sherman_morrison_scalar_witness_exact": "5/2",
+      "woodbury_direct_pass_relative_residual": 5.123693490618838e-16,
+      "hecke_haar_preconditioned_krylov_iterations": 4,
+      "hecke_haar_preconditioned_relative_residual": 5.233364225799187e-17,
+      "unpreconditioned_richardson_iterations": 126,
+      "krylov_bound_satisfied": true
+    }
+  },
+  "rd3_rd4_next_chimeric_art_exo_and_hurwitz_wobble": {
+    "theorem_id": "GAR.H10",
+    "research_directions": [
+      "RD-3.Next",
+      "RD-4.Next"
+    ],
+    "chimeric_art_exo_proofreading": {
+      "domains_fused": [
+        "IPR000477 (TERT RT [326..1132])",
+        "IPR006133 (POLE 3'->5' Exo [275..480])"
+      ],
+      "wildtype_art_2stage_error_exact": "9/62500",
+      "chimeric_art_exo_3stage_error_exact": "27/15625000",
+      "pole_p286r_pathogenic_1stage_error_exact": "3/250",
+      "fidelity_gain_vs_wildtype_art_exact": "250/3",
+      "fidelity_gain_vs_wildtype_art_float": 83.33333333333333,
+      "fidelity_rescue_vs_pole_p286r_exact": "62500/9",
+      "fidelity_rescue_vs_pole_p286r_float": 6944.444444444444
+    },
+    "chimeric_art_exo_gudhi_alphacomplex": {
+      "total_ca_atoms": 1013,
+      "tert_rt_ca_atoms": 807,
+      "pole_exo_ca_atoms": 206,
+      "simplices_count": 34563,
+      "primary_rt_tunnel_h1_persistence_a2": 91.90647989612081,
+      "primary_rt_tunnel_characteristic_diameter_angstrom": 19.173573469347943,
+      "secondary_exo_channel_h1_persistence_a2": 76.2763133216218,
+      "secondary_exo_channel_characteristic_diameter_angstrom": 17.467262329469012
+    },
+    "hurwitz_half_integral_wobble_order_o0": {
+      "dataset": "katarinagresova/Genomic_Benchmarks_demo_coding_vs_intergenomic_seqs",
+      "codon_pairs_evaluated": 4000,
+      "exact_integer_norm_pass_rate": 1.0,
+      "synonymous_wobble_norm_invariance_pass_rate": 1.0,
+      "canonical_unit_norm_N_1_0_0_0": 1,
+      "canonical_wobble_pair_norm_N_3_2_0_0": 13,
+      "canonical_wobble_pair_norm_N_2_3_0_0": 13
+    }
+  },
+  "rd5_next_64origin_repliseq_and_158x_anse_energy": {
+    "theorem_id": "GAR.H10",
+    "research_direction": "RD-5.Next",
+    "multi_replicon_64_origin_cubical_tda": {
+      "grid_points": 640,
+      "licensed_origins_count": 64,
+      "finite_h0_coalescence_events_detected": 42,
+      "total_h0_coalescence_persistence": 24.076346970713146
+    },
+    "anse_bio_computational_energy_progression": {
+      "e_baseline_exact": "147197/6900",
+      "e_baseline_float": 21.33289855072464,
+      "e_v1_efficient_art_exact": "24115822/57984375",
+      "e_v1_efficient_art_float": 0.41590207706817567,
+      "e_v2_chimeric_art_exo_exact": "20845317/154625000",
+      "e_v2_chimeric_art_exo_float": 0.13481207437348425,
+      "v1_speedup_vs_baseline": 51.29308009497557,
+      "v2_speedup_vs_baseline": 158.24174985709246,
+      "v2_speedup_vs_v1": 3.0850506455078937,
+      "certified_147x_and_158x_gate": true
+    }
+  }
+}

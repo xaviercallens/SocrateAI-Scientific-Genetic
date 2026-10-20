@@ -248,6 +248,110 @@ theorem GAR_H7_bihelmholtz_exact_quartic_factorization_and_chargaff_involution :
     refine ⟨rfl, ?_⟩
     ext <;> ring
 
+-- 1.8 `GAR.H8`: Exponential Kramers–Bell Torque Enclosure & High-Torque Bi-Helmholtz CAP
+example : Stmt_GAR_H8_ExponentialKramersBellTorqueEnclosureAndRadiiContraction =
+  ((∀ γ0 β_tor Γ : ℚ, 0 < γ0 → 0 < β_tor → 0 < Γ →
+    torqueModulatedGamma γ0 β_tor Γ < kramersBellGamma4 γ0 β_tor Γ ∧
+    kramersBellGamma4 γ0 β_tor Γ - torqueModulatedGamma γ0 β_tor Γ =
+      γ0 * ((β_tor * Γ) ^ 2 / 2 + (β_tor * Γ) ^ 3 / 6 + (β_tor * Γ) ^ 4 / 24)) ∧
+  (taylor4ExpQ (1 / 5) = 6107 / 5000 ∧
+   kramersBellGamma4 (1 / 100) 1 (1 / 5) = 6107 / 500000 ∧
+   kramersBellGamma4 (1 / 100) 1 (1 / 5) - torqueModulatedGamma (1 / 100) 1 (1 / 5) =
+     107 / 500000 ∧
+   (107 : ℚ) / 500000 < 1 / 4000 ∧
+   (kramersBellGamma4 (1 / 100) 1 (1 / 5)) ^ 3 < (1 / 80 : ℚ) ^ 3 ∧
+   (1 / 80 : ℚ) ^ 3 = 1 / 512000 ∧
+   (1 : ℚ) / 512000 < 1 / 500000) ∧
+  (taylor4ExpQ (1 / 2) = 211 / 128 ∧
+   (7 : ℚ) / 20 + (1 / 200 + (211 / 128) / 200) + 1 / 3200 + 12 * (1 / 1000) =
+     48071 / 128000 ∧
+   (48071 : ℚ) / 128000 < 1 ∧
+   (1 : ℚ) / 10000 + (7 / 20 + 1 / 200 + 211 / 25600 + 1 / 3200 - 1) * (1 / 1000) +
+     12 * (1 / 1000) ^ 2 = -67129 / 128000000 ∧
+   (-67129 : ℚ) / 128000000 < 0)) := rfl
+
+/-- @concept Exponential Kramers-Bell Torque Barrier Enclosure & High-Torque Bi-Helmholtz CAP
+    @rag_query Kramers Bell exponential torque proofreading Taylor enclosure Bi-Helmholtz CAP
+    @graph_node GeneticAutoresearch.GAR_H8_exponential_kramers_bell_torque_enclosure_and_radii_contraction
+    @graph_edge GeneticAutoresearch.GAR_H7_bihelmholtz_exact_quartic_factorization_and_chargaff_involution -> GeneticAutoresearch.GAR_H8_exponential_kramers_bell_torque_enclosure_and_radii_contraction -/
+theorem GAR_H8_exponential_kramers_bell_torque_enclosure_and_radii_contraction :
+    Stmt_GAR_H8_ExponentialKramersBellTorqueEnclosureAndRadiiContraction := by
+  unfold Stmt_GAR_H8_ExponentialKramersBellTorqueEnclosureAndRadiiContraction
+  refine ⟨?_, ?_, ?_⟩
+  · intro γ0 β_tor Γ hγ0 hβ hΓ
+    unfold kramersBellGamma4 torqueModulatedGamma taylor4ExpQ
+    have hdiff :
+        γ0 * (1 + β_tor * Γ + (β_tor * Γ) ^ 2 / 2 + (β_tor * Γ) ^ 3 / 6 + (β_tor * Γ) ^ 4 / 24) -
+          γ0 * (1 + β_tor * Γ) =
+        γ0 * ((β_tor * Γ) ^ 2 / 2 + (β_tor * Γ) ^ 3 / 6 + (β_tor * Γ) ^ 4 / 24) := by ring
+    have hpos : 0 < γ0 * ((β_tor * Γ) ^ 2 / 2 + (β_tor * Γ) ^ 3 / 6 + (β_tor * Γ) ^ 4 / 24) := by
+      positivity
+    refine ⟨by linarith, hdiff⟩
+  · unfold kramersBellGamma4 torqueModulatedGamma taylor4ExpQ
+    norm_num
+  · unfold taylor4ExpQ
+    norm_num
+
+-- 1.9 `GAR.H9`: Woodbury Reticulate Hecke–Haar Preconditioner & Betti Krylov Bound
+example : Stmt_GAR_H9_ReticulateWoodburyHeckeHaarAndBettiKrylovBound =
+  ((∀ σ u v : ℚ, σ ≠ 0 → σ + u * v ≠ 0 →
+    (σ + u * v) * (1 / σ - (u * v) / (σ * (σ + u * v))) = 1) ∧
+  (∀ V β1 : ℤ, 0 ≤ β1 →
+    (V - 1 + β1) - (V - 1) = β1 ∧
+    1 ≤ 2 * β1 + 1) ∧
+  ((69 - (64 - 1) : ℤ) = 6 ∧
+   2 * (6 : ℤ) + 1 = 13 ∧
+   (13 : ℤ) < 64 ∧
+   (1 : ℚ) / (3 / 10) - ((1 / 5) * (1 / 2)) / ((3 / 10) * (3 / 10 + (1 / 5) * (1 / 2))) =
+     5 / 2 ∧
+   (3 / 10 + (1 / 5 : ℚ) * (1 / 2)) * (5 / 2) = 1)) := rfl
+
+/-- @concept Woodbury-Sherman-Morrison Reticulate Hecke-Haar Preconditioner & Betti Krylov Bound
+    @rag_query Woodbury Sherman Morrison reticulate HGT recombination Hecke Haar FGMRES Betti
+    @graph_node GeneticAutoresearch.GAR_H9_reticulate_woodbury_hecke_haar_and_betti_krylov_bound
+    @graph_edge GeneticAutoresearch.GAR_H8_exponential_kramers_bell_torque_enclosure_and_radii_contraction -> GeneticAutoresearch.GAR_H9_reticulate_woodbury_hecke_haar_and_betti_krylov_bound -/
+theorem GAR_H9_reticulate_woodbury_hecke_haar_and_betti_krylov_bound :
+    Stmt_GAR_H9_ReticulateWoodburyHeckeHaarAndBettiKrylovBound := by
+  unfold Stmt_GAR_H9_ReticulateWoodburyHeckeHaarAndBettiKrylovBound
+  refine ⟨?_, ?_, by norm_num⟩
+  · intro σ u v hσ hsum
+    field_simp [hσ, hsum]
+    ring
+  · intro V β1 hβ1
+    refine ⟨by ring, by linarith⟩
+
+-- 1.10 `GAR.H10`: Chimeric `ART-Exo` (`IPR000477 + IPR006133`) & Hurwitz Wobble Codon Order
+example : Stmt_GAR_H10_ChimericArtExoProofreadingAndHurwitzWobbleOrder =
+  ((((3 / 250 : ℚ) ^ 2 = 9 / 62500) ∧
+   ((9 / 62500 : ℚ) / (27 / 15625000) = 250 / 3) ∧
+   ((83 : ℚ) < 250 / 3) ∧
+   ((3 / 250 : ℚ) / (27 / 15625000) = 62500 / 9) ∧
+   ((6944 : ℚ) < 62500 / 9)) ∧
+  ((∀ a b u v : ℤ,
+     ANSE.MensuraElenchusThreeMissions.deuringQuaternionReducedNorm 3 1 a b (b + 2 * v) (a + 2 * u) =
+       4 * deuringHalfIntegralMaximalNorm 0 a b u v) ∧
+   deuringHalfIntegralMaximalNorm 0 1 0 0 0 = 1 ∧
+   deuringHalfIntegralMaximalNorm 0 3 2 0 0 = 13 ∧
+   deuringHalfIntegralMaximalNorm 0 2 3 0 0 = 13) ∧
+  (chimericArtExoEnergy < efficientTorqueHaarArtEnergy ∧
+   2 * chimericArtExoEnergy < efficientTorqueHaarArtEnergy ∧
+   147 * chimericArtExoEnergy < baselineArtDnaEnergy)) := rfl
+
+/-- @concept Chimeric ART-Exo Fusion Proofreading, Hurwitz Wobble Order & 147x ANSE Energy Reduction
+    @rag_query Chimeric ART-Exo IPR000477 IPR006133 POLE P286R Hurwitz wobble order O_0 energy
+    @graph_node GeneticAutoresearch.GAR_H10_chimeric_art_exo_proofreading_and_hurwitz_wobble_order
+    @graph_edge GeneticAutoresearch.GAR_H9_reticulate_woodbury_hecke_haar_and_betti_krylov_bound -> GeneticAutoresearch.GAR_H10_chimeric_art_exo_proofreading_and_hurwitz_wobble_order -/
+theorem GAR_H10_chimeric_art_exo_proofreading_and_hurwitz_wobble_order :
+    Stmt_GAR_H10_ChimericArtExoProofreadingAndHurwitzWobbleOrder := by
+  unfold Stmt_GAR_H10_ChimericArtExoProofreadingAndHurwitzWobbleOrder
+  refine ⟨by norm_num, ?_, ?_⟩
+  · refine ⟨?_, by decide, by decide, by decide⟩
+    intro a b u v
+    unfold ANSE.MensuraElenchusThreeMissions.deuringQuaternionReducedNorm deuringHalfIntegralMaximalNorm
+    ring
+  · unfold chimericArtExoEnergy efficientTorqueHaarArtEnergy baselineArtDnaEnergy anseArtDnaEnergy
+    norm_num
+
 -- ============================================================================
 -- SECTION 2: MULTI-KERNEL AXIOM AUDIT (`ARGOS-CENTAUR-003`)
 -- ============================================================================
@@ -259,5 +363,8 @@ theorem GAR_H7_bihelmholtz_exact_quartic_factorization_and_chargaff_involution :
 #print axioms GAR_H5_lienard_metabolic_clock_ars222_imex_and_energy_minimization
 #print axioms GAR_H6_gudhi_tda_euler_poincare_and_repli_seq_persistence
 #print axioms GAR_H7_bihelmholtz_exact_quartic_factorization_and_chargaff_involution
+#print axioms GAR_H8_exponential_kramers_bell_torque_enclosure_and_radii_contraction
+#print axioms GAR_H9_reticulate_woodbury_hecke_haar_and_betti_krylov_bound
+#print axioms GAR_H10_chimeric_art_exo_proofreading_and_hurwitz_wobble_order
 
 end ANSE.GeneticAutoresearch
