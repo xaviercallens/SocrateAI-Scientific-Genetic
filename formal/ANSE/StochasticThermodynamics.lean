@@ -621,12 +621,154 @@ theorem ST_T4_thermodynamic_uncertainty_relation_and_activity_bound :
   exact tur_edge_bound hx hy
 
 -- ============================================================================
--- SECTION 7: MULTI-KERNEL AXIOM AUDIT (`ARGOS-CENTAUR-003`)
+-- SECTION 7: THEOREM 5 — CROOKS FLUCTUATION, JARZYNSKI EQUALITY & SCHNAKENBERG CYCLE
+-- ============================================================================
+
+/--
+  @concept Paper D Theorem 5: Crooks Fluctuation Theorem, Jarzynski Equality, Second-Law Work Dissipation & Schnakenberg Cycle Affinity
+  @rag_query Crooks fluctuation theorem Jarzynski equality Second Law dissipated work Schnakenberg cycle affinity
+  @graph_node StochasticThermodynamics.ST_T5_jarzynski_equality_crooks_fluctuation_and_schnakenberg_cycle
+  @graph_edge StochasticThermodynamics.ST_T4_thermodynamic_uncertainty_relation_and_activity_bound -> StochasticThermodynamics.ST_T5_jarzynski_equality_crooks_fluctuation_and_schnakenberg_cycle
+-/
+theorem ST_T5_jarzynski_equality_crooks_fluctuation_and_schnakenberg_cycle :
+    Stmt_ST_T5_JarzynskiEqualityCrooksFluctuationAndSchnakenbergCycle := by
+  unfold Stmt_ST_T5_JarzynskiEqualityCrooksFluctuationAndSchnakenbergCycle
+  refine ⟨?_, ?_, ?_⟩
+  · intro K pF pR W beta dF hpR hCrooks
+    refine ⟨?_, ?_⟩
+    · intro γ
+      have hne : pR γ ≠ 0 := (hpR γ).ne'
+      have hdiv : pF γ / pR γ = Real.exp (beta * (W γ - dF)) := by
+        rw [hCrooks γ, mul_div_cancel_left₀ _ hne]
+      rw [hdiv, Real.log_exp]
+    · intro hsumR
+      have hterm : ∀ γ, pF γ * Real.exp (-beta * W γ) = pR γ * Real.exp (-beta * dF) := by
+        intro γ
+        rw [hCrooks γ, mul_assoc, ← Real.exp_add]
+        congr 2
+        ring
+      calc
+        (∑ γ, pF γ * Real.exp (-beta * W γ))
+          = ∑ γ, pR γ * Real.exp (-beta * dF) := Finset.sum_congr rfl (fun γ _ => hterm γ)
+        _ = (∑ γ, pR γ) * Real.exp (-beta * dF) := (Finset.sum_mul _ _ _).symm
+        _ = Real.exp (-beta * dF) := by rw [hsumR, one_mul]
+  · intro K pF W beta dF hbeta hpF hsumF hJarz
+    set wBar : ℝ := ∑ γ, pF γ * W γ
+    have h_step : ∀ γ ∈ (Finset.univ : Finset (Fin K)),
+        pF γ * (-beta * (W γ - wBar) + 1) ≤ pF γ * Real.exp (-beta * (W γ - wBar)) := by
+      intro γ _
+      exact mul_le_mul_of_nonneg_left (Real.add_one_le_exp (-beta * (W γ - wBar))) (hpF γ)
+    have h_sum_le := Finset.sum_le_sum h_step
+    have h_lhs_one : (∑ γ : Fin K, pF γ * (-beta * (W γ - wBar) + 1)) = 1 := by
+      have h_term : ∀ γ : Fin K,
+          pF γ * (-beta * (W γ - wBar) + 1) = pF γ - beta * (pF γ * W γ) + (beta * wBar) * pF γ := by
+        intro γ; ring
+      have h1 : (∑ γ : Fin K, pF γ * (-beta * (W γ - wBar) + 1)) =
+          (∑ γ : Fin K, (pF γ - beta * (pF γ * W γ) + (beta * wBar) * pF γ)) :=
+        Finset.sum_congr rfl (fun γ _ => h_term γ)
+      rw [h1, Finset.sum_add_distrib, Finset.sum_sub_distrib, ← Finset.mul_sum, ← Finset.mul_sum, hsumF]
+      dsimp [wBar]
+      ring
+    have h_rhs_exp : (∑ γ : Fin K, pF γ * Real.exp (-beta * (W γ - wBar))) =
+        Real.exp (-beta * dF) * Real.exp (beta * wBar) := by
+      have h2 : ∀ γ : Fin K,
+          pF γ * Real.exp (-beta * (W γ - wBar)) =
+            (pF γ * Real.exp (-beta * W γ)) * Real.exp (beta * wBar) := by
+        intro γ
+        rw [mul_assoc, ← Real.exp_add]
+        congr 2
+        ring
+      calc
+        (∑ γ : Fin K, pF γ * Real.exp (-beta * (W γ - wBar)))
+          = ∑ γ : Fin K, (pF γ * Real.exp (-beta * W γ)) * Real.exp (beta * wBar) :=
+            Finset.sum_congr rfl (fun γ _ => h2 γ)
+        _ = (∑ γ : Fin K, pF γ * Real.exp (-beta * W γ)) * Real.exp (beta * wBar) :=
+            (Finset.sum_mul _ _ _).symm
+        _ = Real.exp (-beta * dF) * Real.exp (beta * wBar) := by rw [hJarz]
+    rw [h_lhs_one, h_rhs_exp, ← Real.exp_add, ← Real.exp_zero] at h_sum_le
+    have h_exp_le : 0 ≤ -beta * dF + beta * wBar := Real.exp_le_exp.mp h_sum_le
+    have h_prod_nonneg : 0 ≤ beta * (wBar - dF) := by linarith
+    have h_diff_nonneg : 0 ≤ wBar - dF := nonneg_of_mul_nonneg_right h_prod_nonneg hbeta
+    exact ⟨by linarith, h_diff_nonneg⟩
+  · intro m wPlus wMinus jCyc deltaMu kT hkT hjCyc hmu hAff
+    have h1 : (∑ e : Fin m, jCyc * Real.log (wPlus e / wMinus e)) =
+        jCyc * ∑ e : Fin m, Real.log (wPlus e / wMinus e) := (Finset.mul_sum _ _ _).symm
+    rw [h1, hAff]
+    refine ⟨rfl, ?_⟩
+    exact mul_nonneg hjCyc (div_nonneg hmu hkT.le)
+
+-- ============================================================================
+-- SECTION 8: THEOREM 6 — MCGHEE–VON HIPPEL CHROMATIN LATTICE & ROUSE POLYMER
+-- ============================================================================
+
+/--
+  @concept Paper D Theorem 6: McGhee–von Hippel / Tonks–Girardeau Nucleosome Lattice Gas, Rouse Chromatin Polymer Dissipation & smFRET Observables
+  @rag_query McGhee von Hippel Tonks Girardeau nucleosome lattice steric exclusion Rouse chromatin polymer dissipation
+  @graph_node StochasticThermodynamics.ST_T6_mcghee_von_hippel_tonks_girardeau_chromatin_lattice_and_rouse_polymer
+  @graph_edge StochasticThermodynamics.ST_T5_jarzynski_equality_crooks_fluctuation_and_schnakenberg_cycle -> StochasticThermodynamics.ST_T6_mcghee_von_hippel_tonks_girardeau_chromatin_lattice_and_rouse_polymer
+-/
+theorem ST_T6_mcghee_von_hippel_tonks_girardeau_chromatin_lattice_and_rouse_polymer :
+    Stmt_ST_T6_McGheeVonHippelTonksGirardeauChromatinLatticeAndRousePolymer := by
+  unfold Stmt_ST_T6_McGheeVonHippelTonksGirardeauChromatinLatticeAndRousePolymer
+  refine ⟨?_, ?_, ?_⟩
+  · intro lNuc rho hl hrho_pos hrho_lt
+    have hl_pos : 0 < lNuc := lt_trans zero_lt_one hl
+    have h_mul_lt : lNuc * rho < 1 := by
+      have h1 := (lt_div_iff₀ hl_pos).mp hrho_lt
+      linarith [mul_comm rho lNuc]
+    have h_num_pos : 0 < 1 - lNuc * rho := by linarith
+    have h_den_gt_num : 1 - lNuc * rho < 1 - (lNuc - 1) * rho := by nlinarith
+    have h_den_pos : 0 < 1 - (lNuc - 1) * rho := lt_trans h_num_pos h_den_gt_num
+    have h_tg_virial : tonksGirardeauOsmoticPressure lNuc rho - rho =
+        (lNuc * rho ^ 2) / (1 - lNuc * rho) := by
+      unfold tonksGirardeauOsmoticPressure
+      have h_alg : rho = (rho * (1 - lNuc * rho)) / (1 - lNuc * rho) :=
+        (mul_div_cancel_right₀ rho h_num_pos.ne').symm
+      conv_lhs => rhs; rw [h_alg]
+      rw [← sub_div]
+      congr 1
+      ring
+    refine ⟨?_, ?_, ?_, ?_, h_tg_virial, ?_⟩
+    · unfold mcGheeVonHippelSteric
+      exact div_pos h_num_pos h_den_pos
+    · unfold mcGheeVonHippelSteric
+      exact (div_lt_one h_den_pos).mpr h_den_gt_num
+    · unfold mcGheeVonHippelSteric
+      have hne : lNuc ≠ 0 := hl_pos.ne'
+      have h_top : 1 - lNuc * (1 / lNuc) = 0 := by field_simp [hne]; ring
+      rw [h_top, zero_div]
+    · unfold mcGheeVonHippelSteric
+      have h_num_d : HasDerivAt (fun r => 1 - lNuc * r) (-lNuc) rho := by
+        simpa using ((hasDerivAt_id rho).const_mul lNuc).const_sub 1
+      have h_den_d : HasDerivAt (fun r => 1 - (lNuc - 1) * r) (-(lNuc - 1)) rho := by
+        simpa using ((hasDerivAt_id rho).const_mul (lNuc - 1)).const_sub 1
+      have h_quot := h_num_d.div h_den_d h_den_pos.ne'
+      refine h_quot.congr_deriv ?_
+      congr 1
+      ring
+    · rw [h_tg_virial]
+      positivity
+  · intro N U G zeta t hzeta _
+    have h_id : (∑ i : Fin N, G i * (-(1 / zeta) * G i)) = -(1 / zeta) * ∑ i : Fin N, (G i) ^ 2 := by
+      rw [Finset.mul_sum]
+      refine Finset.sum_congr rfl (fun i _ => by ring)
+    refine ⟨h_id, ?_⟩
+    rw [h_id]
+    have h_sum_nonneg : 0 ≤ ∑ i : Fin N, (G i) ^ 2 := Finset.sum_nonneg (fun i _ => sq_nonneg (G i))
+    have h_inv_pos : 0 ≤ 1 / zeta := div_nonneg zero_le_one hzeta.le
+    nlinarith
+  · unfold mcGheeVonHippelSteric tonksGirardeauOsmoticPressure
+    norm_num
+
+-- ============================================================================
+-- SECTION 9: MULTI-KERNEL AXIOM AUDIT (`ARGOS-CENTAUR-003`)
 -- ============================================================================
 
 #print axioms ST_T1_master_equation_mass_conservation_and_imex_positivity
 #print axioms ST_T2_schnakenberg_entropy_decomposition_and_second_law
 #print axioms ST_T3_esposito_van_den_broeck_free_energy_balance
 #print axioms ST_T4_thermodynamic_uncertainty_relation_and_activity_bound
+#print axioms ST_T5_jarzynski_equality_crooks_fluctuation_and_schnakenberg_cycle
+#print axioms ST_T6_mcghee_von_hippel_tonks_girardeau_chromatin_lattice_and_rouse_polymer
 
 end ANSE.StochasticThermodynamics

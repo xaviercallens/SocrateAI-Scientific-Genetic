@@ -1,6 +1,6 @@
 {
   "federation_id": "SOCRATE_AI_SCIENTIFIC_GENETIC_FEDERATION_V2",
-  "total_lean4_theorems_certified": 26,
+  "total_lean4_theorems_certified": 28,
   "sorry_axioms": 0,
   "custom_axioms": 0,
   "lean4_theorems": [
@@ -8,6 +8,8 @@
     "ST_T2_schnakenberg_entropy_decomposition_and_second_law",
     "ST_T3_esposito_van_den_broeck_free_energy_balance",
     "ST_T4_thermodynamic_uncertainty_relation_and_activity_bound",
+    "ST_T5_jarzynski_equality_crooks_fluctuation_and_schnakenberg_cycle",
+    "ST_T6_mcghee_von_hippel_tonks_girardeau_chromatin_lattice_and_rouse_polymer",
     "B3E_T1_hopfield_ninio_art_proofreading_and_gibbs_fidelity",
     "B3E_T2_calugareanu_dna_supercoiling_and_leray_bgk_fork",
     "B3E_T3_flt_quaternion_codon_palindrome_and_hecke_phylogeny",
@@ -127,8 +129,8 @@
     {
       "id": 4,
       "skill": "uniprot-database",
-      "target": "Q07864 (POLE), O14746 (TERT), P11388 (TOP2A)",
-      "metric": "Active-site catalytic triads & domain boundaries"
+      "target": "Q07864 (POLE), O14746 (TERT), P11388 (TOP2A), O60264 (SMARCA5/SNF2H), P51532 (SMARCA4/BRG1)",
+      "metric": "Active-site catalytic triads, ISWI/SWI-SNF ATPase & Bromo domain boundaries"
     },
     {
       "id": 5,
@@ -145,8 +147,8 @@
     {
       "id": 7,
       "skill": "pdb-database",
-      "target": "6HV9 (Replisome), 7BG9 (Telomerase), 4FM9 (TOP2A)",
-      "metric": "Cryo-EM & X-ray validation (2.90\u20134.98 \u00c5)"
+      "target": "6HV9 (Replisome), 7BG9 (Telomerase), 4FM9 (TOP2A), 6NE3 (SNF2H-NCP), 6LTJ (BAF-NCP), 1KX5 (NCP147)",
+      "metric": "Cryo-EM & X-ray validation (1.94\u20134.98 \u00c5)"
     },
     {
       "id": 8,

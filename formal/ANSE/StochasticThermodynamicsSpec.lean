@@ -269,4 +269,71 @@ def Stmt_ST_T4_ThermodynamicUncertaintyRelationAndActivityBound : Prop :=
       ((1 / 2 : ℝ) * ∑ e, (x e + y e)) *
         ((1 / 2 : ℝ) * ∑ e, (x e - y e) * Real.log (x e / y e)))
 
+-- ============================================================================
+-- SECTION 4: DEEP FLUCTUATION THEOREMS & CHROMATIN POLYMER BIOPHYSICS (`ST.T5` & `ST.T6`)
+-- ============================================================================
+
+/-- McGhee–von Hippel 1D hard-rod steric accessibility factor for nucleosomes of footprint
+    `l_nuc` base pairs (`l_nuc = 147 bp` for `PDB: 1KX5`) sliding along DNA at density `rho`:
+    `g_MvH(l_nuc, rho) = (1 - l_nuc * rho) / (1 - (l_nuc - 1) * rho)`. -/
+def mcGheeVonHippelSteric (lNuc rho : ℝ) : ℝ :=
+  (1 - lNuc * rho) / (1 - (lNuc - 1) * rho)
+
+/-- 1D Tonks–Girardeau hard-rod dimensionless osmotic pressure `Π / (k_B T) = rho / (1 - l_nuc * rho)`. -/
+def tonksGirardeauOsmoticPressure (lNuc rho : ℝ) : ℝ :=
+  rho / (1 - lNuc * rho)
+
+/--
+  @concept Paper D Theorem 5: Crooks Fluctuation Theorem, Jarzynski Equality, Second-Law Work Dissipation & Schnakenberg Cycle Affinity
+  @rag_query How does the Crooks fluctuation relation P_F(γ) = P_R(γ) exp(β(W(γ) - ΔF)) imply the Jarzynski Equality ∑_γ P_F(γ) exp(-β W(γ)) = exp(-β ΔF), why does convexity of exp imply the Second Law ⟨W⟩ ≥ ΔF, and how does Schnakenberg cycle entropy production reduce to J_cyc * Δμ_ATP / (k_B T)?
+  @graph_node StochasticThermodynamicsSpec.Stmt_ST_T5_JarzynskiEqualityCrooksFluctuationAndSchnakenbergCycle
+-/
+def Stmt_ST_T5_JarzynskiEqualityCrooksFluctuationAndSchnakenbergCycle : Prop :=
+  (∀ {K : ℕ} (pF pR W : Fin K → ℝ) (beta dF : ℝ),
+    (∀ γ, 0 < pR γ) →
+    (∀ γ, pF γ = pR γ * Real.exp (beta * (W γ - dF))) →
+    (∀ γ, Real.log (pF γ / pR γ) = beta * (W γ - dF)) ∧
+    (∑ γ, pR γ = 1 →
+      ∑ γ, pF γ * Real.exp (-beta * W γ) = Real.exp (-beta * dF))) ∧
+  (∀ {K : ℕ} (pF W : Fin K → ℝ) (beta dF : ℝ),
+    0 < beta →
+    (∀ γ, 0 ≤ pF γ) →
+    ∑ γ, pF γ = 1 →
+    ∑ γ, pF γ * Real.exp (-beta * W γ) = Real.exp (-beta * dF) →
+    dF ≤ ∑ γ, pF γ * W γ ∧ 0 ≤ (∑ γ, pF γ * W γ) - dF) ∧
+  (∀ {m : ℕ} (wPlus wMinus : Fin m → ℝ) (jCyc deltaMu kT : ℝ),
+    0 < kT →
+    0 ≤ jCyc →
+    0 ≤ deltaMu →
+    (∑ e, Real.log (wPlus e / wMinus e) = deltaMu / kT) →
+    (∑ e, jCyc * Real.log (wPlus e / wMinus e) = jCyc * (deltaMu / kT)) ∧
+    0 ≤ ∑ e, jCyc * Real.log (wPlus e / wMinus e))
+
+/--
+  @concept Paper D Theorem 6: McGhee–von Hippel / Tonks–Girardeau Nucleosome Lattice Gas, Rouse Chromatin Polymer Dissipation & smFRET Observables
+  @rag_query How does the 1D McGhee–von Hippel / Tonks–Girardeau nucleosome lattice gas govern steric slowing g_MvH(147, ρ) and osmotic pressure Π_TG(147, ρ) between euchromatin (200 bp) and heterochromatin (165 bp), and why does a 3D Rouse chromatin bead-spring polymer monotonically dissipate elastic free energy?
+  @graph_node StochasticThermodynamicsSpec.Stmt_ST_T6_McGheeVonHippelTonksGirardeauChromatinLatticeAndRousePolymer
+-/
+def Stmt_ST_T6_McGheeVonHippelTonksGirardeauChromatinLatticeAndRousePolymer : Prop :=
+  (∀ (lNuc rho : ℝ), 1 < lNuc → 0 < rho → rho < 1 / lNuc →
+    0 < mcGheeVonHippelSteric lNuc rho ∧
+    mcGheeVonHippelSteric lNuc rho < 1 ∧
+    mcGheeVonHippelSteric lNuc (1 / lNuc) = 0 ∧
+    HasDerivAt (mcGheeVonHippelSteric lNuc)
+      (-1 / (1 - (lNuc - 1) * rho) ^ 2) rho ∧
+    tonksGirardeauOsmoticPressure lNuc rho - rho =
+      (lNuc * rho ^ 2) / (1 - lNuc * rho) ∧
+    0 < tonksGirardeauOsmoticPressure lNuc rho - rho) ∧
+  (∀ {N : ℕ} (U : ℝ → ℝ) (G : Fin N → ℝ) (zeta t : ℝ),
+    0 < zeta →
+    HasDerivAt U (∑ i, G i * (-(1 / zeta) * G i)) t →
+    (∑ i, G i * (-(1 / zeta) * G i)) = -(1 / zeta) * ∑ i, (G i) ^ 2 ∧
+    (∑ i, G i * (-(1 / zeta) * G i)) ≤ 0) ∧
+  (mcGheeVonHippelSteric 147 (1 / 200) = 53 / 54 ∧
+   mcGheeVonHippelSteric 147 (1 / 165) = 18 / 19 ∧
+   mcGheeVonHippelSteric 147 (1 / 165) < mcGheeVonHippelSteric 147 (1 / 200) ∧
+   tonksGirardeauOsmoticPressure 147 (1 / 165) /
+     tonksGirardeauOsmoticPressure 147 (1 / 200) = 53 / 18 ∧
+   (2 : ℝ) < 53 / 18)
+
 end ANSE.StochasticThermodynamicsSpec

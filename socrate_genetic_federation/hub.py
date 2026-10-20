@@ -108,10 +108,10 @@ FEDERATED_17_SKILLS_REGISTRY: list[dict[str, Any]] = [
     {"id": 1, "skill": "dbsnp-database", "target": "rs1057519943 (POLE), rs2736100 (TERT), rs471692 (TOP2A)", "metric": "GRCh38 VCF coordinates & MAF"},
     {"id": 2, "skill": "clinvar-database", "target": "Variation ID 376500 (POLE p.Pro286Arg)", "metric": "1,891 pathogenic POLE variants; REVEL = 0.837"},
     {"id": 3, "skill": "ensembl-database", "target": "ENST00000320574 (POLE)", "metric": "AlphaMissense = 0.9962, SIFT = 0, PolyPhen = 1"},
-    {"id": 4, "skill": "uniprot-database", "target": "Q07864 (POLE), O14746 (TERT), P11388 (TOP2A)", "metric": "Active-site catalytic triads & domain boundaries"},
+    {"id": 4, "skill": "uniprot-database", "target": "Q07864 (POLE), O14746 (TERT), P11388 (TOP2A), O60264 (SMARCA5/SNF2H), P51532 (SMARCA4/BRG1)", "metric": "Active-site catalytic triads, ISWI/SWI-SNF ATPase & Bromo domain boundaries"},
     {"id": 5, "skill": "interpro-database", "target": "IPR000477 (RT) + IPR006133 (3'->5' Exo)", "metric": "Chimeric ART-Exo 3-stage domain architecture"},
     {"id": 6, "skill": "alphafold-database-fetch-and-analyze", "target": "AF-O14746-F1 (Human TERT, 1,132 AA)", "metric": "Mean pLDDT = 80.19, PAE = 15.46 Å, 2 superdomains"},
-    {"id": 7, "skill": "pdb-database", "target": "6HV9 (Replisome), 7BG9 (Telomerase), 4FM9 (TOP2A)", "metric": "Cryo-EM & X-ray validation (2.90–4.98 Å)"},
+    {"id": 7, "skill": "pdb-database", "target": "6HV9 (Replisome), 7BG9 (Telomerase), 4FM9 (TOP2A), 6NE3 (SNF2H-NCP), 6LTJ (BAF-NCP), 1KX5 (NCP147)", "metric": "Cryo-EM & X-ray validation (1.94–4.98 Å)"},
     {"id": 8, "skill": "opentargets-database", "target": "ENSG00000177084, ENSG00000164362, ENSG00000131747", "metric": "POLE 673 diseases, TERT 1,638 diseases, TOP2A SM druggable"},
     {"id": 9, "skill": "gnomad-database", "target": "TOP2A, TERT, POLE (gnomAD v4)", "metric": "TOP2A pLI = 0.99991, LOEUF = 0.44452"},
     {"id": 10, "skill": "gtex-database", "target": "54 Human Tissues (GTEx v10)", "metric": "TOP2A 164.64 TPM lymphocytes, POLE 73.37 TPM cerebellum, TERT 2.16 TPM testis"},
@@ -134,6 +134,8 @@ FEDERATED_23_THEOREMS_REGISTRY: list[str] = [
     "ST_T2_schnakenberg_entropy_decomposition_and_second_law",
     "ST_T3_esposito_van_den_broeck_free_energy_balance",
     "ST_T4_thermodynamic_uncertainty_relation_and_activity_bound",
+    "ST_T5_jarzynski_equality_crooks_fluctuation_and_schnakenberg_cycle",
+    "ST_T6_mcghee_von_hippel_tonks_girardeau_chromatin_lattice_and_rouse_polymer",
     "B3E_T1_hopfield_ninio_art_proofreading_and_gibbs_fidelity",
     "B3E_T2_calugareanu_dna_supercoiling_and_leray_bgk_fork",
     "B3E_T3_flt_quaternion_codon_palindrome_and_hecke_phylogeny",
@@ -159,6 +161,7 @@ FEDERATED_23_THEOREMS_REGISTRY: list[str] = [
 ]
 
 FEDERATED_26_THEOREMS_REGISTRY = FEDERATED_23_THEOREMS_REGISTRY
+FEDERATED_28_THEOREMS_REGISTRY = FEDERATED_23_THEOREMS_REGISTRY
 
 
 class FederatedGeneticHub:

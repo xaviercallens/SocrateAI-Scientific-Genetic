@@ -17,7 +17,7 @@ from pathlib import Path
 from socrate_genetic_federation import (
     FEDERATED_14_REPOS_REGISTRY,
     FEDERATED_20_SKILLS_REGISTRY,
-    FEDERATED_26_THEOREMS_REGISTRY,
+    FEDERATED_28_THEOREMS_REGISTRY,
     HF_9_GENOMIC_BENCHMARKS,
     SocraticElenchusLoopEngine,
 )
@@ -26,7 +26,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 
 
 def test_registries_and_elenchus_v3_telemetry() -> None:
-    assert len(FEDERATED_26_THEOREMS_REGISTRY) == 26
+    assert len(FEDERATED_28_THEOREMS_REGISTRY) == 28
     assert len(FEDERATED_20_SKILLS_REGISTRY) == 20
     assert len(FEDERATED_14_REPOS_REGISTRY) == 14
     assert len(HF_9_GENOMIC_BENCHMARKS) == 9
@@ -99,3 +99,41 @@ def test_5round_elenchus_popperian_refutation_controls() -> None:
         assert ctrl["claim_evaluates_to"] is False
         assert ctrl["refuted_by_elenchus_gate"] is True
         assert ctrl["assigned_energy_on_refutation"] == 1000000.0
+
+
+def test_paper_d_chromatin_remodeling_jarzynski_crooks_mcghee_tonks_st_t5_t6() -> None:
+    # ST.T5 & ST.T6: ISWI/SNF2H (PDB: 6NE3), SWI/SNF BRG1 (PDB: 6LTJ), Widom 601 NCP147 (PDB: 1KX5)
+    l_nuc = Fraction(147, 1)
+    rho_euchrom = Fraction(1, 200)
+    rho_hetero = Fraction(1, 165)
+
+    g_mvh_euchrom = (1 - l_nuc * rho_euchrom) / (1 - (l_nuc - 1) * rho_euchrom)
+    g_mvh_hetero = (1 - l_nuc * rho_hetero) / (1 - (l_nuc - 1) * rho_hetero)
+    assert g_mvh_euchrom == Fraction(53, 54)
+    assert g_mvh_hetero == Fraction(18, 19)
+    assert Fraction(0, 1) < g_mvh_hetero < g_mvh_euchrom < Fraction(1, 1)
+
+    pi_tg_euchrom = rho_euchrom / (1 - l_nuc * rho_euchrom)
+    pi_tg_hetero = rho_hetero / (1 - l_nuc * rho_hetero)
+    assert pi_tg_euchrom == Fraction(1, 53)
+    assert pi_tg_hetero == Fraction(1, 18)
+    assert pi_tg_hetero / pi_tg_euchrom == Fraction(53, 18) > Fraction(29, 10)
+
+    # smFRET & Optical Tweezers Observables at T = 310 K
+    kt_pn_nm = Fraction(428, 100)
+    delta_mu_atp = 20 * kt_pn_nm
+    unwrap_barrier_20bp = Fraction(13, 2) * kt_pn_nm
+    assert delta_mu_atp == Fraction(856, 10)
+    assert unwrap_barrier_20bp == Fraction(2782, 100)
+    assert unwrap_barrier_20bp < delta_mu_atp
+    assert Fraction(36, 100) < Fraction(24, 10)
+    assert 6 * Fraction(36, 100) < Fraction(24, 10)
+
+    paper_d_json = REPO_ROOT / "data" / "paper_d_telemetry.json"
+    assert paper_d_json.exists()
+    d_payload = json.loads(paper_d_json.read_text())
+    assert d_payload["biological_systems"]["iswi_remodeler"]["pdb_id"] == "6NE3"
+    assert d_payload["biological_systems"]["swi_snf_remodeler"]["pdb_id"] == "6LTJ"
+    assert d_payload["biological_systems"]["nucleosome_core_particle"]["pdb_id"] == "1KX5"
+    assert d_payload["mcghee_von_hippel_tonks_girardeau_lattice"]["tonks_girardeau_pressure_surge_rational"] == "53/18"
+

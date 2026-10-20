@@ -429,7 +429,7 @@ theorem P1_T5_sqisign_challenge_response_and_rydberg_riesz6_optimality :
 -- ============================================================================
 
 /--
-  @concept Paper D Theorem 1: Conformational Genetics & Epigenetic Landscape Gibbs Free-Energy Relaxation, ATP Forcing & Positivity Phase Transition
+  @concept Paper D Theorem 1: ATP-Dependent Chromatin Remodeling & Epigenetic Polymer Gibbs Free-Energy Relaxation, ATP Forcing & Positivity Phase Transition
   @rag_query How does the discrete-microstate conformational Boltzmann-Gibbs distribution p_eq,i = w_i exp(a + b · v_i) minimize free energy H_w(p_eq) ≤ H_w(p) and relax monotonically under master-equation kinetics, while ATP chemical-potential forcing F_i(p) = p_i + p_eq,i^(2) - p_eq,i^(1) conserves total probability mass up to the positivity-breakdown threshold?
   @graph_node Breakthroughs3Domains.P4_T1_conformational_gibbs_relaxation_and_atp_forcing
   @graph_edge Breakthroughs3DomainsSpec.Stmt_P4_T1_ConformationalGibbsRelaxationAndATPForcing -> Breakthroughs3Domains.P4_T1_conformational_gibbs_relaxation_and_atp_forcing

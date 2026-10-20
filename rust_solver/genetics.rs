@@ -1167,6 +1167,92 @@ impl GossetE8DicodonQuantizer {
     }
 }
 
+/// `ST.T5` & `ST.T6` (Paper D): ATP-Dependent Chromatin Remodeling (`ISWI`/`SNF2H` `PDB: 6NE3`,
+/// `SWI/SNF` `BRG1` `PDB: 6LTJ`, Widom `601` `NCP147` `PDB: 1KX5`), Jarzynski–Crooks smFRET
+/// Fluctuation Theorems, 1D McGhee–von Hippel / Tonks–Girardeau Nucleosome Lattice Gas, and
+/// 3D Rouse Bead-Spring Chromatin Polymer Langevin Dissipation Engine.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct ChromatinRemodelerLatticeEngine {
+    pub kt_pn_nm: Real,
+    pub delta_mu_atp_kt: Real,
+    pub unwrap_barrier_20bp_kt: Real,
+    pub l_nuc_bp: Real,
+    pub d_slide_bp2_s: Real,
+    pub k_cat_bp_s: Real,
+}
+
+impl Default for ChromatinRemodelerLatticeEngine {
+    fn default() -> Self {
+        Self {
+            kt_pn_nm: 4.28,                // 4.28 pN*nm at T = 310 K
+            delta_mu_atp_kt: 20.0,         // 20 k_B T = 85.6 pN*nm
+            unwrap_barrier_20bp_kt: 6.5,   // 6.5 k_B T = 27.82 pN*nm (20-bp outer-turn unwrapping)
+            l_nuc_bp: 147.0,               // 147-bp Widom 601 NCP147 (PDB: 1KX5)
+            d_slide_bp2_s: 0.36,           // 0.36 bp^2/s passive thermal diffusion
+            k_cat_bp_s: 2.4,               // 2.4 bp/s ISWI/SNF2H catalytic sliding velocity
+        }
+    }
+}
+
+impl ChromatinRemodelerLatticeEngine {
+    /// Crooks Fluctuation Theorem log-probability ratio `ln(P_F(γ) / P_R(γ)) = β (W(γ) - ΔF)` (`ST.T5`).
+    pub fn crooks_log_ratio(&self, w_kt: Real, df_kt: Real) -> Real {
+        w_kt - df_kt
+    }
+
+    /// Evaluates the Jarzynski Equality free-energy estimator `ΔF = -k_B T ln <exp(-β W)>`,
+    /// mean work `<W>`, and non-negative dissipated work `<W_diss> = <W> - ΔF >= 0` (`ST.T5`).
+    pub fn jarzynski_free_energy_estimate(
+        &self,
+        weights: &[Real],
+        works_kt: &[Real],
+    ) -> (Real, Real, Real) {
+        let mut exp_avg = 0.0_f64;
+        let mut mean_w = 0.0_f64;
+        for (&p, &w) in weights.iter().zip(works_kt.iter()) {
+            exp_avg += p * (-w).exp();
+            mean_w += p * w;
+        }
+        let df_kt = -exp_avg.ln();
+        let w_diss_kt = mean_w - df_kt;
+        (df_kt, mean_w, w_diss_kt)
+    }
+
+    /// Schnakenberg macroscopic cycle entropy production rate `Σ_dot = J_cyc * (Δμ_ATP / k_B T) >= 0` (`ST.T5`).
+    pub fn schnakenberg_atp_cycle_entropy_rate(&self, j_cyc_s: Real) -> Real {
+        j_cyc_s * self.delta_mu_atp_kt
+    }
+
+    /// 1D McGhee–von Hippel finite-footprint steric accessibility factor
+    /// `g_MvH(l_nuc, ρ) = (1 - l_nuc ρ) / (1 - (l_nuc - 1) ρ) ∈ (0, 1)` (`ST.T6`).
+    pub fn mcghee_von_hippel_steric(&self, rho_bp_inv: Real) -> Real {
+        (1.0 - self.l_nuc_bp * rho_bp_inv) / (1.0 - (self.l_nuc_bp - 1.0) * rho_bp_inv)
+    }
+
+    /// Exact McGhee–von Hippel crowding sensitivity derivative
+    /// `∂g_MvH / ∂ρ = -1 / (1 - (l_nuc - 1) ρ)^2 < 0` (`ST.T6`).
+    pub fn mcghee_von_hippel_derivative(&self, rho_bp_inv: Real) -> Real {
+        let denom = 1.0 - (self.l_nuc_bp - 1.0) * rho_bp_inv;
+        -1.0 / (denom * denom)
+    }
+
+    /// 1D Tonks–Girardeau hard-rod osmotic pressure `Π_TG / (k_B T) = ρ / (1 - l_nuc ρ)` (`ST.T6`).
+    pub fn tonks_girardeau_osmotic_pressure_kt(&self, rho_bp_inv: Real) -> Real {
+        rho_bp_inv / (1.0 - self.l_nuc_bp * rho_bp_inv)
+    }
+
+    /// Continuous 3D Rouse bead-spring chromatin polymer overdamped Langevin free-energy dissipation
+    /// `dU_Rouse / dt = -(1 / ζ_nuc) * sum_i G_i^2 <= 0` (`ST.T6`).
+    pub fn rouse_polymer_langevin_dissipation(
+        &self,
+        gradients_pn: &[Real],
+        zeta_pn_s_nm: Real,
+    ) -> Real {
+        let sum_sq: Real = gradients_pn.iter().map(|g| g * g).sum();
+        -(1.0 / zeta_pn_s_nm) * sum_sq
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1376,5 +1462,36 @@ mod tests {
                 true, false, true, true,
             );
         assert!((e_refuted - 1_000_000.0).abs() < 1e-9);
+
+        // Paper D (ST.T5 & ST.T6): Jarzynski-Crooks smFRET, McGhee-von Hippel / Tonks-Girardeau
+        // Nucleosome Lattice Gas & 3D Rouse Chromatin Polymer Dissipation
+        let chrom = ChromatinRemodelerLatticeEngine::default();
+        assert!((chrom.kt_pn_nm * chrom.delta_mu_atp_kt - 85.6).abs() < 1e-12);
+        assert!((chrom.kt_pn_nm * chrom.unwrap_barrier_20bp_kt - 27.82).abs() < 1e-12);
+        assert!((chrom.crooks_log_ratio(8.5, 6.5) - 2.0).abs() < 1e-15);
+
+        let weights = [0.25, 0.50, 0.25];
+        let works = [5.5, 6.8, 8.2];
+        let (df_jarz, mean_w, w_diss) = chrom.jarzynski_free_energy_estimate(&weights, &works);
+        assert!(df_jarz <= mean_w && w_diss >= 0.0);
+
+        let sigma_cyc = chrom.schnakenberg_atp_cycle_entropy_rate(2.4);
+        assert!((sigma_cyc - 48.0).abs() < 1e-12 && sigma_cyc > 0.0);
+
+        // Euchromatin (NRL = 200 bp, rho = 1/200) vs Heterochromatin (NRL = 165 bp, rho = 1/165)
+        let g_euchrom = chrom.mcghee_von_hippel_steric(1.0 / 200.0);
+        let g_hetero = chrom.mcghee_von_hippel_steric(1.0 / 165.0);
+        assert!((g_euchrom - 53.0 / 54.0).abs() < 1e-14);
+        assert!((g_hetero - 18.0 / 19.0).abs() < 1e-14);
+        assert!(g_hetero < g_euchrom && chrom.mcghee_von_hippel_derivative(1.0 / 200.0) < 0.0);
+
+        let pi_euchrom = chrom.tonks_girardeau_osmotic_pressure_kt(1.0 / 200.0);
+        let pi_hetero = chrom.tonks_girardeau_osmotic_pressure_kt(1.0 / 165.0);
+        assert!((pi_euchrom - 1.0 / 53.0).abs() < 1e-14);
+        assert!((pi_hetero - 1.0 / 18.0).abs() < 1e-14);
+        assert!((pi_hetero / pi_euchrom - 53.0 / 18.0).abs() < 1e-14 && pi_hetero / pi_euchrom > 2.94);
+
+        let rouse_diss = chrom.rouse_polymer_langevin_dissipation(&[1.5, -2.0, 0.5], 2.5);
+        assert!(rouse_diss < 0.0 && (rouse_diss - (-2.6)).abs() < 1e-14);
     }
 }
