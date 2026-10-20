@@ -1,0 +1,26 @@
+# Claude Opus 4.6 Adversarial Controversy & Epistemic Audit (`ARGOS-CENTAUR-005`)
+
+Every mathematical and biological claim in **`SocrateAI-Scientific-Genetic`** undergoes a 5-round adversarial peer-review tribunal led by **`claude-opus-4-6`** (co-synthesized with **`gemini-4-argon`**) enforcing the 6 external referee hardness gates (`ARGOS-PEER-008` through `ARGOS-PEER-013`) and the honest controversy disclosure protocol (`ARGOS-CENTAUR-005`).
+
+---
+
+## 1. Four Scientific Controversies & Boundary Conditions (`CONTROVERSY-GEN-01`..`04`)
+
+| Controversy ID | Scientific Tension / Referee Challenge | Mathematical & Empirical Resolution in `SocrateAI-Scientific-Genetic` |
+| :--- | :--- | :--- |
+| **`CONTROVERSY-GEN-01`** | **Linearized Tangent-Plane Torque Modulation vs. Full Exponential Kramers–Bell Barrier:** Theorem `GAR.H1` evaluates $\gamma(\Gamma) = \gamma_0(1 + \beta_{\mathrm{tor}}\Gamma)$ at $\Gamma = 1/5$, whereas single-molecule optical-tweezer assays obey $\gamma(\Gamma) = \gamma_0 \exp(\Gamma \Delta\theta / k_B T)$. | Explicitly bounded to the Topoisomerase II$\alpha$ (`TOP2A`, PDB `4FM9`, `LOEUF = 0.44452`) homeostatic regime $\Gamma \in [0, 1/5]$, where the quadratic Taylor remainder $\frac{1}{2}\gamma_0(\beta_{\mathrm{tor}}\Gamma)^2 = 2\times 10^{-4}$ shifts $\mathcal{E}_3$ by less than $6.5\times 10^{-8}$, strictly preserving $\mathcal{E}_3 < 2\times 10^{-6}$ below the critical stall threshold $\Gamma_{\mathrm{stall}} = 99$. |
+| **`CONTROVERSY-GEN-02`** | **Continuum 1D KJMA Homogeneous Nucleation vs. Stochastic Chromatin Origin Licensing:** Theorem `GAR.H3` models $K$-origin replication via $1 - \exp(-K I_0 v_f t^2)$, whereas eukaryotic origins fire at discrete, heterogeneously licensed MCM2-7 double hexamers modulated by TAD boundaries. | Certified as the homogenized mean-field limit over $50\text{--}200\text{ kb}$ replication domains; local chromatin heterogeneity is captured by the dyadic Repli-Seq Haar wavelet detail coefficients (`Theorem B3E.T5`) and GUDHI `CubicalComplex` sublevel $H_0$ persistence (`Theorem GAR.H6`). |
+| **`CONTROVERSY-GEN-03`** | **Ultrametric $p=3$ Hecke Coalescent Trees vs. Horizontal Gene Transfer (HGT) & Recombination:** Theorem `GAR.H2` proves exact $O(N)$ diagonalization ($\kappa_{\mathrm{Haar}} = 1$) on an acyclic $4$-regular tree ($\beta_1 = 0$), whereas retroelements and bacteriophage `ART` cassettes undergo HGT and homologous recombination that introduce reticulation cycles ($\beta_1 > 0$). | In the reticulate regime $M = M_{\mathrm{tree}} + R_{\mathrm{ret}}$, GUDHI `SimplexTree` (`Theorem GAR.H6`) counts the exact reticulation rank $\beta_1 = m_{\mathrm{stem}}$, and the $p$-adic Haar basis acts as an optimal $O(N)$ tree preconditioner for FGMRES whose iteration count scales with $\operatorname{rank}(R_{\mathrm{ret}})$. |
+| **`CONTROVERSY-GEN-04`** | **3-Stage Proofreading in Replicative DNA Polymerases (`POLE`) vs. Natural Reverse Transcriptases (`TERT` / `ART`):** Eukaryotic Pol $\varepsilon$ (`POLE` `Q07864`, $2286\text{ AA}$) contains an intrinsic $3'\to 5'$ exonuclease domain (`IPR006133`, mutated in `rs1057519943` `p.Pro286Arg`), whereas natural reverse transcriptases (`TERT` `O14746`, $1132\text{ AA}$) carry `IPR000477` without `IPR006133`. | Cross-referenced across UniProtKB (`259` reviewed RTs) and InterPro: in wild-type `ART`, the 3rd dissipative stage corresponds to pyrophosphorolysis / RNA–DNA hybrid backtracking rescue coupled to `TOP2A`, or synthetically to a chimeric `IPR000477 + IPR006133` fusion enzyme (`Research Direction RD-3`). |
+
+---
+
+## 2. Six External Referee Hardness Gates (`ARGOS-PEER-008`..`013`)
+
+All 6 gates pass with score `1.00` in [`data/breakthrough_3e_genetics_dna_replication_art_opus_5round_peer_review.json`](../data/breakthrough_3e_genetics_dna_replication_art_opus_5round_peer_review.json):
+- **`ARGOS-PEER-008` (Zero Internal Process Jargon):** No internal harness/stage/tier identifiers leak into the compiled academic manuscript.
+- **`ARGOS-PEER-009` (Mathematical Honesty & Precise Naming):** Every theorem title matches the exact algebraic/analytic object proved in Lean 4.
+- **`ARGOS-PEER-010` (Derived PDE/ODE Constants in Lean 4):** All Radii-Polynomial bounds ($Y_0, Z_0, Z_2, Z_{\mathrm{tail}}, \kappa$) are derived from operator definitions rather than hard-coded literals.
+- **`ARGOS-PEER-011` (Exact Spec-to-Prose Alignment):** All rational witnesses in the manuscript match `GeneticAutoresearchSpec.lean` and `Breakthroughs3DomainsSpec.lean` via `rfl` locks.
+- **`ARGOS-PEER-012` (Clean Single-Author Attribution):** Standard academic author block (`Xavier Callens`).
+- **`ARGOS-PEER-013` (Zero Typesetting Defects):** `0 Overfull \hbox`, `0 Underfull \hbox`, and `0` unresolved citations/references in `pdflatex`.
