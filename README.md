@@ -66,10 +66,12 @@ SocrateAI-Scientific-Genetic/
 ├── formal/
 │   └── ANSE/
 │       ├── LeanMasterAutoTactics.lean         # Custom automated Lean 4 proof tactics
-│       ├── Breakthroughs3DomainsSpec.lean     # Foundational specs (B3E.T1 - B3E.T5)
+│       ├── StochasticThermodynamicsSpec.lean  # Non-Equilibrium Stochastic Thermodynamics specs (ST.T1 - ST.T4)
+│       ├── StochasticThermodynamics.lean      # Pauli Master Eq, Schnakenberg 2nd Law, Esposito KL & TUR proofs
+│       ├── Breakthroughs3DomainsSpec.lean     # Foundational specs (B3D.ST1 - B3D.ST4 & B3E.T1 - B3E.T5)
 │       ├── Breakthroughs3Domains.lean         # Foundational proofs (0 sorry, rfl locks)
-│       ├── GeneticAutoresearchSpec.lean       # Karpathy Autoresearch + GUDHI TDA specs (GAR.H1 - GAR.H6)
-│       └── GeneticAutoresearch.lean           # Formal proofs of GAR.H1 - GAR.H6 (3744 jobs, 0 sorryAx)
+│       ├── GeneticAutoresearchSpec.lean       # Autoresearch + GUDHI TDA specs (GAR.H1 - GAR.H7)
+│       └── GeneticAutoresearch.lean           # Formal proofs of GAR.H1 - GAR.H7 (3746 jobs, 0 sorryAx)
 ├── rust_solver/
 │   ├── genetics.rs                            # Pure-Rust sundials-core::genetics module (102/102 tests)
 │   └── rusty_sundials_bridge_harness.py       # Python <-> rusty-SUNDIALS verification harness
@@ -119,6 +121,10 @@ SocrateAI-Scientific-Genetic/
 | **`GAR.H5`** | `GAR_H5_lienard_metabolic_clock_ars222_imex_and_energy_minimization` | Liénard $\mathrm{Mg}^{2+}$/dNTP limit-cycle trough $P(3/2) = -5/4 < 0$ and **Goal Theorem:** `Torque-Haar-ART` reduces ANSE Bio-Computational Energy from $E_{\mathrm{base}} = 21.3329$ to $E_{\mathrm{eff}} = 0.4159$ (**$51.67\times$ reduction**, $\Delta E < 0$). |
 | **`GAR.H6`** | `GAR_H6_gudhi_tda_euler_poincare_and_repli_seq_persistence` | **Inria GUDHI TDA Integration:** Proves general 2D Simplicial Euler–Poincaré identity $(V-r_1)-(E-r_1-r_2)+(F-r_2)=V-E+F$, Hecke+Hairpin Betti law $\beta_1 = m_{\mathrm{stem}} = 6$ ($\chi = -5$), Repli-Seq `CubicalComplex` $H_0$ persistence sum $\mathcal{P}_{\mathrm{coal}} = 14$, and `TERT` `AlphaComplex` catalytic ring $H_1$ dominance $\Delta\alpha_{\mathrm{ring}}^2 = 183813/2000 > 90 > 20 > \Delta\alpha_{\mathrm{TEN}}^2$. |
 | **`GAR.H7`** | `GAR_H7_bihelmholtz_exact_quartic_factorization_and_chargaff_involution` | **External Peer-Review Remediation (`ARGOS-PEER-014`):** Proves the exact Bi-Helmholtz quartic factorization $(1+u)^4 - \frac{256}{27}u = \frac{1}{27}(1-3u)^2(27+14u+3u^2) = \frac{1}{27}(1-3u)^2[3(u+7/3)^2 + 32/3] \ge 0$ ($u = \alpha' k^2$) and proves that the fixed-point-free Watson–Crick permutation $\pi_{\mathrm{WC}}(n_A,n_T,n_G,n_C)=(n_T,n_A,n_C,n_G)$ acts as quaternion conjugation $(s_{\mathrm{tot}},-\delta_{\mathrm{AT}},-\delta_{\mathrm{GC}},-\delta_{\mathrm{RY}})$ in the Chargaff strand-symmetry eigenbasis (`chargaffSkewBasis`). |
+| **`ST.T1`** | `ST_T1_master_equation_mass_conservation_and_imex_positivity` | **Pauli Master Equation & IMEX Positivity:** Proves $(Wf)_i = \sum_j J_{ij}(f)$, $\sum_i (Wf)_i = 0$ ($\frac{d}{dt}\sum_i f_i(t) = 0$), and unconditional positivity $f_i^{(k+1)} > 0$ of Backward-Euler / L-stable IMEX $(I - \Delta t W)f^{(k+1)} = f^{(k)}$ for all $\Delta t > 0$ via the discrete minimum principle relative to a stationary distribution $\pi > 0$, vs. Forward-Euler breakdown $1 - \Delta t w_{\mathrm{exit}} = -3/4 < 0$ at $\Delta t = 1/4 > 1/7$. |
+| **`ST.T2`** | `ST_T2_schnakenberg_entropy_decomposition_and_second_law` | **Schnakenberg Entropy Production & 2nd Law:** Proves the continuous-time Shannon entropy derivative (`HasDerivAt`), exact Schnakenberg decomposition $\dot{\Sigma}(f) = \dot{S}_{\mathrm{sys}}(f) + \dot{S}_{\mathrm{med}}(f)$, and universal Second Law $\dot{\Sigma}(f) \ge 0$ for all $n \in \mathbb{N}$ and $f_i > 0$. |
+| **`ST.T3`** | `ST_T3_esposito_van_den_broeck_free_energy_balance` | **Esposito–Van den Broeck Non-Equilibrium Work Balance:** Proves the continuous-time Kullback–Leibler derivative (`HasDerivAt`) and exact free-energy balance $k_B T \frac{d}{dt}D_{\mathrm{KL}}(f\Vert f_{\mathrm{eq}}) = \dot{W}_{\mathrm{ATP}}(f) - k_B T \dot{\Sigma}(f)$ under Local Detailed Balance, recovering Lyapunov decay at $\Delta\mu_{\mathrm{ATP}} = 0$ and NESS housekeeping power $\dot{W}_{\mathrm{ATP}}(f^*) = k_B T \dot{\Sigma}(f^*) > 0$. |
+| **`ST.T4`** | `ST_T4_thermodynamic_uncertainty_relation_and_activity_bound` | **Barato–Seifert–Gingrich TUR Bound:** Proves $\frac{2(x-y)^2}{x+y} \le (x-y)\ln(x/y)$ for all $x, y > 0$ via `monotone_of_hasDerivAt_nonneg` and lifts it via Cauchy–Schwarz (`Finset.sum_mul_sq_le_sq_mul_sq`) to $2 J_d(f)^2 \le \mathcal{A}_{\mathrm{tot}}(f)\dot{\Sigma}(f)$ (witness $w_+/w_- = 6$: $J_{\mathrm{cycle}} = 5/3$, $\mathcal{A}_{\mathrm{tot}} = 7$, $\eta_{\mathrm{TUR}} = 10/(21\ln 6) \approx 0.2658 < 1$). |
 
 ---
 
@@ -172,4 +178,5 @@ cd formal && lake build ANSE.GeneticAutoresearch
 - **[Research Directions & 2026–2028 Roadmap](./docs/RESEARCH_DIRECTIONS_AND_ROADMAP.md)**
 - **[Architecture & Lean 4 Theorem Catalog](./docs/ARCHITECTURE_AND_LEAN4_CATALOG.md)**
 - **[Claude Opus 4.6 Controversy & Epistemic Audit](./docs/CONTROVERSY_AND_EPISTEMIC_AUDIT.md)**
-- **[Full Paper E PDF Manuscript](./papers/PaperE_Genetics_DNAReplication_ART_LeanFlow_RustySundials_Lean4.pdf)**
+- **[Full Paper E PDF Manuscript (Mathematical Genetics & ART Replication)](./papers/PaperE_Genetics_DNAReplication_ART_LeanFlow_RustySundials_Lean4.pdf)**
+- **[Full Paper D PDF Manuscript (Non-Equilibrium Stochastic Thermodynamics & ATP Master Equations in Lean 4)](./papers/PaperD_Biophysics_Genetics_EnergyMaterials_Autoresearch_Lean4.pdf)**

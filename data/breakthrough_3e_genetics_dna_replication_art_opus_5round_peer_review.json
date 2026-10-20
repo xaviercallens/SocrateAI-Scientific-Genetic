@@ -2,7 +2,7 @@
   "paper_id": "BREAKTHROUGH_PAPER_E",
   "paper_title": "BREAKTHROUGH_3E_GENETICS_DNA_REPLICATION_ART",
   "pdf_file": "/home/xavkal/xdev/AutoevolveAI/papers/three_breakthroughs/paper_e/PaperE_Genetics_DNAReplication_ART_LeanFlow_RustySundials_Lean4.pdf",
-  "pdf_sha256": "7c5254f68d4bca34204f589f14d9d7add8364d16a2c77ed21da1b15fbb271105",
+  "pdf_sha256": "7deb2d4a841e395e207de445d5e25edacb0004823380c23e35da1c1f90bf752c",
   "total_rounds": 5,
   "all_5_rounds_passed": true,
   "overall_epistemic_score": 1.0,
@@ -180,10 +180,10 @@
     "gate_id": "ARGOS-CENTAUR-001",
     "theorem_count": 28,
     "defeq_spec_lock_count": 16,
-    "active_proof_lines": 594,
-    "avg_lines_per_theorem": 21.21,
+    "active_proof_lines": 609,
+    "avg_lines_per_theorem": 21.75,
     "tactic_combinator_invocations": 61,
-    "conceptual_compression_factor_vs_unfolded": 21.22,
+    "conceptual_compression_factor_vs_unfolded": 20.69,
     "structural_isomorphisms": [
       {
         "isomorphism_id": "ISO-VALUATION-DYADIC-01",
@@ -1102,7 +1102,7 @@
           "severity": "VERIFIED_PASS",
           "category": "Conceptual Compression & LeanMaster Prove2Me DAG (ARGOS-CENTAUR-001)",
           "target_section": "Lean 4 Formalization",
-          "description": "Extracted 29 `@graph_node` concepts and 25 `@graph_edge` dependencies at 21.21 lines/theorem.",
+          "description": "Extracted 29 `@graph_node` concepts and 25 `@graph_edge` dependencies at 21.75 lines/theorem.",
           "resolution": "Knowledge graph verified acyclic, proof-golfed, and grounded.",
           "verified_closed": true
         },

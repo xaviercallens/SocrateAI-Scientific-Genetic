@@ -18,6 +18,7 @@ import ANSE.ElenchusTrilogy
 import ANSE.AutoresearchFLTNSEBridge
 import ANSE.OpenAIMathMavNanBridge
 import ANSE.DyadicNavierStokesRegulator
+import ANSE.StochasticThermodynamics
 import ANSE.Breakthroughs3DomainsSpec
 
 namespace ANSE.Breakthroughs3Domains
@@ -25,6 +26,8 @@ namespace ANSE.Breakthroughs3Domains
 open ANSE.ElenchusTrilogySpec
 open ANSE.ElenchusTrilogy
 open ANSE.MensuraElenchusThreeMissions
+open ANSE.StochasticThermodynamicsSpec
+open ANSE.StochasticThermodynamics
 open ANSE.Breakthroughs3DomainsSpec
 
 -- ============================================================================
@@ -654,6 +657,15 @@ alias B3D_T4_bioelectrical_lienard_limit_cycles_and_dual_rrk :=
 alias B3D_T5_dispersive_sigma_three_quantum_material_and_imex :=
   P4_T5_dispersive_sigma_three_quantum_material_and_imex
 
+alias B3D_ST1_master_equation_mass_conservation_and_imex_positivity :=
+  ANSE.StochasticThermodynamics.ST_T1_master_equation_mass_conservation_and_imex_positivity
+alias B3D_ST2_schnakenberg_entropy_decomposition_and_second_law :=
+  ANSE.StochasticThermodynamics.ST_T2_schnakenberg_entropy_decomposition_and_second_law
+alias B3D_ST3_esposito_van_den_broeck_free_energy_balance :=
+  ANSE.StochasticThermodynamics.ST_T3_esposito_van_den_broeck_free_energy_balance
+alias B3D_ST4_thermodynamic_uncertainty_relation_and_activity_bound :=
+  ANSE.StochasticThermodynamics.ST_T4_thermodynamic_uncertainty_relation_and_activity_bound
+
 alias B3E_T1_hopfield_ninio_art_proofreading_and_gibbs_fidelity :=
   P5_T1_hopfield_ninio_art_proofreading_and_gibbs_fidelity
 alias B3E_T2_calugareanu_dna_supercoiling_and_leray_bgk_fork :=
@@ -691,6 +703,10 @@ alias B3E_T5_multiscale_haar_repliseq_and_rusty_sundials_imex_rrk :=
 #print axioms P4_T3_multiscale_haar_paraproduct_and_dyadic_flux
 #print axioms P4_T4_bioelectrical_lienard_limit_cycles_and_dual_rrk
 #print axioms P4_T5_dispersive_sigma_three_quantum_material_and_imex
+#print axioms B3D_ST1_master_equation_mass_conservation_and_imex_positivity
+#print axioms B3D_ST2_schnakenberg_entropy_decomposition_and_second_law
+#print axioms B3D_ST3_esposito_van_den_broeck_free_energy_balance
+#print axioms B3D_ST4_thermodynamic_uncertainty_relation_and_activity_bound
 #print axioms P5_T1_hopfield_ninio_art_proofreading_and_gibbs_fidelity
 #print axioms P5_T2_calugareanu_dna_supercoiling_and_leray_bgk_fork
 #print axioms P5_T3_flt_quaternion_codon_palindrome_and_hecke_phylogeny

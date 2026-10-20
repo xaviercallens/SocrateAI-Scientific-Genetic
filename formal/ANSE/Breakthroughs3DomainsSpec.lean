@@ -29,11 +29,13 @@ import ANSE.MensuraElenchusThreeMissions
 import ANSE.AutoresearchFLTNSEBridgeSpec
 import ANSE.OpenAIMathMavNanBridgeSpec
 import ANSE.DyadicNavierStokesRegulatorSpec
+import ANSE.StochasticThermodynamicsSpec
 
 namespace ANSE.Breakthroughs3DomainsSpec
 
 open ANSE.ElenchusTrilogySpec
 open ANSE.MensuraElenchusThreeMissions
+open ANSE.StochasticThermodynamicsSpec
 
 -- ============================================================================
 -- MANDATORY INHABITATION PACKAGES (`ARGOS-CENTAUR-002`)
