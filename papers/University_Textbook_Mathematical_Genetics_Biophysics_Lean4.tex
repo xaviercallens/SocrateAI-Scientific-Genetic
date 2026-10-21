@@ -55,19 +55,19 @@
 \newtheorem{remark}[theorem]{Pedagogical Remark}
 
 \title{\textbf{Mathematical Genetics, Non-Equilibrium Chromatin Biophysics, and Neuro-Symbolic Formal Verification in Lean~4}\\[0.5em]
-\large A Ten-Section University Textbook on Stochastic Master Equations, Jarzynski--Crooks Chromatin Mechanics, Hopfield--Ninio \& Chimeric \texttt{ART-Exo} Proofreading, C\u{a}lug\u{a}reanu--Bi-Helmholtz Supercoiling, Hurwitz Quaternionic Codons, $p$-Adic Hecke--Haar Phylogenetics, 8D Gosset $E_8$ Dicodon Quantization, and Humanitarian Genomic Medicine}
+\large An Eleven-Section University Textbook on Stochastic Master Equations, Jarzynski--Crooks Chromatin Mechanics, Hopfield--Ninio \& Chimeric \texttt{ART-Exo} Proofreading, C\u{a}lug\u{a}reanu--Bi-Helmholtz Supercoiling, Hurwitz Quaternionic Codons, $p$-Adic Hecke--Haar Phylogenetics, 8D Gosset $E_8$ Dicodon Quantization, Humanitarian Genomic Medicine, and a No-Go Theorem That Refutes One of This Textbook's Own Models}
 \author{Xavier Callens\\
 \small SocrateAI Scientific Research \& Formal Verification Laboratory\\
-\small Certified Companion Textbook to Lean~4.34.1 Modules \texttt{ANSE.StochasticThermodynamics},\\
+\small Companion Textbook to Lean~4.34.1 Modules \texttt{ANSE.StochasticThermodynamics},\\
 \small \texttt{ANSE.Breakthroughs3Domains}, and \texttt{ANSE.GeneticAutoresearch} (\texttt{28} Theorems, \texttt{0 sorryAx})\\
 \small Permanent Zenodo DOIs: \texttt{10.5281/zenodo.23511663} \& \texttt{10.5281/zenodo.23511665}}
-\date{October 2026 --- University Curriculum Edition (10 Autonomous Sections)}
+\date{October 2026 --- University Curriculum Edition, 11 Sections --- Edition 2, with a retraction}
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
-This university textbook presents a self-contained, ten-section graduate and advanced undergraduate curriculum uniting molecular genetics, non-equilibrium statistical biophysics, geometric numerical integration (\texttt{rusty-SUNDIALS}), topological data analysis (Inria \texttt{GUDHI}), optimal lattice coding (8D Gosset $E_8$), and interactive theorem proving in \textbf{Lean~4.34.1} (\texttt{Mathlib4}). Classical molecular biology textbooks treat DNA replication, chromatin remodeling, and genetic error correction primarily through descriptive cartoons or equilibrium mass-action heuristics. Conversely, modern formal verification textbooks rarely engage with non-equilibrium thermodynamics, continuous-time Markov master equations, or empirical multi-omic datasets. Across ten structured sections, this textbook bridges both disciplines through our \textbf{Socratic Elenchus 4-Pillar Alignment Paradigm}, requiring every biological claim to simultaneously satisfy: (1) a machine-checked Lean~4 proof (\texttt{0 sorryAx}, \texttt{0} custom axioms), (2) a step-by-step university-level mathematical demonstration, (3) empirical grounding across 20 live biological databases and 9 Hugging Face genomic benchmark datasets ($3{,}600$ sequences, $36{,}000$ dicodons across 4 species), and (4) structure-preserving numerical execution in \texttt{rusty-SUNDIALS} v6.4.0 ($103/103$ unit tests). Each section contains rigorous physical definitions, a flagship theorem, a complete blackboard-style mathematical proof, a verbatim Lean~4 code listing and tactic walkthrough, a worked numerical problem over $\mathbb{Q}$, and university exercises with analytical hints.
+This university textbook presents a self-contained, eleven-section graduate and advanced undergraduate curriculum uniting molecular genetics, non-equilibrium statistical biophysics, geometric numerical integration (\texttt{rusty-SUNDIALS}), topological data analysis (Inria \texttt{GUDHI}), optimal lattice coding (8D Gosset $E_8$), and interactive theorem proving in \textbf{Lean~4.34.1} (\texttt{Mathlib4}). Classical molecular biology textbooks treat DNA replication, chromatin remodeling, and genetic error correction primarily through descriptive cartoons or equilibrium mass-action heuristics. Conversely, modern formal verification textbooks rarely engage with non-equilibrium thermodynamics, continuous-time Markov master equations, or empirical multi-omic datasets. Across eleven structured sections, this textbook bridges both disciplines through our \textbf{Socratic Elenchus 4-Pillar Alignment Paradigm}, requiring every biological claim to simultaneously satisfy: (1) a machine-checked Lean~4 proof (\texttt{0 sorryAx}, \texttt{0} custom axioms), (2) a step-by-step university-level mathematical demonstration, (3) empirical grounding across 20 live biological databases and 9 Hugging Face genomic benchmark datasets ($3{,}600$ sequences, $36{,}000$ dicodons across 4 species), and (4) structure-preserving numerical execution in \texttt{rusty-SUNDIALS} v6.4.0 ($103/103$ unit tests). Each section contains rigorous physical definitions, a flagship theorem, a complete blackboard-style mathematical proof, a verbatim Lean~4 code listing and tactic walkthrough, a worked numerical problem over $\mathbb{Q}$, and university exercises with analytical hints. Section~11 is new in this edition and runs the other way. It proves a no-go theorem --- in the model class where a replicative error rate is an insertion error times one escape factor per proofreading stage, no mutant that merely removes stages can exceed the exonuclease-null rate --- and then shows that the \texttt{POLE} \texttt{p.Pro286Arg} mechanism taught in Section~10 violates that bound by a factor of $52$ against published yeast measurements. That claim satisfied all four pillars and was still wrong about the cell, which is the point: a machine-checked proof establishes that a conclusion follows from its hypotheses, never that the hypotheses hold. We retract the mechanism, keep the derivation so the failure can be studied, and leave the clinical conclusion it was invoked to support --- that \texttt{POLE}-mutant tumours cross the immunotherapy threshold --- resting on the measurements that actually establish it.
 \end{abstract}
 
 \tableofcontents
@@ -76,16 +76,16 @@ This university textbook presents a self-contained, ten-section graduate and adv
 \section*{Curriculum Overview and Summary of the 10 Textbook Sections}
 \addcontentsline{toc}{section}{Curriculum Overview and Summary of the 10 Textbook Sections}
 
-Table~\ref{tab:curriculum_map} summarizes the ten sections of this textbook, mapping each biological system to its governing mathematical formulation, Lean~4 theorem identifier, and certified physical/clinical invariant.
+Table~\ref{tab:curriculum_map} summarizes the sections of this textbook, mapping each biological system to its governing mathematical formulation, Lean~4 theorem identifier, and the statement the kernel checks. A word on what ``machine-checked'' means here, since the distinction is the subject of Section~\ref{sec:nogo}: Lean verifies that a conclusion follows from the hypotheses as stated, and nothing more. It does not verify that the hypotheses describe a cell. Section~11 works through a case in this very textbook where they did not.
 
 \begin{table}[htbp]
 \centering
-\caption{University curriculum map across the 10 sections, linking biological domains, mathematical theorems, Lean~4 formalizations (\texttt{0 sorryAx}), and certified numerical invariants.}
+\caption{University curriculum map, linking biological domains, mathematical theorems, Lean~4 formalizations (\texttt{0 sorryAx}), and the machine-checked statement in each case. Entries are theorems about the stated model, not empirical findings; Section~11 is the worked example of that difference.}
 \label{tab:curriculum_map}
 \footnotesize
 \begin{tabularx}{\textwidth}{@{}c l l X@{}}
 \toprule
-\textbf{Sec.} & \textbf{Biological \& Physical Topic} & \textbf{Lean 4 Theorem ID} & \textbf{Key Certified Discovery \& Invariant} \\
+\textbf{Sec.} & \textbf{Biological \& Physical Topic} & \textbf{Lean 4 Theorem ID} & \textbf{Machine-Checked Statement \& Invariant} \\
 \midrule
 1 & Pauli Master Equations \& IMEX Positivity & \texttt{ST\_T1} & $\frac{d}{dt}\sum_i f_i = 0$; Backward-Euler $f_i^{(k+1)} > 0$ $\forall \Delta t > 0$ vs.\ Forward-Euler $-3/4 < 0$ at $\Delta t = 1/4$. \\
 2 & Schnakenberg 2nd Law, KL Balance \& TUR & \texttt{ST\_T2}, \texttt{ST\_T3}, \texttt{ST\_T4} & $\dot{\Sigma} = \dot{S}_{\mathrm{sys}} + \dot{S}_{\mathrm{med}} \ge 0$; $2J_d^2 \le \mathcal{A}_{\mathrm{tot}}\dot{\Sigma}$ ($\eta_{\mathrm{TUR}} = \frac{10}{21\ln 6} \approx 0.2658 < 1$). \\
@@ -96,7 +96,8 @@ Table~\ref{tab:curriculum_map} summarizes the ten sections of this textbook, map
 7 & $p$-Adic Hecke Trees, Haar \& Woodbury HGT & \texttt{GAR\_H2}, \texttt{GAR\_H9} & $K_4$ ($p=3$) Hecke clades ($108$ paths); Haar diagonalization $\kappa : 25/3 \to 1$; Woodbury HGT Krylov $\le 2\beta_1 + 1 = 13$. \\
 8 & 1D KJMA Replication, $\mathrm{Sym}^2(L_2)$ \& GUDHI TDA & \texttt{B3E\_T4}, \texttt{GAR\_H4}, \texttt{GAR\_H6} & $S_1(1) \le 1/115$, $S_2(1) \le 1/1237$; RNS $k$-mer $770$; \texttt{TERT} \texttt{AlphaComplex} tunnel $2\alpha_d = 19.6805\;\text{\AA}$. \\
 9 & Conway--Sloane 8D Gosset $E_8$ \& \texttt{Agora} Pad\'e & \texttt{GAR\_H11}, \texttt{GAR\_H12} & $G(E_8) = 929/12960 < 1/12$ ($-26.55\%$ MSE across $36{,}000$ dicodons); Pad\'e zero-sound $s_{[1/1]}^2 = 52/45 > 1$. \\
-10 & Humanitarian Medicine \& $538.84\times$ Elenchus ANSE & \texttt{GAR\_H13}--\texttt{GAR\_H17} & \texttt{POLE} \texttt{P286R} TMB $12500/9$ (\texttt{KEYTRUDA}); \texttt{HBB} \texttt{rs334} PE $1562419/1562500 > 99.99\%$; $E_{\mathrm{Gen5}} = 0.03959$ ($538.84\times$). \\
+10 & Humanitarian Medicine \& $538.84\times$ Elenchus ANSE & \texttt{GAR\_H13}--\texttt{GAR\_H17} & \texttt{POLE} \texttt{P286R} TMB $12500/9$ \emph{(arithmetic of a model since refuted --- Sec.~11)}; \texttt{HBB} \texttt{rs334} PE $1562419/1562500 > 99.99\%$; $E_{\mathrm{Gen5}} = 0.03959$ ($538.84\times$). \\
+11 & \textbf{No-go theorem for stage-removal models} & \texttt{PSR\_1}--\texttt{PSR\_3} & $E(T) \le \varepsilon$ for every stage subset $T$: no stage-removal mutant exceeds the exo-null rate. Measured $\rho = 2300/44 \approx 52.3$ \emph{falsifies} Sec.~10's \texttt{P286R} mechanism. \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -632,7 +633,7 @@ Compute the coding gain in decibels $\Delta_{\mathrm{dB}} = 10\log_{10}\!\left(\
 \subsection{Biological and Clinical Foundations for Students}
 In our final section, we translate the mathematical genetics and formal verification machinery developed in Sections~1--9 into three concrete humanitarian clinical applications grounded across 20 live biological databases:
 \begin{enumerate}
-  \item \textbf{Precision Immuno-Oncology (\texttt{POLE} \texttt{p.Pro286Arg} \& FDA \texttt{KEYTRUDA}):} Somatic missense mutations in the $3'\to 5'$ exonuclease domain (\texttt{IPR006133}) of human DNA Polymerase~$\varepsilon$ (\texttt{POLE}, \texttt{rs1057519943}, ClinVar \texttt{VCV000216066}, \texttt{DOID:9256} colorectal \& endometrial carcinoma) collapse proofreading stages from $m=3$ to $m=1$. While wild-type \texttt{POLE} maintains a somatic Tumor Mutational Burden $\mathrm{TMB}_{\mathrm{WT}} = 1/5 = 0.20\;\mathrm{mut/Mb}$, \texttt{p.Pro286Arg} amplifies TMB by $1/\gamma^2 = 62500/9 \approx 6944.44\times$ to $\mathrm{TMB}_{\mathrm{P286R}} = 12500/9 \approx 1388.89\;\mathrm{mut/Mb}$, crossing the FDA \texttt{KEYTRUDA} (\texttt{pembrolizumab}, $\ge 10\;\mathrm{mut/Mb}$) immunotherapy threshold.
+  \item \textbf{Precision Immuno-Oncology (\texttt{POLE} \texttt{p.Pro286Arg} \& FDA \texttt{KEYTRUDA}) --- and a model this textbook retracts:} Somatic missense mutations in the $3'\to 5'$ exonuclease domain (\texttt{IPR006133}) of human DNA Polymerase~$\varepsilon$ (\texttt{POLE}, \texttt{rs1057519943}, ClinVar \texttt{VCV000216066}, \texttt{DOID:9256} colorectal \& endometrial carcinoma) produce tumours with a very high mutational burden that crosses the FDA \texttt{KEYTRUDA} (\texttt{pembrolizumab}, $\ge 10\;\mathrm{mut/Mb}$) threshold~\cite{rayner2016pole}. That clinical fact is secure. The \emph{mechanism} earlier editions of this textbook taught for it is not: we modelled \texttt{p.Pro286Arg} as collapsing proofreading stages from $m=3$ to $m=1$, giving $\mathrm{TMB}_{\mathrm{WT}} = 1/5\;\mathrm{mut/Mb}$ amplified by $1/\gamma^2 = 62500/9 \approx 6944.44\times$ to $\mathrm{TMB}_{\mathrm{P286R}} = 12500/9 \approx 1388.89\;\mathrm{mut/Mb}$. Section~\ref{sec:nogo} proves that no model of this kind can reproduce the measured phenotype, and retracts it. We keep the derivation in place because the way it fails is worth more to a student than a correct formula would be.
   \item \textbf{Scarless Monogenic Prime Editing (\texttt{HBB} \texttt{rs334} Sickle Cell Anemia):} Correcting the Sickle Cell mutation (\texttt{HBB} \texttt{c.20A>T}, \texttt{p.Glu6Val}, \texttt{DOID:10923}) via a $L_{\mathrm{RTT}} = 30\text{-nt}$ Prime Editing template with 3-stage Chimeric \texttt{ART-Exo} achieves $F_{30}^{\mathrm{Exo}} = 1 - 30\gamma^3 = \frac{1562419}{1562500} = 99.994816\% > 99.99\%$ scarless purity ($83.33\times$ defect reduction over 2-stage M-MLV RT), while human mitochondrial \texttt{POLG} ($m=3$) vs.\ viral RT ($m=1$) achieves an antiviral Selectivity Index $\mathrm{SI} = 50{,}000$.
   \item \textbf{Socratic Elenchus 4-Pillar Alignment \& $538.84\times$ Gen-5 ANSE Energy:} Combining 256-origin \texttt{UniBind}/\texttt{ENCODE}/\texttt{JASPAR} \texttt{CTCF} licensing and 24-lane $E_8$ SIMD quantization reduces the ANSE Bio-Computational Energy from $E_{\mathrm{base}} = 21.332917$ down to $E_{\mathrm{Gen5}} = 0.03959007$ ($538.84\times$ total compression).
 \end{enumerate}
@@ -640,7 +641,7 @@ In our final section, we translate the mathematical genetics and formal verifica
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\textwidth]{fig4_e8_dicodon_chimeric_art_exo_humanitarian_538x.pdf}
-  \caption{(a) Cross-species 8D Gosset $E_8$ ($-26.55\%$ mean) and 2D Hexagonal $A_2$ ($-17.93\%$ mean) MSE distortion reduction across $36{,}000$ dicodons from 9 Hugging Face \texttt{Genomic\_Benchmarks} datasets. (b) Certified 6-stage Socratic Elenchus ANSE Bio-Computational Energy cascade from $E_{\mathrm{base}} = 21.3329$ down to $E_{\mathrm{Gen5}} = 0.03959$ ($538.84\times$ reduction).}
+  \caption{(a) Cross-species 8D Gosset $E_8$ ($-26.55\%$ mean) and 2D Hexagonal $A_2$ ($-17.93\%$ mean) MSE distortion reduction across $36{,}000$ dicodons from 9 Hugging Face \texttt{Genomic\_Benchmarks} datasets. (b) Machine-checked 6-stage Socratic Elenchus ANSE Bio-Computational Energy cascade from $E_{\mathrm{base}} = 21.3329$ down to $E_{\mathrm{Gen5}} = 0.03959$ ($538.84\times$ reduction). The monotonicity of this cascade is exact rational arithmetic over a defined energy functional; it is not a measurement of a physical or computational cost.}
   \label{fig:sec10_fig4}
 \end{figure}
 
@@ -650,7 +651,7 @@ In our final section, we translate the mathematical genetics and formal verifica
 \label{thm:sec10_humanitarian_elenchus}
 Formalized in Lean~4 as \path{GAR_H13_pharmacological_top2a_torque_inhibition_and_phylop_conservation}, \path{GAR_H14_federated_multi_omic_information_and_fourth_gen_anse_energy}, \path{GAR_H15_pole_ultramutator_tmb_threshold_and_immunotherapy_rescue}, \path{GAR_H16_sickle_cell_hbb_prime_editing_fidelity_and_polg_antiviral_selectivity}, and \path{GAR_H17_elenchus_four_pillar_alignment_and_538x_fifth_gen_anse_energy}.
 \begin{enumerate}
-  \item \textbf{\texttt{POLE} \texttt{p.Pro286Arg} TMB Surge and Immune-Escape Collapse:} For any coding scale $S_{\mathrm{Mb}} \neq 0$ and $\gamma \neq 0$, $\frac{\mathrm{TMB}(S_{\mathrm{Mb}}, \gamma)}{\mathrm{TMB}(S_{\mathrm{Mb}}, \gamma^3)} = \frac{1}{\gamma^2}$. At $\gamma = 3/250$ and $S_{\mathrm{Mb}} = 3125000/27$, $\mathrm{TMB}_{\mathrm{WT}} = 1/5 < 10 < 100 < \mathrm{TMB}_{\mathrm{P286R}} = 12500/9$, and the PD-1 immune-escape hazard is $H_{\mathrm{esc}}(9/10, 12500/9) = \frac{1}{1 + (9/10)(12500/9)} = \frac{1}{1251} < 10^{-3}$.
+  \item \textbf{\texttt{POLE} \texttt{p.Pro286Arg} TMB Surge and Immune-Escape Collapse \emph{(arithmetic only --- the biological reading is retracted, see Section~\ref{sec:nogo})}:} For any coding scale $S_{\mathrm{Mb}} \neq 0$ and $\gamma \neq 0$, $\frac{\mathrm{TMB}(S_{\mathrm{Mb}}, \gamma)}{\mathrm{TMB}(S_{\mathrm{Mb}}, \gamma^3)} = \frac{1}{\gamma^2}$. At $\gamma = 3/250$ and $S_{\mathrm{Mb}} = 3125000/27$, $\mathrm{TMB}_{\mathrm{WT}} = 1/5 < 10 < 100 < \mathrm{TMB}_{\mathrm{P286R}} = 12500/9$, and the PD-1 immune-escape hazard is $H_{\mathrm{esc}}(9/10, 12500/9) = \frac{1}{1 + (9/10)(12500/9)} = \frac{1}{1251} < 10^{-3}$. What Lean verifies here is the rational arithmetic of the ratio $1/\gamma^2$, not the claim that \texttt{p.Pro286Arg} realises it by dropping two proofreading stages. Theorem~\ref{thm:psr} shows it does not, so $\mathrm{TMB}_{\mathrm{P286R}} = 1388.89\;\mathrm{mut/Mb}$ should be read as a property of the model and not as a clinical prediction.
   \item \textbf{Scarless \texttt{HBB} \texttt{rs334} Prime Editing and \texttt{POLG} Selectivity:} At $L_{\mathrm{RTT}} = 30$ and $\gamma = 3/250$, $F_{30}^{\mathrm{Exo}} = 1 - 30(3/250)^3 = \frac{1562419}{1562500} > \frac{9999}{10000}$, and $\mathrm{SI}_{\mathrm{POLG/RT}} = \frac{1/20}{(1/100)^3} = 50{,}000 > 10{,}000$.
   \item \textbf{6-Stage Socratic Elenchus ANSE Energy Monotonicity ($538.84\times$):} The 6-generation energy sequence satisfies
   \begin{equation}
@@ -679,6 +680,65 @@ theorem GAR_H17_elenchus_four_pillar_alignment_and_538x_fifth_gen_anse_energy :
 Calculate the expected number of reverse-transcription point errors per $1{,}000$ Prime Editing events across a $30\text{-nt}$ RTT for: \textbf{(a)} 1-stage viral RT ($m=1, \gamma = 3/250$), \textbf{(b)} 2-stage M-MLV PE2 ($m=2$), and \textbf{(c)} 3-stage Chimeric \texttt{ART-Exo} ($m=3$). Verify that the ratio of (b) to (c) is exactly $250/3 \approx 83.33$.
 \end{exercise}
 
+% ============================================================================
+% SECTION 11 — the no-go theorem
+% ============================================================================
+\section{A No-Go Theorem, and How This Textbook's Own \texttt{POLE} Model Fails It}\label{sec:nogo}
+
+\subsection{Why a Negative Result Belongs in a Textbook}
+Every model in Sections~1--10 was presented with a Lean~4 proof attached, and it is easy for a student to read that pairing as a guarantee that the biology is right. It is not. Lean certifies that a conclusion follows from stated hypotheses; whether those hypotheses describe the cell is an empirical question that no proof assistant can settle. This section is the worked example of that distinction, and the specimen is Section~10's own \texttt{POLE} model.
+
+\subsection{The Model Class and the Ceiling}
+Write the replicative error rate as an insertion/extension error $\varepsilon > 0$ multiplied by one escape factor per proofreading stage that is present:
+\begin{equation}\label{eq:modelclass}
+  E(S) \;=\; \varepsilon \prod_{i \in S} q_i, \qquad q_i \in [0,1],
+\end{equation}
+where $S$ is the set of stages the enzyme has. Section~10's $\mathcal{E}_m(\gamma) = \gamma^m$ is the special case $q_i \equiv \gamma$, and exonuclease-partitioning models are the case $q_i = 1 - p_{\mathrm{exo}}$. A \emph{stage-removal mutant} is one that keeps a subset $T \subseteq S$ and changes nothing else.
+
+\begin{theorem}[No-Go for Stage-Removal Models]\label{thm:psr}
+Let $\varepsilon \ge 0$ and $q_i \in [0,1]$ for all $i$. Then:
+\begin{enumerate}
+  \item \textbf{(PSR\_1, monotonicity)} $T \subseteq S \implies E(S) \le E(T)$: removing stages never lowers the error rate.
+  \item \textbf{(PSR\_2, the ceiling)} $E(T) \le \varepsilon$ for every $T$: \emph{no} stage-removal mutant can exceed the stage-free (exonuclease-null) rate, whatever the stage count and whatever the per-stage factors.
+  \item \textbf{(PSR\_3, the contrapositive)} If a mutant is measured at $\rho$ times the exonuclease-null rate with $\rho > 1$, then its insertion/extension error must satisfy $\varepsilon' \ge \rho\,\varepsilon$ --- it is not a stage-removal mutant at all.
+\end{enumerate}
+Formalized in Lean~4 as \path{PSR_1_stage_removal_monotone}, \path{PSR_2_bounded_by_exo_null} and \path{PSR_3_excess_over_exo_null_forces_insertion_defect} in module \path{ANSE.ProofreadingStageRemoval}, with \path{PSR_positive_control} and \path{PSR_negative_control}. Seven declarations, all seven clean under the axiom gate: no \texttt{sorryAx}, and no axiom outside $\{$\texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}$\}$.
+\end{theorem}
+
+\begin{proof}
+Each $q_i \in [0,1]$, so $\prod_{i \in T} q_i \le 1$ and PSR\_2 follows from $E(T) = \varepsilon \prod_{i\in T} q_i \le \varepsilon$. For PSR\_1, split $\prod_{i\in S} q_i = \big(\prod_{i\in T} q_i\big)\big(\prod_{i \in S\setminus T} q_i\big)$; the second factor is at most $1$ and the first is non-negative, so $\prod_{i\in S} q_i \le \prod_{i \in T} q_i$, and multiplying by $\varepsilon \ge 0$ gives the claim. PSR\_3 is PSR\_2 contraposed: $E'(T) = \varepsilon'\prod_{i\in T} q_i \le \varepsilon'$, so $E'(T) = \rho\varepsilon$ forces $\varepsilon' \ge \rho\varepsilon$.
+\end{proof}
+
+Note what PSR\_2 costs to state: nothing is fitted. There is no free parameter to tune, no stage count to choose. That is what makes it falsifiable by a single measurement.
+
+\subsection{The Measurement That Falsifies It}
+Kane and Shcherbakova~\cite{kane2014} measured the yeast analogue of \texttt{POLE} \texttt{p.Pro286Arg}, namely \texttt{pol2-P301R}, alongside the exonuclease-null allele \texttt{pol2-4} --- in the same table, in the same isogenic mismatch-repair-proficient background, on the same \texttt{CAN1} reporter:
+\begin{equation}
+  \underbrace{2300 \times 10^{-8}}_{\texttt{pol2-P301R}} \qquad\text{versus}\qquad \underbrace{44 \times 10^{-8}}_{\texttt{pol2-4}\ (\text{exo-null})},
+  \qquad \rho = \frac{2300}{44} \approx 52.3 .
+\end{equation}
+PSR\_2 requires $\rho \le 1$. The measurement gives $\rho \approx 52.3$, and $\rho \ge 35.3$ even on the published 95\% confidence intervals. Three further cancer-associated alleles (\texttt{P286H}, \texttt{F367S}, \texttt{S459F}) break the same ceiling~\cite{barbari2018}. The negative controls behave: \texttt{V411L} and six functionally neutral alleles are not flagged.
+
+\begin{remark}[What exactly was refuted]
+Section~10 modelled \texttt{P286R} as $m: 3 \to 1$. In the class \eqref{eq:modelclass}, $m=1$ \emph{is} the stage-free rate, so that model predicts $\rho = 1$ --- the mutant should sit exactly \emph{at} the exonuclease-null ceiling. It is measured a factor of $52$ above it. The failure is therefore not a mis-chosen $\gamma$: no value of $\gamma$, and no number of stages, rescues it, because PSR\_2 holds for all of them. The hypothesis is refuted as a \emph{mechanism class}. Note also that Kane and Shcherbakova said so in their title --- ``fidelity defects distinct from loss of proofreading'' --- which the model in Section~10 did not take seriously enough.
+\end{remark}
+
+\subsection{Where the Mechanism Actually Lives}
+Xing et~al.~\cite{xing2019} purified the enzyme and found \texttt{P301R} to be \emph{more} accurate than exonuclease-null \emph{in vitro} ($59$ versus $155 \times 10^{-6}$ base substitutions, with no mismatch repair present), while it is $52\times$ worse \emph{in vivo}. The ordering reverses between the test tube and the cell by a factor of about $137$. A quantity that reverses sign across the two settings cannot be the explanatory variable: intrinsic error \emph{production} is not what makes this allele a mutator. What the measurements bound instead is an interaction with mismatch repair.
+
+That reading is constrained, not free. \texttt{pol2-P301R msh6$\Delta$} is synthetic lethal while \texttt{pol2-4 msh6$\Delta$} is viable, so mismatch repair is still doing real work on \texttt{P301R} errors; full evasion is not supported by the data. A student should hold both facts at once rather than round to the tidier story.
+
+\begin{exercise}
+\textbf{(a)} Using only PSR\_2, show that \emph{any} model in class~\eqref{eq:modelclass} predicts $\rho \le 1$, without choosing $\gamma$ or $m$.
+\textbf{(b)} Apply PSR\_3 to $\rho = 2300/44$ to find the factor by which the insertion/extension error of \texttt{pol2-P301R} must exceed wild type if one insists on keeping the model.
+\textbf{(c)} Xing et~al.\ measured that enzyme as more accurate than exonuclease-null in a purified system. Explain why that measurement rules out the rescue in (b), and state in one sentence what must therefore carry the phenotype.
+\textbf{(d)} Design the experiment that would discriminate your answer to (c) from the alternative that \texttt{P301R} simply saturates mismatch repair with ordinary errors. (Hint: the informative background is \emph{hypomorphic}, not null --- explain why a null background cannot separate the two.)
+\end{exercise}
+
+\begin{remark}[The transferable lesson]
+The Lean proofs in Sections~1--10 are as sound as they ever were; what changed is that one of the modelling hypotheses met a measurement and lost. A formal proof raises the cost of a hidden inconsistency, and it raises the cost of vagueness, because a hypothesis precise enough to formalise is a hypothesis precise enough to refute. That is the service formalisation renders here --- it is what let PSR\_2 be stated sharply enough to fail --- and it is not the same thing as being right about the cell.
+\end{remark}
+
 \begin{thebibliography}{16}
 \bibitem{schnakenberg1976}
 J.~Schnakenberg, ``Network theory of microscopic and macroscopic behavior of master equation systems,'' \emph{Reviews of Modern Physics}, vol.~48, no.~4, pp.~571--585, 1976.
@@ -696,8 +756,14 @@ J.~D. McGhee and P.~H. von~Hippel, ``Theoretical aspects of DNA-protein interact
 J.~J. Hopfield, ``Kinetic proofreading: a new mechanism for reducing errors in biosynthetic processes requiring high specificity,'' \emph{Proceedings of the National Academy of Sciences}, vol.~71, no.~10, pp.~4135--4139, 1974.
 \bibitem{ninio1975}
 J.~Ninio, ``Kinetic amplification of enzyme discrimination,'' \emph{Biochimie}, vol.~57, no.~5, pp.~587--595, 1975.
-\bibitem{anthropic2026art}
-Anthropic Molecular Biology Team, ``Autonomous discovery of array-associated reverse transcriptases (\texttt{ART}) in bacteriophage genomes,'' \emph{bioRxiv Preprint}, September 2026.
+\bibitem{yoon2026art}
+Yoon et~al., ``Autonomous AI agents discover reverse transcriptases with tandem repeat arrays,'' preprint hosted by Anthropic, 23 September 2026. (Author list and URL to be checked against the preprint; an earlier edition of this textbook cited it incorrectly as a bioRxiv preprint by an ``Anthropic Molecular Biology Team'', which does not exist.)
+\bibitem{kane2014}
+D.~P. Kane and P.~V. Shcherbakova, ``A common cancer-associated DNA polymerase $\varepsilon$ mutation causes an exceptionally strong mutator phenotype, indicating fidelity defects distinct from loss of proofreading,'' \emph{Cancer Research}, vol.~74, no.~7, pp.~1895--1901, 2014.
+\bibitem{xing2019}
+X.~Xing, D.~P. Kane, C.~R. Bulock, \emph{et~al.}, ``A recurrent cancer-associated substitution in DNA polymerase $\varepsilon$ produces a hyperactive enzyme,'' \emph{Nature Communications}, vol.~10, p.~374, 2019.
+\bibitem{barbari2018}
+S.~R. Barbari, D.~P. Kane, E.~A. Moore, and P.~V. Shcherbakova, ``Functional analysis of cancer-associated DNA polymerase $\varepsilon$ variants in \emph{Saccharomyces cerevisiae},'' \emph{G3: Genes, Genomes, Genetics}, vol.~8, no.~3, pp.~1019--1029, 2018.
 \bibitem{calugareanu1959}
 G.~C\u{a}lug\u{a}reanu, ``L'int\'egrale de Gauss et l'analyse des n\oe uds tridimensionnels,'' \emph{Revue de Math\'ematiques Pures et Appliqu\'ees}, vol.~4, pp.~5--20, 1959.
 \bibitem{bechhoefer2005kjma}
