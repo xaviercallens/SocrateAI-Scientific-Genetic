@@ -764,6 +764,24 @@ theorem ST_T6_mcghee_von_hippel_tonks_girardeau_chromatin_lattice_and_rouse_poly
 -- SECTION 9: MULTI-KERNEL AXIOM AUDIT (`ARGOS-CENTAUR-003`)
 -- ============================================================================
 
+#print axioms masterRHS_eq_sum_edgeFlux
+#print axioms sum_masterRHS_eq_zero
+#print axioms hasDerivAt_probMass_zero
+#print axioms imex_probMass_conserved
+#print axioms imex_strict_positivity
+#print axioms mul_sub_log_div_nonneg
+#print axioms hasDerivAt_systemEntropy
+#print axioms half_sum_edgeFlux_sub
+#print axioms edgeFlux_mul_log_ratio
+#print axioms schnakenberg_decomposition_identity
+#print axioms schnakenberg_second_law
+#print axioms hasDerivAt_klDivergence
+#print axioms esposito_van_den_broeck_free_energy_balance
+#print axioms hasDerivAt_turPsi
+#print axioms monotone_turPsi
+#print axioms two_mul_sub_one_div_add_one_le_log
+#print axioms tur_edge_bound
+#print axioms tur_network_cauchy_schwarz_bound
 #print axioms ST_T1_master_equation_mass_conservation_and_imex_positivity
 #print axioms ST_T2_schnakenberg_entropy_decomposition_and_second_law
 #print axioms ST_T3_esposito_van_den_broeck_free_energy_balance

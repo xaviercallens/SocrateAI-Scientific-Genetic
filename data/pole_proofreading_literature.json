@@ -1,0 +1,77 @@
+{
+  "description": "Published Saccharomyces cerevisiae DNA polymerase epsilon (POL2) mutation-rate and in-vitro fidelity data used to test the proofreading-stage-removal model class of Paper E. Every record was read in the primary full text (Europe PMC fullTextXML / NCBI efetch) on 2026-10-21; verbatim quotes are retained. Nothing here is fitted or inferred.",
+  "in_vivo_can1": {
+    "unit": "x10^-8 Can-r mutants per cell per generation",
+    "reporter": "CAN1 forward mutation",
+    "note": "Medians of >=9 (Kane) or >=18 (Barbari) independent cultures with 95% CI. All strains MMR-proficient, E134-isogenic background, Shcherbakova laboratory.",
+    "kane2014": {
+      "source": "Kane DP, Shcherbakova PV. Cancer Res. 2014;74(7):1895-1901. PMCID PMC4310866",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4310866/",
+      "location": "Table 2",
+      "ploidy": "haploid",
+      "verbatim_fold_quote": "150-fold, 44-fold and 370-fold, respectively, in comparison to the wild-type strain.",
+      "verbatim_comparison_quote": "mutator effect of pol2-P301R was ~50-fold higher than that of the pol2-4 mutation inactivating Pol-epsilon proofreading due to the replacement of both catalytic carboxylates at the ExoI motif with alanines",
+      "strains": {
+        "POL2_wild_type": {"rate": 15, "ci": [10, 20]},
+        "pol2-P301R": {"rate": 2300, "ci": [1800, 2800], "human_equivalent": "POLE P286R"},
+        "pol2-4_exonuclease_null": {"rate": 44, "ci": [39, 51], "genotype": "D290A,E292A", "role": "stage-free reference (both ExoI catalytic carboxylates to alanine)"}
+      }
+    },
+    "barbari2018": {
+      "source": "Barbari SR, Kane DP, Moore EA, Shcherbakova PV. G3 (Bethesda). 2018;8(3):1019-1029. PMCID PMC5844290",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5844290/",
+      "location": "File S1 Table S3",
+      "ploidy": "haploid",
+      "note": "This paper contains no pol2-4 arm, so its variants are compared with Kane's exonuclease-null allele after normalising each paper to its own wild type. Cross-paper step, flagged as such.",
+      "strains": {
+        "POL2_wild_type": {"rate": 23, "ci": [17, 32]},
+        "pol2-F139L": {"rate": 21, "ci": [18, 23], "human_equivalent": "POLE F104L"},
+        "pol2-R252H": {"rate": 18, "ci": [16, 21], "human_equivalent": "POLE R231H"},
+        "pol2-D290V": {"rate": 53, "ci": [44, 55], "human_equivalent": "POLE D275V"},
+        "pol2-P301H": {"rate": 290, "ci": [250, 440], "human_equivalent": "POLE P286H"},
+        "pol2-N351S": {"rate": 21, "ci": [19, 25], "human_equivalent": "POLE N336S"},
+        "pol2-F382S": {"rate": 380, "ci": [300, 490], "human_equivalent": "POLE F367S"},
+        "pol2-V426L": {"rate": 28, "ci": [25, 32], "human_equivalent": "POLE V411L"},
+        "pol2-L439V": {"rate": 120, "ci": [82, 140], "human_equivalent": "POLE L424V"},
+        "pol2-P451R": {"rate": 120, "ci": [98, 150], "human_equivalent": "POLE P436R"},
+        "pol2-S474F": {"rate": 680, "ci": [560, 800], "human_equivalent": "POLE S459F"},
+        "pol2-R778W": {"rate": 21, "ci": [17, 25], "human_equivalent": "POLE R762W"},
+        "pol2-A979V": {"rate": 21, "ci": [19, 28], "human_equivalent": "POLE A969V", "note": "printed A966V in Table 1 and body text, A969V in Table S3"},
+        "pol2-D1757N": {"rate": 21, "ci": [15, 32], "human_equivalent": "POLE D1752N"}
+      }
+    }
+  },
+  "in_vitro_fidelity": {
+    "source": "Xing X, Kane DP, Bulock CR, et al. Nat Commun. 2019;10:374. PMCID PMC6343027",
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6343027/",
+    "location": "Supplementary Table 1 (error rates); Results (mutant frequencies)",
+    "system": "M13mp2 lacZ forward assay, purified four-subunit Pol-epsilon holoenzyme, S-phase dNTP pools, with RPA/RFC/PCNA. No mismatch repair present.",
+    "verbatim_quote": "more accurate than exonuclease-dead Pol-epsilon.",
+    "unit_error_rate": "x10^-6 per nucleotide",
+    "base_substitution_error_rate": {"exonuclease_null": 155, "P301R": 59},
+    "mutant_frequency": {"exonuclease_null": 0.032, "P301R": 0.012, "background": 0.00062},
+    "single_base_indel_error_rate": {"exonuclease_null": 3.2, "P301R": 3.3}
+  },
+  "mismatch_partitioning": {
+    "source": "Xing X, Kane DP, Bulock CR, et al. Nat Commun. 2019;10:374",
+    "location": "Fig. 4b (BsaJI assay, terminal G-T mismatch)",
+    "verbatim_quotes": [
+      "excised the mismatched T in 22% of cases, while 78% of products resulted from extension of the abnormal primer terminus",
+      "corrected the mismatch in 91% of cases, and only 9% of products resulted from direct extension"
+    ],
+    "excision_fraction": {"wild_type": 0.91, "P301R": 0.22, "exonuclease_null": 0.0},
+    "extension_fraction": {"wild_type": 0.09, "P301R": 0.78, "exonuclease_null": 1.0}
+  },
+  "mmr_interaction": {
+    "source": "Xing X, et al. Nat Commun. 2019;10:374, Fig. 2b",
+    "finding": "pol2-P301R msh6-delta is synthetic lethal; pol2-4 msh6-delta double mutants are viable.",
+    "implication": "Mismatch repair remains essential for viability of the P301R single mutant, so P301R errors are not fully MMR-refractory."
+  },
+  "exonuclease_activity_caveat": {
+    "sources": [
+      "Xing X, et al. Nat Commun. 2019;10:374",
+      "Parkash V, Kulkarni Y, ter Beek J, et al. Nat Commun. 2019;10:373. PMCID PMC6342957"
+    ],
+    "note": "Both 2019 papers report P301R exonuclease activity only qualitatively (gel-based: 'significantly reduced but still detectable'; 'degrades a smaller fraction of the primer at all tested concentrations'). Parkash reports the structural correlate: the exonuclease B-site metal ion is absent in P301R ('The B-site was not occupied by a metal in the P301R structure.'). No k_cat, K_m or partition rate constant exists in this literature for P301R or P286R, so no kinetic parameter is fitted here."
+  }
+}

@@ -35,7 +35,7 @@
 \author{Xavier Callens\\
 \small Independent Researcher, Formal Mathematical Biology \& Exascale Scientific Computing\\
 \small Formal Verification Artifact: \texttt{ANSE.Breakthroughs3Domains} (Lean 4.34.0-rc2 / 4.34.1)}
-\date{}
+\date{Version 3, 21 October 2026. Adds a machine-checked no-go theorem for proofreading-stage-removal models and its refutation by published yeast data (Section~\ref{sec:psr}); supersedes editions 1 and 2.}
 
 \begin{document}
 \maketitle
@@ -44,14 +44,14 @@
 Autonomous biological discovery pipelines have recently identified \emph{Array-Associated Reverse Transcriptases} (\texttt{ART}) in jumbo bacteriophages---tripartite genetic loci coupling a reverse transcriptase (\texttt{RT}) with an extended N-terminal domain, a partner effector protein, and a palindromic tandem DNA repeat array ($\sim 200$-nt units) transcribed into structured non-coding RNAs. Despite experimental confirmation of short RNA expression, a unified mathematical, physical, and formally verified computational theory of \texttt{ART} reverse transcription and chromosomal DNA replication has remained open. Here we unify three formal mathematical libraries in Lean~4---Navier--Stokes/kinetic regularization (\texttt{NSE}), Fermat's Last Theorem quaternion and Hecke tree machinery (\texttt{FLT}), and symmetric-square/Haar wavelet analysis (\texttt{OpenAI Math})---with a new structure-preserving Rust numerical solver module (\texttt{sundials-core::genetics} in \texttt{rusty-SUNDIALS}) orchestrated via \texttt{LeanFlow MCP} (\texttt{leanflow\_mcp}). First, we formalize $m$-stage Hopfield--Ninio kinetic proofreading $\mathcal{E}_m(\gamma) = \gamma^m$, proving the algebraic discrimination lemma $\gamma^3 < \gamma^2 < \gamma < 1$ and $(1-\gamma)(1+\gamma+\gamma^2) = 1-\gamma^3$ for $0 < \gamma < 1$, with exact $10000\times$ error suppression $\mathcal{E}_3(1/100) = 1/1000000 = 10^{-6}$ at $\gamma = 1/100$, Boltzmann--Gibbs free-energy convexity $H_w(f_{\mathrm{eq}}) \le H_w((1-\omega)f + \omega f_{\mathrm{eq}}) \le H_w(f)$, and unconditional Backward-Euler / L-stable \texttt{ARS(2,2,2)} IMEX positivity for the continuous-time Pauli Master Equation $\frac{df_i}{dt} = \sum_j(W_{ij}f_j - W_{ji}f_i)$ versus explicit Forward-Euler breakdown $f_0(1/4) = (-3/4)f_0(0) < 0$ at $\Delta t = 1/4 > 1/w_{\mathrm{exit}} = 1/7$ (Theorem~2.1). Second, we couple C\u{a}lug\u{a}reanu--White--Fuller topological linking conservation $\mathrm{Lk} = \mathrm{Tw} + \mathrm{Wr}$ ($\mathrm{Lk}_0 = 100 - 6 = 94$, $\sigma_0 = -3/50$) with Bi-Helmholtz persistence-length regularization $(I - \alpha'\Delta)^{-2}$ ($\ell_p = \sqrt{\alpha'}$, $\alpha' = 1/25$, $Z_{\mathrm{tail}}^{\mathrm{DNA}} = 1/3200$, $\kappa_{\mathrm{DNA}} = 5877/16000 = 0.3673125 < 1$, $P_{\mathrm{DNA}}(10^{-3}) = -8523/16000000 < 0$) and Hilbert-space BGK topoisomerase spectral capping (Theorem~2.2). Third, we prove that the fixed-point-free Watson--Crick base-pair permutation $\pi_{\mathrm{WC}}(n_A, n_T, n_G, n_C) = (n_T, n_A, n_C, n_G)$, when expressed in the Chargaff strand-symmetry eigenbasis $\alpha = (s_{\mathrm{tot}}, \delta_{\mathrm{AT}}, \delta_{\mathrm{GC}}, \delta_{\mathrm{RY}}) = (n_A+n_T+n_G+n_C,\; n_A-n_T,\; n_G-n_C,\; n_A+n_G-n_T-n_C)$, acts identically as quaternion conjugation $\alpha \mapsto \bar{\alpha} = (s_{\mathrm{tot}}, -\delta_{\mathrm{AT}}, -\delta_{\mathrm{GC}}, -\delta_{\mathrm{RY}})$ with self-complementary palindromic duplex norm $N(\alpha\bar{\alpha}) = N(\alpha)^2$ ($N(\alpha_{\mathrm{ART}}) = 8^2 + 6^2 + 8^2 + 6^2 = 64 + 36 + 64 + 36 = 200$, $N(\alpha_{\mathrm{ART}}\bar{\alpha}_{\mathrm{ART}}) = 40000$), while finite depth-$r$ mutational expansions on the 4-state Jukes--Cantor nucleotide substitution graph $K_4$ ($p=3$ substitution neighbors per base) form finite $3$-ary Hecke clades with $4 \cdot 3^3 = 108$ non-backtracking paths at depth $r=4$ and Ramanujan gap $2\sqrt{3} < 4$ (Theorem~2.3). Fourth, we prove the 1D Kolmogorov--Johnson--Mehl--Avrami (KJMA) discrete nucleation lemma $\Delta_h^2 \phi(t) = 2 v_{\mathrm{fork}} I_0 h^2$ for $\phi(t) = v_{\mathrm{fork}} I_0 t^2$, certify S-phase completion $S(1) \le 1/T_4(6) = 1/115 < 1/100$ at $\phi(1) = 6$, and prove that the 5-step operator $\operatorname{Sym}^2(L_2)$ annihilates bidirectional fork-coalescence Hadamard products $u_n v_n$ (Theorem~2.4). Fifth, we prove balanced Haar wavelet zero-sum GC-bias cancellation ($C^* = 5/2 > 2$) and certify the coupled \texttt{ARS(2,2,2)} IMEX, Dual-number JFNK, and Ketcheson Dual-RRK integrators in \texttt{sundials-core::genetics} (Theorem~2.5). Every theorem compiles in Lean~4 with zero \texttt{sorryAx} and zero custom axioms.
 \end{abstract}
 
-\section{Introduction and Literature Review: From Anthropic's \texttt{ART} Discovery to Formally Verified Mathematical Genetics}
+\section{Introduction and Literature Review: From the \texttt{ART} Discovery to Formally Verified Mathematical Genetics}
 
 \subsection{Literature Review: DNA Replication Kinetics, Topological Supercoiling, and Array-Associated Reverse Transcriptases (\texttt{ART})}
 
 High-fidelity genome replication and RNA-templated DNA synthesis rely on three coupled physical mechanisms operating across six orders of magnitude in time and space:
 \begin{enumerate}
   \item \textbf{Non-Equilibrium Hopfield--Ninio Kinetic Proofreading:} Equilibrium base-pairing free-energy differences $\Delta\Delta G$ between Watson--Crick and mismatched base pairs yield a single-stage discrimination ratio $\gamma = k_{\mathrm{off},R}/k_{\mathrm{off},W} \approx 10^{-2}$, far above observed replicative error rates ($\sim 10^{-6}$ to $10^{-9}$). Hopfield~\cite{hopfield1974} and Ninio~\cite{ninio1975} demonstrated that coupling $m$ irreversible nucleoside triphosphate (dNTP/ATP) hydrolysis steps creates a non-equilibrium branched ratchet that amplifies discrimination to $\mathcal{E}_m(\gamma) = \gamma^m$ at the thermodynamic cost of positive Boltzmann--Gibbs entropy production.
-  \item \textbf{Anthropic's Discovery of Array-Associated Reverse Transcriptases (\texttt{ART}):} Using large-scale sequence mining across $\sim 1.9\times 10^9$ metagenomic protein clusters followed by wet-lab transcriptional validation, Anthropic's molecular biology group recently identified \emph{Array-Associated Reverse Transcriptases} (\texttt{ART}) in jumbo bacteriophages~\cite{anthropic2026art}. Each \texttt{ART} locus comprises a reverse transcriptase with an extended N-terminal domain, a partner effector protein, and a CRISPR-like tandem repeat array ($\sim 200$-nt repeat units with palindromic stem-loop cores) actively transcribed into short non-coding RNAs during phage infection. Crucially, however, heuristic sequence mining leaves open the quantitative mechanistic equations governing \texttt{ART} cDNA synthesis fidelity across tandem repeats, palindromic hairpin stability, and replication-fork coupling.
+  \item \textbf{Discovery of Array-Associated Reverse Transcriptases (\texttt{ART}):} Yoon et al.~\cite{yoon2026art} report a previously unrecognised family of jumbo-phage reverse transcriptases (\texttt{ART}) found by autonomous AI agents: each locus pairs a reverse transcriptase with a dedicated partner gene and a long array of evenly spaced $\sim 200$-nt DNA repeat units. We take this description from the preprint's abstract and companion announcement and do not re-derive any of its sequence-mining or wet-lab results. The quantitative mechanistic questions addressed here (cDNA synthesis fidelity across tandem repeats, hairpin stability, replication-fork coupling) are not answered by that work; our treatment of them is a mathematical model, not an experiment.
   \item \textbf{C\u{a}lug\u{a}reanu--White--Fuller Supercoiling and 1D KJMA Origin Nucleation:} As a replisome or \texttt{ART} complex unwinds double-stranded DNA of persistence length $\ell_p \approx 50\,\mathrm{nm}$, topological linking number $\mathrm{Lk} = \mathrm{Tw} + \mathrm{Wr}$ is conserved between domain barriers~\cite{calugareanu1959,fuller1971} until relaxed by Topoisomerase~II / DNA gyrase. At the chromosomal scale, Jun, Zhang, and Bechhoefer~\cite{bechhoefer2005kjma} established that stochastic replication origin firing ($I_0$) and bidirectional fork progression ($v_{\mathrm{fork}}$) obey the one-dimensional Kolmogorov--Johnson--Mehl--Avrami (KJMA) nucleation-and-growth phase transition $S(t) = \exp(-v_{\mathrm{fork}} I_0 t^2)$.
 \end{enumerate}
 
@@ -76,14 +76,14 @@ Theorem~2.4 & \texttt{OpenAI Math} 1D KJMA \& $\operatorname{Sym}^2(L_2)$ & $\De
 Theorem~2.5 & \texttt{OpenAI Math} Haar \& \texttt{rusty-SUNDIALS} & $C^* = 5/2 > 2$, $2\gamma^2 - 4\gamma + 1 = 0$, Dual-RRK drift $< 10^{-12}$ \\
 Theorem~2.6 & Kramers--Bell Torque \& Woodbury Hecke--Haar & $T_4(1/2) = 211/128$, $\kappa_{\mathrm{KB}} = 48071/128000 < 1$, Krylov $\le 2\beta_1 + 1 = 13$ ($28.5\times$) \\
 Theorem~2.7 & Chimeric \texttt{ART-Exo} \& 8D Gosset $E_8$ Dicodons & $250/3$ gain, wobble $N_{\mathcal{O}_0} = 13$, $G(E_8) = 929/12960$ ($-26.55\%$ on $36{,}000$ dicodons) \\
-Theorem~2.8 & 20-Skill Hub, Clinical Medicine \& $538\times$ ANSE & \texttt{POLE} TMB $12500/9$, \texttt{HBB} purity $1562419/1562500$, $E_{\mathrm{Gen5}} = 0.03959$ ($538.84\times$) \\
+Theorem~2.8 & 20-Skill Hub, Clinical Medicine \& model-internal $538\times$ ANSE cost ratio & \texttt{POLE} TMB $12500/9$, \texttt{HBB} purity $1562419/1562500$, $E_{\mathrm{Gen5}} = 0.03959$ ($538.84\times$) \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
 \section{Main Theorems and Analytical Demonstrations}
 
-\subsection{Hopfield--Ninio Multi-Stage Kinetic Proofreading, Anthropic \texttt{ART} Fidelity, and Continuous-Time Pauli Master Equation Positivity}
+\subsection{Hopfield--Ninio Multi-Stage Kinetic Proofreading, \texttt{ART} Fidelity, and Continuous-Time Pauli Master Equation Positivity}
 
 Consider a replicative DNA polymerase or \texttt{ART} reverse transcriptase with single-stage thermodynamic discrimination ratio $\gamma = k_{\mathrm{off},R}/k_{\mathrm{off},W} \in (0,1)$ operating across $m \ge 1$ irreversible pyrophosphate-hydrolysis checkpoints. In \texttt{sundials-core::genetics} (\texttt{HopfieldArtConfig}), the 4-state stiff reaction network tracks free enzyme $y_0 = [\mathrm{E}]$, reversible Michaelis complex $y_1 = [\mathrm{ES}_1]$, high-energy hydrolyzed intermediate $y_2 = [\mathrm{ES}_2^*]$, and incorporated product $y_3 = [\mathrm{P}]$:
 \begin{equation}
@@ -147,7 +147,7 @@ Part~(1) follows by ring normalization of $(-\omega_{\mathrm{plec}}(\mathrm{Tw}-
 
 \subsection{Chargaff Strand-Symmetry Quaternion Norm Multiplicativity for \texttt{ART} Stem-Loops and Finite $K_4$ Jukes--Cantor Clade Trees}
 
-In Anthropic's \texttt{ART} architecture~\cite{anthropic2026art}, each $\sim 200\text{-nt}$ repeat unit contains a palindromic core that folds into a structured RNA stem-loop. Because physical nucleotide counts $(n_A, n_T, n_G, n_C) \in \mathbb{Z}_{\ge 0}^4$ are non-negative and Watson--Crick base pairing $\pi_{\mathrm{WC}}(n_A, n_T, n_G, n_C) = (n_T, n_A, n_C, n_G)$ ($A \leftrightarrow T/U,\; G \leftrightarrow C$) is a \textbf{fixed-point-free involution}, one cannot identify raw nucleotide counts directly with quaternion components under conjugation. Instead, we pass to the \textbf{Chargaff strand-symmetry eigenbasis} (\texttt{chargaffSkewBasis} in \texttt{ANSE.GeneticAutoresearchSpec}):
+In the \texttt{ART} architecture~\cite{yoon2026art}, each $\sim 200\text{-nt}$ repeat unit contains a palindromic core that folds into a structured RNA stem-loop. Because physical nucleotide counts $(n_A, n_T, n_G, n_C) \in \mathbb{Z}_{\ge 0}^4$ are non-negative and Watson--Crick base pairing $\pi_{\mathrm{WC}}(n_A, n_T, n_G, n_C) = (n_T, n_A, n_C, n_G)$ ($A \leftrightarrow T/U,\; G \leftrightarrow C$) is a \textbf{fixed-point-free involution}, one cannot identify raw nucleotide counts directly with quaternion components under conjugation. Instead, we pass to the \textbf{Chargaff strand-symmetry eigenbasis} (\texttt{chargaffSkewBasis} in \texttt{ANSE.GeneticAutoresearchSpec}):
 \begin{equation}
 \begin{aligned}
   \alpha = (a, b, c, d) &= \bigl(s_{\mathrm{tot}},\; \delta_{\mathrm{AT}},\; \delta_{\mathrm{GC}},\; \delta_{\mathrm{RY}}\bigr) \\
@@ -316,6 +316,10 @@ Formalized in Lean~4 as \path{GAR_H13_pharmacological_top2a_torque_inhibition_an
 Unfolding \texttt{somaticTmbFromError}, \texttt{pd1ImmuneEscapeHazard}, \texttt{primeEditingScarlessLowerBound}, \texttt{antiviralSelectivityIndex}, and \texttt{elenchusFourPillarGate} in \path{GAR_H13_pharmacological_top2a_torque_inhibition_and_phylop_conservation}--\path{GAR_H17_elenchus_four_pillar_alignment_and_538x_fifth_gen_anse_energy} discharges every rational identity and strict inequality via \texttt{norm\_num}.
 \end{proof}
 
+\begin{remark}[Status of the clinical and energy figures]
+The $\mathrm{TMB}_{\mathrm{P286R}} = 12500/9$ mut/Mb and the $538.84\times$ ratio are consequences of the model's definitions, not measurements. The former multiplies an assumed wild-type rate of $0.20$ mut/Mb by $1/\gamma^2$; Section~\ref{sec:tcga_check} confronts it with published data and it fails. The latter is a ratio of a project-defined ``ANSE Bio-Computational Energy'' cost to a project-defined baseline ($E_{\mathrm{base}}=21.332917$); it quantifies engineering choices inside our solver stack and says nothing about biological replication. The Lean proofs establish that the stated rational identities and inequalities follow from the definitions; they do not establish that the definitions describe nature.
+\end{remark}
+
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\textwidth]{fig4_e8_dicodon_chimeric_art_exo_humanitarian_538x.pdf}
@@ -325,7 +329,27 @@ Unfolding \texttt{somaticTmbFromError}, \texttt{pd1ImmuneEscapeHazard}, \texttt{
 
 \section{Epistemic Calibration, Hypothesis-Necessity Counterexamples, and Biological Grounding}
 
-While $100\%$ of Lean~4 kernel obligations (\texttt{0 sorryAx}, \texttt{0} custom axioms), exact rational certificates, and \texttt{rusty-SUNDIALS} numerical tests pass (technical pass rate $= 1.0000$), we report a calibrated epistemic confidence score of $0.9150$ to account for (i) the modeling gap between 1D continuum torsional rod PDEs and sequence-specific 3D chromatin nucleosome-clutch mechanics, and (ii) finite-precision IEEE-754 arithmetic in \texttt{f64} solver trajectories versus exact arithmetic over $\mathbb{Q}$.
+All Lean~4 declarations used in this paper compile with the whitelisted axioms only (\texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}) and no \texttt{sorryAx} (audit of 21~October 2026 via \texttt{anse.formal.lean\_runner}; see \texttt{docs/AUDIT\_2026-10-21.md} in the repository). We deliberately report no composite ``confidence score'': an earlier edition printed a calibrated score of $0.9150$ that was a constant in the generating script, not a measurement, and has been removed. Likewise, the earlier edition's description as ``peer reviewed'' is withdrawn: the files called ``Opus 5-round peer review'' were produced by a script that checks strings locally and calls no reviewer. This paper has not been peer reviewed.
+
+\subsection{Empirical Check Against Published \texttt{POLE} Mutation Rates}
+\label{sec:tcga_check}
+Theorem~\ref{thm:humanitarian_elenchus_538x} models \texttt{POLE} \texttt{p.Pro286Arg} as the loss of two of three proofreading stages ($m=3\to 1$) and predicts a $1/\gamma^2 = 62500/9 \approx 6944\times$ increase in error fraction. Kandoth et~al.~\cite{kandoth2013} sequenced 248 endometrial carcinoma exomes and report 232 mutations/Mb for the ultramutated \texttt{POLE} group (17 tumours; hotspots \texttt{P286R}/\texttt{V411L} in 13 of 17), against 18 (MSI-hypermutated), 2.9 (copy-number-low, mostly microsatellite-stable endometrioid) and 2.3 mutations/Mb (copy-number-high). The source prints the unit as ``$\times 10^{-6}$ mutations per Mb''; we read it as mutations per Mb, the only reading consistent with the $>100$ mut/Mb ultramutation convention. Nothing below is fitted (script \texttt{scripts/run\_tcga\_pole\_empirical\_check.py}, output \texttt{data/tcga\_pole\_empirical\_check.json}).
+\begin{center}
+\begin{tabular}{@{}lr@{}}
+\toprule
+Quantity & Value \\
+\midrule
+Observed \texttt{POLE}/copy-number-low & $232/2.9 = 80.0\times$ \\
+Observed \texttt{POLE}/MSI-hypermutated & $12.9\times$ \\
+Observed \texttt{POLE}/copy-number-high & $100.9\times$ \\
+Model, $m=3\to 1$ (Theorem~\ref{thm:humanitarian_elenchus_538x}) & $6944.4\times$ \\
+Model, $m=3\to 2$ (single-stage loss, $1/\gamma$) & $83.3\times$ \\
+Negative control, $m=3\to 3$ & $1.0\times$ \\
+Model absolute TMB vs.\ observed & $1388.9$ vs.\ $232$ mut/Mb ($6.0\times$ high) \\
+\bottomrule
+\end{tabular}
+\end{center}
+\textbf{Result.} The two-stage-loss prediction is refuted as a quantitative claim: it overshoots the observed fold change by a factor of $86.8$ and the absolute burden by $6.0$. The single-stage-loss fold change $83.3\times$ lies within $4.2\%$ of the observed $80.0\times$. This agreement is a post-hoc observation on one data point with $\gamma$ fixed independently, so it is a hypothesis for future testing (does \texttt{P286R} remove one effective proofreading stage, or does a different mechanism set the ceiling?), not a confirmation. Caveats: the groups are different tumours rather than isogenic pairs; the copy-number-low baseline includes the tumours' own mutational processes; and the MSI group, whose excess over copy-number-low ($6.2\times$) arises from mismatch-repair loss, is outside the proofreading model and shows that the model does not account for all hypermutation.
 
 \paragraph{Controversy and Honest Limitations Analysis.}
 \begin{enumerate}
@@ -341,6 +365,139 @@ While $100\%$ of Lean~4 kernel obligations (\texttt{0 sorryAx}, \texttt{0} custo
   \item \textbf{Dropping Coprimality $\gcd(A,B)=1$ in Shared Library Witnesses (Theorem~2.3):} At $A = 3, B = 6, C = 9$ ($\gcd(3,6) = 3 > 1$), $3 \mid \gcd(c_4, \Delta)$, breaking arithmetic minimality.
 \end{enumerate}
 
+\subsection{A No-Go Theorem for Stage-Removal Models, and Its Refutation by Yeast Data}
+\label{sec:psr}
+The check in Section~\ref{sec:tcga_check} adjusted a parameter. The deeper question is whether
+\emph{any} assignment of stage counts and per-stage factors can work. We settle that in Lean~4
+and then test it.
+
+\paragraph{The model class.} Let a replicative error rate be an insertion/extension error
+$\varepsilon > 0$ multiplied by one escape factor $q_i \in [0,1]$ for each proofreading stage
+$i$ that is present, so that an enzyme carrying the stage set $S$ has error rate
+$E(\varepsilon, q, S) = \varepsilon \prod_{i \in S} q_i$. Multi-stage Hopfield--Ninio schemes
+(including Theorem~\ref{thm:humanitarian_elenchus_538x} with $q_i = \gamma$) and
+exonuclease-partitioning models ($q_i = 1 - p_{\mathrm{exo}}$) are instances. A mutant that
+\emph{removes stages} retains a subset $T \subseteq S$.
+
+\paragraph{The theorems.} In \texttt{formal/ANSE/ProofreadingStageRemoval.lean} we prove, with
+a \texttt{\#print axioms} line on every declaration and a clean axiom footprint
+(\texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}; no \texttt{sorryAx}):
+\begin{itemize}
+  \item \path{PSR_1_stage_removal_monotone}: $T \subseteq S$ implies
+    $E(\varepsilon,q,S) \le E(\varepsilon,q,T)$ --- removing stages never lowers the error.
+  \item \path{PSR_2_bounded_by_exo_null}: $E(\varepsilon,q,T) \le E(\varepsilon,q,\emptyset)$
+    for every $T$ --- \textbf{no stage-removal mutant can exceed the stage-free
+    (exonuclease-null) error rate.} This is a ceiling that holds for every stage count and
+    every choice of per-stage factors, so it is falsifiable without fitting anything.
+  \item \path{PSR_3_excess_over_exo_null_forces_insertion_defect}: if a mutant is observed at
+    $\rho$ times the exonuclease-null rate, then its insertion/extension error satisfies
+    $\varepsilon' \ge \rho\,\varepsilon$.
+\end{itemize}
+Two control theorems accompany these: a positive control reproducing this paper's own
+$62500/9$ factor within the formalism, and a negative control exhibiting the failure of the
+bound once a ``stage'' is allowed $q_i > 1$.
+
+\paragraph{The test.} \texttt{POLE} \texttt{p.Pro286Arg} has a direct \emph{S.\ cerevisiae}
+analogue, \texttt{pol2-P301R}, which Kane and Shcherbakova~\cite{kane2014} measured in the same
+table and the same isogenic mismatch-repair-proficient background as the exonuclease-null
+allele \texttt{pol2-4} (\texttt{D290A,E292A}), the exact stage-free reference PSR\_2 requires.
+No cross-study normalisation is needed. Script
+\path{scripts/run_proofreading_stage_removal_test.py}, data
+\path{data/pole_proofreading_literature.json}, output
+\path{data/proofreading_stage_removal_test.json}; a variant is judged to break the ceiling only
+when the lower bound of its published 95\% confidence interval exceeds the upper bound of the
+exonuclease-null interval.
+
+\begin{center}
+\begin{tabular}{@{}lrrl@{}}
+\toprule
+Allele & Fold over WT & 95\% CI & Verdict \\
+\midrule
+\texttt{POL2} wild type & 1.0 & --- & reference \\
+\texttt{pol2-4} (exonuclease-null) & 2.9 & 1.9--5.1 & the PSR\_2 ceiling \\
+\texttt{pol2-P301R} (\texttt{POLE P286R}) & 153 & 90--280 & \textbf{breaks ceiling} \\
+\texttt{pol2-S474F} (POLE S459F) & 29.6 & 17.5--47.1 & breaks ceiling \\
+\texttt{pol2-F382S} (POLE F367S) & 16.5 & 9.4--28.8 & breaks ceiling \\
+\texttt{pol2-P301H} (POLE P286H) & 12.6 & 7.8--25.9 & breaks ceiling \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Result: the model class is refuted.} \texttt{pol2-P301R} exceeds the exonuclease-null
+ceiling by a factor of 52.3 (at least 35.3 on the published intervals), and 3 further
+cancer-associated alleles break the same ceiling. By PSR\_2 this is impossible for any mutant
+that only removes proofreading stages, whatever the stage count and whatever the per-stage
+factors; by PSR\_3 the insertion/extension step itself must be at least 52.3-fold more
+error-prone. Theorem~\ref{thm:humanitarian_elenchus_538x}'s treatment of \texttt{P286R} as the
+loss of two of three stages is therefore wrong as a \emph{mechanism}, not merely
+mis-parameterised, and so is the single-stage-loss reading that Section~\ref{sec:tcga_check}
+found numerically close: agreement in one ratio does not rescue a refuted class.
+Figure~\ref{fig:psr_surface} shows the whole feasible surface and the alleles above it;
+Figure~\ref{fig:psr_panel} shows the panel against the ceiling. The negative controls behave
+as required: \texttt{pol2-V426L} (\texttt{POLE V411L}) and the six functionally neutral alleles
+are not flagged, and the exonuclease-null allele is never reported as exceeding itself.
+
+\paragraph{Why, and what it predicts.} The purified-enzyme data of Xing et
+al.~\cite{xing2019} explain the failure and sharpen it. Without mismatch repair, the P301R
+holoenzyme is \emph{more} accurate than the exonuclease-null enzyme (base-substitution error
+rates 59 vs.\ 155 per nucleotide, a ratio of IV52.3), yet in the cell it is 52.3-fold
+\emph{worse}: the ordering reverses by a factor of 137 (Figure~\ref{fig:psr_reversal}).
+Intrinsic error production therefore cannot be the explanatory variable. Writing the in vivo
+rate as (insertion error) $\times$ (proofreading escape) $\times$ (mismatch-repair escape),
+the purified assay measures the first two factors, so the reversal bounds the third: the
+exonuclease-null allele's mismatch-repair escape is at most 0.7\% of P301R's. The structural
+correlate is known --- P301R retains partial exonuclease activity but loses the B-site metal
+ion from the exonuclease active site~\cite{parkash2019} --- and the partitioning measurement
+is consistent: at a terminal mismatch, wild-type Pol~$\varepsilon$ excises in 91\% of events
+whereas P301R excises in only 22\% and extends in 78\%~\cite{xing2019}.
+
+This yields a falsifiable prediction. If the excess is a mismatch-repair interaction rather
+than raw error production, then in a mismatch-repair-deficient background the
+P301R-to-exonuclease-null ratio must collapse from 52.3 toward the in vitro value IV52.3.
+We flag an honest tension: \texttt{pol2-P301R}~\texttt{msh6}$\Delta$ is synthetic lethal while
+\texttt{pol2-4}~\texttt{msh6}$\Delta$ is viable~\cite{xing2019}, which shows mismatch repair is
+still doing substantial work on P301R errors and is not straightforwardly consistent with
+complete evasion. Resolving this requires a rate measurement in a hypomorphic, rather than
+null, mismatch-repair background --- a decisive experiment this analysis motivates but cannot
+perform. Caveat: the in vitro and in vivo assays differ (per-nucleotide \texttt{lacZ} error
+rates with purified enzyme versus per-locus \texttt{CAN1} rates per generation, where
+Pol~$\delta$ also replicates), so the ratio of ratios is more defensible than any absolute
+value; the direction of the reversal does not depend on the normalisation. The panel
+comparison additionally normalises each study to its own wild type, since
+Barbari et al.~\cite{barbari2018} include no \texttt{pol2-4} arm.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.88\textwidth]{figE5_stage_removal_feasible_surface.pdf}
+  \caption{Every error rate reachable by removing proofreading stages. The surface is
+  $\log_{10}$ fold change over wild type as a function of the per-stage escape factor $q$ and
+  the number of stages removed. $q$ is not free: removing all three stages must reproduce the
+  measured exonuclease-null fold change, which pins $q$ and hence the black feasible folds.
+  \texttt{pol2-P301R} (red) and three further alleles (orange) lie above the entire surface,
+  which PSR\_2 forbids.}
+  \label{fig:psr_surface}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.88\textwidth]{figE6_variant_panel_vs_ceiling.pdf}
+  \caption{Measured \texttt{CAN1} fold changes with published 95\% confidence intervals
+  against the exonuclease-null ceiling (dashed). PSR\_2 forbids the shaded region to its
+  right. Blue alleles are consistent with stage removal, grey are indistinguishable from the
+  ceiling, red break it.}
+  \label{fig:psr_panel}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{figE7_in_vitro_in_vivo_reversal.pdf}
+  \caption{The ordering of P301R and the exonuclease-null enzyme reverses between the purified
+  system and the cell, by a factor of 137. Left: Xing et al.~\cite{xing2019},
+  mismatch repair absent. Right: Kane and Shcherbakova~\cite{kane2014}, mismatch repair
+  present.}
+  \label{fig:psr_reversal}
+\end{figure}
+
 \subsection{Inria GUDHI Topological Data Analysis and Theorem \texttt{GAR.H6}}
 To certify the multi-scale geometric and topological invariants of the \texttt{Torque-Haar-ART} and Chimeric \texttt{ART-Exo} engines across atomic 3D structures and replication landscapes, we integrated the Inria \textbf{GUDHI} (\emph{Geometry Understanding in Higher Dimensions}, v3.13.0) library~\cite{gudhi2026} alongside Theorem \texttt{GAR\_H6\_gudhi\_tda\_euler\_poincare\_and\_repli\_seq\_persistence} in \texttt{ANSE.GeneticAutoresearch}:
 \begin{enumerate}
@@ -349,13 +506,13 @@ To certify the multi-scale geometric and topological invariants of the \texttt{T
   \item \textbf{\texttt{SimplexTree} Hecke--Hairpin Betti Law and \texttt{CubicalComplex} Repli-Seq Coalescence:} Theorem \texttt{GAR\_H6} proves the general Euler--Poincar\'e identity $(V - r_1) - (E - r_1 - r_2) + (F - r_2) = V - E + F$ and certifies that augmenting the finite depth-$3$ $K_4$ ($p=3$) mutational clade tree ($V = 22, E_{\mathrm{tree}} = 21, \beta_0 = 1, \beta_1 = 0, \chi = 1$) with $m_{\mathrm{stem}} = 6$ \texttt{ART} palindromic hairpin bridges yields $E = 27, \beta_0 = 1, \beta_1 = 6, \chi = -5$. Simultaneously, GUDHI \texttt{CubicalComplex} sublevel filtration on the $K=4$ origin Repli-Seq profile yields finite fork-coalescence lifetimes $(15/2 - 3/2 = 6,\; 6 - 2 = 4,\; 13/2 - 5/2 = 4)$ summing to $\mathcal{P}_{\mathrm{coal}} = 14$.
 \end{enumerate}
 
-\begin{thebibliography}{12}
+\begin{thebibliography}{20}
 \bibitem{hopfield1974}
 J.~J. Hopfield, ``Kinetic proofreading: a new mechanism for reducing errors in biosynthetic processes requiring high specificity,'' \emph{Proceedings of the National Academy of Sciences}, vol.~71, no.~10, pp.~4135--4139, 1974.
 \bibitem{ninio1975}
 J.~Ninio, ``Kinetic amplification of enzyme discrimination,'' \emph{Biochimie}, vol.~57, no.~5, pp.~587--595, 1975.
-\bibitem{anthropic2026art}
-Anthropic Molecular Biology Team, ``Autonomous discovery of array-associated reverse transcriptases (\texttt{ART}) in bacteriophage genomes,'' \emph{bioRxiv Preprint}, September 2026.
+\bibitem{yoon2026art}
+Yoon et~al., ``Autonomous AI agents discover reverse transcriptases with tandem repeat arrays,'' preprint hosted by Anthropic, 23 September 2026. (Author list and URL to be checked against the preprint; an earlier edition of this paper cited it incorrectly as a bioRxiv preprint by an ``Anthropic Molecular Biology Team''.)
 \bibitem{calugareanu1959}
 G.~C\u{a}lug\u{a}reanu, ``L'int\'egrale de Gauss et l'analyse des n\oe uds tridimensionnels,'' \emph{Revue de Math\'ematiques Pures et Appliqu\'ees}, vol.~4, pp.~5--20, 1959.
 \bibitem{fuller1971}
@@ -372,6 +529,16 @@ C.~Maria, J.-D. Boissonnat, M.~Glisse, and M.~Yvinec, ``The Gudhi Library: Simpl
 J.~H. Conway and N.~J.~A. Sloane, \emph{Sphere Packings, Lattices and Groups}, 3rd~ed., Springer, 1999.
 \bibitem{anzalone2019prime}
 A.~V. Anzalone \emph{et~al.}, ``Search-and-replace genome editing without double-strand breaks or donor DNA,'' \emph{Nature}, vol.~576, pp.~149--157, 2019.
+\bibitem{kandoth2013}
+C.~Kandoth \emph{et~al.}, ``Integrated genomic characterization of endometrial carcinoma,'' \emph{Nature}, vol.~497, pp.~67--73, 2013.
+\bibitem{kane2014}
+D.~P. Kane and P.~V. Shcherbakova, ``A common cancer-associated DNA polymerase $\varepsilon$ mutation causes an exceptionally strong mutator phenotype, indicating fidelity defects distinct from loss of proofreading,'' \emph{Cancer Research}, vol.~74, no.~7, pp.~1895--1901, 2014.
+\bibitem{xing2019}
+X.~Xing, D.~P. Kane, C.~R. Bulock, \emph{et~al.}, ``A recurrent cancer-associated substitution in DNA polymerase $\varepsilon$ produces a hyperactive enzyme,'' \emph{Nature Communications}, vol.~10, p.~374, 2019.
+\bibitem{parkash2019}
+V.~Parkash, Y.~Kulkarni, J.~ter~Beek, \emph{et~al.}, ``Structural consequence of the most frequently recurring cancer-associated substitution in DNA polymerase $\varepsilon$,'' \emph{Nature Communications}, vol.~10, p.~373, 2019.
+\bibitem{barbari2018}
+S.~R. Barbari, D.~P. Kane, E.~A. Moore, and P.~V. Shcherbakova, ``Functional analysis of cancer-associated DNA polymerase $\varepsilon$ variants in \emph{Saccharomyces cerevisiae},'' \emph{G3: Genes, Genomes, Genetics}, vol.~8, no.~3, pp.~1019--1029, 2018.
 \bibitem{rayner2016pole}
 E.~Rayner \emph{et~al.}, ``A panoply of errors: polymerase proofreading domain mutations in cancer,'' \emph{Nature Reviews Cancer}, vol.~16, pp.~71--81, 2016.
 \end{thebibliography}

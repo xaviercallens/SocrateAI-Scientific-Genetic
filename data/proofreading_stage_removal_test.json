@@ -1,0 +1,165 @@
+{
+  "question": "Can a mutator allele of DNA polymerase epsilon be explained as the loss of proofreading stages?",
+  "theorem_tested": "ANSE.ProofreadingStageRemoval.PSR_2_bounded_by_exo_null (formal/ANSE/ProofreadingStageRemoval.lean)",
+  "falsification_criterion": "The model class is refuted if any allele's mutation rate significantly exceeds the exonuclease-null rate, since PSR_2 proves that is impossible for any allele that only removes stages, whatever the number of stages or the per-stage factors.",
+  "primary_result": {
+    "comparison": "pol2-P301R vs pol2-4, same table, same isogenic MMR-proficient background",
+    "exonuclease_null_ceiling_fold": {
+      "fold": 2.933333333333333,
+      "fold_low": 1.95,
+      "fold_high": 5.1
+    },
+    "P301R_fold": {
+      "fold": 153.33333333333334,
+      "fold_low": 90.0,
+      "fold_high": 280.0
+    },
+    "ratio_P301R_over_exonuclease_null": 52.27272727272727,
+    "ratio_lower_bound": 35.294117647058826,
+    "verdict": "breaks_ceiling",
+    "PSR_3_implied_insertion_error_multiple": 52.27272727272727
+  },
+  "variant_panel_cross_paper": {
+    "pol2-F139L": {
+      "human_equivalent": "POLE F104L",
+      "fold": 0.9130434782608695,
+      "fold_low": 0.5625,
+      "fold_high": 1.3529411764705883,
+      "verdict": "below_ceiling"
+    },
+    "pol2-R252H": {
+      "human_equivalent": "POLE R231H",
+      "fold": 0.782608695652174,
+      "fold_low": 0.5,
+      "fold_high": 1.2352941176470589,
+      "verdict": "below_ceiling"
+    },
+    "pol2-D290V": {
+      "human_equivalent": "POLE D275V",
+      "fold": 2.3043478260869565,
+      "fold_low": 1.375,
+      "fold_high": 3.235294117647059,
+      "verdict": "indistinguishable"
+    },
+    "pol2-P301H": {
+      "human_equivalent": "POLE P286H",
+      "fold": 12.608695652173912,
+      "fold_low": 7.8125,
+      "fold_high": 25.88235294117647,
+      "verdict": "breaks_ceiling"
+    },
+    "pol2-N351S": {
+      "human_equivalent": "POLE N336S",
+      "fold": 0.9130434782608695,
+      "fold_low": 0.59375,
+      "fold_high": 1.4705882352941178,
+      "verdict": "below_ceiling"
+    },
+    "pol2-F382S": {
+      "human_equivalent": "POLE F367S",
+      "fold": 16.52173913043478,
+      "fold_low": 9.375,
+      "fold_high": 28.823529411764707,
+      "verdict": "breaks_ceiling"
+    },
+    "pol2-V426L": {
+      "human_equivalent": "POLE V411L",
+      "fold": 1.2173913043478262,
+      "fold_low": 0.78125,
+      "fold_high": 1.8823529411764706,
+      "verdict": "below_ceiling"
+    },
+    "pol2-L439V": {
+      "human_equivalent": "POLE L424V",
+      "fold": 5.217391304347826,
+      "fold_low": 2.5625,
+      "fold_high": 8.235294117647058,
+      "verdict": "indistinguishable"
+    },
+    "pol2-P451R": {
+      "human_equivalent": "POLE P436R",
+      "fold": 5.217391304347826,
+      "fold_low": 3.0625,
+      "fold_high": 8.823529411764707,
+      "verdict": "indistinguishable"
+    },
+    "pol2-S474F": {
+      "human_equivalent": "POLE S459F",
+      "fold": 29.565217391304348,
+      "fold_low": 17.5,
+      "fold_high": 47.05882352941177,
+      "verdict": "breaks_ceiling"
+    },
+    "pol2-R778W": {
+      "human_equivalent": "POLE R762W",
+      "fold": 0.9130434782608695,
+      "fold_low": 0.53125,
+      "fold_high": 1.4705882352941178,
+      "verdict": "below_ceiling"
+    },
+    "pol2-A979V": {
+      "human_equivalent": "POLE A969V",
+      "fold": 0.9130434782608695,
+      "fold_low": 0.59375,
+      "fold_high": 1.6470588235294117,
+      "verdict": "below_ceiling"
+    },
+    "pol2-D1757N": {
+      "human_equivalent": "POLE D1752N",
+      "fold": 0.9130434782608695,
+      "fold_low": 0.46875,
+      "fold_high": 1.8823529411764706,
+      "verdict": "below_ceiling"
+    }
+  },
+  "variants_breaking_ceiling": [
+    "pol2-P301H",
+    "pol2-F382S",
+    "pol2-S474F"
+  ],
+  "controls": {
+    "positive_control_P301R_must_break": {
+      "expected": "breaks_ceiling",
+      "observed": "breaks_ceiling",
+      "passed": true,
+      "rationale": "Kane 2014 states the effect is ~50-fold above pol2-4; a test that cannot detect this is not sensitive enough to run."
+    },
+    "negative_control_exonuclease_null_vs_itself": {
+      "expected": "indistinguishable",
+      "observed": "indistinguishable",
+      "passed": true,
+      "rationale": "The stage-free reference is the ceiling, so it must never be reported as breaking it."
+    },
+    "negative_control_neutral_variants_must_not_break": {
+      "expected": "no variant among the functionally neutral alleles breaks the ceiling",
+      "variants": {
+        "pol2-F139L": "below_ceiling",
+        "pol2-R252H": "below_ceiling",
+        "pol2-N351S": "below_ceiling",
+        "pol2-R778W": "below_ceiling",
+        "pol2-A979V": "below_ceiling",
+        "pol2-D1757N": "below_ceiling"
+      },
+      "passed": true,
+      "rationale": "These alleles are reported as not significantly mutator; flagging any of them would show the rule fires spuriously."
+    },
+    "negative_control_V411L_must_not_break": {
+      "expected": "below_ceiling or indistinguishable",
+      "observed": "below_ceiling",
+      "passed": true,
+      "rationale": "Barbari: pol2-V426L 'showed no significant increase in Can-R mutation'. A stage-removal account is adequate for it."
+    }
+  },
+  "in_vitro_in_vivo_discordance": {
+    "in_vitro_ratio_P301R_over_exonuclease_null_base_substitutions": 0.38064516129032255,
+    "in_vitro_ratio_background_corrected_mutant_frequency": 0.36265137029955385,
+    "in_vivo_ratio_P301R_over_exonuclease_null": 52.27272727272727,
+    "discordance_factor": 137.326656394453,
+    "meaning": "In the purified system, with no mismatch repair, P301R is more accurate than the exonuclease-null enzyme; in cells, with mismatch repair present, it is far worse. The ordering reverses, so the difference cannot lie in the polymerase's intrinsic error production alone: it requires a term describing how errors interact with mismatch repair. The factor below bounds the size of that term.",
+    "caveat": "Different systems: per-nucleotide lacZ error rates with purified enzyme versus per-locus CAN1 rates per generation in vivo, where both Pol delta and Pol epsilon replicate. The ratio of ratios is more defensible than any absolute value, and the direction of the reversal does not depend on the normalisation.",
+    "constraint_on_mmr_escape": "Writing the in vivo rate as (insertion error) x (proofreading escape) x (mismatch repair escape), the first two factors are what the purified assay measures. The discordance therefore bounds the ratio of mismatch-repair escape between the two alleles. Because escape cannot exceed 1, the exonuclease-null allele's escape is at most the reciprocal of the discordance factor.",
+    "counter_evidence": "pol2-P301R msh6-delta is synthetic lethal; pol2-4 msh6-delta double mutants are viable. Mismatch repair remains essential for viability of the P301R single mutant, so P301R errors are not fully MMR-refractory.",
+    "max_exonuclease_null_mmr_escape": 0.007281907433380084
+  },
+  "conclusion": "Refuted. The P301R allele, which models human POLE P286R, exceeds the exonuclease-null ceiling by a factor of 52.3 (at least 35.3 on published confidence intervals), and 3 further alleles break the same ceiling. By PSR_3 the insertion or extension step itself must be at least that much more error-prone, so no choice of stage count or per-stage factor can rescue the model class. Paper E's own GAR.H15 treatment of P286R as the loss of two of three stages is therefore refuted as a mechanism, not merely mis-parameterised."
+}
