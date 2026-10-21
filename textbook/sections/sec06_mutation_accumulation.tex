@@ -1,0 +1,174 @@
+% =============================================================================
+% Section 6 — Mutation Accumulation
+% =============================================================================
+\section{Mutation Accumulation: Reading Rates from Fluctuations}\label{sec:accumulation}
+
+\begin{objectives}
+\begin{itemize}[leftmargin=*,itemsep=1pt,topsep=1pt]
+  \item Explain why the \emph{mean} number of mutants is a poor estimator of a mutation rate.
+  \item Derive the overdispersion that distinguishes pre-existing mutation from induced adaptation.
+  \item Simulate the Luria--Delbrück process and recover its signature numerically.
+  \item Connect the fluctuation test to the rate measurements used in Section~\ref{sec:refutation}.
+\end{itemize}
+\end{objectives}
+
+\subsection{Biological setting}
+
+Section~\ref{sec:refutation} quoted mutation rates: $44 \times 10^{-8}$ for
+\texttt{pol2-4}, $2300 \times 10^{-8}$ for \texttt{pol2-P301R}. Those numbers did
+not come from counting mutants and dividing. They came from a fluctuation
+analysis, and understanding why is essential to trusting them.
+
+The problem is that mutations arise \emph{during} growth. A mutation in the first
+division is inherited by half the final population; one in the last division
+yields a single mutant cell. Two cultures with identical mutation rates can
+therefore end with wildly different mutant counts, and the distribution of those
+counts is not Poisson.
+
+\subsection{Mathematical development}
+
+\begin{model}[Luria--Delbrück process]\label{model:ld}
+A culture starts from one wild-type cell and grows for $g$ generations by
+synchronous doubling. At each division, each wild-type cell mutates
+independently with probability $\mu$ per division. Mutants are neutral: they
+double thereafter like everyone else, and never revert.
+\end{model}
+
+Let $X$ be the number of mutants at the end. The key structural fact is that $X$
+is a sum of \emph{clones}, not of independent individual events. A mutation
+occurring $k$ generations before the end contributes $2^{k}$ mutants.
+
+Write $N_j = 2^{j}$ for the wild-type population entering generation $j$. The
+expected number of new mutational events at generation $j$ is $\mu N_j$, and each
+is amplified by $2^{g-j}$. Hence
+\begin{equation}\label{eq:ldmean}
+  \mathbb{E}[X] \;=\; \sum_{j=0}^{g-1} \mu\,2^{j}\cdot 2^{\,g-j-1}
+  \;=\; \sum_{j=0}^{g-1} \tfrac{1}{2}\mu\,2^{g}
+  \;=\; \tfrac{1}{2}\,\mu\, g\, N,
+\end{equation}
+with $N = 2^{g}$ the final population. The mean grows like $N\log N$, not like
+$N$ --- already a departure from naive counting.
+
+The variance is where the real signal lives. Because a clone of size $2^{k}$
+contributes $2^{2k}$ to the variance while contributing $2^{k}$ to the mean,
+early events dominate the second moment:
+\begin{equation}\label{eq:ldvar}
+  \operatorname{Var}[X] \;\approx\; \sum_{j=0}^{g-1} \mu\,2^{j}\left(2^{\,g-j-1}\right)^{2}
+  \;=\; \tfrac{1}{4}\mu\,2^{2g}\sum_{j=0}^{g-1} 2^{-j}
+  \;\xrightarrow[g\ \text{large}]{}\; \tfrac{1}{2}\,\mu\,N^{2}.
+\end{equation}
+So $\operatorname{Var}[X]/\mathbb{E}[X] \approx N/g$, which diverges with
+population size. For a Poisson variable that ratio is exactly~$1$.
+
+\begin{remark}[Why this mattered historically]
+Luria and Delbrück used precisely this contrast to settle whether bacterial
+resistance arises by mutation before selection or by adaptation in response to
+it. Adaptation predicts each cell responds independently at the moment of
+challenge --- a Poisson count, variance equal to mean. Pre-existing mutation
+predicts clonal jackpots and enormous overdispersion. The data showed
+overdispersion, and the question was closed. Note the shape of the argument: the
+mean could not distinguish the hypotheses, and the variance could.
+\end{remark}
+
+\subsection{Numerical resolution}
+
+\begin{numerics}[6.1]
+\file{scripts/textbook/make_figures.py}, section~6. Assumption~\ref{model:ld} is
+simulated exactly --- no approximation to the distribution --- with
+$4000$ independent cultures, $g = 22$ generations ($N = 4\,194\,304$) and
+$\mu = 2\times10^{-8}$ per division, seed \texttt{20261021}.
+
+\medskip
+\begin{tabularx}{\linewidth}{@{}l r X@{}}
+\toprule
+mean mutants per culture & $1.27$ & matches \eqref{eq:ldmean} to simulation error \\
+variance & $441.1$ & \\
+variance / mean & $\mathbf{346.7}$ & Poisson would give $1$ \\
+cultures with zero mutants & $85.4\%$ & the mode is $0$, not the mean \\
+largest single culture & $1024$ & a jackpot: one early mutation, $2^{10}$ descendants \\
+\bottomrule
+\end{tabularx}
+\end{numerics}
+
+The last two rows are the practical lesson. A majority of cultures contain no
+mutants at all, while a rare culture contains a thousand. Estimating $\mu$ from
+the sample mean of a handful of cultures is therefore unreliable in a specific
+and dangerous way: it usually underestimates, and occasionally overestimates
+enormously.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{fig06_mutation_accumulation.pdf}
+  \caption{(a) Simulated Luria--Delbrück counts against a Poisson distribution
+  with the \emph{same mean}. The histograms are plotted on a logarithmic count
+  axis; the Luria--Delbrück distribution places far more mass at zero and carries
+  a tail the Poisson never reaches. (b) The variance-to-mean ratio, the statistic
+  that separates the hypotheses.}
+  \label{fig:ld}
+\end{figure}
+
+\subsection{Consequences for Section~\ref{sec:refutation}}
+
+Two points carry back to the refutation.
+
+First, the rates in Table~\ref{tab:kane} are maximum-likelihood estimates from
+fluctuation data, not sample means, which is why they are quoted without naive
+standard errors and why their confidence intervals are asymmetric.
+
+Second --- and this is why the ratio $\rho$ was the right statistic --- both
+alleles were measured by the same protocol in the same background. Systematic
+factors in the estimator (the growth model, the plating efficiency, the reporter
+target size) enter both numerator and denominator and cancel. A comparison of
+$\rho$ against a bound of $1$ is far more robust than either rate taken alone.
+
+\begin{worked}[6.1: why the mode is zero]
+\textbf{Problem.} With $\mu = 2\times10^{-8}$ and $N = 4.19\times10^{6}$, the mean
+mutant count is $1.27$. Why do $85\%$ of cultures nevertheless contain none?
+
+\textbf{Solution.} The mean is carried by rare large clones. The probability that
+\emph{no} mutational event occurs in the entire culture is approximately
+$\exp(-\mu \cdot (\text{total divisions})) = \exp(-\mu(N-1)) \approx \exp(-0.084)
+\approx 0.92$ for events in the final generation alone; accumulating over all
+generations gives the simulated $0.854$. Meanwhile a single event $10$ generations
+from the end contributes $2^{10} = 1024$ mutants by itself --- the observed
+maximum. A distribution with most mass at zero and a mean above one must have a
+very heavy tail, and that is exactly what \eqref{eq:ldvar} predicts.
+\end{worked}
+
+\begin{exercise}
+Verify \eqref{eq:ldmean} by evaluating the sum directly for $g = 4$ and
+$\mu = 10^{-2}$, and compare with $\tfrac{1}{2}\mu g N$.
+\end{exercise}
+
+\begin{exercise}
+Show that for a Poisson random variable the variance-to-mean ratio is exactly~$1$,
+and explain why any mechanism producing independent per-cell events at the moment
+of challenge must give that ratio.
+\end{exercise}
+
+\begin{exercise}
+The simulation uses synchronous doubling, which real cultures do not do. Argue
+qualitatively whether asynchronous growth would increase or decrease the
+overdispersion, and why the \emph{sign} of the Luria--Delbrück signature is robust
+to this idealisation even though its magnitude is not.
+\end{exercise}
+
+\begin{exercise}[(harder)]
+Suppose a variant raises $\mu$ by a factor $\rho$. Show that the \emph{ratio} of
+mean mutant counts between variant and reference is $\rho$, independent of $g$
+and $N$, provided both are grown identically. This is the cancellation that makes
+$\rho$ in Section~\ref{sec:refutation} meaningful.
+\end{exercise}
+
+\begin{ledger}
+\textbf{Measured:} nothing new here; the section explains the estimator behind
+the rates already quoted in Section~\ref{sec:refutation}. \\
+\textbf{Assumed:} Assumption~\ref{model:ld} --- synchronous doubling, neutral
+non-reverting mutants, constant $\mu$ per division. All three are idealisations. \\
+\textbf{Proved:} nothing is formalised in this section. Equations
+\eqref{eq:ldmean} and \eqref{eq:ldvar} are derived by hand and checked against an
+exact simulation, not against the Lean kernel. The ledger records that
+difference deliberately. \\
+\textbf{Open:} the asynchronous-growth correction of Exercise~6.3 is not computed
+anywhere in this book.
+\end{ledger}

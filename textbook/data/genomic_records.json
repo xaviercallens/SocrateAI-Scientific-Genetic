@@ -1,0 +1,255 @@
+{
+ "purpose": "Live records underpinning the Formal Genetics textbook.",
+ "built_utc": "2026-10-21T20:00:21.913960+00:00",
+ "genes": {
+  "POLE": {
+   "symbol": "POLE",
+   "ensembl_gene_id": "ENSG00000177084",
+   "assembly": "GRCh38",
+   "chromosome": "12",
+   "start": 132623753,
+   "end": 132687376,
+   "strand": -1,
+   "span_bp": 63624,
+   "biotype": "protein_coding",
+   "description": "DNA polymerase epsilon, catalytic subunit [Source:HGNC Symbol;Acc:HGNC:9177]",
+   "canonical_transcript": "ENST00000320574",
+   "transcript_count": 26,
+   "source_url": "https://rest.ensembl.org/lookup/id/ENSG00000177084?expand=1;content-type=application/json",
+   "retrieved_utc": "2026-10-21T20:00:07.100011+00:00"
+  },
+  "POLD1": {
+   "symbol": "POLD1",
+   "ensembl_gene_id": "ENSG00000062822",
+   "assembly": "GRCh38",
+   "chromosome": "19",
+   "start": 50384204,
+   "end": 50418018,
+   "strand": 1,
+   "span_bp": 33815,
+   "biotype": "protein_coding",
+   "description": "DNA polymerase delta 1, catalytic subunit [Source:HGNC Symbol;Acc:HGNC:9175]",
+   "canonical_transcript": "ENST00000440232",
+   "transcript_count": 57,
+   "source_url": "https://rest.ensembl.org/lookup/id/ENSG00000062822?expand=1;content-type=application/json",
+   "retrieved_utc": "2026-10-21T20:00:07.325046+00:00"
+  },
+  "MSH6": {
+   "symbol": "MSH6",
+   "ensembl_gene_id": "ENSG00000116062",
+   "assembly": "GRCh38",
+   "chromosome": "2",
+   "start": 47695530,
+   "end": 47810109,
+   "strand": 1,
+   "span_bp": 114580,
+   "biotype": "protein_coding",
+   "description": "mutS homolog 6 [Source:HGNC Symbol;Acc:HGNC:7329]",
+   "canonical_transcript": "ENST00000234420",
+   "transcript_count": 40,
+   "source_url": "https://rest.ensembl.org/lookup/id/ENSG00000116062?expand=1;content-type=application/json",
+   "retrieved_utc": "2026-10-21T20:00:07.498284+00:00"
+  },
+  "MSH2": {
+   "symbol": "MSH2",
+   "ensembl_gene_id": "ENSG00000095002",
+   "assembly": "GRCh38",
+   "chromosome": "2",
+   "start": 47403067,
+   "end": 47663146,
+   "strand": 1,
+   "span_bp": 260080,
+   "biotype": "protein_coding",
+   "description": "mutS homolog 2 [Source:HGNC Symbol;Acc:HGNC:7325]",
+   "canonical_transcript": "ENST00000233146",
+   "transcript_count": 37,
+   "source_url": "https://rest.ensembl.org/lookup/id/ENSG00000095002?expand=1;content-type=application/json",
+   "retrieved_utc": "2026-10-21T20:00:07.677716+00:00"
+  },
+  "MLH1": {
+   "symbol": "MLH1",
+   "ensembl_gene_id": "ENSG00000076242",
+   "assembly": "GRCh38",
+   "chromosome": "3",
+   "start": 36992834,
+   "end": 37051505,
+   "strand": 1,
+   "span_bp": 58672,
+   "biotype": "protein_coding",
+   "description": "mutL homolog 1 [Source:HGNC Symbol;Acc:HGNC:7127]",
+   "canonical_transcript": "ENST00000231790",
+   "transcript_count": 74,
+   "source_url": "https://rest.ensembl.org/lookup/id/ENSG00000076242?expand=1;content-type=application/json",
+   "retrieved_utc": "2026-10-21T20:00:07.886090+00:00"
+  }
+ },
+ "clinvar": {
+  "POLE": {
+   "symbol": "POLE",
+   "pathogenic": 1891,
+   "pathogenic_url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=clinvar&retmode=json&retmax=0&term=POLE%5Bgene%5D%20AND%20%28%22pathogenic%22%5BClinical%20significance%5D%29",
+   "benign": 10065,
+   "benign_url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=clinvar&retmode=json&retmax=0&term=POLE%5Bgene%5D%20AND%20%28%22benign%22%5BClinical%20significance%5D%29",
+   "uncertain": 10737,
+   "uncertain_url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=clinvar&retmode=json&retmax=0&term=POLE%5Bgene%5D%20AND%20%28%22uncertain%20significance%22%5BClinical%20significance%5D%29",
+   "total": 11341,
+   "total_url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=clinvar&retmode=json&retmax=0&term=POLE%5Bgene%5D",
+   "source_url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=clinvar",
+   "retrieved_utc": "2026-10-21T20:00:10.181173+00:00"
+  },
+  "POLD1": {
+   "symbol": "POLD1",
+   "pathogenic": 630,
+   "pathogenic_url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=clinvar&retmode=json&retmax=0&term=POLD1%5Bgene%5D%20AND%20%28%22pathogenic%22%5BClinical%20significance%5D%29",
+   "benign": 3519,
+   "benign_url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=clinvar&retmode=json&retmax=0&term=POLD1%5Bgene%5D%20AND%20%28%22benign%22%5BClinical%20significance%5D%29",
+   "uncertain": 4260,
+   "uncertain_url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=clinvar&retmode=json&retmax=0&term=POLD1%5Bgene%5D%20AND%20%28%22uncertain%20significance%22%5BClinical%20significance%5D%29",
+   "total": 5957,
+   "total_url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=clinvar&retmode=json&retmax=0&term=POLD1%5Bgene%5D",
+   "source_url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=clinvar",
+   "retrieved_utc": "2026-10-21T20:00:12.494704+00:00"
+  },
+  "MSH6": {
+   "symbol": "MSH6",
+   "pathogenic": 5289,
+   "pathogenic_url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=clinvar&retmode=json&retmax=0&term=MSH6%5Bgene%5D%20AND%20%28%22pathogenic%22%5BClinical%20significance%5D%29",
+   "benign": 5154,
+   "benign_url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=clinvar&retmode=json&retmax=0&term=MSH6%5Bgene%5D%20AND%20%28%22benign%22%5BClinical%20significance%5D%29",
+   "uncertain": 7220,
+   "uncertain_url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=clinvar&retmode=json&retmax=0&term=MSH6%5Bgene%5D%20AND%20%28%22uncertain%20significance%22%5BClinical%20significance%5D%29",
+   "total": 10849,
+   "total_url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=clinvar&retmode=json&retmax=0&term=MSH6%5Bgene%5D",
+   "source_url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=clinvar",
+   "retrieved_utc": "2026-10-21T20:00:14.801425+00:00"
+  }
+ },
+ "proteins": {
+  "POLE": {
+   "symbol": "POLE",
+   "accession": "Q07864",
+   "protein_name": "DNA polymerase epsilon catalytic subunit A",
+   "length_aa": 2286,
+   "domains": [
+    {
+     "interpro_accession": "IPR006133",
+     "name": "DNA-directed DNA polymerase, family B, exonuclease domain",
+     "start": 220,
+     "end": 426
+    },
+    {
+     "interpro_accession": "IPR055191",
+     "name": "DNA polymerase epsilon ,catalytic subunit A, thumb domain",
+     "start": 975,
+     "end": 1152
+    },
+    {
+     "interpro_accession": "IPR013697",
+     "name": "DNA polymerase epsilon, catalytic subunit A, C-terminal",
+     "start": 1525,
+     "end": 1925
+    },
+    {
+     "interpro_accession": "IPR063197",
+     "name": "DNA polymerase-epsilon, first zinc finger domain",
+     "start": 2141,
+     "end": 2213
+    },
+    {
+     "interpro_accession": "IPR054475",
+     "name": "DNA polymerase-epsilon, zinc finger domain",
+     "start": 2216,
+     "end": 2271
+    }
+   ],
+   "uniprot_url": "https://rest.uniprot.org/uniprotkb/Q07864.json",
+   "interpro_url": "https://www.ebi.ac.uk/interpro/api/entry/InterPro/protein/uniprot/Q07864/?page_size=100",
+   "source_url": "https://rest.uniprot.org/uniprotkb/Q07864.json",
+   "retrieved_utc": "2026-10-21T20:00:15.137308+00:00"
+  },
+  "POLD1": {
+   "symbol": "POLD1",
+   "accession": "P28340",
+   "protein_name": "DNA polymerase delta catalytic subunit",
+   "length_aa": 1107,
+   "domains": [
+    {
+     "interpro_accession": "IPR056435",
+     "name": "DNA polymerase delta/zeta catalytic subunit, N-terminal domain",
+     "start": 143,
+     "end": 220
+    },
+    {
+     "interpro_accession": "IPR006133",
+     "name": "DNA-directed DNA polymerase, family B, exonuclease domain",
+     "start": 243,
+     "end": 477
+    },
+    {
+     "interpro_accession": "IPR006134",
+     "name": "DNA-directed DNA polymerase, family B, multifunctional domain",
+     "start": 541,
+     "end": 973
+    },
+    {
+     "interpro_accession": "IPR025687",
+     "name": "C4-type zinc-finger of DNA polymerase delta",
+     "start": 1012,
+     "end": 1082
+    }
+   ],
+   "uniprot_url": "https://rest.uniprot.org/uniprotkb/P28340.json",
+   "interpro_url": "https://www.ebi.ac.uk/interpro/api/entry/InterPro/protein/uniprot/P28340/?page_size=100",
+   "source_url": "https://rest.uniprot.org/uniprotkb/P28340.json",
+   "retrieved_utc": "2026-10-21T20:00:18.389602+00:00"
+  },
+  "MSH6": {
+   "symbol": "MSH6",
+   "accession": "P52701",
+   "protein_name": "DNA mismatch repair protein Msh6",
+   "length_aa": 1360,
+   "domains": [
+    {
+     "interpro_accession": "IPR000313",
+     "name": "PWWP domain",
+     "start": 90,
+     "end": 183
+    },
+    {
+     "interpro_accession": "IPR007695",
+     "name": "DNA mismatch repair protein MutS-like, N-terminal",
+     "start": 407,
+     "end": 524
+    },
+    {
+     "interpro_accession": "IPR007860",
+     "name": "DNA mismatch repair protein MutS, connector domain",
+     "start": 538,
+     "end": 694
+    },
+    {
+     "interpro_accession": "IPR007696",
+     "name": "DNA mismatch repair protein MutS, core",
+     "start": 739,
+     "end": 1102
+    },
+    {
+     "interpro_accession": "IPR007861",
+     "name": "DNA mismatch repair protein MutS, clamp",
+     "start": 932,
+     "end": 1024
+    },
+    {
+     "interpro_accession": "IPR000432",
+     "name": "DNA mismatch repair protein MutS, C-terminal",
+     "start": 1127,
+     "end": 1323
+    }
+   ],
+   "uniprot_url": "https://rest.uniprot.org/uniprotkb/P52701.json",
+   "interpro_url": "https://www.ebi.ac.uk/interpro/api/entry/InterPro/protein/uniprot/P52701/?page_size=100",
+   "source_url": "https://rest.uniprot.org/uniprotkb/P52701.json",
+   "retrieved_utc": "2026-10-21T20:00:21.912731+00:00"
+  }
+ }
+}

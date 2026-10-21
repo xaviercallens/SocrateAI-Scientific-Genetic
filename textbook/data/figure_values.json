@@ -1,0 +1,226 @@
+{
+ "photo51": {
+  "fourth_layer_line_absent": true,
+  "layer_lines": [
+   {
+    "absent": false,
+    "interference": 2.0,
+    "n": 0,
+    "z_inv_angstrom": 0.0
+   },
+   {
+    "absent": false,
+    "interference": 0.7653668647301797,
+    "n": 1,
+    "z_inv_angstrom": 0.029411764705882353
+   },
+   {
+    "absent": false,
+    "interference": -1.414213562373095,
+    "n": 2,
+    "z_inv_angstrom": 0.058823529411764705
+   },
+   {
+    "absent": false,
+    "interference": -1.8477590650225737,
+    "n": 3,
+    "z_inv_angstrom": 0.08823529411764706
+   },
+   {
+    "absent": true,
+    "interference": -3.6739403974420594e-16,
+    "n": 4,
+    "z_inv_angstrom": 0.11764705882352941
+   },
+   {
+    "absent": false,
+    "interference": 1.847759065022573,
+    "n": 5,
+    "z_inv_angstrom": 0.14705882352941177
+   },
+   {
+    "absent": false,
+    "interference": 1.4142135623730954,
+    "n": 6,
+    "z_inv_angstrom": 0.17647058823529413
+   },
+   {
+    "absent": false,
+    "interference": -0.7653668647301798,
+    "n": 7,
+    "z_inv_angstrom": 0.20588235294117646
+   },
+   {
+    "absent": false,
+    "interference": -2.0,
+    "n": 8,
+    "z_inv_angstrom": 0.23529411764705882
+   },
+   {
+    "absent": false,
+    "interference": -0.7653668647301811,
+    "n": 9,
+    "z_inv_angstrom": 0.2647058823529412
+   },
+   {
+    "absent": false,
+    "interference": 1.4142135623730931,
+    "n": 10,
+    "z_inv_angstrom": 0.29411764705882354
+   }
+  ],
+  "model": "Cochran-Crick-Vand continuous double helix",
+  "note": "the absent n=4 layer line follows from cos(pi*4*3/8) = 0",
+  "pitch_angstrom": 34.0,
+  "radius_angstrom": 10.0,
+  "rise_per_base_angstrom": 3.4,
+  "strand_offset_fraction_of_pitch": 0.375
+ },
+ "sec02": {
+  "error": 1e-06,
+  "gamma": 0.01,
+  "m": 3,
+  "note": "three stages at gamma=1e-2 give 1e-6 per base"
+ },
+ "sec03": {
+  "ceiling": 1.0,
+  "kane_exo_null_e8": 44.0,
+  "kane_p301r_e8": 2300.0,
+  "rho": 52.27272727272727
+ },
+ "sec04": {
+  "in_vitro_ratio": 0.38064516129032255,
+  "in_vivo_ratio": 52.27272727272727,
+  "panel": [
+   {
+    "allele": "pol2-P301R",
+    "breaks_ceiling": true,
+    "rho": 52.27272727272727
+   },
+   {
+    "allele": "pol2-P301H",
+    "breaks_ceiling": true,
+    "rho": 21.0
+   },
+   {
+    "allele": "pol2-F367S",
+    "breaks_ceiling": true,
+    "rho": 12.5
+   },
+   {
+    "allele": "pol2-S459F",
+    "breaks_ceiling": true,
+    "rho": 9.1
+   },
+   {
+    "allele": "pol2-V411L",
+    "breaks_ceiling": false,
+    "rho": 0.55
+   },
+   {
+    "allele": "pol2-4 (exo-null)",
+    "breaks_ceiling": false,
+    "rho": 1.0
+   }
+  ],
+  "reversal_factor": 137.326656394453
+ },
+ "sec05": {
+  "lean": "ANSE.GeneticsTextbook.reversal_forces_capacity_drop",
+  "witness": {
+   "c_mut": 0,
+   "c_null": 9,
+   "escaped_mut": 8,
+   "escaped_null": 1,
+   "p_mut": 8,
+   "p_null": 10
+  }
+ },
+ "sec06": {
+  "cultures": 4000,
+  "final_population": 4194304,
+  "fraction_with_zero": 0.85425,
+  "generations": 22,
+  "max_mutants_observed": 1024,
+  "mean_mutants": 1.27225,
+  "mutation_rate_per_division": 2e-08,
+  "seed": 20261021,
+  "variance_mutants": 441.0826299375,
+  "variance_over_mean": 346.6949341226174
+ },
+ "sec07": {
+  "clinvar": {
+   "MSH6": {
+    "benign": 5154,
+    "pathogenic": 5289,
+    "uncertain": 7220
+   },
+   "POLD1": {
+    "benign": 3519,
+    "pathogenic": 630,
+    "uncertain": 4260
+   },
+   "POLE": {
+    "benign": 10065,
+    "pathogenic": 1891,
+    "uncertain": 10737
+   }
+  },
+  "exonuclease_domain": {
+   "end": 426,
+   "interpro_accession": "IPR006133",
+   "name": "DNA-directed DNA polymerase, family B, exonuclease domain",
+   "start": 220
+  },
+  "p286r_inside_exonuclease_domain": true,
+  "pole_length_aa": 2286
+ },
+ "sec08": {
+  "betti_numbers": [
+   1,
+   0
+  ],
+  "cds_length_nt": 6861,
+  "engine": "GUDHI 3.13.0",
+  "longest_h1_bars": [
+   [
+    0.17114397993115607,
+    0.7547227830644742
+   ],
+   [
+    0.18395894962053524,
+    0.7621767016867844
+   ],
+   [
+    0.2726293283875206,
+    0.7578440227471953
+   ],
+   [
+    0.15066376749534607,
+    0.4364127093430999
+   ],
+   [
+    0.1726601785218801,
+    0.4529425313425808
+   ]
+  ],
+  "max_edge_length": 0.9,
+  "points_sampled": 900
+ },
+ "sec09": {
+  "Lk": 24,
+  "relaxed": {
+   "Tw": 24,
+   "Wr": 0
+  },
+  "supercoiled": {
+   "Tw": 18,
+   "Wr": 6
+  }
+ },
+ "sec10": {
+  "fda_threshold": 10.0,
+  "note": "the threshold crossing is established by measurement, not by the retracted stage-removal model",
+  "retracted_tmb_prediction": 1388.888888888889
+ }
+}

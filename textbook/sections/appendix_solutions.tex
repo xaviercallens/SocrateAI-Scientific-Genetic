@@ -1,0 +1,192 @@
+% =============================================================================
+% Appendix A — Solutions
+% =============================================================================
+\section{Solutions to Selected Exercises}\label{app:solutions}
+
+Solutions are given for the exercises whose answers are not immediate. Where an
+exercise asks for a design or an argument, the solution indicates what a complete
+answer must contain rather than supplying prose to copy.
+
+\subsection*{Section 1}
+
+\paragraph{1.1}
+(a) Arithmetic --- falsified only by a computational error.
+(b) Modelling --- falsified by evidence that stages interact, e.g.\ an error rate
+that is not the product of per-stage factors.
+(c) Measurement --- falsified by an independent determination in the same
+background and reporter.
+(d) Modelling --- falsified by a tumour with high polymerase error rate and low
+burden, or the reverse; Section~\ref{sec:mmr} argues exactly this.
+
+\paragraph{1.2}
+A reply should make two points: that the gate establishes the conclusion follows
+from the hypotheses and nothing about whether the hypotheses hold of a cell; and
+that this is not a criticism of formalisation, whose value is that a hypothesis
+precise enough to formalise is precise enough to refute.
+
+\subsection*{Section 2}
+
+\paragraph{2.1}
+By Proposition~\ref{prop:gain} with $k = 1$, the ratio
+$\gamma^{m+1}/\gamma^{m} = \gamma$ for every $m$. Returns are constant in the
+logarithm because the stages are statistically independent and the errors
+multiply; most engineered schemes share information between stages, so later
+stages have less to contribute.
+
+\paragraph{2.2}
+With $\mathcal{E}_2 = \gamma^2 + c$ and $c > 0$ we can have
+$\mathcal{E}_2 > \mathcal{E}_1 = \gamma$ whenever $c > \gamma - \gamma^2$. So a
+two-stage enzyme is worse than a one-stage one: monotonicity fails. The
+independence assumption is therefore not cosmetic --- it is what makes
+``more proofreading is never worse'' true.
+
+\paragraph{2.3}
+$\gamma = e^{-\Delta\Delta G/k_BT} = 10^{-6}$ requires
+$\Delta\Delta G = 6\ln 10 \approx 13.8\,k_BT$. At $310$\,K,
+$k_BT \approx 2.58\ \mathrm{kJ\,mol^{-1}}$, so
+$\Delta\Delta G \approx 35.6\ \mathrm{kJ\,mol^{-1}}$. A single Watson--Crick
+hydrogen bond contributes of order $5$--$10\ \mathrm{kJ\,mol^{-1}}$, and the
+difference between a correct and incorrect pair is smaller still, so no plausible
+base-pairing chemistry supplies it. This is precisely why equilibrium
+discrimination is insufficient and kinetic proofreading is needed.
+
+\subsection*{Section 3}
+
+\paragraph{3.1}
+Apply Theorem~\ref{thm:psr1} with the ambient set $\kept$ and the subset
+$\emptyset$: it gives $\errate(\kept) \le \errate(\emptyset) = \inserr$, since the
+empty product is $1$. Hence PSR$_2$.
+
+\paragraph{3.2}
+(a) Multiplicativity fails: the error rate is no longer a product over
+independent stages. The ceiling need not hold, and this is the one escape route
+the no-go theorem leaves open.
+(b) No hypothesis of Assumption~\ref{model:class} fails, but the mutant is not a
+\emph{stage-removal} mutant --- $\inserr$ has changed. This is the case PSR$_3$
+describes, and it is the rescue the Xing measurement forbids.
+(c) The range hypothesis $\escape_i \in [0,1]$ fails, and the ceiling genuinely
+fails with it: the Lean file's negative control exhibits this.
+
+\paragraph{3.3}
+A complete answer defines refutation of a family as the non-existence of any
+$\theta \in \Theta$ consistent with the observation, and refutation of a member
+as inconsistency for one particular $\theta$. Enlarging $\Theta$ weakens content
+because the set of observations inconsistent with \emph{every} member shrinks;
+in the limit of a sufficiently rich family, nothing is excluded and the family
+makes no prediction.
+
+\subsection*{Section 4}
+
+\paragraph{4.1}
+PSR$_3$ with $\rho = 2300/44 \approx 52.3$ gives
+$\inserr' \ge 52.3\,\inserr$: the insertion/extension error would have to exceed
+wild type's by a factor of about $52$. Xing's purified measurement forbids it,
+because with no repair present \texttt{P301R} makes \emph{fewer} errors than
+exonuclease-null, so its intrinsic error is not elevated at all.
+
+\paragraph{4.2}
+It establishes only that this allele is consistent with the model class --- it
+does not confirm the model, because every allele that is \emph{not} a mutator is
+equally consistent. A test that cannot fail for non-mutators provides no evidence
+when it passes. (Compare Exercise~4.4.)
+
+\paragraph{4.4}
+If the statistic is forced to its extreme value by a symmetry of the pipeline,
+then every shuffle produces a value at least as extreme, so the $p$-value is
+bounded by $1/(N+1)$ regardless of the data. It measures the pipeline, not the
+hypothesis. The rule violated: \emph{a control must be able to come out
+non-significant}. Before reporting any test, construct the observation that would
+fail it; if none exists, the test carries no evidence.
+
+\subsection*{Section 5}
+
+\paragraph{5.1}
+$\mathrm{esc}(3, 0) = 3 \le 7 = \mathrm{esc}(7, 0)$ (neither saturated);
+$\mathrm{esc}(3, 5) = 0 \le 2 = \mathrm{esc}(7, 5)$ (the mutant is fully repaired);
+$\mathrm{esc}(3, 9) = 0 \le 0 = \mathrm{esc}(7, 9)$ (both fully repaired).
+The ordering holds in every case, which is Theorem~\ref{thm:norev}.
+
+\paragraph{5.2}
+$\partial_p\left[p^2/(p+c)\right] = p(p + 2c)/(p+c)^2 \ge 0$ and
+$\partial_c\left[p^2/(p+c)\right] = -p^2/(p+c)^2 \le 0$. Both monotonicities
+hold, so Theorems~\ref{thm:norev} and~\ref{thm:forced} go through unchanged. The
+conclusion depends only on the \emph{signs} of these derivatives, not on the
+hard threshold, which is why the caricature is acceptable.
+
+\paragraph{5.4}
+In a null background $c = 0$ for both enzymes, so
+$\mathrm{esc}(p, 0) = p$ and the comparison reduces to intrinsic production ---
+which is already known from the purified assay and cannot discriminate the
+hypotheses. A hypomorphic background gives $0 < c < c_{\mathrm{null}}$, where
+titration (capacity consumed in proportion to load) and interference (capacity
+reduced independently of load) predict different dependences of escape on $p$.
+
+\subsection*{Section 6}
+
+\paragraph{6.1}
+For $g = 4$, $\mu = 10^{-2}$: the sum $\sum_{j=0}^{3} \mu 2^{j} 2^{3-j} =
+4\mu\cdot 2^{3} = 0.32$, and $\tfrac{1}{2}\mu g N = \tfrac{1}{2}(10^{-2})(4)(16)
+= 0.32$. They agree.
+
+\paragraph{6.4}
+Both cultures have the same $g$ and $N$; by \eqref{eq:ldmean} the means are
+$\tfrac12\mu_1 gN$ and $\tfrac12\mu_2 gN$, whose ratio is $\mu_2/\mu_1 = \rho$.
+Every factor depending on the growth protocol cancels, which is why the ratio is
+the robust statistic and the individual rates are not.
+
+\subsection*{Section 7}
+
+\paragraph{7.2}
+Two errors. First, the categories overlap, so pathogenic-over-total is not a
+proportion of anything: the denominator includes records also counted in the
+numerator's complement, and the categories sum past the total. Second, even a
+correctly computed proportion of \emph{submitted} records is not a probability
+for a \emph{new} variant, because ClinVar is ascertainment-biased toward variants
+someone had a reason to submit.
+
+\subsection*{Section 8}
+
+\paragraph{8.1}
+Unrolling \eqref{eq:cgr}, $x_i = \sum_{k\ge0} 2^{-(k+1)} v_{b_{i-k}}$. The
+coefficient of $v_{b_{i-k}}$ is $2^{-(k+1)}$. If two positions share their last
+$k$ bases, the difference of their embeddings is supported on terms of index
+$> k$, hence bounded by $\sum_{j>k} 2^{-(j+1)}\mathrm{diam} = 2^{-(k+1)}\mathrm{diam}$.
+
+\paragraph{8.2}
+At the filtration limit the complex is connected for any sufficiently dense
+sample of a connected attractor, so $\beta_0 = 1$ carries no information about
+the sequence. It becomes informative only at $\epsilon$ below the typical
+nearest-neighbour spacing, where $\beta_0$ counts clusters --- and then it is
+measuring sampling density, not biology.
+
+\subsection*{Section 9}
+
+\paragraph{9.1}
+Theorem~\ref{thm:trade} with $\Delta\Tw = -1$ gives $\Delta\Wr = +1$. Physically
+the compensating writhe appears as a crossing of the axis --- a supercoil --- in
+the flanking DNA.
+
+\paragraph{9.2}
+$\Lk$ counts signed crossings of two closed curves and is an integer for
+topological reasons. $\Tw$ and $\Wr$ are integrals and individually real; their
+sum is constrained to be the integer $\Lk$ by Theorem~\ref{thm:cwf}. If the
+ribbon is not closed, $\Lk$ is undefined and the decomposition fails --- which is
+why a nicked plasmid has no superhelical density.
+
+\paragraph{9.3}
+$95$ turns per $1000$ bp at $50$ bp/s is $95 \times (50/1000) = 4.75$ turns per
+second.
+
+\subsection*{Section 10}
+
+\paragraph{10.1}
+$\frac{1}{5}\cdot\frac{62500}{9} = \frac{62500}{45} = \frac{12500}{9}$. Verifying
+it confirms a property of the model, and the model has been refuted; a correct
+consequence of a false premise is not evidence for anything.
+
+\paragraph{10.3}
+Claims that would change: anything deriving a burden or rate from stage counts.
+Claims that would not: the live database records of Section~\ref{sec:variants},
+the topology of Section~\ref{sec:dnatop}, the clinical decision rule. The
+distinguishing feature is whether the claim takes the mechanism as an input or
+measures its consequence directly.
