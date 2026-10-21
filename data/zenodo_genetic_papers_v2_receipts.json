@@ -1,0 +1,48 @@
+[
+  {
+    "previous": 23511663,
+    "id": 23525655,
+    "doi": "10.5281/zenodo.23525655",
+    "state": "done",
+    "conceptrecid": "23511662",
+    "sha256": {
+      "PaperD_Biophysics_Genetics_EnergyMaterials_Autoresearch_Lean4.pdf": "7c1bc024e0b8bab85851247a968fee034f4c985055a660695bda88b2d780a19a",
+      "PaperD_Biophysics_Genetics_EnergyMaterials_Autoresearch_Lean4.tex": "04b1ef1c45487f93932758ec43dabf5e8449c037d33414e0898336e268fb943c",
+      "fig1_stochastic_thermodynamics_imex_positivity.pdf": "d898f7d44123a5b2e3351d90a386fb042195a74227f911af028d5072ab894348",
+      "fig2_schnakenberg_tur_precision_bound.pdf": "b1627c8c9dfa3621b3a38a4eb9ac55f25878dd8dd04ed54a58eee2029b6e5e6f",
+      "fig3_jarzynski_crooks_mcghee_chromatin.pdf": "4bc0cc3f41a4485121a51be05533416f1dc6e615605c7a03d212237a3e602736",
+      "paper_d_telemetry.json": "b5cba46e15c7d8b007f830ce7863301e8691149630fd216cddf3d0ed0567ee25",
+      "StochasticThermodynamicsSpec.lean": "45e8f06bdb69b85f4356e22c5bb360d79bc88f011b3e207fc1312f9982de793f",
+      "StochasticThermodynamics.lean": "ccdfb55918a49a2158d8fb1ef74467830ec8a68797629602e9095cbfbba78dd6",
+      "AUDIT_2026-10-21.md": "e4220ed7565769860130e66efe5515a3aa09a848714d119dafdac37040e6bd47",
+      "run_tcga_pole_empirical_check.py": "029a527182d763630c1c382f8cefa2b558a85cf15f5a9d4919ce8bad134a57da",
+      "tcga_pole_empirical_check.json": "c250e0898acd676125cf57d03bd6975e3eb9855381a46e70462dfff931630029"
+    }
+  },
+  {
+    "previous": 23511665,
+    "id": 23525664,
+    "doi": "10.5281/zenodo.23525664",
+    "state": "done",
+    "conceptrecid": "23511664",
+    "sha256": {
+      "PaperE_Genetics_DNAReplication_ART_LeanFlow_RustySundials_Lean4.pdf": "798ab8d68fe298d55534d0575aa69d32fc9f97dadb7df576e09f35859bb9cfc8",
+      "PaperE_Genetics_DNAReplication_ART_LeanFlow_RustySundials_Lean4.tex": "6e8e68550c8763f8915e9da72b8cd130344cc44422482a4185c10fa292783a83",
+      "fig1_hopfield_art_proofreading_and_kjma.pdf": "4cf9d51c4a3cc16faf8186c03b8685b32066be653c379be29118e67cb53fb25a",
+      "fig2_calugareanu_supercoiling_rrk_and_hecke.pdf": "bba1185027063329fc3a99ec62ed83bf01281a0ae1ddc832aee52c09e8378754",
+      "fig3_c1_c2_torque_haar_art_convergence.pdf": "3d635896ce7b7aecdaf4f99d1752f3a4d9d766ba4798b88f3c4eebc2492d2a84",
+      "fig4_e8_dicodon_chimeric_art_exo_humanitarian_538x.pdf": "6d7ada6fe0413af71f99bd84efc7d4f9d34d57496f185e7456083d1e022b1970",
+      "paper_e_telemetry.json": "79f1d4e9ace815341667272e250a2d61fc3dd4da4a058760d5cb87d9f9ce452d",
+      "Breakthroughs3DomainsSpec.lean": "b5aebab8a5b99092d711d768ac797b7b6879f9371cc41e62180563347a689cc8",
+      "Breakthroughs3Domains.lean": "3c1b2c8f5ec7550d32ef98615a301a6355e536c678e5b3ff09593ac915372597",
+      "GeneticAutoresearchSpec.lean": "ea71e596d1df77a317d3e3c1415d9104fd80987b1a569ac26fbb0aec1f814ee5",
+      "GeneticAutoresearch.lean": "7dbf21fb2f68d264db6205c9c617d592f7e3e9671f71b9283eef75d50d42ea4f",
+      "StochasticThermodynamicsSpec.lean": "45e8f06bdb69b85f4356e22c5bb360d79bc88f011b3e207fc1312f9982de793f",
+      "StochasticThermodynamics.lean": "ccdfb55918a49a2158d8fb1ef74467830ec8a68797629602e9095cbfbba78dd6",
+      "LeanMasterAutoTactics.lean": "2a206c4e2a2c28b55c9985c5213f9d95a589b5cfc0aa22ebfb10534b95ca8493",
+      "AUDIT_2026-10-21.md": "e4220ed7565769860130e66efe5515a3aa09a848714d119dafdac37040e6bd47",
+      "run_tcga_pole_empirical_check.py": "029a527182d763630c1c382f8cefa2b558a85cf15f5a9d4919ce8bad134a57da",
+      "tcga_pole_empirical_check.json": "c250e0898acd676125cf57d03bd6975e3eb9855381a46e70462dfff931630029"
+    }
+  }
+]

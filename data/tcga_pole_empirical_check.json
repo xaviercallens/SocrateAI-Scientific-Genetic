@@ -1,0 +1,24 @@
+{
+  "source": "Kandoth et al. 2013 Nature 497:67-73, exome analysis section; 17 POLE-ultramutated tumours of 248 sequenced; hotspots P286R/V411L in 13 of 17",
+  "observed_mut_per_Mb": {
+    "POLE_ultramutated": 232.0,
+    "MSI_hypermutated": 18.0,
+    "copy_number_low_mostly_MSS_endometrioid": 2.9,
+    "copy_number_high_serous_like": 2.3
+  },
+  "observed_fold_POLE_over": {
+    "MSI_hypermutated": 12.88888888888889,
+    "copy_number_low_mostly_MSS_endometrioid": 80.0,
+    "copy_number_high_serous_like": 100.86956521739131
+  },
+  "model_predicted_fold": {
+    "m3_to_m1_as_in_paper_E_GAR_H15": 6944.444444444444,
+    "m3_to_m2_single_stage_loss": 83.33333333333333,
+    "m3_to_m3_negative_control_no_loss": 1.0
+  },
+  "paper_E_absolute_TMB_P286R_mut_per_Mb": 1388.888888888889,
+  "absolute_overshoot_vs_observed_POLE": 5.986590038314176,
+  "fold_overshoot_m3_to_m1_vs_CNlow": 86.80555555555556,
+  "fold_ratio_m3_to_m2_vs_CNlow": 1.0416666666666665,
+  "interpretation": "The m=3->1 prediction (6944x) overshoots the observed ~80x by ~87x: refuted as a quantitative claim. A single-stage loss (1/gamma = 83.3x) is within 4% of the observed ratio; this is a post-hoc observation on one data point, not a confirmation."
+}

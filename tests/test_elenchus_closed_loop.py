@@ -132,8 +132,12 @@ def test_paper_d_chromatin_remodeling_jarzynski_crooks_mcghee_tonks_st_t5_t6() -
     paper_d_json = REPO_ROOT / "data" / "paper_d_telemetry.json"
     assert paper_d_json.exists()
     d_payload = json.loads(paper_d_json.read_text())
-    assert d_payload["biological_systems"]["iswi_remodeler"]["pdb_id"] == "6NE3"
-    assert d_payload["biological_systems"]["swi_snf_remodeler"]["pdb_id"] == "6LTJ"
-    assert d_payload["biological_systems"]["nucleosome_core_particle"]["pdb_id"] == "1KX5"
-    assert d_payload["mcghee_von_hippel_tonks_girardeau_lattice"]["tonks_girardeau_pressure_surge_rational"] == "53/18"
+    pdbs = {e["pdb_id"]: e["gene"] for e in d_payload["biological_system"]["pdb_structures"]}
+    assert pdbs["6NE3"].startswith("SMARCA5")
+    assert pdbs["6LTJ"].startswith("SMARCA4")
+    assert pdbs["1KX5"].startswith("NCP147")
+    lattice = d_payload["chromatin_lattice_gas"]
+    assert Fraction(lattice["mcghee_von_hippel_euchromatin_rational"]) == g_mvh_euchrom
+    assert Fraction(lattice["mcghee_von_hippel_heterochromatin_rational"]) == g_mvh_hetero
+    assert Fraction(lattice["tonks_girardeau_pressure_ratio_rational"]) == pi_tg_hetero / pi_tg_euchrom
 
