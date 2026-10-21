@@ -30,3 +30,4 @@ build/
 # Editor / OS
 .DS_Store
 *.swp
+textbook/build/

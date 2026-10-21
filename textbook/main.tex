@@ -1,0 +1,217 @@
+% =============================================================================
+%  Formal Genetics: Proof, Computation and Evidence in Molecular Biology
+%  A student textbook in ten sections.
+%
+%  Each section lives in its own file under sections/ and builds independently
+%  (see build.py --section N), so a section can be written, compiled and
+%  reviewed without touching the others.
+% =============================================================================
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{cmap}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{booktabs,tabularx,array,longtable}
+\usepackage{graphicx}
+\usepackage{caption,subcaption}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{enumitem}
+\usepackage{siunitx}
+\usepackage[most]{tcolorbox}
+\usepackage[hidelinks]{hyperref}
+
+\graphicspath{{figures/}{../figures/}}
+
+% This book is dense with long identifiers (gene symbols, Lean names, paths).
+% Let TeX stretch a difficult paragraph rather than let a line overflow the
+% measure; `build.py` treats any remaining overfull box as a build failure.
+\setlength{\emergencystretch}{3em}
+
+% ---------------------------------------------------------------- colours ---
+\definecolor{inkblue}{HTML}{14365C}
+\definecolor{proofgreen}{HTML}{1B7A52}
+\definecolor{datawarm}{HTML}{B4521E}
+\definecolor{softgrey}{HTML}{F4F4F2}
+\definecolor{rulegrey}{HTML}{8A8A86}
+\definecolor{leanpurple}{HTML}{5B3E8E}
+
+% ------------------------------------------------------- theorem machinery ---
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{model}[theorem]{Modelling Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% --------------------------------------------------------- student blocks ---
+% Learning objectives, opening every section.
+\newtcolorbox{objectives}{
+  enhanced, breakable, colback=softgrey, colframe=inkblue,
+  boxrule=0.4pt, left=8pt, right=8pt, top=6pt, bottom=6pt, arc=2pt,
+  title=\textbf{What you should be able to do after this section},
+  fonttitle=\small\bfseries, coltitle=white, colbacktitle=inkblue}
+
+% A fully worked example the student can follow line by line.
+\newtcolorbox{worked}[1][]{
+  enhanced, breakable, colback=white, colframe=proofgreen,
+  boxrule=0.5pt, left=8pt, right=8pt, top=6pt, bottom=6pt, arc=2pt,
+  title={Worked Example#1}, fonttitle=\small\bfseries,
+  coltitle=white, colbacktitle=proofgreen}
+
+% The epistemic ledger: the distinctive device of this book. Every section ends
+% with one, separating what is measured from what is assumed from what is proved.
+\newtcolorbox{ledger}{
+  enhanced, breakable, colback=white, colframe=rulegrey,
+  boxrule=0.5pt, left=8pt, right=8pt, top=6pt, bottom=6pt, arc=2pt,
+  title=\textbf{Epistemic ledger for this section},
+  fonttitle=\small\bfseries, coltitle=white, colbacktitle=rulegrey}
+
+% Numerical result reproduced from a named script.
+\newtcolorbox{numerics}[1][]{
+  enhanced, breakable, colback=white, colframe=datawarm,
+  boxrule=0.5pt, left=8pt, right=8pt, top=6pt, bottom=6pt, arc=2pt,
+  title={Numerical resolution#1}, fonttitle=\small\bfseries,
+  coltitle=white, colbacktitle=datawarm}
+
+\newcounter{exercisectr}[section]
+\newenvironment{exercise}[1][]
+  {\refstepcounter{exercisectr}\par\medskip\noindent
+   \textbf{Exercise \thesection.\theexercisectr}\ #1\par\nobreak\smallskip}
+  {\par\medskip}
+
+% ------------------------------------------------------------ Lean listing ---
+\lstdefinestyle{lean}{
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{leanpurple}\bfseries,
+  commentstyle=\color{rulegrey}\itshape,
+  stringstyle=\color{datawarm},
+  showstringspaces=false, breaklines=true, frame=single,
+  rulecolor=\color{rulegrey}, framesep=5pt, xleftmargin=6pt,
+  morekeywords={theorem,lemma,def,noncomputable,open,namespace,end,import,by,
+    intro,exact,apply,have,show,calc,simp,norm_num,linarith,nlinarith,unfold,
+    rcases,refine,fun,let,if,then,else,Finset,Real,Prop,Type},
+  literate={≤}{{$\leq$}}1 {≥}{{$\geq$}}1 {∈}{{$\in$}}1 {⊆}{{$\subseteq$}}1
+           {∀}{{$\forall$}}1 {∃}{{$\exists$}}1 {∏}{{$\prod$}}1 {∑}{{$\sum$}}1
+           {→}{{$\to$}}1 {↦}{{$\mapsto$}}1 {ℝ}{{$\mathbb{R}$}}1 {ℕ}{{$\mathbb{N}$}}1
+           {ε}{{$\varepsilon$}}1 {γ}{{$\gamma$}}1 {ρ}{{$\rho$}}1 {α}{{$\alpha$}}1
+           {β}{{$\beta$}}1 {δ}{{$\delta$}}1 {λ}{{$\lambda$}}1 {μ}{{$\mu$}}1
+           {σ}{{$\sigma$}}1 {τ}{{$\tau$}}1 {θ}{{$\theta$}}1 {Δ}{{$\Delta$}}1
+           {≠}{{$\neq$}}1 {¬}{{$\neg$}}1 {∧}{{$\wedge$}}1 {∨}{{$\vee$}}1
+           {ι}{{$\iota$}}1 {κ}{{$\kappa$}}1 {ν}{{$\nu$}}1 {π}{{$\pi$}}1
+           {φ}{{$\varphi$}}1 {ψ}{{$\psi$}}1 {ω}{{$\omega$}}1 {Σ}{{$\Sigma$}}1
+           {Π}{{$\Pi$}}1 {∅}{{$\emptyset$}}1 {∘}{{$\circ$}}1 {≈}{{$\approx$}}1
+           {⟨}{{$\langle$}}1 {⟩}{{$\rangle$}}1 {∣}{{$\mid$}}1 {·}{{$\cdot$}}1
+           {₀}{{$_0$}}1 {₁}{{$_1$}}1 {₂}{{$_2$}}1 {₃}{{$_3$}}1 {ℚ}{{$\mathbb{Q}$}}1
+           {∑}{{$\sum$}}1 {√}{{$\sqrt{}$}}1 {∞}{{$\infty$}}1,
+}
+\lstset{style=lean}
+% Lean identifiers are long and underscore-heavy; like file paths they must be
+% breakable. `\path` takes its argument verbatim, so no escaping is needed.
+\DeclareUrlCommand\leanpath{\urlstyle{tt}\color{leanpurple}}
+% Robust: these appear in figure captions, which are moving arguments, and a bare
+% \path there fails with "\url used in a moving argument".
+\DeclareRobustCommand{\lean}[1]{{\leanpath{#1}}}
+
+% File paths are long single tokens and overflow the measure unless TeX may break
+% them. `\path` (from url, loaded by hyperref) breaks after slashes and takes its
+% argument verbatim, so underscores need no escaping inside \file{...}.
+\urlstyle{tt}
+\DeclareRobustCommand{\file}[1]{{\small\path{#1}}}
+
+% --------------------------------------------------------------- notation ---
+\newcommand{\errate}{E}
+\newcommand{\inserr}{\varepsilon}
+\newcommand{\stages}{S}
+\newcommand{\kept}{T}
+\newcommand{\escape}{q}
+\newcommand{\Lk}{\mathrm{Lk}}
+\newcommand{\Tw}{\mathrm{Tw}}
+\newcommand{\Wr}{\mathrm{Wr}}
+\newcommand{\TMB}{\mathrm{TMB}}
+\newcommand{\dd}{\mathrm{d}}
+
+\title{\vspace{-1.5cm}\textbf{Formal Genetics}\\[0.35em]
+  \large Proof, Computation and Evidence in Molecular Biology\\[0.55em]
+  \normalsize A Student Textbook in Ten Sections\\[0.9em]
+  \normalsize\itshape In tribute to Rosalind Franklin (1920--1958),\\
+  \normalsize\itshape who produced the evidence}
+\author{Xavier Callens\\
+  \small SocrateAI Scientific Research \& Formal Verification Laboratory\\
+  \small \href{https://github.com/xaviercallens/SocrateAI-Scientific-Genetic}{\texttt{SocrateAI-Scientific-Genetic}}}
+\date{October 2026}
+
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+
+\input{sections/dedication_franklin}
+
+\begin{abstract}
+\noindent
+This book teaches molecular genetics to students who want to know \emph{why} a
+quantitative claim about a cell should be believed. Each of its ten sections
+develops one piece of biology three times over: as a mathematical argument the
+reader works through by hand, as a theorem checked by the Lean~4 kernel, and as
+a number produced by a solver or by topological analysis of a real dataset.
+Where those three agree, we say so. Where they do not, we say that instead.
+
+The organising case is a refutation. An earlier edition of this material taught
+that the cancer-associated polymerase variant \texttt{POLE} \texttt{p.Pro286Arg}
+acts by removing proofreading stages. Section~3 proves a no-go theorem showing
+that no model of that kind can reproduce the measured phenotype, and Section~4
+shows the measurement that breaks it by a factor of~$52$. The mechanism is
+retracted in these pages rather than defended. We think a student learns more
+from one worked refutation than from ten confirmations, and the book is built
+around that conviction: every section closes with an \emph{epistemic ledger}
+separating what was measured, what was assumed, and what was proved.
+
+Formal proof earns its place here for a specific and limited reason. It does not
+make biology certain. It makes a modelling hypothesis precise enough to be
+refuted --- which is what happened to ours.
+\end{abstract}
+
+\vspace{0.5em}
+\begin{objectives}
+\textbf{How to read this book.} Every section follows the same seven-part
+pattern, so you always know where you are:
+\begin{enumerate}[leftmargin=*,itemsep=1pt,topsep=2pt]
+  \item \textbf{Biological setting} --- what the cell is doing, with database identifiers.
+  \item \textbf{Mathematical development} --- the derivation, done by hand, nothing skipped.
+  \item \textbf{Formalisation} --- the same statement in Lean~4, with the axiom gate's verdict.
+  \item \textbf{Numerical resolution} --- a solver reproduces the quantity; the script is named.
+  \item \textbf{Data} --- real sequences, variants or structures, retrieved live or cited.
+  \item \textbf{Worked example and exercises} --- solutions in Appendix~\ref{app:solutions}.
+  \item \textbf{Epistemic ledger} --- measured, assumed, proved, and open.
+\end{enumerate}
+Sections 1--4 are the spine and should be read in order. Sections 5--9 are
+largely independent. Section 10 depends on 3, 4 and 7.
+\end{objectives}
+
+\tableofcontents
+\newpage
+
+% --- sections are managed as separate files -------------------------------
+\input{sections/sec01_proof_and_cell}
+\input{sections/sec02_kinetic_proofreading}
+\input{sections/sec03_nogo_theorem}
+\input{sections/sec04_pole_refutation}
+\input{sections/sec05_mismatch_repair}
+\input{sections/sec06_mutation_accumulation}
+\input{sections/sec07_variant_landscapes}
+\input{sections/sec08_topological_genomics}
+\input{sections/sec09_dna_topology}
+\input{sections/sec10_model_to_clinic}
+
+\appendix
+\input{sections/appendix_solutions}
+\input{sections/appendix_reproducibility}
+
+\end{document}
