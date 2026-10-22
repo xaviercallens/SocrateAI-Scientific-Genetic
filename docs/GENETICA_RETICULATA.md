@@ -888,13 +888,53 @@ anything in the original plan:
    one coordinate system. That removes the aligner from the trust surface and
    the admissibility gate with it. Licence: pango-designation is CC BY-NC 4.0,
    non-commercial.
-2. **The head-to-head that has not been run.** The established no-clock
-   competitor is Bruen's Φw, whose published false-positive rate is **5.7%**
-   where NSS gives **37.5%** on the same non-recombinant control, and the
-   quartet-averaged treelikeness tests (mean δq, tree proportion) hold a correct
-   ~5% rate where mode δq and proportion-of-resolved-quartets **fail as tests**.
-   Until the quartet certificate is compared against those on the same
-   alignments, its standing is unestablished.
+2. **The head-to-head has now been run, and the incumbent is not beaten.**
+   `incompat::phi_test` implements a restricted pairwise-homoplasy index — the
+   four-gamete test on biallelic, parsimony-informative, gap-free columns, with
+   the site-order permutation null of Bruen, Philippe and Bryant. Both tests run
+   on the same alignments under the same complete-deletion policy. Because Φw is
+   a count of compatible neighbouring pairs over a count of pairs, and the pair
+   count is invariant under permutation, the permutation test compares integers:
+   exact, like the certificate.
+
+   | dataset | reticulation | Φw significant at 0.05 | our quartet margin above D1's floor | agree |
+   | :--- | :--: | :--: | :--: | :--: |
+   | D1 clonal, strict clock | no | 0/5 | 0/5 | yes |
+   | D2 clonal, **relaxed clock** | no | **0/5** | 0/5 | yes |
+   | D3 one recombinant | yes | 5/5 | 5/5 | yes |
+   | D4 relaxed clock + one recombinant | yes | 5/5 | 5/5 | yes |
+   | D5 reciprocal mosaics | yes | 5/5 | 5/5 | yes |
+   | D6 gap blocks | no | **no measurement** | 5/5 | no |
+   | D7 saturated | no | **0/5** | 5/5 | no |
+
+   **On the five datasets where both can be measured and the comparison is
+   commensurable, the two tests agree exactly.** Both are specific on the
+   strict-clock *and* the relaxed-clock null — so Φw is untouched by the confound
+   that destroyed our triple statistic, exactly as its no-clock null implies —
+   and both detect all three reticulate populations at every seed. The incumbent
+   is not beaten on power, and **this method's case cannot rest on power.** That
+   is a correction to how Paper F edition 1 framed the missing comparison: it
+   was framed as the validation we lacked, and it turns out to be a tie.
+
+   Two asymmetries appear, one each way. The incumbent needs **no recalibration
+   when divergence changes** — it is specific on D7 at ten times the divergence,
+   where our raw margin against D1's floor fires at 5/5. That 5/5 is the
+   incommensurability already recorded three times in this document rather than
+   a measured false positive (D7's denominator and divergence are not D1's), and
+   the matched-floor machinery of §11.6 exists for it; but needing a matched null
+   at all is a real cost the incumbent does not pay. Conversely the incumbent
+   returns **no measurement** on the gap-blocked dataset, having too few
+   biallelic gap-free informative columns, where complete deletion still works.
+
+   What this method has that the incumbent does not is not power: it is an
+   **exhibitable witness** a kernel recomputes, and the **absence of a
+   permutation null**. The second is load-bearing given §11.3 — the RDP5 manual
+   states misalignment artefacts are detected with significant p-values in the
+   real alignment yet are undetectable in the shuffled alignments, so a
+   site-order permutation null, which is precisely Φw's null, is blind by
+   construction to the artefact class our ladder measures. Neither claim is
+   established by this grid, and both are now stated as the actual case rather
+   than power.
 3. **Buneman's converse is formalisable, and the first step is now done.** The
    constructive proof factors through the Gromov product rather than attacking
    the tree directly, and that reduction is pure algebra. It is now proved:

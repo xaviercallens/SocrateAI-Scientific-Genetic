@@ -47,7 +47,9 @@ and the Gromov Hinge of Buneman's Converse}}
 \small SocrateAI Scientific Research \& Formal Verification Laboratory\\
 \small Formal artifacts: \texttt{ANSE.GeneticaReticulata},
 \texttt{ANSE.GeneticaReticulataTree} (Lean 4)}
-\date{Edition 1, 22 October 2026. \textbf{Not peer reviewed.}}
+\date{Edition 2, 22 October 2026. Adds the head-to-head against the pairwise
+homoplasy index (\S\ref{sec:headtohead}), which edition 1 listed as a missing
+comparison, and revises the claims it licenses. \textbf{Not peer reviewed.}}
 
 \begin{document}
 \maketitle
@@ -98,6 +100,19 @@ statistic we report is a maximum over subsets where the established treelikeness
 tests are averages; run seed-paired against the hard null, the maximum separates
 $16.57\times$ against $5.07\times$ for mean $\delta_q$ and $1.22\times$ for the
 proportion of violating quadruples.
+
+Edition~1 listed the missing head-to-head as its chief limitation. We now run it
+against the one incumbent whose null also assumes no clock, the pairwise
+homoplasy index, on the same alignments under the same deletion policy, and the
+result revises what this method may claim. \textbf{On the five populations where
+both tests can be measured the two agree exactly}: both are specific on the
+strict-clock \emph{and} the relaxed-clock null, and both detect all three
+reticulate populations at every seed. The incumbent is not beaten on power, so
+the case for a certificate cannot rest on power. It rests instead on two things
+the comparison does not touch --- an exhibitable witness a kernel recomputes, and
+the absence of a permutation null, which matters because the artefact class we
+measure in Section~\ref{sec:aligner} is reported to be invisible to exactly that
+kind of null.
 
 Finally we prove the hinge of Buneman's converse, which this programme had only
 cited: a symmetric dissimilarity satisfies the four-point condition if and only
@@ -152,7 +167,9 @@ Section~\ref{sec:aligner} is the paper's main empirical contribution: the
 alignment step is on the trust surface, and this is how large it is.
 Section~\ref{sec:band} reports the proxy inside our own apparatus that failed and
 what it had inflated. Section~\ref{sec:maxmean} prices the maximum against the
-average. Section~\ref{sec:real} runs the test on real viral populations.
+average, and Section~\ref{sec:headtohead} runs the comparison against the
+incumbent that edition~1 was missing. Section~\ref{sec:real} runs the test on
+real viral populations.
 Section~\ref{sec:gromov} proves the hinge of Buneman's converse.
 Section~\ref{sec:limits} says what would make all of it wrong.
 
@@ -529,6 +546,96 @@ one; our grid is all at one size. Both statistics are therefore reported, and
 only the maximum is exact and kernel-checkable, because a mean has no witness to
 exhibit. That is the trade, and it is now priced rather than assumed.
 
+\section{The head-to-head against the incumbent}\label{sec:headtohead}
+
+A method should be compared with what it hopes to improve on, and edition~1 of
+this paper did not do that. The relevant incumbent is not one of the many tests
+that assume a clock --- those fail the control of Section~\ref{sec:refute} by
+construction --- but the one whose null assumes \textbf{site-order
+exchangeability} and nothing about rates: the pairwise homoplasy index of Bruen,
+Philippe and Bryant~\cite{bruen}. Like the four-point condition it is immune by
+design to the relaxed-clock confound, so a comparison between them is about
+power and about what each licenses, not about survival.
+
+We implement a restricted form. Two biallelic sites are \emph{incompatible} when
+all four combinations of their states occur among the sequences --- the
+four-gamete test. Under a single tree, compatibility between two sites does not
+depend on their separation in the alignment; under recombination it does, since
+neighbouring sites tend to share a local history. The statistic $\Phi_w$ is the
+mean compatibility of informative sites within a window $w$, and the null comes
+from permuting the site order. Two restrictions are stated rather than hidden:
+only biallelic parsimony-informative columns are used, so the four-gamete test is
+exact and needs no multistate refinement; and columns with a gap in any member
+are skipped, which is the same complete-deletion policy the certificate uses, so
+both tests see the same data. This is not the published statistic in full and we
+do not present it as such.
+
+One property of the implementation is worth noting. $\Phi_w$ is a count of
+compatible neighbouring pairs over a count of pairs, and the pair count is
+invariant under permutation of the site order, so the permutation test compares
+\emph{numerators}: it is exact integer arithmetic, like the certificate, rather
+than a normal approximation.
+
+\begin{table}[h]
+\centering\small
+\caption{Both tests on the same alignments, sixteen taxa, five seeds. Window $50$
+informative sites, $199$ permutations, so the attainable $p$-value floor is
+$1/200$. ``quartet above floor'' is the certificate's margin against the
+strict-clock dataset's floor at the same seed, decided by exact integer
+cross-product.}
+\label{tab:headtohead}
+\begin{tabular}{@{}llccc@{}}
+\toprule
+population & reticulation & $\Phi_w$ at $p \le 0.05$ & quartet above floor & agree \\
+\midrule
+clonal, strict clock            & no  & $0/5$ & $0/5$ & yes \\
+clonal, \textbf{relaxed clock}  & no  & $\mathbf{0/5}$ & $0/5$ & yes \\
+one recombinant                 & yes & $5/5$ & $5/5$ & yes \\
+relaxed clock + one recombinant & yes & $5/5$ & $5/5$ & yes \\
+reciprocal mosaics              & yes & $5/5$ & $5/5$ & yes \\
+gap blocks                      & no  & \textbf{no measurement} & $5/5$ & no \\
+saturated                       & no  & $\mathbf{0/5}$ & $5/5$ & no \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{The result, stated plainly.} On the five populations where both tests
+can be measured and the comparison is commensurable, \textbf{they agree
+exactly}. The incumbent is specific on the relaxed-clock null, as its no-clock
+construction implies, and detects all three reticulate populations at every
+seed; so does the certificate. \textbf{The incumbent is not beaten on power, and
+this method's case cannot rest on power.} Edition~1 framed the missing
+comparison as the validation we lacked; it is a tie, and that is the more useful
+finding.
+
+\paragraph{Two asymmetries, one each way.} The incumbent needs no recalibration
+when divergence changes: it is specific on the saturated population at ten times
+the divergence, where the certificate's raw margin against the strict-clock floor
+fires at $5/5$. We are careful about what that $5/5$ is. The saturated
+population's divergence and denominator are not the floor's, so the comparison is
+not commensurable, and this is the same error --- in a fourth guise --- as
+comparing margins across different denominators; the matched-floor construction
+of Section~\ref{sec:real} exists precisely for it. But \emph{needing} a matched
+null is a cost the incumbent does not pay, and that is a fair point against the
+certificate in deployment. Conversely, on the gap-blocked population the
+incumbent returns \textbf{no measurement at all}, having too few biallelic
+gap-free informative columns once complete deletion is applied, where the
+certificate still works.
+
+\paragraph{What is left once power is off the table.} Two things, and we think
+they are worth more than a power claim. First, a certificate is an
+\textbf{exhibitable witness}: four sequences and six counts that a kernel
+recomputes, so a reader re-verifies the finding without running our search or
+trusting our description of it. Second, and specific to this paper's own
+measurement: the null is a theorem rather than a permutation. The RDP5 manual
+states that misalignment-induced false positives are detected with significant
+$p$-values in the real alignment yet \emph{``will likely be undetectable in the
+shuffled alignments''}~\cite{rdp5}. A site-order permutation null --- which is
+exactly this incumbent's null --- is therefore blind by construction to the
+artefact class Section~\ref{sec:aligner} measures. Neither point is established
+by Table~\ref{tab:headtohead}; both are the actual case for the approach, and
+stating them in place of a power claim is the honest position.
+
 \section{Real populations}\label{sec:real}
 
 Five viral taxa were drawn from a public corpus of $58\,046$ viral genomes with
@@ -667,9 +774,12 @@ in the literature either, only high-probability sequence-length bounds and
 parametric bootstrap, so this is the field's position and not only ours.
 \item \textbf{Three admissible real populations.} Too few to call the method
 validated, and the aligner that made them admissible is reference-anchored.
-\item \textbf{No head-to-head.} The comparison against $\Phi_w$ and the
-quartet-averaged treelikeness tests on the same alignments has not been run.
-Until it has, this method's standing relative to the incumbents is unestablished.
+\item \textbf{The head-to-head is a tie, not a win}
+(Section~\ref{sec:headtohead}), and it covers one incumbent. The comparison
+against the quartet-averaged treelikeness statistics \emph{used as calibrated
+hypothesis tests} rather than as scores has still not been run, nor against the
+clock-assuming tests, which would fail Section~\ref{sec:refute}'s control but
+are what most practitioners actually use.
 \item \textbf{The statistic is an extreme value.} Section~\ref{sec:maxmean}
 prices this at fixed taxon count only.
 \end{itemize}
@@ -700,6 +810,8 @@ threshold it measures \\
 \texttt{reticulation real-data} & Table~\ref{tab:real} and the kernel verdicts \\
 \texttt{reticulation saturation} & the length-scaling diagnostic behind the
 divergence caution \\
+\texttt{reticulation experiment} \texttt{-{}-phi-window}, \texttt{-{}-phi-permutations}
+& Table~\ref{tab:headtohead}; defaults $50$ and $199$ \\
 \texttt{scripts/reticulata\_hf\_populations.py} & the ten populations, with a
 SHA-256 of the source file \\
 \texttt{lake build ANSE.GeneticaReticulataTree} & the theorems, with
@@ -711,7 +823,7 @@ SHA-256 of the source file \\
 All are deterministic given their seeds. The population extraction is
 deterministic given the source corpus, whose digest, filters and every selected
 accession are recorded in \texttt{provenance.json}. Verification at the release:
-$88$ library and $2$ integration tests in Rust; Lean $18/18$ and $14/14$
+$93$ library and $2$ integration tests in Rust; Lean $18/18$ and $14/14$
 declarations with zero \texttt{sorry} and no unwhitelisted axioms; $33$ Python
 tests; an anti-stub audit over $227$ files.
 

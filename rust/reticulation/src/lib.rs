@@ -171,6 +171,7 @@ pub mod certificate;
 pub mod distance;
 pub mod emit_lean;
 pub mod exact;
+pub mod incompat;
 pub mod rips;
 pub mod simulate;
 pub mod subset;
@@ -183,6 +184,7 @@ pub use align::{
 pub use certificate::{Certificate, CertificateReport, FourPointDefect};
 pub use distance::{DistanceMatrix, DistanceModel};
 pub use exact::{CountCertificate, ExactDistances, Ratio};
+pub use incompat::{compatible, informative_sites, phi_test, BiallelicSite, PhiTest};
 pub use rips::{CycleRepresentative, RipsPersistence};
 pub use subset::{
     quartet_distribution, Alignment, CompleteTripleCertificate, QuadrupleCounts,

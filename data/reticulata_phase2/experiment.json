@@ -1011,6 +1011,310 @@
     "why_several_seeds": "A single-seed margin is not a result. Each prediction reports the number of seeds at which it held, not an average of margins."
   },
   "experiment": "Does the four-point (tree-level) test separate reticulation from rate variation, where the ultrametric (clock-level) test cannot? And does complete deletion within the subset remove the gap confound of the audit's finding 6?",
+  "head_to_head_against_pairwise_homoplasy": {
+    "how_to_read_the_side_by_side": "`our_quartet_margin_above_D1_floor` uses D1's floor at the same seed, which is commensurable only where the dataset's divergence and denominator match D1's. On D7 (ten times the divergence) and D6 (gap blocks, hence a different denominator) it is NOT, and a 5/5 there is the incommensurability this project has already recorded three times, not a measured false positive. The real-data command uses a MATCHED floor for exactly this reason. What the column does show, where it is commensurable, is whether the two tests reach the same verdict on the same alignment.",
+    "per_dataset": [
+      {
+        "dataset": "D1_clonal_strict_clock",
+        "informative_sites": 212,
+        "lift_over_permuted_mean_per_seed": [
+          -0.001958855941907922,
+          -0.002705558641536654,
+          0.0010601309419158156,
+          -0.00010133771349829512,
+          -0.0003319047553845822
+        ],
+        "our_quartet_margin_above_D1_floor": "0/5",
+        "p_value_floor": 0.005,
+        "p_value_per_seed": [
+          0.89,
+          0.97,
+          0.25,
+          0.51,
+          0.62
+        ],
+        "permuted_mean_per_seed": [
+          0.9782591240384226,
+          0.9848135277932076,
+          0.9809764225828883,
+          0.9704060468547725,
+          0.9842011145646489
+        ],
+        "phi_w_exact_per_seed": [
+          "9104/9325",
+          "9551/9725",
+          "9403/9575",
+          "8757/9025",
+          "9027/9175"
+        ],
+        "phi_w_per_seed": [
+          0.9763002680965147,
+          0.982107969151671,
+          0.9820365535248041,
+          0.9703047091412742,
+          0.9838692098092643
+        ],
+        "reticulation_present": false,
+        "seeds_measured": 5,
+        "significant_at_0.05": "0/5",
+        "the_two_tests_agree": true
+      },
+      {
+        "dataset": "D2_clonal_relaxed_clock",
+        "informative_sites": 211,
+        "lift_over_permuted_mean_per_seed": [
+          0.0015701147245662517,
+          0.00010657313412698599,
+          0.0013717367324427299,
+          -0.0006722752338470528,
+          0.0
+        ],
+        "our_quartet_margin_above_D1_floor": "0/5",
+        "p_value_floor": 0.005,
+        "p_value_per_seed": [
+          0.18,
+          0.485,
+          0.22,
+          0.605,
+          1.0
+        ],
+        "permuted_mean_per_seed": [
+          0.9822573785368893,
+          0.9733162456578193,
+          0.99355509253585,
+          0.9837434362825362,
+          1.0
+        ],
+        "phi_w_exact_per_seed": [
+          "9125/9275",
+          "10878/11175",
+          "5099/5125",
+          "6562/6675",
+          "2525/2525"
+        ],
+        "phi_w_per_seed": [
+          0.9838274932614556,
+          0.9734228187919463,
+          0.9949268292682927,
+          0.9830711610486892,
+          1.0
+        ],
+        "reticulation_present": false,
+        "seeds_measured": 5,
+        "significant_at_0.05": "0/5",
+        "the_two_tests_agree": true
+      },
+      {
+        "dataset": "D3_strict_clock_one_recombinant",
+        "informative_sites": 224,
+        "lift_over_permuted_mean_per_seed": [
+          0.04023391516777841,
+          0.031641581400980834,
+          0.04801939107301212,
+          0.049021732036807486,
+          0.03940706036447905
+        ],
+        "our_quartet_margin_above_D1_floor": "5/5",
+        "p_value_floor": 0.005,
+        "p_value_per_seed": [
+          0.005,
+          0.005,
+          0.005,
+          0.005,
+          0.005
+        ],
+        "permuted_mean_per_seed": [
+          0.9262144475526246,
+          0.9463825149845614,
+          0.9215806089269879,
+          0.9108743718592964,
+          0.9304175010390298
+        ],
+        "phi_w_exact_per_seed": [
+          "9592/9925",
+          "10147/10375",
+          "10302/10625",
+          "9239/9625",
+          "9674/9975"
+        ],
+        "phi_w_per_seed": [
+          0.966448362720403,
+          0.9780240963855422,
+          0.9696,
+          0.9598961038961039,
+          0.9698245614035088
+        ],
+        "reticulation_present": true,
+        "seeds_measured": 5,
+        "significant_at_0.05": "5/5",
+        "the_two_tests_agree": true
+      },
+      {
+        "dataset": "D4_relaxed_clock_one_recombinant",
+        "informative_sites": 234,
+        "lift_over_permuted_mean_per_seed": [
+          0.09009459768868322,
+          0.104905196594412,
+          0.027923503774798242,
+          0.05624687008927798,
+          0.03356942191271317
+        ],
+        "our_quartet_margin_above_D1_floor": "5/5",
+        "p_value_floor": 0.005,
+        "p_value_per_seed": [
+          0.005,
+          0.005,
+          0.005,
+          0.005,
+          0.005
+        ],
+        "permuted_mean_per_seed": [
+          0.8729749466758252,
+          0.8502821801314263,
+          0.944588344566434,
+          0.9045778721787633,
+          0.9009187670636648
+        ],
+        "phi_w_exact_per_seed": [
+          "10040/10425",
+          "12107/12675",
+          "5130/5275",
+          "6990/7275",
+          "2967/3175"
+        ],
+        "phi_w_per_seed": [
+          0.9630695443645084,
+          0.9551873767258383,
+          0.9725118483412323,
+          0.9608247422680413,
+          0.934488188976378
+        ],
+        "reticulation_present": true,
+        "seeds_measured": 5,
+        "significant_at_0.05": "5/5",
+        "the_two_tests_agree": true
+      },
+      {
+        "dataset": "D5_strict_clock_reciprocal_mosaics",
+        "informative_sites": 239,
+        "lift_over_permuted_mean_per_seed": [
+          0.08171301472232362,
+          0.07612432873750896,
+          0.08829540963243188,
+          0.11313570192884803,
+          0.08320189181200122
+        ],
+        "our_quartet_margin_above_D1_floor": "5/5",
+        "p_value_floor": 0.005,
+        "p_value_per_seed": [
+          0.005,
+          0.005,
+          0.005,
+          0.005,
+          0.005
+        ],
+        "permuted_mean_per_seed": [
+          0.8723853459334141,
+          0.8911067925439555,
+          0.8729630173338603,
+          0.8310329163381309,
+          0.8779275199527047
+        ],
+        "phi_w_exact_per_seed": [
+          "10185/10675",
+          "10567/10925",
+          "10694/11125",
+          "10079/10675",
+          "10212/10625"
+        ],
+        "phi_w_per_seed": [
+          0.9540983606557377,
+          0.9672311212814645,
+          0.9612584269662922,
+          0.944168618266979,
+          0.9611294117647059
+        ],
+        "reticulation_present": true,
+        "seeds_measured": 5,
+        "significant_at_0.05": "5/5",
+        "the_two_tests_agree": true
+      },
+      {
+        "dataset": "D6_strict_clock_gap_blocks",
+        "informative_sites": null,
+        "lift_over_permuted_mean_per_seed": [],
+        "our_quartet_margin_above_D1_floor": "5/5",
+        "p_value_floor": null,
+        "p_value_per_seed": [],
+        "permuted_mean_per_seed": [],
+        "phi_w_exact_per_seed": [],
+        "phi_w_per_seed": [],
+        "reticulation_present": false,
+        "seeds_measured": 0,
+        "significant_at_0.05": "0/5",
+        "the_two_tests_agree": false
+      },
+      {
+        "dataset": "D7_strict_clock_saturated",
+        "informative_sites": 1046,
+        "lift_over_permuted_mean_per_seed": [
+          0.0011404400739611908,
+          0.0009563902083630227,
+          -0.0031690639931846176,
+          0.00024159753148100815,
+          -0.0015391241923905508
+        ],
+        "our_quartet_margin_above_D1_floor": "5/5",
+        "p_value_floor": 0.005,
+        "p_value_per_seed": [
+          0.23,
+          0.3,
+          0.975,
+          0.475,
+          0.805
+        ],
+        "permuted_mean_per_seed": [
+          0.8607899861876752,
+          0.8501621887642726,
+          0.8388054276295482,
+          0.8421366700236189,
+          0.8388524074004106
+        ],
+        "phi_w_exact_per_seed": [
+          "43980/51025",
+          "44322/52075",
+          "42513/50875",
+          "41087/48775",
+          "41761/49875"
+        ],
+        "phi_w_per_seed": [
+          0.8619304262616364,
+          0.8511185789726357,
+          0.8356363636363636,
+          0.8423782675550999,
+          0.83731328320802
+        ],
+        "reticulation_present": false,
+        "seeds_measured": 5,
+        "significant_at_0.05": "0/5",
+        "the_two_tests_agree": false
+      }
+    ],
+    "permutations": 199,
+    "read_the_floor": "A p-value equal to p_value_floor means `as extreme as this many permutations can report`, not a smaller number. Section 8 of the textbook was burned by exactly this.",
+    "the_two_questions": {
+      "does_it_survive_the_strict_clock_control": "0/5",
+      "does_the_incumbent_survive_the_relaxed_clock_control": "0/5",
+      "note": "A count of 0/5 on D1 and D2 with 5/5 on D3 and D5 would mean the incumbent is a fair competitor that the relaxed-clock confound does not touch, and the comparison is then about power, exhibitability and what each test licenses -- not about survival.",
+      "power_on_one_recombinant": "5/5",
+      "power_on_reciprocal_mosaics": "5/5"
+    },
+    "what_is_implemented": "A restricted form: only biallelic parsimony-informative, gap-free columns, so the four-gamete test is exact and needs no multistate refinement. Phi_w is a count of compatible neighbouring pairs over a count of pairs, and the pair count is invariant under permutation, so the permutation test compares integers. This is NOT the published statistic in full and is not presented as such.",
+    "what_this_method_has_that_the_incumbent_does_not": "An exhibitable witness: the certificate is four sequences and six counts that a kernel recomputes, so a reader re-verifies the finding without running the search. And no permutation null: the RDP5 manual states that misalignment-induced false positives are detected with significant p-values in the real alignment yet are undetectable in the shuffled alignments, so a site-order permutation null -- which is exactly this incumbent's null -- is blind by construction to the artefact class that `align-error` measures. Neither of those is a power claim, and neither is established by this grid.",
+    "what_this_run_found": "On the five datasets where both tests can be measured and the comparison is commensurable (D1-D5) the two AGREE exactly: both are specific on the strict-clock and the relaxed-clock null, and both detect all three reticulate populations at every seed. The incumbent is therefore not beaten on power here, and this method's case cannot rest on power. Two asymmetries do appear, one each way. The incumbent needs no recalibration when divergence changes, where our raw margin needs a matched null to be read at all. And the incumbent returns NO MEASUREMENT on the gap-blocked dataset, having too few biallelic gap-free informative columns, where the complete-deletion certificate still works.",
+    "why": "Paper F listed as its own limitation that no comparison against the established tests had been run. The relevant incumbent is the one whose null also assumes no molecular clock -- the pairwise homoplasy index of Bruen, Philippe and Bryant (Genetics 172:2665-2681, 2006), whose null is site-order exchangeability. Both tests here run on the same alignments under the same complete-deletion policy.",
+    "window_in_informative_sites": 50
+  },
   "max_versus_mean": {
     "reference_null": "D2_clonal_relaxed_clock -- clonal descent, no                     reticulation whatever, divergence-matched relaxed clock. The                     hard null, not the easy one.",
     "statistics": [

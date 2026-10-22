@@ -37,7 +37,7 @@ from typing import Any, Dict, List
 HERE = Path(__file__).resolve().parents[1]
 REPO = HERE.parents[2]
 ZENODO = "https://zenodo.org/api"
-RECEIPT = HERE / "data" / "zenodo_paper_f_receipt.json"
+RECEIPT = HERE / "data" / "zenodo_paper_f_edition2_receipt.json"
 STEM = "PaperF_Reticulate_Evolution_TreeLevel_Null_Lean4"
 
 TITLE = (
@@ -95,6 +95,16 @@ statistic is a maximum over subsets where the established treelikeness tests are
 averages; run seed-paired against the hard null, the maximum separates 16.57x
 against 5.07x for mean delta_q and 1.22x for the proportion of violating
 quadruples.</p>
+
+<p><strong>New in edition 2.</strong> The head-to-head edition 1 listed as its
+chief limitation has been run, against the one incumbent whose null also assumes
+no clock. On the five populations where both tests can be measured <em>they agree
+exactly</em>: both specific on the strict-clock and the relaxed-clock null, both
+detecting all three reticulate populations at every seed. The incumbent is not
+beaten on power, so the paper's claims are revised &mdash; the case rests on an
+exhibitable witness and on the absence of a permutation null, not on power. Two
+asymmetries are reported, one each way: the incumbent needs no recalibration when
+divergence changes, and it returns no measurement at all on gap-blocked data.</p>
 
 <p><strong>A new theorem.</strong> The hinge of Buneman's converse, which this
 programme had only cited, is proved: a symmetric dissimilarity satisfies the
@@ -210,12 +220,59 @@ def bundle() -> List[Path]:
     return files
 
 
+def new_version(previous: int, tok: str, files, metadata):
+    """Deposit as a NEW VERSION of an existing record, never as a fresh record.
+
+    The project rule, learned the hard way: a corrected edition published as a
+    new record leaves the old one as a separate citable artefact with no link to
+    its correction. `/actions/newversion` keeps one concept DOI resolving to the
+    latest edition.
+    """
+    draft = req(
+        "POST",
+        f"{ZENODO}/deposit/depositions/{previous}/actions/newversion",
+        tok,
+    )
+    latest = draft["links"]["latest_draft"]
+    deposition = req("GET", latest, tok)
+    deposition_id = deposition["id"]
+    print(f"new version draft {deposition_id} of record {previous}")
+
+    # A new version inherits the previous version's files; drop them so the
+    # bundle is exactly what this edition says it is.
+    for old in deposition.get("files", []):
+        req(
+            "DELETE",
+            f"{ZENODO}/deposit/depositions/{deposition_id}/files/{old['id']}",
+            tok,
+        )
+    print(f"  cleared {len(deposition.get('files', []))} inherited files")
+
+    req(
+        "PUT",
+        f"{ZENODO}/deposit/depositions/{deposition_id}",
+        tok,
+        json.dumps(metadata).encode(),
+    )
+    return deposition_id, deposition["links"]["bucket"]
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--dry-run",
         action="store_true",
         help="assemble and check the bundle, contact nothing",
+    )
+    parser.add_argument(
+        "--new-version-of",
+        type=int,
+        default=23574921,
+        help=(
+            "deposit as a new version of this published record id, which is the "
+            "only correct way to publish a corrected edition; 0 creates a fresh "
+            "record and should only be used for a first deposit"
+        ),
     )
     args = parser.parse_args()
 
@@ -238,7 +295,7 @@ def main() -> int:
             "keywords": KEYWORDS,
             "license": "cc-by-4.0",
             "access_right": "open",
-            "version": "edition-1",
+            "version": "edition-2",
             "language": "eng",
             "related_identifiers": [
                 {
@@ -253,15 +310,18 @@ def main() -> int:
         }
     }
 
-    deposition = req(
-        "POST",
-        f"{ZENODO}/deposit/depositions",
-        tok,
-        json.dumps(metadata).encode(),
-    )
-    deposition_id = deposition["id"]
-    bucket = deposition["links"]["bucket"]
-    print(f"created deposition {deposition_id}")
+    if args.new_version_of:
+        deposition_id, bucket = new_version(args.new_version_of, tok, files, metadata)
+    else:
+        deposition = req(
+            "POST",
+            f"{ZENODO}/deposit/depositions",
+            tok,
+            json.dumps(metadata).encode(),
+        )
+        deposition_id = deposition["id"]
+        bucket = deposition["links"]["bucket"]
+        print(f"created deposition {deposition_id}")
 
     uploaded: Dict[str, str] = {}
     for path in files:
@@ -311,7 +371,7 @@ def main() -> int:
         "state": published.get("state"),
         "submitted": published.get("submitted"),
         "title": TITLE,
-        "version": "edition-1",
+        "version": "edition-2",
         "files_uploaded": uploaded,
         "peer_reviewed": False,
         "note": (

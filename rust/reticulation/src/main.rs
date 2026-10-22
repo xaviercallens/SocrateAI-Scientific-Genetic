@@ -512,6 +512,10 @@ struct SeedResult {
     policy: reticulation::subset::PolicyComparison,
     /// The averaged quartet statistics, for the max-versus-mean comparison.
     distribution: reticulation::subset::QuartetDistribution,
+    /// The incumbent: the restricted pairwise-homoplasy test, on the same
+    /// alignment. `None` when the alignment has too few informative sites for
+    /// the window, which is reported rather than coerced to a number.
+    phi: Option<reticulation::PhiTest>,
 }
 
 /// Exact comparison `a > k * b`, by integer cross-product.
@@ -542,7 +546,12 @@ fn margin_exact(m: Option<reticulation::Ratio>) -> String {
 }
 
 /// Run both searches on one population.
-fn measure(pop: &reticulation::simulate::Population, max_quadruples: usize) -> Result<SeedResult, String> {
+fn measure(
+    pop: &reticulation::simulate::Population,
+    max_quadruples: usize,
+    phi_window: usize,
+    phi_permutations: usize,
+) -> Result<SeedResult, String> {
     use reticulation::exact::{find_count_certificates, ExactDistances};
     use reticulation::subset::{
         compare_deletion_policies, find_complete_triple_certificates, find_quartet_certificates,
@@ -576,6 +585,10 @@ fn measure(pop: &reticulation::simulate::Population, max_quadruples: usize) -> R
         }),
         policy,
         distribution: quartet_distribution(&aln, max_quadruples)?,
+        // The competitor runs on the same alignment, under the same
+        // complete-deletion policy, so the comparison is not confounded by the
+        // two tests seeing different data.
+        phi: reticulation::phi_test(&aln, phi_window, phi_permutations, 20_261_022).ok(),
     })
 }
 
@@ -607,6 +620,12 @@ fn run_experiment(args: &[String]) -> Result<bool, String> {
     let n_seeds: usize = parse_flag(args, "--seeds", 5);
     let seed0: u64 = parse_flag(args, "--seed", 2026);
     let max_quadruples: usize = parse_flag(args, "--max-quadruples", 20_000);
+    // The incumbent's parameters. 199 permutations is the count the published
+    // treelikeness test uses, and it puts the attainable p-value floor at
+    // 1/200 = 0.005, which is reported alongside every p-value so that a
+    // floor-level result is not read as a smaller number than it is.
+    let phi_window: usize = parse_flag(args, "--phi-window", 50);
+    let phi_permutations: usize = parse_flag(args, "--phi-permutations", 199);
 
     let seeds: Vec<u64> = (0..n_seeds).map(|i| seed0 + i as u64).collect();
 
@@ -614,7 +633,7 @@ fn run_experiment(args: &[String]) -> Result<bool, String> {
     let mut results: std::collections::BTreeMap<&str, Vec<SeedResult>> = Default::default();
     for &seed in &seeds {
         let mut push = |name: &'static str, pop: reticulation::simulate::Population| -> Result<(), String> {
-            let mut r = measure(&pop, max_quadruples)?;
+            let mut r = measure(&pop, max_quadruples, phi_window, phi_permutations)?;
             r.seed = seed;
             results.entry(name).or_default().push(r);
             Ok(())
@@ -725,6 +744,79 @@ fn run_experiment(args: &[String]) -> Result<bool, String> {
             })
             .fold(f64::INFINITY, f64::min)
     };
+
+    // --- the head-to-head against the incumbent --------------------------------
+    // Paper F listed, as its own limitation, that this comparison had not been
+    // run. The incumbent is the one whose null also assumes NO clock: the
+    // pairwise homoplasy index. Both tests run on the same alignments under the
+    // same deletion policy, so the comparison is not about who saw what.
+    //
+    // Two questions, in this order. Does the incumbent survive the control that
+    // destroyed our triple statistic -- a clonal population with a relaxed
+    // clock? And where both survive it, which has more power?
+    let phi_significant = |name: &str, alpha: f64| -> Vec<bool> {
+        get(name)
+            .iter()
+            .map(|r| r.phi.as_ref().is_some_and(|p| p.p_value <= alpha))
+            .collect()
+    };
+    // Our own statistic's verdict on the same dataset, by the same rule the
+    // power predictions use: does the quartet margin exceed D1's floor at the
+    // SAME seed? Seed-paired and decided by exact integer cross-product.
+    let ours_above_floor = |name: &str| -> Vec<bool> {
+        get(name)
+            .iter()
+            .zip(d1.iter())
+            .map(|(r, base)| exceeds_k_times(r.quartet_margin, base.quartet_margin, 1))
+            .collect()
+    };
+    let phi_rows: Vec<serde_json::Value> = [
+        "D1_clonal_strict_clock",
+        "D2_clonal_relaxed_clock",
+        "D3_strict_clock_one_recombinant",
+        "D4_relaxed_clock_one_recombinant",
+        "D5_strict_clock_reciprocal_mosaics",
+        "D6_strict_clock_gap_blocks",
+        "D7_strict_clock_saturated",
+    ]
+    .iter()
+    .map(|name| {
+        let rows = get(name);
+        let available: Vec<&reticulation::PhiTest> =
+            rows.iter().filter_map(|r| r.phi.as_ref()).collect();
+        serde_json::json!({
+            "dataset": name,
+            "reticulation_present": matches!(
+                *name,
+                "D3_strict_clock_one_recombinant"
+                    | "D4_relaxed_clock_one_recombinant"
+                    | "D5_strict_clock_reciprocal_mosaics"
+            ),
+            "seeds_measured": available.len(),
+            "informative_sites": available.first().map(|p| p.informative_sites),
+            "phi_w_exact_per_seed": available
+                .iter()
+                .map(|p| format!("{}/{}", p.phi_w_num, p.phi_w_den))
+                .collect::<Vec<String>>(),
+            "phi_w_per_seed": available.iter().map(|p| p.phi_w).collect::<Vec<f64>>(),
+            "permuted_mean_per_seed": available
+                .iter()
+                .map(|p| p.permuted_mean_phi_w)
+                .collect::<Vec<f64>>(),
+            "lift_over_permuted_mean_per_seed": available
+                .iter()
+                .map(|p| p.phi_w - p.permuted_mean_phi_w)
+                .collect::<Vec<f64>>(),
+            "p_value_per_seed": available.iter().map(|p| p.p_value).collect::<Vec<f64>>(),
+            "p_value_floor": available.first().map(|p| p.p_value_floor),
+            "significant_at_0.05": frac(&phi_significant(name, 0.05)),
+            "our_quartet_margin_above_D1_floor": frac(&ours_above_floor(name)),
+            "the_two_tests_agree": available.len() == rows.len()
+                && held_at(&phi_significant(name, 0.05)).0
+                    == held_at(&ours_above_floor(name)).0,
+        })
+    })
+    .collect();
 
     // --- the max-versus-mean head-to-head -------------------------------------
     // The certificate's statistic is a MAXIMUM over quadruples. The published
@@ -1036,6 +1128,76 @@ fn run_experiment(args: &[String]) -> Result<bool, String> {
                 "observed_D3": frac(&p8), "observed_D4": frac(&p8b),
             },
         ],
+        "head_to_head_against_pairwise_homoplasy": {
+            "why": "Paper F listed as its own limitation that no comparison \
+                    against the established tests had been run. The relevant \
+                    incumbent is the one whose null also assumes no molecular \
+                    clock -- the pairwise homoplasy index of Bruen, Philippe and \
+                    Bryant (Genetics 172:2665-2681, 2006), whose null is \
+                    site-order exchangeability. Both tests here run on the same \
+                    alignments under the same complete-deletion policy.",
+            "what_is_implemented": "A restricted form: only biallelic \
+                    parsimony-informative, gap-free columns, so the four-gamete \
+                    test is exact and needs no multistate refinement. Phi_w is a \
+                    count of compatible neighbouring pairs over a count of pairs, \
+                    and the pair count is invariant under permutation, so the \
+                    permutation test compares integers. This is NOT the published \
+                    statistic in full and is not presented as such.",
+            "window_in_informative_sites": phi_window,
+            "permutations": phi_permutations,
+            "read_the_floor": "A p-value equal to p_value_floor means `as \
+                    extreme as this many permutations can report`, not a smaller \
+                    number. Section 8 of the textbook was burned by exactly this.",
+            "per_dataset": phi_rows,
+            "the_two_questions": {
+                "does_the_incumbent_survive_the_relaxed_clock_control": frac(
+                    &phi_significant("D2_clonal_relaxed_clock", 0.05)),
+                "does_it_survive_the_strict_clock_control": frac(
+                    &phi_significant("D1_clonal_strict_clock", 0.05)),
+                "power_on_one_recombinant": frac(
+                    &phi_significant("D3_strict_clock_one_recombinant", 0.05)),
+                "power_on_reciprocal_mosaics": frac(
+                    &phi_significant("D5_strict_clock_reciprocal_mosaics", 0.05)),
+                "note": "A count of 0/5 on D1 and D2 with 5/5 on D3 and D5 would \
+                         mean the incumbent is a fair competitor that the \
+                         relaxed-clock confound does not touch, and the \
+                         comparison is then about power, exhibitability and what \
+                         each test licenses -- not about survival."
+            },
+            "how_to_read_the_side_by_side": "`our_quartet_margin_above_D1_floor` \
+                    uses D1's floor at the same seed, which is commensurable only \
+                    where the dataset's divergence and denominator match D1's. On \
+                    D7 (ten times the divergence) and D6 (gap blocks, hence a \
+                    different denominator) it is NOT, and a 5/5 there is the \
+                    incommensurability this project has already recorded three \
+                    times, not a measured false positive. The real-data command \
+                    uses a MATCHED floor for exactly this reason. What the column \
+                    does show, where it is commensurable, is whether the two \
+                    tests reach the same verdict on the same alignment.",
+            "what_this_run_found": "On the five datasets where both tests can be \
+                    measured and the comparison is commensurable (D1-D5) the two \
+                    AGREE exactly: both are specific on the strict-clock and the \
+                    relaxed-clock null, and both detect all three reticulate \
+                    populations at every seed. The incumbent is therefore not \
+                    beaten on power here, and this method's case cannot rest on \
+                    power. Two asymmetries do appear, one each way. The incumbent \
+                    needs no recalibration when divergence changes, where our raw \
+                    margin needs a matched null to be read at all. And the \
+                    incumbent returns NO MEASUREMENT on the gap-blocked dataset, \
+                    having too few biallelic gap-free informative columns, where \
+                    the complete-deletion certificate still works.",
+            "what_this_method_has_that_the_incumbent_does_not": "An exhibitable \
+                    witness: the certificate is four sequences and six counts that \
+                    a kernel recomputes, so a reader re-verifies the finding \
+                    without running the search. And no permutation null: the RDP5 \
+                    manual states that misalignment-induced false positives are \
+                    detected with significant p-values in the real alignment yet \
+                    are undetectable in the shuffled alignments, so a site-order \
+                    permutation null -- which is exactly this incumbent's null -- \
+                    is blind by construction to the artefact class that \
+                    `align-error` measures. Neither of those is a power claim, and \
+                    neither is established by this grid.",
+        },
         "max_versus_mean": {
             "why": "The certificate's statistic is a maximum over quadruples, which                     is an extreme-value statistic: its null level grows with the                     number of subsets examined, and this grid shows it -- the                     quartet floor moves from 5-7 at 16 taxa to 9-10 at 32. So                     margins are not comparable across population sizes, which is                     the same incommensurability that has already cost this project                     three criteria. The averaged statistics do not have that                     defect and cannot be certified, because a mean has no witness                     to exhibit. This block measures the price.",
             "these_are_floating_point": "mean_delta_q, proportion_violating and                     q_residual are f64 summaries and are NOT certificates. Only the                     max-margin row is decided by exact integer arithmetic and                     checkable by the Lean kernel. Nothing here changes that                     division.",

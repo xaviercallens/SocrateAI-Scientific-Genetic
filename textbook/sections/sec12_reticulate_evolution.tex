@@ -473,6 +473,75 @@ run on data that was not simulated, with the aligner's contribution bounded by a
 measurement rather than assumed away.
 \end{numerics}
 
+\subsection{What the established test does on the same data}\label{sub:headtohead}
+
+A method should be compared with the thing it hopes to replace, and the first
+edition of this section did not do that. The right comparison is not with one of
+the many recombination tests that assume a clock; it is with the one whose null
+assumes \emph{site-order exchangeability} and no clock at all --- the pairwise
+homoplasy index. Two biallelic sites are \emph{incompatible} when all four
+combinations of their states occur among the sequences. Under a single tree,
+compatibility does not depend on how far apart two sites sit; under
+recombination it does, because neighbouring sites tend to share a local history.
+The statistic is the mean compatibility of neighbouring informative sites, and
+the null comes from permuting the site order.
+
+\begin{numerics}[12.5: the comparison, on the same alignments]
+Both tests run on the same populations under the same complete-deletion policy.
+$\Phi_w$ is a count of compatible neighbouring pairs over a count of pairs, and
+the pair count does not change under permutation, so the permutation test
+compares integers and is exact. Window $50$ informative sites, $199$
+permutations, so the attainable $p$-value floor is $1/200$.
+
+\begin{center}\footnotesize
+\begin{tabular}{@{}llcc@{}}
+\toprule
+population & retic. & $\Phi_w$, $p \le 0.05$ & quartet $>$ floor \\
+\midrule
+clonal, strict clock          & no  & $0/5$ & $0/5$ \\
+clonal, \textbf{relaxed clock} & no  & $\mathbf{0/5}$ & $0/5$ \\
+one recombinant               & yes & $5/5$ & $5/5$ \\
+relaxed clock + recombinant   & yes & $5/5$ & $5/5$ \\
+reciprocal mosaics            & yes & $5/5$ & $5/5$ \\
+gap blocks                    & no  & \textbf{none} & $5/5$ \\
+saturated                     & no  & $\mathbf{0/5}$ & $5/5$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+On the five populations where both tests can be measured and the comparison is
+commensurable, \textbf{they agree exactly}. Both are specific on the
+strict-clock \emph{and} the relaxed-clock null --- so the established test is
+untouched by the confound of \S\ref{sub:relaxed}, as its no-clock null implies
+--- and both detect all three reticulate populations at every seed. The
+incumbent is not beaten on power, and the case for the method in this section
+cannot rest on power.
+
+Two asymmetries appear, one each way. The incumbent needs no recalibration when
+divergence changes: it is specific on the saturated population at ten times the
+divergence, where our raw margin against the strict-clock floor fires at $5/5$.
+That $5/5$ is the incommensurability this book keeps meeting --- the saturated
+population's denominator and divergence are not the floor's --- and the matched
+floor of \S\ref{sub:realdata} exists for it; but needing a matched null at all is
+a cost the incumbent does not pay. Conversely the incumbent returns \emph{no
+measurement} on the gap-blocked population, having too few biallelic gap-free
+informative columns, where complete deletion still works.
+\end{numerics}
+
+\begin{remark}[What is left, once power is off the table]
+Two things, and both are worth more than a power claim. A certificate is an
+\emph{exhibitable witness}: four sequences and six counts that a kernel
+recomputes, so a reader can re-verify the finding without running the search.
+And the null is a theorem rather than a permutation --- which matters here
+specifically, because the manual of the field's dominant tool states that
+misalignment-induced false positives are detected with significant $p$-values in
+the real alignment yet are \emph{undetectable in the shuffled alignments}. A
+site-order permutation null, which is exactly the incumbent's null, is therefore
+blind by construction to the artefact class \S\ref{sub:aligner} measures.
+Neither point is established by the table above; both are the actual case, and
+stating them instead of a power claim is the honest position.
+\end{remark}
+
 \subsection{Worked example and exercises}
 
 \begin{worked}[12.1: a four-point verdict from six integers]
@@ -556,7 +625,8 @@ exponent of $0.5$ and from an exponent of $0$.
 \begin{ledger}
 \textbf{Measured:} the Phase~2 simulation grid (seven populations $\times$ five
 seeds at sixteen taxa, four $\times$ three seeds at thirty-two taxa, exhaustive
-over all quadruples); the deletion-policy comparison; the aligner's
+over all quadruples); the head-to-head against the pairwise homoplasy index on
+the same alignments (\S\ref{sub:headtohead}); the deletion-policy comparison; the aligner's
 admissibility ladder (twelve rungs $\times$ five seeds, true alignments known);
 and ten real populations of sixteen viral genomes from
 \texttt{hiyata/Virus-Host-Genomes}, of which three pass the admissibility gate.
@@ -601,11 +671,12 @@ maximum is exact and kernel-checkable --- a mean has no witness to exhibit. The 
 derived, only simulated at matched parameters. Three admissible populations is
 too few to call the method validated on real data, and the aligner that made
 them admissible is reference-anchored, which drops insertions and relates every
-pair through one reference. No head-to-head against the established tests
----$\Phi_w$, which shares this section's no-clock null and reports a $5.7\%$
-false-positive rate where NSS reports $37.5\%$, or the quartet-averaged
-treelikeness tests --- has been run, and until it has, the case made here is for
-the \emph{discipline} rather than for the statistic. \\
+pair through one reference. The head-to-head against the established no-clock
+test has now been run (\S\ref{sub:headtohead}) and the two agree wherever both
+can be measured, so the case made here is for the \emph{discipline} and for
+exhibitability, not for the statistic's power. A comparison against the
+quartet-averaged treelikeness tests used as calibrated hypothesis tests, rather
+than as scores, is still outstanding. \\
 \textbf{Closed in this edition:} \S\ref{sec:tda}'s negative result is given a
 positive successor whose null is a theorem; the audit finding that pairwise
 deletion can manufacture certificates on gappy data is repaired and quantified;
