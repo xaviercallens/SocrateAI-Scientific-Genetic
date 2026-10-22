@@ -1,0 +1,114 @@
+{
+  "description": "Controls for the reticulation certificate search. The negative control is strictly clonal descent under a strict clock; the positive control adds one recombinant between maximally diverged parents.",
+  "negative_control_clonal": {
+    "criterion": "defect < 0.5 * median pairwise distance",
+    "n_sequences": 16,
+    "note": "finite sequences make clonal data only approximately ultrametric, so a small defect here is expected and is the noise floor the positive control must clear",
+    "passes": true,
+    "triples_examined": 560,
+    "typical_distance": 0.03,
+    "ultrametric_defect": 0.0045000000000000005,
+    "violating_triples": 539
+  },
+  "parameters": {
+    "alignment_length": 4000,
+    "generations": 4,
+    "model": "p-distance",
+    "mu_per_generation": 0.004,
+    "seed": 2026
+  },
+  "positive_control_recombinant": {
+    "all_certificates_validated": true,
+    "criterion": "defect > 2x clonal defect AND the recombinant is the midpoint of a top certificate",
+    "n_sequences": 17,
+    "passes": true,
+    "recombinant_is_a_midpoint": true,
+    "recombinant_label": "recombinant_of_clonal_003_and_clonal_013",
+    "top_certificates": [
+      {
+        "d_xy": 0.01725,
+        "d_xz": 0.03275,
+        "d_yz": 0.0175,
+        "indices": [
+          2,
+          16,
+          13
+        ],
+        "margin": 0.01525,
+        "scale": 0.0175,
+        "x": "clonal_002",
+        "y": "recombinant_of_clonal_003_and_clonal_013",
+        "z": "clonal_013"
+      },
+      {
+        "d_xy": 0.0145,
+        "d_xz": 0.032,
+        "d_yz": 0.0175,
+        "indices": [
+          3,
+          16,
+          13
+        ],
+        "margin": 0.014499999999999999,
+        "scale": 0.0175,
+        "x": "clonal_003",
+        "y": "recombinant_of_clonal_003_and_clonal_013",
+        "z": "clonal_013"
+      },
+      {
+        "d_xy": 0.01725,
+        "d_xz": 0.0315,
+        "d_yz": 0.02075,
+        "indices": [
+          2,
+          16,
+          12
+        ],
+        "margin": 0.01075,
+        "scale": 0.02075,
+        "x": "clonal_002",
+        "y": "recombinant_of_clonal_003_and_clonal_013",
+        "z": "clonal_012"
+      },
+      {
+        "d_xy": 0.0235,
+        "d_xz": 0.03375,
+        "d_yz": 0.0175,
+        "indices": [
+          0,
+          16,
+          13
+        ],
+        "margin": 0.010250000000000002,
+        "scale": 0.0235,
+        "x": "clonal_000",
+        "y": "recombinant_of_clonal_003_and_clonal_013",
+        "z": "clonal_013"
+      },
+      {
+        "d_xy": 0.02425,
+        "d_xz": 0.03425,
+        "d_yz": 0.0175,
+        "indices": [
+          1,
+          16,
+          13
+        ],
+        "margin": 0.010000000000000002,
+        "scale": 0.02425,
+        "x": "clonal_001",
+        "y": "recombinant_of_clonal_003_and_clonal_013",
+        "z": "clonal_013"
+      }
+    ],
+    "ultrametric_defect": 0.01525,
+    "violating_triples": 659
+  },
+  "verdict": {
+    "control_theorem": "ultrametric_admits_no_certificate",
+    "inference_rule": "certificate_refutes_ultrametric",
+    "lean_module": "ANSE.ReticulationCertificate",
+    "negative_passes": true,
+    "positive_passes": true
+  }
+}
