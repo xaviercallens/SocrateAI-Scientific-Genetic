@@ -126,6 +126,21 @@
 \urlstyle{tt}
 \DeclareRobustCommand{\file}[1]{{\small\path{#1}}}
 
+% ------------------------------------------------------------- references ---
+% A DOI is a URL that must not be allowed to overflow the measure, and must stay
+% verbatim: \path (url package) breaks after punctuation and needs no escaping.
+\DeclareUrlCommand\doipath{\urlstyle{tt}}
+\DeclareRobustCommand{\doi}[1]{%
+  \href{https://doi.org/#1}{\small\doipath{doi:#1}}}
+% Printed where no DOI could be verified against a primary record. Saying so is
+% the point: a plausible-looking identifier we did not check is worse than none.
+\DeclareRobustCommand{\nodoi}{{\small\textsc{[no verified doi]}}}
+
+% Reference list: a hanging-indent itemize, numbered for citation by §.
+\newlist{refs}{enumerate}{1}
+\setlist[refs]{label=[\arabic*], leftmargin=2.1em, labelsep=0.6em,
+               itemsep=0.65em, topsep=0.4em, parsep=0pt}
+
 % --------------------------------------------------------------- notation ---
 \newcommand{\errate}{E}
 \newcommand{\inserr}{\varepsilon}
@@ -213,5 +228,6 @@ largely independent. Section 10 depends on 3, 4 and 7.
 \appendix
 \input{sections/appendix_solutions}
 \input{sections/appendix_reproducibility}
+\input{sections/bibliography}
 
 \end{document}
