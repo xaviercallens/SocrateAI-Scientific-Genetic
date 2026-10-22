@@ -38,11 +38,11 @@ from typing import Any, Dict, List
 HERE = Path(__file__).resolve().parents[1]
 REPO = HERE.parents[2]
 ZENODO = "https://zenodo.org/api"
-RECEIPT = HERE / "data" / "zenodo_textbook_edition6_receipt.json"
+RECEIPT = HERE / "data" / "zenodo_textbook_edition7_receipt.json"
 
 TITLE = (
     "Formal Genetics: Proof, Computation and Evidence in Molecular Biology "
-    "(Edition 6)"
+    "(Edition 7)"
 )
 
 DESCRIPTION = """
@@ -82,7 +82,18 @@ two conditions nest is what licenses reading the difference between them. It
 closes on ten real viral populations, seven of which are reported blocked because
 a measured control shows the aligner alone would have produced the answer.</p>
 
-<p><strong>New in edition 6.</strong> Section&nbsp;12 now contains the
+<p><strong>New in edition 7.</strong> Section&nbsp;12's comparison table is
+corrected &mdash; the earlier edition judged this book's own statistic against a
+mismatched null and so understated its specificity &mdash; and its ledger now
+reports two results found since, both against the section's own interest: a
+published-breakpoint test on SARS-CoV-2 recombinants that held on one population
+and failed on another, with margins of two and four <em>sites</em> that cannot
+carry a verdict; and a persistent-homology experiment that is inconclusive
+because its null produced no cycle in 495 of 495 replicates. The lesson both
+taught is in the ledger: check that a null varies before believing a p-value
+derived from it.</p>
+
+<p><strong>What edition 6 added.</strong> Section&nbsp;12 now contains the
 comparison it previously listed as missing: against the established test that
 shares its no-clock null, the pairwise homoplasy index. On the five populations
 where both can be measured <em>the two agree exactly</em> &mdash; both specific on
@@ -281,7 +292,7 @@ def main() -> int:
     parser.add_argument(
         "--new-version-of",
         type=int,
-        default=23574689,
+        default=23575744,
         help=(
             "deposit as a new version of this published record id, which is the "
             "only correct way to publish a corrected edition; 0 creates a fresh "
@@ -309,7 +320,7 @@ def main() -> int:
             "keywords": KEYWORDS,
             "license": "cc-by-4.0",
             "access_right": "open",
-            "version": "edition-6",
+            "version": "edition-7",
             "language": "eng",
             "related_identifiers": [
                 {
@@ -385,7 +396,7 @@ def main() -> int:
         "state": published.get("state"),
         "submitted": published.get("submitted"),
         "title": TITLE,
-        "version": "edition-6",
+        "version": "edition-7",
         "files_uploaded": uploaded,
         "peer_reviewed": False,
         "note": (

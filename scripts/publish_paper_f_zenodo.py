@@ -37,7 +37,7 @@ from typing import Any, Dict, List
 HERE = Path(__file__).resolve().parents[1]
 REPO = HERE.parents[2]
 ZENODO = "https://zenodo.org/api"
-RECEIPT = HERE / "data" / "zenodo_paper_f_edition2_receipt.json"
+RECEIPT = HERE / "data" / "zenodo_paper_f_edition3_receipt.json"
 STEM = "PaperF_Reticulate_Evolution_TreeLevel_Null_Lean4"
 
 TITLE = (
@@ -96,7 +96,26 @@ averages; run seed-paired against the hard null, the maximum separates 16.57x
 against 5.07x for mean delta_q and 1.22x for the proportion of violating
 quadruples.</p>
 
-<p><strong>New in edition 2.</strong> The head-to-head edition 1 listed as its
+<p><strong>New in edition 3.</strong> A published-breakpoint test, and the
+resolution limit it reveals. Two SARS-CoV-2 triads whose recombinants are
+<em>named</em> by the Pango designation process with published breakpoint
+intervals, taken already aligned from Nextstrain's open release &mdash; so this
+project's aligner is not involved. The pre-registered prediction, that the
+dominant pairing separates the two <em>parent</em> lineages, held on one
+population (6 of 10 certificates) and failed on the other (0 of 10). Both margins
+are 2 and 4 <em>sites</em> on populations differing by roughly 17 and 38 sites
+genome-wide, and one matched null produced no violating quadruple at all, so the
+conclusion is about applicability: recombinants between recently-diverged
+lineages sit <strong>below this method's resolution</strong>, and the tension is
+structural &mdash; the datasets with the best ground truth are the least
+divergent. Edition 3 also corrects edition 2's comparison table, which judged
+this method against a mismatched null and so understated its specificity; and it
+reports a persistent-homology experiment that cannot answer its own question,
+its null having produced no cycle in 495 of 495 replicates. Both failures taught
+one rule, now computed in the output rather than asserted: check that a null
+varies before believing a p-value derived from it.</p>
+
+<p><strong>What edition 2 added.</strong> The head-to-head edition 1 listed as its
 chief limitation has been run, against the one incumbent whose null also assumes
 no clock. On the five populations where both tests can be measured <em>they agree
 exactly</em>: both specific on the strict-clock and the relaxed-clock null, both
@@ -267,7 +286,7 @@ def main() -> int:
     parser.add_argument(
         "--new-version-of",
         type=int,
-        default=23574921,
+        default=23575732,
         help=(
             "deposit as a new version of this published record id, which is the "
             "only correct way to publish a corrected edition; 0 creates a fresh "
@@ -295,7 +314,7 @@ def main() -> int:
             "keywords": KEYWORDS,
             "license": "cc-by-4.0",
             "access_right": "open",
-            "version": "edition-2",
+            "version": "edition-3",
             "language": "eng",
             "related_identifiers": [
                 {
@@ -371,7 +390,7 @@ def main() -> int:
         "state": published.get("state"),
         "submitted": published.get("submitted"),
         "title": TITLE,
-        "version": "edition-2",
+        "version": "edition-3",
         "files_uploaded": uploaded,
         "peer_reviewed": False,
         "note": (
