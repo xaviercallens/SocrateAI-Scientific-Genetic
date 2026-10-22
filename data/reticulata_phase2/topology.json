@@ -1,0 +1,382 @@
+{
+  "calibration": {
+    "null": "parametric bootstrap under a matched tree null: clonal, relaxed-clock, at each population's own width, mean p-distance and gap load",
+    "p_value_floor": 0.01,
+    "replicates": 99,
+    "rips_scale": "median off-diagonal p-distance, per population",
+    "why_not_a_permutation": "A site-order permutation null is reported to be blind to misalignment artefacts, and a shuffle null is what Section 8 of the textbook used to no useful effect."
+  },
+  "degeneracy_check": {
+    "datasets_with_a_degenerate_null": [
+      "D1_clonal_strict_clock",
+      "D2_clonal_relaxed_clock",
+      "D3_strict_clock_one_recombinant",
+      "D4_relaxed_clock_one_recombinant",
+      "D5_strict_clock_reciprocal_mosaics"
+    ],
+    "if_degenerate_the_fix": "More taxa, so that cycles occur in the null often enough to calibrate against, and/or a larger Rips threshold than the median off-diagonal distance. At 16 taxa the complex is too small for H1 to be populated. See docs/RETICULATA_NUMERICS_TOPOLOGY_ML.md section 2.1, which is the work that makes larger taxon counts affordable.",
+    "this_experiment_is_interpretable": false,
+    "why": "A bootstrap calibrates only if the null varies. If the null never produces a cycle, the p-value is not a calibration: it is the floor whenever the observed value is non-zero and 1 otherwise, so the test reduces to `did a cycle appear at all` and its counts must NOT be read as specificity or power."
+  },
+  "experiment": "does persistent homology on a genetic-distance point cloud respond to reticulation, or to mutation?",
+  "per_dataset": [
+    {
+      "dataset": "D1_clonal_strict_clock",
+      "h1_cycle_count": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "h1_total_persistence": [
+        -0.0,
+        -0.0,
+        -0.0,
+        -0.0,
+        -0.0
+      ],
+      "mean_p_distance": [
+        0.026952083333333352,
+        0.025339583333333353,
+        0.02644583333333332,
+        0.026633333333333346,
+        0.026458333333333327
+      ],
+      "null_is_degenerate": true,
+      "null_mean": [
+        -0.0,
+        -0.0,
+        -0.0,
+        -0.0,
+        -0.0
+      ],
+      "null_replicates_total": 495,
+      "null_replicates_with_no_cycle": 495,
+      "p_value": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "reticulation_present": false,
+      "rips_scale": [
+        0.03,
+        0.02825,
+        0.0295,
+        0.0285,
+        0.02925
+      ],
+      "significant_at_005": "0/5"
+    },
+    {
+      "dataset": "D2_clonal_relaxed_clock",
+      "h1_cycle_count": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "h1_total_persistence": [
+        -0.0,
+        -0.0,
+        -0.0,
+        -0.0,
+        -0.0
+      ],
+      "mean_p_distance": [
+        0.029252083333333328,
+        0.03041666666666666,
+        0.018008333333333338,
+        0.01825625000000001,
+        0.009497916666666665
+      ],
+      "null_is_degenerate": true,
+      "null_mean": [
+        -0.0,
+        -0.0,
+        -0.0,
+        -0.0,
+        -0.0
+      ],
+      "null_replicates_total": 495,
+      "null_replicates_with_no_cycle": 495,
+      "p_value": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "reticulation_present": false,
+      "rips_scale": [
+        0.02625,
+        0.0315,
+        0.01525,
+        0.01775,
+        0.01025
+      ],
+      "significant_at_005": "0/5"
+    },
+    {
+      "dataset": "D3_strict_clock_one_recombinant",
+      "h1_cycle_count": [
+        1,
+        0,
+        0,
+        1,
+        0
+      ],
+      "h1_total_persistence": [
+        0.0005000000000000004,
+        -0.0,
+        -0.0,
+        0.0002500000000000002,
+        -0.0
+      ],
+      "mean_p_distance": [
+        0.02694301470588237,
+        0.02515625000000002,
+        0.02624080882352941,
+        0.026595588235294135,
+        0.026520220588235305
+      ],
+      "null_is_degenerate": true,
+      "null_mean": [
+        -0.0,
+        -0.0,
+        -0.0,
+        -0.0,
+        -0.0
+      ],
+      "null_replicates_total": 495,
+      "null_replicates_with_no_cycle": 495,
+      "p_value": [
+        0.01,
+        1.0,
+        1.0,
+        0.01,
+        1.0
+      ],
+      "reticulation_present": true,
+      "rips_scale": [
+        0.0295,
+        0.02725,
+        0.029,
+        0.028,
+        0.02925
+      ],
+      "significant_at_005": "2/5"
+    },
+    {
+      "dataset": "D4_relaxed_clock_one_recombinant",
+      "h1_cycle_count": [
+        1,
+        1,
+        0,
+        0,
+        0
+      ],
+      "h1_total_persistence": [
+        0.0019999999999999983,
+        0.002250000000000002,
+        -0.0,
+        -0.0,
+        -0.0
+      ],
+      "mean_p_distance": [
+        0.02910110294117646,
+        0.030441176470588232,
+        0.01740441176470588,
+        0.017670955882352946,
+        0.009340073529411765
+      ],
+      "null_is_degenerate": true,
+      "null_mean": [
+        -0.0,
+        -0.0,
+        -0.0,
+        -0.0,
+        -0.0
+      ],
+      "null_replicates_total": 495,
+      "null_replicates_with_no_cycle": 495,
+      "p_value": [
+        0.01,
+        0.01,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "reticulation_present": true,
+      "rips_scale": [
+        0.02625,
+        0.0305,
+        0.01425,
+        0.0165,
+        0.01
+      ],
+      "significant_at_005": "2/5"
+    },
+    {
+      "dataset": "D5_strict_clock_reciprocal_mosaics",
+      "h1_cycle_count": [
+        1,
+        0,
+        0,
+        1,
+        0
+      ],
+      "h1_total_persistence": [
+        0.01075,
+        -0.0,
+        -0.0,
+        0.009499999999999998,
+        -0.0
+      ],
+      "mean_p_distance": [
+        0.02677124183006538,
+        0.02504901960784315,
+        0.026452614379084968,
+        0.0263513071895425,
+        0.026285947712418305
+      ],
+      "null_is_degenerate": true,
+      "null_mean": [
+        -0.0,
+        -0.0,
+        -0.0,
+        -0.0,
+        -0.0
+      ],
+      "null_replicates_total": 495,
+      "null_replicates_with_no_cycle": 495,
+      "p_value": [
+        0.01,
+        1.0,
+        1.0,
+        0.01,
+        1.0
+      ],
+      "reticulation_present": true,
+      "rips_scale": [
+        0.02875,
+        0.02625,
+        0.028,
+        0.02775,
+        0.02825
+      ],
+      "significant_at_005": "2/5"
+    },
+    {
+      "dataset": "D6_strict_clock_gap_blocks",
+      "h1_cycle_count": [
+        1,
+        1,
+        4,
+        1,
+        0
+      ],
+      "h1_total_persistence": [
+        0.001257046417323375,
+        0.0014666393778141641,
+        0.0018724345124485932,
+        0.00041503976861894526,
+        -0.0
+      ],
+      "mean_p_distance": [
+        0.026871069278831004,
+        0.025553576955933497,
+        0.02806213550604376,
+        0.027160709085962114,
+        0.02633285718436126
+      ],
+      "null_is_degenerate": false,
+      "null_mean": [
+        0.00035156378640317803,
+        0.0003162871292305718,
+        0.00035156378640317803,
+        0.00035156378640317803,
+        0.00035156378640317803
+      ],
+      "null_replicates_total": 495,
+      "null_replicates_with_no_cycle": 280,
+      "p_value": [
+        0.13,
+        0.08,
+        0.07,
+        0.25,
+        1.0
+      ],
+      "reticulation_present": false,
+      "rips_scale": [
+        0.028746465598491987,
+        0.0275,
+        0.03,
+        0.02784048156508653,
+        0.029
+      ],
+      "significant_at_005": "0/5"
+    },
+    {
+      "dataset": "D7_strict_clock_saturated",
+      "h1_cycle_count": [
+        0,
+        1,
+        0,
+        1,
+        0
+      ],
+      "h1_total_persistence": [
+        -0.0,
+        0.0012500000000000011,
+        -0.0,
+        0.0002500000000000002,
+        -0.0
+      ],
+      "mean_p_distance": [
+        0.22259374999999984,
+        0.2210270833333333,
+        0.2246479166666666,
+        0.22193958333333316,
+        0.22410833333333322
+      ],
+      "null_is_degenerate": false,
+      "null_mean": [
+        7.575757575757582e-6,
+        7.575757575757582e-6,
+        7.575757575757582e-6,
+        7.575757575757582e-6,
+        7.575757575757582e-6
+      ],
+      "null_replicates_total": 495,
+      "null_replicates_with_no_cycle": 485,
+      "p_value": [
+        1.0,
+        0.01,
+        1.0,
+        0.03,
+        1.0
+      ],
+      "reticulation_present": false,
+      "rips_scale": [
+        0.25725,
+        0.25775,
+        0.2645,
+        0.2565,
+        0.2595
+      ],
+      "significant_at_005": "2/5"
+    }
+  ],
+  "the_decisive_row": {
+    "contains_reticulation": false,
+    "dataset": "D7_strict_clock_saturated",
+    "differs_from_D1_only_by": "ten times the substitution rate",
+    "reading": "A non-zero count here means the topological statistic is responding to mutation rather than to reticulation, on data where the answer is known. A 0/5 means it is specific and the concern does not reproduce at these parameters.",
+    "significant_at_0.05": "2/5"
+  },
+  "why": "The theoretical warrant for reading an unfilled 1-cycle as reticulation is the same fact this crate's null rests on: a tree metric leaves no unfilled cycle. What a search of the literature did not find is an independent calibration of that method's SPECIFICITY. This grid supplies the ground truth: three datasets contain reticulation, four do not, and the saturated dataset differs from the baseline only in having ten times the divergence."
+}

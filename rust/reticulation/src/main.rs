@@ -516,6 +516,9 @@ struct SeedResult {
     /// alignment. `None` when the alignment has too few informative sites for
     /// the window, which is reported rather than coerced to a number.
     phi: Option<reticulation::PhiTest>,
+    /// Gap load, so a matched null can be built for this dataset rather than
+    /// borrowing D1's.
+    gap_fraction: f64,
 }
 
 /// Exact comparison `a > k * b`, by integer cross-product.
@@ -543,6 +546,65 @@ fn margin_f64(m: Option<reticulation::Ratio>) -> f64 {
 
 fn margin_exact(m: Option<reticulation::Ratio>) -> String {
     m.map_or_else(|| "none".to_string(), |r| format!("{}/{}", r.num, r.den))
+}
+
+/// Calibrate the averaged quartet statistic as a *test*, by parametric bootstrap.
+///
+/// The literature's treelikeness statistics are usually reported as scores, and
+/// the one place they are used as a hypothesis test the null comes from a
+/// parametric bootstrap under a fitted tree rather than from a permutation. That
+/// choice matters here for a reason specific to this project: the RDP5 manual
+/// reports that misalignment artefacts are significant in the real alignment yet
+/// undetectable in shuffled alignments, so a permutation null is blind to the
+/// artefact class `align-error` measures. A parametric bootstrap under a tree is
+/// not.
+///
+/// So the null here is: clonal, relaxed-clock descent at **matched** alignment
+/// width, matched mean p-distance and matched gap load — the same matched-null
+/// construction `real-data` uses for the certificate's margin, applied to mean
+/// δq instead. The p-value is the share of null replicates whose mean δq is at
+/// least the observed one, with the usual `+1` so that it cannot be zero.
+///
+/// This is the third competitor in the head-to-head, and the one that tests
+/// whether the averaged statistic, once calibrated, does better than the
+/// certificate it is being compared against.
+fn calibrated_mean_delta_q(
+    observed: f64,
+    width: usize,
+    target_divergence: f64,
+    gap_load: f64,
+    spread: f64,
+    replicates: usize,
+    max_quadruples: usize,
+) -> Result<(f64, f64, f64), String> {
+    use reticulation::simulate::{clonal_tree_relaxed, inject_gap_blocks};
+    use reticulation::subset::{quartet_distribution, Alignment};
+
+    let generations = 4u32;
+    let (mu, _) = tune_mu_for_divergence(width, generations, spread, target_divergence, 1);
+    let mut at_least = 0usize;
+    let mut total = 0.0f64;
+    for replicate in 0..replicates {
+        let seed = 0x5EED_0000 + replicate as u64;
+        let mut pop = clonal_tree_relaxed(width, generations, mu, spread, seed);
+        if gap_load > 0.001 {
+            pop = inject_gap_blocks(pop, gap_load, seed ^ 0xBEEF);
+        }
+        let aln = Alignment::new(pop.labels.clone(), pop.sequences.clone())?;
+        let value = quartet_distribution(&aln, max_quadruples)?.mean_delta_q;
+        total += value;
+        if value >= observed {
+            at_least += 1;
+        }
+    }
+    let p_value = (at_least + 1) as f64 / (replicates + 1) as f64;
+    let floor = 1.0 / (replicates + 1) as f64;
+    let null_mean = if replicates == 0 {
+        0.0
+    } else {
+        total / replicates as f64
+    };
+    Ok((p_value, floor, null_mean))
 }
 
 /// Run both searches on one population.
@@ -589,6 +651,7 @@ fn measure(
         // complete-deletion policy, so the comparison is not confounded by the
         // two tests seeing different data.
         phi: reticulation::phi_test(&aln, phi_window, phi_permutations, 20_261_022).ok(),
+        gap_fraction: gap_fraction(&pop.sequences),
     })
 }
 
@@ -626,6 +689,10 @@ fn run_experiment(args: &[String]) -> Result<bool, String> {
     // floor-level result is not read as a smaller number than it is.
     let phi_window: usize = parse_flag(args, "--phi-window", 50);
     let phi_permutations: usize = parse_flag(args, "--phi-permutations", 199);
+    // The third competitor: the averaged quartet statistic calibrated as a test
+    // by parametric bootstrap under a MATCHED tree null, rather than reported as
+    // a score. 99 replicates puts its attainable p-value floor at 0.01.
+    let bootstrap_replicates: usize = parse_flag(args, "--bootstrap", 99);
 
     let seeds: Vec<u64> = (0..n_seeds).map(|i| seed0 + i as u64).collect();
 
@@ -745,6 +812,72 @@ fn run_experiment(args: &[String]) -> Result<bool, String> {
             .fold(f64::INFINITY, f64::min)
     };
 
+    // --- the averaged statistic, calibrated as a test --------------------------
+    // Each dataset-seed gets its own matched null, because the null depends on
+    // that population's width, divergence and gap load. Reported per dataset as
+    // the share of seeds the calibrated test calls significant.
+    let mut calibrated: std::collections::BTreeMap<&str, Vec<(f64, f64, f64, f64)>> =
+        Default::default();
+    if bootstrap_replicates > 0 {
+        for (name, rows) in &results {
+            let mut per_seed = Vec::new();
+            for row in rows {
+                // The matched null uses the divergence this population actually
+                // has, which `quartet_distribution` already computed under
+                // pairwise deletion over the whole alignment.
+                let observed = row.distribution.mean_delta_q;
+                let (p_value, floor, null_mean) = calibrated_mean_delta_q(
+                    observed,
+                    length,
+                    row.distribution.mean_p_distance,
+                    0.0,
+                    spread,
+                    bootstrap_replicates,
+                    max_quadruples,
+                )?;
+                per_seed.push((observed, p_value, floor, null_mean));
+            }
+            calibrated.insert(name, per_seed);
+        }
+    }
+    let calibrated_significant = |name: &str, alpha: f64| -> Vec<bool> {
+        calibrated
+            .get(name)
+            .map(|v| v.iter().map(|(_, p, _, _)| *p <= alpha).collect())
+            .unwrap_or_default()
+    };
+
+    // --- the certificate against ITS OWN matched null --------------------------
+    // The power predictions compare each dataset's margin against D1's floor at
+    // the same seed. That is commensurable only where the dataset's divergence
+    // and denominator match D1's, and on D6 (gap blocks) and D7 (ten times the
+    // divergence) they do not. Comparing a certificate judged against a
+    // MISMATCHED floor with a competitor judged against a matched one would
+    // flatter the competitor, so the certificate gets a matched floor too:
+    // same construction `real-data` uses, and the same construction the
+    // calibrated averaged statistic above uses.
+    let mut matched: std::collections::BTreeMap<&str, Vec<bool>> = Default::default();
+    if bootstrap_replicates > 0 {
+        for (name, rows) in &results {
+            let mut per_seed = Vec::new();
+            for row in rows {
+                let (floor, _, _, _) = matched_floor(
+                    length,
+                    row.distribution.mean_p_distance,
+                    row.gap_fraction,
+                    spread,
+                    seeds.len() as u64,
+                    max_quadruples,
+                )?;
+                per_seed.push(exceeds_k_times(row.quartet_margin, floor, 1));
+            }
+            matched.insert(name, per_seed);
+        }
+    }
+    let ours_above_matched_floor = |name: &str| -> Vec<bool> {
+        matched.get(name).cloned().unwrap_or_default()
+    };
+
     // --- the head-to-head against the incumbent --------------------------------
     // Paper F listed, as its own limitation, that this comparison had not been
     // run. The incumbent is the one whose null also assumes NO clock: the
@@ -811,6 +944,9 @@ fn run_experiment(args: &[String]) -> Result<bool, String> {
             "p_value_floor": available.first().map(|p| p.p_value_floor),
             "significant_at_0.05": frac(&phi_significant(name, 0.05)),
             "our_quartet_margin_above_D1_floor": frac(&ours_above_floor(name)),
+            "our_quartet_margin_above_ITS_OWN_matched_floor":
+                frac(&ours_above_matched_floor(name)),
+            "calibrated_mean_delta_q_significant": frac(&calibrated_significant(name, 0.05)),
             "the_two_tests_agree": available.len() == rows.len()
                 && held_at(&phi_significant(name, 0.05)).0
                     == held_at(&ours_above_floor(name)).0,
@@ -1197,6 +1333,39 @@ fn run_experiment(args: &[String]) -> Result<bool, String> {
                     is blind by construction to the artefact class that \
                     `align-error` measures. Neither of those is a power claim, and \
                     neither is established by this grid.",
+        },
+        "averaged_statistic_calibrated_as_a_test": {
+            "why": "The treelikeness statistics are usually reported as scores. \
+                    The one place they are used as a hypothesis test, the null \
+                    comes from a parametric bootstrap under a fitted tree rather \
+                    than from a permutation -- and that choice matters here, \
+                    because a site-order permutation null is reported to be blind \
+                    to the misalignment artefact class `align-error` measures. So \
+                    mean delta_q is calibrated here against a MATCHED tree null: \
+                    clonal, relaxed-clock, at this population's own alignment \
+                    width and mean p-distance.",
+            "replicates": bootstrap_replicates,
+            "p_value_floor": if bootstrap_replicates > 0 {
+                1.0 / (bootstrap_replicates + 1) as f64
+            } else {
+                1.0
+            },
+            "per_dataset": calibrated.iter().map(|(name, rows)| serde_json::json!({
+                "dataset": name,
+                "observed_mean_delta_q_per_seed":
+                    rows.iter().map(|(o, _, _, _)| *o).collect::<Vec<f64>>(),
+                "null_mean_per_seed":
+                    rows.iter().map(|(_, _, _, m)| *m).collect::<Vec<f64>>(),
+                "p_value_per_seed":
+                    rows.iter().map(|(_, p, _, _)| *p).collect::<Vec<f64>>(),
+                "significant_at_0.05": frac(&calibrated_significant(name, 0.05)),
+            })).collect::<Vec<_>>(),
+            "reading": "A calibrated averaged statistic is the fairest possible \
+                        competitor to the certificate: same quadruples, same \
+                        alignment, same matched-null discipline, and no \
+                        permutation. Where it and the certificate reach the same \
+                        verdicts, the certificate's distinctive contribution is \
+                        the exhibitable witness rather than the decision.",
         },
         "max_versus_mean": {
             "why": "The certificate's statistic is a maximum over quadruples, which                     is an extreme-value statistic: its null level grows with the                     number of subsets examined, and this grid shows it -- the                     quartet floor moves from 5-7 at 16 taxa to 9-10 at 32. So                     margins are not comparable across population sizes, which is                     the same incommensurability that has already cost this project                     three criteria. The averaged statistics do not have that                     defect and cannot be certified, because a mean has no witness                     to exhibit. This block measures the price.",
@@ -2624,6 +2793,507 @@ fn run_real_data(args: &[String]) -> Result<bool, String> {
     Ok(true)
 }
 
+/// Run the test on a population whose recombination has a **published
+/// breakpoint**, in an alignment this project did not produce.
+///
+/// Every real-data result so far rested on two weaker things: a literature
+/// *expectation* about whether a family recombines, and an alignment from our
+/// own aligner, whose error we therefore had to measure and gate on. Here the
+/// recombinant lineages are named by the Pango designation process with
+/// published breakpoint intervals in reference coordinates, and the alignment
+/// comes already made from Nextstrain's open release, aligned by Nextclade to
+/// MN908947 — the same coordinate system the breakpoints are quoted in.
+///
+/// The pre-registered prediction is sharper than a margin. If the four-point
+/// certificate is detecting the recombination that the designation process
+/// named, then its **dominant pairing should separate the two parent
+/// lineages**, with recombinant members on the other side: that is the planted-
+/// recombinant shape, and it is a statement about *which* four sequences the
+/// method picks, not only about how large a number it produces. A dominant
+/// pairing that instead separates two members of the same lineage would
+/// contradict it.
+///
+/// One caveat is reported rather than hidden: using a published alignment
+/// removes *our* aligner from the trust surface and replaces it with
+/// Nextclade's, which is reference-anchored too and whose error we have not
+/// measured. The admissibility gate calibrated for our aligner does not
+/// transfer, so it is not applied; the gap load is reported instead.
+fn run_breakpoint(args: &[String]) -> Result<bool, String> {
+    use reticulation::subset::{find_quartet_certificates, quartet_distribution, Alignment};
+
+    let fasta: String = parse_flag(args, "--population", String::new());
+    if fasta.is_empty() {
+        return Err("usage: reticulation breakpoint --population <aligned.fasta> \
+                    [--provenance <json>] [--top K]"
+            .to_string());
+    }
+    let provenance_path: String = parse_flag(args, "--provenance", String::new());
+    let top_k: usize = parse_flag(args, "--top", 10);
+    let seeds: u64 = parse_flag(args, "--seeds", 5);
+    let spread: f64 = parse_flag(args, "--spread", 1.0);
+    let max_quadruples: usize = parse_flag(args, "--max-quadruples", 20_000);
+
+    let text = std::fs::read_to_string(&fasta).map_err(|e| format!("{fasta}: {e}"))?;
+    let records = reticulation::align::read_fasta(&text)?;
+    let labels: Vec<String> = records.iter().map(|r| r.label.clone()).collect();
+    let rows: Vec<Vec<u8>> = records.iter().map(|r| r.sequence.clone()).collect();
+
+    // The lineage of each member, from the provenance the extraction script
+    // wrote. Without it the parent-separation prediction cannot be checked, and
+    // that is reported rather than silently skipped.
+    let mut lineage_of: std::collections::BTreeMap<String, String> = Default::default();
+    let mut recombinant_lineage = String::new();
+    let mut parent_lineages: Vec<String> = Vec::new();
+    let mut published_breakpoint = String::new();
+    if !provenance_path.is_empty() {
+        let raw = std::fs::read_to_string(&provenance_path)
+            .map_err(|e| format!("{provenance_path}: {e}"))?;
+        let value: serde_json::Value =
+            serde_json::from_str(&raw).map_err(|e| format!("{provenance_path}: {e}"))?;
+        if let Some(populations) = value.get("populations").and_then(|v| v.as_array()) {
+            let stem = std::path::Path::new(&fasta)
+                .file_name()
+                .and_then(|s| s.to_str())
+                .unwrap_or("");
+            for entry in populations {
+                if entry.get("file").and_then(|v| v.as_str()) != Some(stem) {
+                    continue;
+                }
+                recombinant_lineage = entry
+                    .get("recombinant_lineage")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("")
+                    .to_string();
+                published_breakpoint = entry
+                    .get("published_breakpoint")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("")
+                    .to_string();
+                parent_lineages = entry
+                    .get("parent_lineages")
+                    .and_then(|v| v.as_array())
+                    .map(|a| {
+                        a.iter()
+                            .filter_map(|v| v.as_str())
+                            .map(str::to_string)
+                            .collect()
+                    })
+                    .unwrap_or_default();
+                for member in entry
+                    .get("members")
+                    .and_then(|v| v.as_array())
+                    .map(Vec::as_slice)
+                    .unwrap_or(&[])
+                {
+                    if let (Some(strain), Some(lineage)) = (
+                        member.get("strain").and_then(|v| v.as_str()),
+                        member.get("lineage").and_then(|v| v.as_str()),
+                    ) {
+                        lineage_of.insert(strain.to_string(), lineage.to_string());
+                    }
+                }
+            }
+        }
+    }
+    let lineage = |label: &str| -> String {
+        lineage_of
+            .get(label)
+            .cloned()
+            .unwrap_or_else(|| "unknown".to_string())
+    };
+
+    let aln = Alignment::new(labels.clone(), rows.clone())?;
+    let (mean_p, max_p) = alignment_divergence(&labels, &rows);
+    let gaps = gap_fraction(&rows);
+    let search = find_quartet_certificates(&aln, top_k, max_quadruples)?;
+    let distribution = quartet_distribution(&aln, max_quadruples)?;
+    if !search.all_validated {
+        return Err("a certificate failed revalidation".to_string());
+    }
+
+    // The prediction: does the dominant pairing separate the two parents?
+    let separates_parents = |a: &str, b: &str, c: &str, e: &str| -> bool {
+        if parent_lineages.len() != 2 {
+            return false;
+        }
+        let (pa, pb) = (&parent_lineages[0], &parent_lineages[1]);
+        let far = [lineage(a), lineage(b)];
+        let near = [lineage(c), lineage(e)];
+        let far_is_the_two_parents = (far[0] == *pa && far[1] == *pb)
+            || (far[0] == *pb && far[1] == *pa);
+        let near_has_a_recombinant =
+            !recombinant_lineage.is_empty() && near.contains(&recombinant_lineage);
+        far_is_the_two_parents && near_has_a_recombinant
+    };
+    let certificates: Vec<serde_json::Value> = search
+        .certificates
+        .iter()
+        .map(|c| {
+            serde_json::json!({
+                "dominant_pair": [c.a.clone(), c.b.clone()],
+                "dominant_pair_lineages": [lineage(&c.a), lineage(&c.b)],
+                "other_side": [c.c.clone(), c.e.clone()],
+                "other_side_lineages": [lineage(&c.c), lineage(&c.e)],
+                "common_columns": c.common,
+                "margin_exact": format!("{}/{}", c.margin_num, c.margin_den),
+                "margin": c.margin().to_f64(),
+                "separates_the_two_parent_lineages": separates_parents(&c.a, &c.b, &c.c, &c.e),
+            })
+        })
+        .collect();
+    let separating = certificates
+        .iter()
+        .filter(|c| {
+            c.get("separates_the_two_parent_lineages")
+                .and_then(serde_json::Value::as_bool)
+                == Some(true)
+        })
+        .count();
+
+    let (floor, floor_mu, floor_divergence, _) = matched_floor(
+        aln.width(),
+        mean_p,
+        gaps,
+        spread,
+        seeds,
+        max_quadruples,
+    )?;
+    let observed = search.certificates.first().map(|c| c.margin());
+
+    let report = serde_json::json!({
+        "experiment": "the four-point test on a population whose recombination \
+                       has a published breakpoint, in an alignment this project \
+                       did not produce",
+        "population": {
+            "file": fasta,
+            "taxa": aln.len(),
+            "alignment_width": aln.width(),
+            "gap_fraction": gaps,
+            "mean_p_distance": mean_p,
+            "max_p_distance": max_p,
+            "recombinant_lineage": recombinant_lineage,
+            "parent_lineages": parent_lineages,
+            "published_breakpoint": published_breakpoint,
+            "lineage_known_for": lineage_of.len(),
+        },
+        "provenance_of_the_alignment": {
+            "aligner": "Nextclade, to MN908947, in Nextstrain's open release",
+            "ours_is_not_involved": true,
+            "caveat": "This removes OUR aligner from the trust surface and \
+                       replaces it with theirs, which is reference-anchored too \
+                       and whose error we have not measured. The admissibility \
+                       gate calibrated for our aligner therefore does NOT \
+                       transfer and is not applied here; the gap fraction above \
+                       is reported in its place."
+        },
+        "preregistered_prediction": {
+            "claim": "If the certificate detects the recombination the Pango \
+                      process named, its dominant pairing separates the two \
+                      PARENT lineages with a recombinant on the other side.",
+            "why_this_is_stronger_than_a_margin": "It constrains WHICH four \
+                      sequences the method picks and how it sides them, not just \
+                      how large a number it reports. A margin can be large for \
+                      many reasons; picking the two parents cannot.",
+            "certificates_examined": certificates.len(),
+            "certificates_separating_the_parents": separating,
+            "held": separating > 0,
+        },
+        "certificates": certificates,
+        "quartet_distribution": distribution,
+        "matched_floor": {
+            "margin": margin_exact(floor),
+            "margin_f64": margin_f64(floor),
+            "mu": floor_mu,
+            "achieved_divergence": floor_divergence,
+            "exceeds_floor": exceeds_k_times(observed, floor, 1),
+            "exceeds_twice_floor": exceeds_k_times(observed, floor, 2),
+            // A floor of `none` means the matched null produced no violating
+            // quadruple at all. `exceeds_floor` is then true for ANY positive
+            // margin, which is not a calibrated comparison -- it is the same
+            // degeneracy the topology experiment hit, and at these divergences
+            // it is the expected one.
+            "null_is_degenerate": floor.is_none(),
+            "degenerate_means": "The matched null produced no violating                 quadruple in any replicate, so `exceeds_floor` reduces to                 `the observed margin is positive` and carries no calibration.                 Raise the replicate count, or read this population as below the                 method's resolution at its divergence.",
+        },
+        "resolution_warning": {
+            "mean_p_distance": mean_p,
+            "differing_sites_implied": mean_p * aln.width() as f64,
+            "margin_in_sites": search
+                .certificates
+                .first()
+                .map_or(0, |c| c.margin_num),
+            "reading": "The margin is a count of differing sites over the                 quadruple's common columns. When the population's mean                 p-distance implies only a few tens of differing sites                 genome-wide, a margin of one or two sites is at the edge of what                 the statistic can resolve, and a verdict should not rest on it                 however the floor comparison comes out."
+        },
+        "observed_margin": margin_exact(observed),
+    });
+    println!(
+        "{}",
+        serde_json::to_string_pretty(&report).map_err(|e| e.to_string())?
+    );
+    if search.certificates.is_empty() {
+        eprintln!("no quartet certificate on this population");
+        return Ok(false);
+    }
+    Ok(true)
+}
+
+/// Does persistent homology detect *recombination*, or does it detect mutation?
+///
+/// This programme began by reproducing the construction of Chan, Carlsson and
+/// Rabadan: compute persistent homology on a population under a genetic-distance
+/// metric, where an unfilled 1-cycle is read as reticulate evolution. The
+/// theoretical warrant is real and is the same fact this crate's null rests on —
+/// a tree metric leaves no unfilled cycle. What is missing from the literature,
+/// as far as a search of it found, is an independent calibration: no
+/// peer-reviewed evaluation of that method's specificity appears to exist, and
+/// the one unpublished evaluation we found reports the irreducible-cycle rate
+/// rising with the *point-mutation* rate rather than with the recombination
+/// rate.
+///
+/// That claim is testable here, because this crate's grid has the ground truth
+/// it needs. Three datasets contain reticulation and four do not, and one of the
+/// four that do not — the saturated dataset — differs from the baseline only by
+/// having ten times the divergence. So: if `h1_total_persistence` fires on the
+/// saturated dataset, it is responding to mutation rather than to reticulation,
+/// and the concern is reproduced independently with a known answer.
+///
+/// The statistic is calibrated exactly as the others are: a parametric bootstrap
+/// under a matched tree null, at this population's own alignment width, mean
+/// p-distance and gap load. Reporting a persistence value without that
+/// calibration is what Section 8 of the textbook did, and the result was a
+/// negative finding obtained the hard way.
+fn run_topology(args: &[String]) -> Result<bool, String> {
+    use reticulation::rips::vietoris_rips_h1;
+    use reticulation::simulate::{
+        clonal_tree, clonal_tree_relaxed, inject_gap_blocks, with_recombination,
+        with_reciprocal_recombinants,
+    };
+    use reticulation::subset::{quartet_distribution, Alignment};
+
+    let length: usize = parse_flag(args, "--length", 4000);
+    let generations: u32 = parse_flag(args, "--generations", 4);
+    let mu: f64 = parse_flag(args, "--mu", 0.004);
+    let spread: f64 = parse_flag(args, "--spread", 1.0);
+    let saturated_mu: f64 = parse_flag(args, "--saturated-mu", 0.04);
+    let gap_fraction_flag: f64 = parse_flag(args, "--gap-fraction", 0.25);
+    let n_seeds: usize = parse_flag(args, "--seeds", 5);
+    let seed0: u64 = parse_flag(args, "--seed", 2026);
+    let replicates: usize = parse_flag(args, "--bootstrap", 99);
+    let max_quadruples: usize = parse_flag(args, "--max-quadruples", 20_000);
+
+    let h1_of = |pop: &reticulation::simulate::Population| -> Result<(f64, usize, f64), String> {
+        let dm = pop.distances(DistanceModel::PDistance)?;
+        let scale = default_scale(&dm);
+        let persistence = vietoris_rips_h1(&dm, scale);
+        Ok((
+            persistence.h1_total_persistence,
+            persistence.h1.len(),
+            scale,
+        ))
+    };
+
+    // The matched null for the topological statistic, same construction as for
+    // the averaged quartet statistic.
+    let null_for = |width: usize,
+                    target_divergence: f64,
+                    gap_load: f64|
+     -> Result<Vec<f64>, String> {
+        // Returns every replicate's value, so the caller can see whether the
+        // null is degenerate rather than only its mean.
+        let (null_mu, _) =
+            tune_mu_for_divergence(width, 4, spread, target_divergence, 1);
+        let mut values = Vec::with_capacity(replicates);
+        for replicate in 0..replicates {
+            let seed = 0x7000_u64.wrapping_add(replicate as u64);
+            let mut pop = clonal_tree_relaxed(width, 4, null_mu, spread, seed);
+            if gap_load > 0.001 {
+                pop = inject_gap_blocks(pop, gap_load, seed ^ 0xFACE);
+            }
+            values.push(h1_of(&pop)?.0);
+        }
+        Ok(values)
+    };
+
+    #[derive(serde::Serialize)]
+    struct Row {
+        dataset: &'static str,
+        reticulation_present: bool,
+        h1_total_persistence: Vec<f64>,
+        h1_cycle_count: Vec<usize>,
+        rips_scale: Vec<f64>,
+        mean_p_distance: Vec<f64>,
+        null_mean: Vec<f64>,
+        p_value: Vec<f64>,
+        significant_at_005: String,
+        /// Replicates, over all seeds, in which the null produced no cycle at
+        /// all. When this is every replicate the null is degenerate and the
+        /// p-value is not a calibration: it takes the floor whenever the
+        /// observed value is non-zero and 1 otherwise.
+        null_replicates_with_no_cycle: usize,
+        null_replicates_total: usize,
+        /// Set when the null never produced a cycle, so the test reduces to
+        /// "did a cycle appear at all" and its counts must not be read as
+        /// specificity or power.
+        null_is_degenerate: bool,
+    }
+
+    let mut rows: Vec<Row> = Vec::new();
+    let datasets: [(&'static str, bool); 7] = [
+        ("D1_clonal_strict_clock", false),
+        ("D2_clonal_relaxed_clock", false),
+        ("D3_strict_clock_one_recombinant", true),
+        ("D4_relaxed_clock_one_recombinant", true),
+        ("D5_strict_clock_reciprocal_mosaics", true),
+        ("D6_strict_clock_gap_blocks", false),
+        ("D7_strict_clock_saturated", false),
+    ];
+
+    for (name, reticulate) in datasets {
+        let mut totals = Vec::new();
+        let mut counts = Vec::new();
+        let mut scales = Vec::new();
+        let mut divergences = Vec::new();
+        let mut null_means = Vec::new();
+        let mut p_values = Vec::new();
+        let mut flags = Vec::new();
+        let mut null_empty = 0usize;
+        let mut null_drawn = 0usize;
+        for index in 0..n_seeds {
+            let seed = seed0 + index as u64;
+            let pop = match name {
+                "D1_clonal_strict_clock" => clonal_tree(length, generations, mu, seed),
+                "D2_clonal_relaxed_clock" => {
+                    clonal_tree_relaxed(length, generations, mu, spread, seed)
+                }
+                "D3_strict_clock_one_recombinant" => {
+                    with_recombination(clonal_tree(length, generations, mu, seed), 0.5, seed ^ 0x11)
+                        .0
+                }
+                "D4_relaxed_clock_one_recombinant" => with_recombination(
+                    clonal_tree_relaxed(length, generations, mu, spread, seed),
+                    0.5,
+                    seed ^ 0x22,
+                )
+                .0,
+                "D5_strict_clock_reciprocal_mosaics" => with_reciprocal_recombinants(
+                    clonal_tree(length, generations, mu, seed),
+                    0.5,
+                    seed ^ 0x33,
+                )
+                .0,
+                "D6_strict_clock_gap_blocks" => inject_gap_blocks(
+                    clonal_tree(length, generations, mu, seed),
+                    gap_fraction_flag,
+                    seed ^ 0x44,
+                ),
+                _ => clonal_tree(length, generations, saturated_mu, seed),
+            };
+            let (total, count, scale) = h1_of(&pop)?;
+            let aln = Alignment::new(pop.labels.clone(), pop.sequences.clone())?;
+            let divergence = quartet_distribution(&aln, max_quadruples)?.mean_p_distance;
+            let gaps = gap_fraction(&pop.sequences);
+            let null = null_for(length, divergence, gaps)?;
+            null_empty += null.iter().filter(|v| **v <= 0.0).count();
+            null_drawn += null.len();
+            let at_least = null.iter().filter(|v| **v >= total).count();
+            let p_value = (at_least + 1) as f64 / (replicates + 1) as f64;
+            let null_mean = if null.is_empty() {
+                0.0
+            } else {
+                null.iter().sum::<f64>() / null.len() as f64
+            };
+            totals.push(total);
+            counts.push(count);
+            scales.push(scale);
+            divergences.push(divergence);
+            null_means.push(null_mean);
+            p_values.push(p_value);
+            flags.push(p_value <= 0.05);
+        }
+        let held = flags.iter().filter(|b| **b).count();
+        rows.push(Row {
+            dataset: name,
+            reticulation_present: reticulate,
+            h1_total_persistence: totals,
+            h1_cycle_count: counts,
+            rips_scale: scales,
+            mean_p_distance: divergences,
+            null_mean: null_means,
+            p_value: p_values,
+            significant_at_005: format!("{held}/{n_seeds}"),
+            null_replicates_with_no_cycle: null_empty,
+            null_replicates_total: null_drawn,
+            null_is_degenerate: null_drawn > 0 && null_empty == null_drawn,
+        });
+    }
+
+    let saturated = rows
+        .iter()
+        .find(|r| r.dataset == "D7_strict_clock_saturated")
+        .map(|r| r.significant_at_005.clone())
+        .unwrap_or_default();
+    let report = serde_json::json!({
+        "experiment": "does persistent homology on a genetic-distance point cloud \
+                       respond to reticulation, or to mutation?",
+        "why": "The theoretical warrant for reading an unfilled 1-cycle as \
+                reticulation is the same fact this crate's null rests on: a tree \
+                metric leaves no unfilled cycle. What a search of the literature \
+                did not find is an independent calibration of that method's \
+                SPECIFICITY. This grid supplies the ground truth: three datasets \
+                contain reticulation, four do not, and the saturated dataset \
+                differs from the baseline only in having ten times the \
+                divergence.",
+        "degeneracy_check": {
+            "why": "A bootstrap calibrates only if the null varies. If the null \
+                    never produces a cycle, the p-value is not a calibration: it \
+                    is the floor whenever the observed value is non-zero and 1 \
+                    otherwise, so the test reduces to `did a cycle appear at \
+                    all` and its counts must NOT be read as specificity or \
+                    power.",
+            "datasets_with_a_degenerate_null": rows
+                .iter()
+                .filter(|r| r.null_is_degenerate)
+                .map(|r| r.dataset)
+                .collect::<Vec<&str>>(),
+            "this_experiment_is_interpretable": !rows.iter().any(|r| r.null_is_degenerate),
+            "if_degenerate_the_fix": "More taxa, so that cycles occur in the null \
+                    often enough to calibrate against, and/or a larger Rips \
+                    threshold than the median off-diagonal distance. At 16 taxa \
+                    the complex is too small for H1 to be populated. See \
+                    docs/RETICULATA_NUMERICS_TOPOLOGY_ML.md section 2.1, which is \
+                    the work that makes larger taxon counts affordable."
+        },
+        "the_decisive_row": {
+            "dataset": "D7_strict_clock_saturated",
+            "contains_reticulation": false,
+            "differs_from_D1_only_by": "ten times the substitution rate",
+            "significant_at_0.05": saturated,
+            "reading": "A non-zero count here means the topological statistic is \
+                        responding to mutation rather than to reticulation, on \
+                        data where the answer is known. A 0/5 means it is \
+                        specific and the concern does not reproduce at these \
+                        parameters."
+        },
+        "calibration": {
+            "null": "parametric bootstrap under a matched tree null: clonal, \
+                     relaxed-clock, at each population's own width, mean \
+                     p-distance and gap load",
+            "replicates": replicates,
+            "p_value_floor": 1.0 / (replicates + 1) as f64,
+            "why_not_a_permutation": "A site-order permutation null is reported \
+                     to be blind to misalignment artefacts, and a shuffle null is \
+                     what Section 8 of the textbook used to no useful effect.",
+            "rips_scale": "median off-diagonal p-distance, per population"
+        },
+        "per_dataset": rows,
+    });
+    println!(
+        "{}",
+        serde_json::to_string_pretty(&report).map_err(|e| e.to_string())?
+    );
+    Ok(true)
+}
+
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().skip(1).collect();
     let result = match args.first().map(String::as_str) {
@@ -2635,6 +3305,8 @@ fn main() -> ExitCode {
         Some("fasta") => run_fasta(&args),
         Some("align-error") => run_align_error(&args),
         Some("real-data") => run_real_data(&args),
+        Some("breakpoint") => run_breakpoint(&args),
+        Some("topology") => run_topology(&args),
         _ => {
             eprintln!(
                 "usage:\n  reticulation controls [--length N] [--generations G] \
@@ -2646,7 +3318,9 @@ fn main() -> ExitCode {
                  [--out D]\n  reticulation fasta <FILE> [--model p|jc] \
                  [--top K] [--scale X]\n  reticulation align-error [--length N] \
                  [--deletion-rate R] [--seeds K]\n  reticulation real-data \
-                 [--populations DIR] [--band N] [--max-band N] [--seeds K]"
+                 [--populations DIR] [--band N] [--max-band N] [--seeds K]\n  \
+                 reticulation breakpoint --population <aligned.fasta> \
+                 [--provenance J] [--top K]"
             );
             return ExitCode::from(2);
         }

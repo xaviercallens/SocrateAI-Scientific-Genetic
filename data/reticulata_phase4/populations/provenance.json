@@ -1,0 +1,320 @@
+{
+  "source": {
+    "sequences": "https://data.nextstrain.org/files/ncov/open/aligned.fasta.zst",
+    "metadata": "https://data.nextstrain.org/files/ncov/open/metadata.tsv.zst",
+    "lineage_notes": "https://raw.githubusercontent.com/cov-lineages/pango-designation/master/lineage_notes.txt",
+    "alignment": "already aligned by Nextclade to MN908947; this project's aligner is not involved",
+    "caveat": "Using a published alignment removes OUR aligner from the trust surface and replaces it with Nextclade's, which is reference-anchored too and whose error we have not measured. Provenance improves; measurement coverage does not."
+  },
+  "filters": {
+    "min_coverage": 0.97,
+    "max_missing_data": 1000,
+    "selection": "first N qualifying strains in strain-name order"
+  },
+  "populations": [
+    {
+      "key": "xcm",
+      "file": "xcm_XCM_triad.fasta",
+      "sha256": "e22b0cc1d27326554126b42fd21379cb22e89919eb008ded229e42e550efe5fa",
+      "recombinant_lineage": "XCM",
+      "parent_lineages": [
+        "XBB.2.3",
+        "DV.7.1"
+      ],
+      "published_breakpoint": "breakpoint between 22017-22031",
+      "pango_note_verbatim": "Recombinant lineage of XBB.2.3 and DV.7.1 (breakpoint between 22017-22031), Spain/Italy, from sars-cov-2-variants/lineage-proposals#674",
+      "proposal_issue": "sars-cov-2-variants/lineage-proposals#674",
+      "why_this_triad": "The tightest published breakpoint interval we found -- 14 nucleotides -- with all three lineages well sampled.",
+      "records_requested": 16,
+      "records_written": 16,
+      "shortfall_by_lineage": {
+        "XBB.2.3": 0,
+        "DV.7.1": 0,
+        "XCM": 0
+      },
+      "members": [
+        {
+          "strain": "BHR/221107770/2023",
+          "lineage": "XBB.2.3",
+          "genbank_accession": "OQ781593",
+          "date": "2023-03-14",
+          "coverage": "0.9910376885262349",
+          "missing_data": "185"
+        },
+        {
+          "strain": "BHR/23020121156/2023",
+          "lineage": "XBB.2.3",
+          "genbank_accession": "OQ781404",
+          "date": "2023-03-05",
+          "coverage": "0.9886967862756245",
+          "missing_data": "221"
+        },
+        {
+          "strain": "BHR/23020124174/2023",
+          "lineage": "XBB.2.3",
+          "genbank_accession": "OQ781443",
+          "date": "2023-03-05",
+          "coverage": "0.9885295789720095",
+          "missing_data": "227"
+        },
+        {
+          "strain": "BHR/23020148198/2023",
+          "lineage": "XBB.2.3",
+          "genbank_accession": "OQ781736",
+          "date": "2023-03-26",
+          "coverage": "0.9899341203223757",
+          "missing_data": "194"
+        },
+        {
+          "strain": "BHR/23020178849_S11_L001/2023",
+          "lineage": "XBB.2.3",
+          "genbank_accession": "OQ871404",
+          "date": "2023-04-01",
+          "coverage": "0.9911045714476808",
+          "missing_data": "184"
+        },
+        {
+          "strain": "Denmark/DCGC-647782/2023",
+          "lineage": "DV.7.1",
+          "genbank_accession": "OY792605",
+          "date": "2023-08-14",
+          "coverage": "0.9872922449252584",
+          "missing_data": "380"
+        },
+        {
+          "strain": "Denmark/DCGC-657666/2023",
+          "lineage": "DV.7.1",
+          "genbank_accession": "OY789946",
+          "date": "2023-07-31",
+          "coverage": "0.984984784135371",
+          "missing_data": "449"
+        },
+        {
+          "strain": "Denmark/DCGC-659002/2023",
+          "lineage": "DV.7.1",
+          "genbank_accession": "OY779892",
+          "date": "2023-08-14",
+          "coverage": "0.9962879978597465",
+          "missing_data": "110"
+        },
+        {
+          "strain": "Denmark/DCGC-659081/2023",
+          "lineage": "DV.7.1",
+          "genbank_accession": "OY779469",
+          "date": "2023-08-21",
+          "coverage": "0.9927766444838311",
+          "missing_data": "216"
+        },
+        {
+          "strain": "Denmark/DCGC-659211/2023",
+          "lineage": "DV.7.1",
+          "genbank_accession": "OY779227",
+          "date": "2023-08-28",
+          "coverage": "0.9882954887469485",
+          "missing_data": "350"
+        },
+        {
+          "strain": "Denmark/DCGC-659711/2023",
+          "lineage": "XCM",
+          "genbank_accession": "OY777616",
+          "date": "2023-09-18",
+          "coverage": "0.9927766444838311",
+          "missing_data": "216"
+        },
+        {
+          "strain": "Denmark/DCGC-659727/2023",
+          "lineage": "XCM",
+          "genbank_accession": "OY777494",
+          "date": "2023-09-18",
+          "coverage": "0.9927766444838311",
+          "missing_data": "216"
+        },
+        {
+          "strain": "FRA/021-0088-N-C/2023",
+          "lineage": "XCM",
+          "genbank_accession": "PV125895",
+          "date": "2023-11-06",
+          "coverage": "0.9935457980804602",
+          "missing_data": "108"
+        },
+        {
+          "strain": "FRA/021-0088-W-R_2401V120191/2023",
+          "lineage": "XCM",
+          "genbank_accession": "PP357729",
+          "date": "2023-11-06",
+          "coverage": "0.9815737551416246",
+          "missing_data": "376"
+        },
+        {
+          "strain": "IMS-10285-CVDP-8AA4481B-3406-4CC1-B469-4CD31AEE4DBF",
+          "lineage": "XCM",
+          "genbank_accession": "?",
+          "date": "2023-11-16",
+          "coverage": "0.9952847540380564",
+          "missing_data": "141"
+        },
+        {
+          "strain": "IMS-10285-CVDP-DD890C0B-3AE9-4577-9C11-154A3E8A3164",
+          "lineage": "XCM",
+          "genbank_accession": "?",
+          "date": "2023-09-14",
+          "coverage": "0.9853191987426011",
+          "missing_data": "439"
+        }
+      ],
+      "prediction": "Pre-registered: the quartet certificate's dominant pairing should separate the two PARENT lineages, with recombinant members on the other side -- the planted-recombinant signature. A dominant pairing that instead separates two members of the same lineage would contradict this."
+    },
+    {
+      "key": "xcp",
+      "file": "xcp_XCP_triad.fasta",
+      "sha256": "ef924821d6231491babfe3ad4834b33323b72f4e52f8e80e43c531a92556684a",
+      "recombinant_lineage": "XCP",
+      "parent_lineages": [
+        "EG.5.1.10",
+        "JD.1.1"
+      ],
+      "published_breakpoint": "breakpoint between 14190-14633",
+      "pango_note_verbatim": "Recombinant lineage of EG.5.1.10 and JD.1.1 (breakpoint between 14190-14633), France/Denmark/England, from sars-cov-2-variants/lineage-proposals#772",
+      "proposal_issue": "sars-cov-2-variants/lineage-proposals#772",
+      "why_this_triad": "A breakpoint in ORF1b rather than in S, so the two inherited segments are of very different lengths. One parent lineage is thinly sampled.",
+      "records_requested": 16,
+      "records_written": 16,
+      "shortfall_by_lineage": {
+        "EG.5.1.10": 0,
+        "JD.1.1": 0,
+        "XCP": 0
+      },
+      "members": [
+        {
+          "strain": "OY729225",
+          "lineage": "EG.5.1.10",
+          "genbank_accession": "OY729225",
+          "date": "2023-08-16",
+          "coverage": "0.9952513125773333",
+          "missing_data": "142"
+        },
+        {
+          "strain": "OY738532",
+          "lineage": "EG.5.1.10",
+          "genbank_accession": "OY738532",
+          "date": "2023-09-09",
+          "coverage": "0.9969568270742066",
+          "missing_data": "91"
+        },
+        {
+          "strain": "OY738809",
+          "lineage": "EG.5.1.10",
+          "genbank_accession": "OY738809",
+          "date": "2023-09-08",
+          "coverage": "0.9832792696384978",
+          "missing_data": "499"
+        },
+        {
+          "strain": "OY739796",
+          "lineage": "EG.5.1.10",
+          "genbank_accession": "OY739796",
+          "date": "2023-09-13",
+          "coverage": "0.9784971407551082",
+          "missing_data": "642"
+        },
+        {
+          "strain": "OY742460",
+          "lineage": "EG.5.1.10",
+          "genbank_accession": "OY742460",
+          "date": "2023-09-19",
+          "coverage": "0.977794870079925",
+          "missing_data": "664"
+        },
+        {
+          "strain": "BOL/BOL0374/2023",
+          "lineage": "JD.1.1",
+          "genbank_accession": "PZ297690",
+          "date": "2023-12-22",
+          "coverage": "0.9945490419021503",
+          "missing_data": "23"
+        },
+        {
+          "strain": "BOL/BOL0387/2023",
+          "lineage": "JD.1.1",
+          "genbank_accession": "PZ297700",
+          "date": "2023-12-26",
+          "coverage": "0.9957194930274554",
+          "missing_data": "0"
+        },
+        {
+          "strain": "BOL/BOL0413/2023",
+          "lineage": "JD.1.1",
+          "genbank_accession": "PZ297715",
+          "date": "2023-12-28",
+          "coverage": "0.9953181954987794",
+          "missing_data": "0"
+        },
+        {
+          "strain": "BOL/BOL0421/2023",
+          "lineage": "JD.1.1",
+          "genbank_accession": "PZ297722",
+          "date": "2023-12-29",
+          "coverage": "0.9953181954987794",
+          "missing_data": "0"
+        },
+        {
+          "strain": "BOL/BOL0437/2024",
+          "lineage": "JD.1.1",
+          "genbank_accession": "PZ297734",
+          "date": "2024-01-02",
+          "coverage": "0.9970905929170987",
+          "missing_data": "8"
+        },
+        {
+          "strain": "Denmark/DCGC-659003/2023",
+          "lineage": "XCP",
+          "genbank_accession": "OY778571",
+          "date": "2023-08-21",
+          "coverage": "0.9952847540380564",
+          "missing_data": "141"
+        },
+        {
+          "strain": "Denmark/DCGC-659547/2023",
+          "lineage": "XCP",
+          "genbank_accession": "OY779670",
+          "date": "2023-09-11",
+          "coverage": "0.9936795639233522",
+          "missing_data": "189"
+        },
+        {
+          "strain": "Denmark/DCGC-659629/2023",
+          "lineage": "XCP",
+          "genbank_accession": "OY779166",
+          "date": "2023-08-28",
+          "coverage": "0.9870915961609203",
+          "missing_data": "386"
+        },
+        {
+          "strain": "Denmark/DCGC-659648/2023",
+          "lineage": "XCP",
+          "genbank_accession": "OY777585",
+          "date": "2023-09-04",
+          "coverage": "0.9936795639233522",
+          "missing_data": "189"
+        },
+        {
+          "strain": "Denmark/DCGC-659651/2023",
+          "lineage": "XCP",
+          "genbank_accession": "OY776951",
+          "date": "2023-09-04",
+          "coverage": "0.9936461224626292",
+          "missing_data": "190"
+        },
+        {
+          "strain": "Denmark/DCGC-659686/2023",
+          "lineage": "XCP",
+          "genbank_accession": "OY777510",
+          "date": "2023-09-11",
+          "coverage": "0.9875263351503194",
+          "missing_data": "373"
+        }
+      ],
+      "prediction": "Pre-registered: the quartet certificate's dominant pairing should separate the two PARENT lineages, with recombinant members on the other side -- the planted-recombinant signature. A dominant pairing that instead separates two members of the same lineage would contradict this."
+    }
+  ]
+}

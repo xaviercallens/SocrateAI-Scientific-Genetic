@@ -897,34 +897,51 @@ anything in the original plan:
    count is invariant under permutation, the permutation test compares integers:
    exact, like the certificate.
 
-   | dataset | reticulation | Φw significant at 0.05 | our quartet margin above D1's floor | agree |
-   | :--- | :--: | :--: | :--: | :--: |
-   | D1 clonal, strict clock | no | 0/5 | 0/5 | yes |
-   | D2 clonal, **relaxed clock** | no | **0/5** | 0/5 | yes |
-   | D3 one recombinant | yes | 5/5 | 5/5 | yes |
-   | D4 relaxed clock + one recombinant | yes | 5/5 | 5/5 | yes |
-   | D5 reciprocal mosaics | yes | 5/5 | 5/5 | yes |
-   | D6 gap blocks | no | **no measurement** | 5/5 | no |
-   | D7 saturated | no | **0/5** | 5/5 | no |
+   | dataset | reticulation | Φw at 0.05 | ours vs **D1's** floor | ours vs its **own matched** floor | calibrated mean δq |
+   | :--- | :--: | :--: | :--: | :--: | :--: |
+   | D1 clonal, strict clock | no | 0/5 | 0/5 | **0/5** | 0/5 |
+   | D2 clonal, **relaxed clock** | no | **0/5** | 0/5 | **0/5** | 0/5 |
+   | D3 one recombinant | yes | 5/5 | 5/5 | **5/5** | 5/5 |
+   | D4 relaxed clock + one recombinant | yes | 5/5 | 5/5 | **5/5** | 5/5 |
+   | D5 reciprocal mosaics | yes | 5/5 | 5/5 | **5/5** | 5/5 |
+   | D6 gap blocks | no | **no measurement** | 5/5 | **0/5** | 0/5 |
+   | D7 saturated | no | **0/5** | 5/5 | **0/5** | 0/5 |
 
-   **On the five datasets where both can be measured and the comparison is
-   commensurable, the two tests agree exactly.** Both are specific on the
-   strict-clock *and* the relaxed-clock null — so Φw is untouched by the confound
-   that destroyed our triple statistic, exactly as its no-clock null implies —
-   and both detect all three reticulate populations at every seed. The incumbent
-   is not beaten on power, and **this method's case cannot rest on power.** That
-   is a correction to how Paper F edition 1 framed the missing comparison: it
-   was framed as the validation we lacked, and it turns out to be a tie.
+   **The fourth column was an unfair comparison and the fifth replaces it.** An
+   earlier version of this table reported only "ours vs D1's floor" and so
+   recorded the certificate as firing 5/5 on the two no-reticulation datasets D6
+   and D7. That was the incommensurability recorded three times in this document,
+   committed a fourth time against ourselves: D6 has gaps, so a different
+   denominator, and D7 has ten times the divergence, so a different noise floor.
+   Given a floor matched to its *own* width, divergence and gap load — the same
+   construction `real-data` uses, and the same the calibrated averaged statistic
+   gets — **the certificate is specific on all four no-reticulation datasets and
+   detects all three reticulate ones at every seed.** Nothing about the method
+   changed; the comparison was corrected.
 
-   Two asymmetries appear, one each way. The incumbent needs **no recalibration
-   when divergence changes** — it is specific on D7 at ten times the divergence,
-   where our raw margin against D1's floor fires at 5/5. That 5/5 is the
-   incommensurability already recorded three times in this document rather than
-   a measured false positive (D7's denominator and divergence are not D1's), and
-   the matched-floor machinery of §11.6 exists for it; but needing a matched null
-   at all is a real cost the incumbent does not pay. Conversely the incumbent
-   returns **no measurement** on the gap-blocked dataset, having too few
-   biallelic gap-free informative columns, where complete deletion still works.
+   A third detector is in the table for the same reason. Mean δq, calibrated as a
+   *test* by parametric bootstrap under a matched tree null rather than reported
+   as a score, is the fairest possible competitor: same quadruples, same
+   alignment, same matched-null discipline, no permutation. It too is 0/5 and
+   5/5 throughout.
+
+   **Once every detector is judged against a matched null, all three agree on
+   all seven datasets** — perfect specificity on the four without reticulation,
+   detection at every seed on the three with it — except that Φw cannot be
+   measured on the gap-blocked data at all. The incumbent is not beaten on power,
+   and **this method's case cannot rest on power.** That is a correction to how
+   Paper F edition 1 framed the missing comparison: it was framed as the
+   validation we lacked, and it turns out to be a three-way tie.
+
+   Two asymmetries survive the correction, one each way. The incumbent's null is
+   a **permutation of site order**, so it needs no matched simulation at all;
+   both the certificate and the calibrated average need one, and that is a real
+   operational cost the incumbent does not pay. Conversely the incumbent returns
+   **no measurement** on the gap-blocked dataset, having too few biallelic
+   gap-free informative columns once complete deletion is applied, where both of
+   the others correctly return "no reticulation". And the permutation null is not
+   free of consequence either: it is precisely the null class the RDP5 manual
+   reports as blind to misalignment artefacts.
 
    What this method has that the incumbent does not is not power: it is an
    **exhibitable witness** a kernel recomputes, and the **absence of a
@@ -1015,3 +1032,136 @@ the absence of reticulation, nor does a violation pin down the tree
 
 Full report: [`reports/Reticulata next research directions.md`](../../../../reports/Reticulata%20next%20research%20directions.md) in the workspace root, with
 seven note files behind it.
+
+## 12. Phase 4 — published breakpoints, and the resolution limit they reveal
+
+§11's real-data result rested on two weak things: a literature *expectation* that
+a family recombines, and an alignment from our own aligner, whose error we
+therefore had to measure and gate on. Phase 4 replaces both — and finds the
+method's resolution limit by doing so.
+
+### 12.1 Ground truth that is named rather than expected
+
+The Pango designation process records SARS-CoV-2 recombinants as `X*` lineages
+with their parent lineages and, for many, an explicit numeric breakpoint interval
+in reference coordinates, each traceable to a reviewed proposal. Nextstrain
+publishes an open, non-GISAID release **already aligned** by Nextclade to
+MN908947 — the same coordinate frame the breakpoints are quoted in. So:
+
+| population | recombinant | parents | published breakpoint |
+| :--- | :--- | :--- | :--- |
+| `xcm_XCM_triad` | XCM | XBB.2.3 × DV.7.1 | between 22017–22031 |
+| `xcp_XCP_triad` | XCP | EG.5.1.10 × JD.1.1 | between 14190–14633 |
+
+Sixteen genomes each — 5 + 5 from the parent lineages, 6 from the recombinant —
+selected by `scripts/reticulata_sarscov2_breakpoint_populations.py` under filters
+fixed in advance (coverage ≥ 0.97, missing data ≤ 1000, first *n* in strain-name
+order), with no shortfall in any lineage. The script streams ~2.2 GB and stores
+only what it selects.
+
+**The caveat, stated rather than buried.** This removes *our* aligner from the
+trust surface and replaces it with Nextclade's, which is reference-anchored too —
+the same construction, and therefore the same class of error §11.3 measures.
+Provenance improves: the alignment is produced independently, by a standard tool,
+and is citable. Measurement coverage does not: we have not measured Nextclade's
+error, so the admissibility gate calibrated for our aligner does not transfer and
+is not applied. The gap load is reported instead (0.003 on both).
+
+### 12.2 A prediction about *which* sequences, not about a margin
+
+If the certificate detects the recombination the designation process named, its
+dominant pairing should separate the two **parent** lineages with a recombinant
+on the other side — the planted-recombinant shape. That constrains which four
+sequences the method picks, which a margin cannot, and it was registered before
+the test ran.
+
+| population | prediction | certificates separating the parents | margin | matched floor |
+| :--- | :--: | :--: | --: | :--- |
+| XCP | **held** | 6 of 10 | 2/28920 | **none** (degenerate) |
+| XCM | **failed** | 0 of 10 | 4/28511 | 3/29531 |
+
+On XCP the method picked the two true parents, EG.5.1.10 and JD.1.1, as the far
+pair in six of its ten strongest certificates. On XCM it did not: every one of
+its ten certificates paired a parent with a recombinant on each side.
+
+One of two is a split result, and it is reported as one.
+
+### 12.3 The finding that matters is a resolution limit
+
+Both margins are at the edge of what the statistic can resolve, and the artifacts
+now say so themselves:
+
+| population | mean p-distance | implied differing sites genome-wide | margin, in sites |
+| :--- | --: | --: | --: |
+| XCP | 0.00057 | ~17 | **2** |
+| XCM | 0.00127 | ~38 | **4** |
+
+A margin is a count of differing sites over a quadruple's common columns. When a
+population differs by a few tens of sites across 29 903 columns, a margin of two
+or four sites cannot carry a verdict however the floor comparison comes out. And
+XCP's floor comparison is itself degenerate: the matched null produced **no
+violating quadruple in any replicate**, so `exceeds_floor` reduces to "the
+observed margin is positive" and carries no calibration. Both the degeneracy flag
+and the resolution warning are now computed in the output rather than left to
+prose, the same discipline §12.4 applies to the topology experiment.
+
+**So the honest conclusion is about applicability, and it cuts against the
+direction we pursued:** SARS-CoV-2 recombinants between recently-diverged
+lineages sit *below* this method's resolution. There is a real tension here worth
+naming, because it will recur — **the datasets with the best ground truth are the
+least divergent**, since recombinants get named between lineages that are close
+enough to be confidently assigned. Phase 3's populations, at mean p-distance
+0.0088 (Hepatitis B) and 0.11 (Coxsackievirus A6), were far better suited to the
+statistic and far worse supplied with ground truth.
+
+The one encouraging signal, and it is labelled as suggestive rather than
+evidence: on XCP the *pairing* was right in 6 of 10 certificates at a margin of
+two sites. The method pointed at the correct two parents in a regime where its
+magnitude means nothing.
+
+### 12.4 Persistent homology: the experiment is inconclusive, and the artifact says so
+
+`reticulation topology` tests something the literature review found missing — no
+peer-reviewed independent calibration of persistent-homology specificity for this
+application appears to exist, and the one unpublished evaluation reports the
+cycle rate tracking point-mutation rate rather than recombination rate. Our grid
+has the ground truth to settle it: the saturated dataset differs from the
+baseline only in having ten times the substitution rate.
+
+The experiment **cannot answer the question as set up**, and the output reports
+`"this_experiment_is_interpretable": false`. The matched null produced no cycle
+in **495 of 495 replicates** on five of the seven datasets, so the p-value
+collapses to two values — the floor 0.010 whenever the observed value is
+non-zero, and 1.000 otherwise. The bootstrap calibrates nothing; the test reduces
+to "did a cycle appear at all". Consequently the 2/5 counts on the three
+reticulate datasets *and* on the saturated one are that binary, and must not be
+read as power or specificity. The concern is **not** reproduced here; neither is
+it refuted.
+
+Diagnosed cause: at 16 taxa with a Rips threshold at the median off-diagonal
+distance, the complex is too small for H₁ to populate. The fix is more taxa, so
+that cycles occur in the null often enough to calibrate against, and/or a larger
+threshold — which reorders the plan in
+[`RETICULATA_NUMERICS_TOPOLOGY_ML.md`](./RETICULATA_NUMERICS_TOPOLOGY_ML.md):
+the bit-parallel counting of its §2.1 has to come *before* the topology test, not
+after it.
+
+One observation survives the degeneracy and is worth keeping. When cycles do
+appear, the reciprocal-mosaic dataset's total persistence is an order of
+magnitude larger (0.0107, 0.0095) than the single-recombinant or saturated ones
+(0.0003–0.0013). The *magnitude* may separate where the binary verdict cannot,
+which is an argument for the same fix.
+
+### 12.5 The four-way comparison, corrected
+
+§11.8's table reported the certificate against the strict-clock dataset's floor
+and the competitors against matched nulls. That was the incommensurability this
+document has recorded three times, committed a fourth time against ourselves. The
+corrected table, with every detector judged against a null matched to each
+dataset's own width, divergence and gap load, is in §11.8 — and with that
+correction the certificate is specific on all four no-reticulation datasets and
+detects all three reticulate ones at every seed, as do Φw and the calibrated
+averaged statistic. Φw alone cannot be measured on gap-blocked data.
+
+Raw output: [`data/reticulata_phase4/`](../data/reticulata_phase4/) and
+[`data/reticulata_phase2/topology.json`](../data/reticulata_phase2/topology.json).

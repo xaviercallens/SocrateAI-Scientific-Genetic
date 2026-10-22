@@ -1,0 +1,279 @@
+{
+  "certificates": [
+    {
+      "common_columns": 28511,
+      "dominant_pair": [
+        "Denmark/DCGC-657666/2023",
+        "FRA/021-0088-W-R_2401V120191/2023"
+      ],
+      "dominant_pair_lineages": [
+        "DV.7.1",
+        "XCM"
+      ],
+      "margin": 0.00014029672757882923,
+      "margin_exact": "4/28511",
+      "other_side": [
+        "BHR/23020121156/2023",
+        "IMS-10285-CVDP-DD890C0B-3AE9-4577-9C11-154A3E8A3164"
+      ],
+      "other_side_lineages": [
+        "XBB.2.3",
+        "XCM"
+      ],
+      "separates_the_two_parent_lineages": false
+    },
+    {
+      "common_columns": 28511,
+      "dominant_pair": [
+        "BHR/23020121156/2023",
+        "IMS-10285-CVDP-DD890C0B-3AE9-4577-9C11-154A3E8A3164"
+      ],
+      "dominant_pair_lineages": [
+        "XBB.2.3",
+        "XCM"
+      ],
+      "margin": 0.00014029672757882923,
+      "margin_exact": "4/28511",
+      "other_side": [
+        "Denmark/DCGC-647782/2023",
+        "FRA/021-0088-W-R_2401V120191/2023"
+      ],
+      "other_side_lineages": [
+        "DV.7.1",
+        "XCM"
+      ],
+      "separates_the_two_parent_lineages": false
+    },
+    {
+      "common_columns": 28538,
+      "dominant_pair": [
+        "BHR/23020148198/2023",
+        "IMS-10285-CVDP-DD890C0B-3AE9-4577-9C11-154A3E8A3164"
+      ],
+      "dominant_pair_lineages": [
+        "XBB.2.3",
+        "XCM"
+      ],
+      "margin": 0.00014016399187048847,
+      "margin_exact": "4/28538",
+      "other_side": [
+        "Denmark/DCGC-657666/2023",
+        "FRA/021-0088-W-R_2401V120191/2023"
+      ],
+      "other_side_lineages": [
+        "DV.7.1",
+        "XCM"
+      ],
+      "separates_the_two_parent_lineages": false
+    },
+    {
+      "common_columns": 28538,
+      "dominant_pair": [
+        "BHR/23020148198/2023",
+        "IMS-10285-CVDP-DD890C0B-3AE9-4577-9C11-154A3E8A3164"
+      ],
+      "dominant_pair_lineages": [
+        "XBB.2.3",
+        "XCM"
+      ],
+      "margin": 0.00014016399187048847,
+      "margin_exact": "4/28538",
+      "other_side": [
+        "Denmark/DCGC-647782/2023",
+        "FRA/021-0088-W-R_2401V120191/2023"
+      ],
+      "other_side_lineages": [
+        "DV.7.1",
+        "XCM"
+      ],
+      "separates_the_two_parent_lineages": false
+    },
+    {
+      "common_columns": 28547,
+      "dominant_pair": [
+        "BHR/221107770/2023",
+        "IMS-10285-CVDP-DD890C0B-3AE9-4577-9C11-154A3E8A3164"
+      ],
+      "dominant_pair_lineages": [
+        "XBB.2.3",
+        "XCM"
+      ],
+      "margin": 0.00014011980243107858,
+      "margin_exact": "4/28547",
+      "other_side": [
+        "Denmark/DCGC-657666/2023",
+        "FRA/021-0088-W-R_2401V120191/2023"
+      ],
+      "other_side_lineages": [
+        "DV.7.1",
+        "XCM"
+      ],
+      "separates_the_two_parent_lineages": false
+    },
+    {
+      "common_columns": 28547,
+      "dominant_pair": [
+        "BHR/221107770/2023",
+        "IMS-10285-CVDP-DD890C0B-3AE9-4577-9C11-154A3E8A3164"
+      ],
+      "dominant_pair_lineages": [
+        "XBB.2.3",
+        "XCM"
+      ],
+      "margin": 0.00014011980243107858,
+      "margin_exact": "4/28547",
+      "other_side": [
+        "Denmark/DCGC-647782/2023",
+        "FRA/021-0088-W-R_2401V120191/2023"
+      ],
+      "other_side_lineages": [
+        "DV.7.1",
+        "XCM"
+      ],
+      "separates_the_two_parent_lineages": false
+    },
+    {
+      "common_columns": 28548,
+      "dominant_pair": [
+        "Denmark/DCGC-657666/2023",
+        "FRA/021-0088-W-R_2401V120191/2023"
+      ],
+      "dominant_pair_lineages": [
+        "DV.7.1",
+        "XCM"
+      ],
+      "margin": 0.00014011489421325487,
+      "margin_exact": "4/28548",
+      "other_side": [
+        "BHR/23020178849_S11_L001/2023",
+        "IMS-10285-CVDP-DD890C0B-3AE9-4577-9C11-154A3E8A3164"
+      ],
+      "other_side_lineages": [
+        "XBB.2.3",
+        "XCM"
+      ],
+      "separates_the_two_parent_lineages": false
+    },
+    {
+      "common_columns": 28548,
+      "dominant_pair": [
+        "Denmark/DCGC-647782/2023",
+        "FRA/021-0088-W-R_2401V120191/2023"
+      ],
+      "dominant_pair_lineages": [
+        "DV.7.1",
+        "XCM"
+      ],
+      "margin": 0.00014011489421325487,
+      "margin_exact": "4/28548",
+      "other_side": [
+        "BHR/23020178849_S11_L001/2023",
+        "IMS-10285-CVDP-DD890C0B-3AE9-4577-9C11-154A3E8A3164"
+      ],
+      "other_side_lineages": [
+        "XBB.2.3",
+        "XCM"
+      ],
+      "separates_the_two_parent_lineages": false
+    },
+    {
+      "common_columns": 28564,
+      "dominant_pair": [
+        "Denmark/DCGC-659211/2023",
+        "FRA/021-0088-W-R_2401V120191/2023"
+      ],
+      "dominant_pair_lineages": [
+        "DV.7.1",
+        "XCM"
+      ],
+      "margin": 0.0001400364094664613,
+      "margin_exact": "4/28564",
+      "other_side": [
+        "BHR/23020121156/2023",
+        "IMS-10285-CVDP-DD890C0B-3AE9-4577-9C11-154A3E8A3164"
+      ],
+      "other_side_lineages": [
+        "XBB.2.3",
+        "XCM"
+      ],
+      "separates_the_two_parent_lineages": false
+    },
+    {
+      "common_columns": 28591,
+      "dominant_pair": [
+        "BHR/23020148198/2023",
+        "IMS-10285-CVDP-DD890C0B-3AE9-4577-9C11-154A3E8A3164"
+      ],
+      "dominant_pair_lineages": [
+        "XBB.2.3",
+        "XCM"
+      ],
+      "margin": 0.00013990416564653213,
+      "margin_exact": "4/28591",
+      "other_side": [
+        "Denmark/DCGC-659211/2023",
+        "FRA/021-0088-W-R_2401V120191/2023"
+      ],
+      "other_side_lineages": [
+        "DV.7.1",
+        "XCM"
+      ],
+      "separates_the_two_parent_lineages": false
+    }
+  ],
+  "experiment": "the four-point test on a population whose recombination has a published breakpoint, in an alignment this project did not produce",
+  "matched_floor": {
+    "achieved_divergence": 0.0016132718010456028,
+    "degenerate_means": "The matched null produced no violating                 quadruple in any replicate, so `exceeds_floor` reduces to                 `the observed margin is positive` and carries no calibration.                 Raise the replicate count, or read this population as below the                 method's resolution at its divergence.",
+    "exceeds_floor": true,
+    "exceeds_twice_floor": false,
+    "margin": "3/29531",
+    "margin_f64": 0.00010158816159290238,
+    "mu": 0.00020472433710194763,
+    "null_is_degenerate": false
+  },
+  "observed_margin": "4/28511",
+  "population": {
+    "alignment_width": 29903,
+    "file": "../../data/reticulata_phase4/populations/xcm_XCM_triad.fasta",
+    "gap_fraction": 0.0031184162124201584,
+    "lineage_known_for": 16,
+    "max_p_distance": 0.0023021193039474575,
+    "mean_p_distance": 0.0012719491365477688,
+    "parent_lineages": [
+      "XBB.2.3",
+      "DV.7.1"
+    ],
+    "published_breakpoint": "breakpoint between 22017-22031",
+    "recombinant_lineage": "XCM",
+    "taxa": 16
+  },
+  "preregistered_prediction": {
+    "certificates_examined": 10,
+    "certificates_separating_the_parents": 0,
+    "claim": "If the certificate detects the recombination the Pango process named, its dominant pairing separates the two PARENT lineages with a recombinant on the other side.",
+    "held": false,
+    "why_this_is_stronger_than_a_margin": "It constrains WHICH four sequences the method picks and how it sides them, not just how large a number it reports. A margin can be large for many reasons; picking the two parents cannot."
+  },
+  "provenance_of_the_alignment": {
+    "aligner": "Nextclade, to MN908947, in Nextstrain's open release",
+    "caveat": "This removes OUR aligner from the trust surface and replaces it with theirs, which is reference-anchored too and whose error we have not measured. The admissibility gate calibrated for our aligner therefore does NOT transfer and is not applied here; the gap fraction above is reported in its place.",
+    "ours_is_not_involved": true
+  },
+  "quartet_distribution": {
+    "examined": 1820,
+    "max_delta_q": 1.0,
+    "mean_delta_q": 0.05008596206398401,
+    "mean_p_distance": 0.0012719491365477688,
+    "proportion_violating": 0.1357142857142857,
+    "q_residual": 0.000885246208260201,
+    "skipped_no_common_columns": 0,
+    "violating": 247
+  },
+  "resolution_warning": {
+    "differing_sites_implied": 38.03509503018793,
+    "margin_in_sites": 4,
+    "mean_p_distance": 0.0012719491365477688,
+    "reading": "The margin is a count of differing sites over the                 quadruple's common columns. When the population's mean                 p-distance implies only a few tens of differing sites                 genome-wide, a margin of one or two sites is at the edge of what                 the statistic can resolve, and a verdict should not rest on it                 however the floor comparison comes out."
+  }
+}
