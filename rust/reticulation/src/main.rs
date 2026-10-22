@@ -1361,6 +1361,1017 @@ fn run_verify_tree(args: &[String]) -> Result<bool, String> {
     Ok(true)
 }
 
+/// Per-quadruple four-point verdicts, in canonical enumeration order.
+///
+/// Returned as flags rather than margins on purpose. Two alignments of the same
+/// population have different widths, so their margins have different
+/// denominators and comparing the magnitudes would repeat the mistake that
+/// finding 6 of the Phase 1 audit and P6 of the Phase 2 experiment both turned
+/// on. Verdicts are commensurable; margins are not.
+fn quartet_verdicts(aln: &reticulation::subset::Alignment) -> (Vec<bool>, usize) {
+    let n = aln.len();
+    let mut flags = Vec::new();
+    let mut skipped = 0usize;
+    for i in 0..n {
+        for j in (i + 1)..n {
+            for k in (j + 1)..n {
+                for l in (k + 1)..n {
+                    let counts = aln.quadruple_counts(i, j, k, l);
+                    if counts.common == 0 {
+                        skipped += 1;
+                        flags.push(false);
+                        continue;
+                    }
+                    let sums = counts.pairing_sums();
+                    let top = sums.iter().copied().max().unwrap_or(0);
+                    let strictly_dominant = sums.iter().filter(|&&s| s == top).count() == 1;
+                    flags.push(strictly_dominant);
+                }
+            }
+        }
+    }
+    (flags, skipped)
+}
+
+/// Mean and maximum p-distance of an already-built alignment.
+fn alignment_divergence(labels: &[String], rows: &[Vec<u8>]) -> (f64, f64) {
+    let pop = reticulation::simulate::Population {
+        labels: labels.to_vec(),
+        sequences: rows.to_vec(),
+    };
+    divergence(&pop)
+}
+
+/// Gap fraction of a row set.
+fn gap_fraction(rows: &[Vec<u8>]) -> f64 {
+    let total: usize = rows.iter().map(Vec::len).sum();
+    if total == 0 {
+        return 0.0;
+    }
+    let gaps: usize = rows
+        .iter()
+        .map(|row| row.iter().filter(|&&b| b == b'-').count())
+        .sum();
+    gaps as f64 / total as f64
+}
+
+/// Does reference-anchored alignment manufacture quartet certificates?
+///
+/// This is the control the Lean kernel cannot supply. A certificate proves an
+/// arithmetic fact about counts taken from the sequences it embeds; if the
+/// alignment put the wrong residues in the same column, those counts are
+/// faithfully computed from the wrong data and the kernel will accept them. The
+/// trust surface of Phase 2 therefore grows by exactly one item when real data
+/// enters — the alignment — and the only honest way to size it is to align data
+/// whose true alignment is known.
+///
+/// So: simulate clonal, relaxed-clock descent with deletion events, which has
+/// **no reticulation in it at all**; keep the true alignment; strip the gaps;
+/// realign; and compare per-quadruple verdicts. Any quadruple the inferred
+/// alignment calls a four-point violation and the true alignment does not was
+/// manufactured by the aligner.
+fn run_align_error(args: &[String]) -> Result<bool, String> {
+    use reticulation::align::{
+        centroid_reference, reference_anchored_alignment, ReferenceAnchored, Scoring,
+    };
+    use reticulation::simulate::{clonal_tree_relaxed_with_deletions, DeletionModel};
+    use reticulation::subset::{find_quartet_certificates, Alignment};
+
+    let length: usize = parse_flag(args, "--length", 2000);
+    let generations: u32 = parse_flag(args, "--generations", 4);
+    let mu: f64 = parse_flag(args, "--mu", 0.004);
+    let spread: f64 = parse_flag(args, "--spread", 1.0);
+    let deletion_rate: f64 = parse_flag(args, "--deletion-rate", 0.3);
+    let mean_deletion: usize = parse_flag(args, "--mean-deletion", 30);
+    let max_gap: f64 = parse_flag(args, "--max-gap-fraction", 0.2);
+    let seeds: u64 = parse_flag(args, "--seeds", 5);
+    let band: usize = parse_flag(args, "--band", 64);
+    let max_band: usize = parse_flag(args, "--max-band", 2048);
+    let max_quadruples: usize = parse_flag(args, "--max-quadruples", 20_000);
+
+    let scoring = Scoring::default();
+
+    let infer = |labels: &[String], raw: &[Vec<u8>]| -> Result<ReferenceAnchored, String> {
+        let reference = centroid_reference(raw);
+        reference_anchored_alignment(labels, raw, reference, &scoring, band, max_band)
+    };
+
+    // --- A1, the identity control: with no deletions the aligner must be the
+    // identity, so every simulated result of Phase 2 is unchanged by routing it
+    // through this module.
+    let mut identity_holds = true;
+    let mut identity_detail = String::new();
+    for seed in 1..=seeds {
+        let pop = clonal_tree_relaxed_with_deletions(
+            length,
+            generations,
+            mu,
+            spread,
+            &DeletionModel {
+                rate: 0.0,
+                mean_length: mean_deletion,
+                max_gap_fraction: max_gap,
+            },
+            seed,
+        );
+        let anchored = infer(&pop.labels, &pop.raw)?;
+        if anchored.rows != pop.truth.sequences {
+            identity_holds = false;
+            identity_detail = format!(
+                "seed {seed}: the inferred alignment of gapless input differs from the input"
+            );
+            break;
+        }
+        // Stronger than equality of rows: the optimal score must equal the
+        // score of the diagonal, which is what makes the identity optimal
+        // rather than merely returned.
+        let reference_row = &pop.raw[anchored.reference_index];
+        for (index, row) in pop.raw.iter().enumerate() {
+            if index == anchored.reference_index {
+                continue;
+            }
+            let diagonal: i64 = reference_row
+                .iter()
+                .zip(row)
+                .map(|(left, right)| {
+                    if left == right {
+                        scoring.match_score as i64
+                    } else {
+                        scoring.mismatch as i64
+                    }
+                })
+                .sum();
+            if anchored.scores[index] != diagonal {
+                identity_holds = false;
+                identity_detail = format!(
+                    "seed {seed}, sequence {index}: optimal score {} is not the diagonal \
+                     score {diagonal}",
+                    anchored.scores[index]
+                );
+                break;
+            }
+        }
+        if !identity_holds {
+            break;
+        }
+    }
+
+    #[derive(serde::Serialize, Clone)]
+    struct AlignErrorSeed {
+        seed: u64,
+        deletion_events: usize,
+        truth_gap_fraction: f64,
+        inferred_gap_fraction: f64,
+        inferred_width: usize,
+        truth_width: usize,
+        insertions_dropped: usize,
+        reference_label: String,
+        column_recovery: f64,
+        mean_p_distance: f64,
+        quadruples: usize,
+        truth_violating: usize,
+        inferred_violating: usize,
+        agree: usize,
+        manufactured_by_alignment: usize,
+        lost_to_alignment: usize,
+        truth_margin: String,
+        inferred_margin: String,
+    }
+
+    let measure_tier = |deletion_rate: f64,
+                        mean_deletion: usize,
+                        max_gap: f64|
+     -> Result<Vec<AlignErrorSeed>, String> {
+    let mut rows: Vec<AlignErrorSeed> = Vec::new();
+    for seed in 1..=seeds {
+        let pop = clonal_tree_relaxed_with_deletions(
+            length,
+            generations,
+            mu,
+            spread,
+            &DeletionModel {
+                rate: deletion_rate,
+                mean_length: mean_deletion,
+                max_gap_fraction: max_gap,
+            },
+            seed,
+        );
+        let truth_aln = Alignment::new(pop.labels.clone(), pop.truth.sequences.clone())?;
+        let anchored = infer(&pop.labels, &pop.raw)?;
+        let inferred_aln = Alignment::new(anchored.labels.clone(), anchored.rows.clone())?;
+
+        // Column recovery: project the truth onto the reference's surviving
+        // columns, which is exactly the frame the inferred alignment uses.
+        let reference_row = &pop.truth.sequences[anchored.reference_index];
+        let truth_columns: Vec<usize> = reference_row
+            .iter()
+            .enumerate()
+            .filter(|&(_, &b)| b != b'-')
+            .map(|(p, _)| p)
+            .collect();
+        let mut compared = 0usize;
+        let mut identical = 0usize;
+        if truth_columns.len() == anchored.width {
+            for (s, row) in anchored.rows.iter().enumerate() {
+                for (c, &column) in truth_columns.iter().enumerate() {
+                    compared += 1;
+                    if row[c] == pop.truth.sequences[s][column] {
+                        identical += 1;
+                    }
+                }
+            }
+        }
+        let column_recovery = if compared == 0 {
+            0.0
+        } else {
+            identical as f64 / compared as f64
+        };
+
+        let (truth_flags, _) = quartet_verdicts(&truth_aln);
+        let (inferred_flags, _) = quartet_verdicts(&inferred_aln);
+        if truth_flags.len() != inferred_flags.len() {
+            return Err(format!(
+                "seed {seed}: {} quadruples in the truth against {} inferred; the \
+                 two alignments must hold the same taxa",
+                truth_flags.len(),
+                inferred_flags.len()
+            ));
+        }
+        let pairs = truth_flags.iter().zip(&inferred_flags);
+        let mut agree = 0usize;
+        let mut manufactured = 0usize;
+        let mut lost = 0usize;
+        for (t, i) in pairs {
+            match (t, i) {
+                (true, true) => agree += 1,
+                (false, true) => manufactured += 1,
+                (true, false) => lost += 1,
+                (false, false) => {}
+            }
+        }
+        let truth_q = find_quartet_certificates(&truth_aln, 1, max_quadruples)?;
+        let inferred_q = find_quartet_certificates(&inferred_aln, 1, max_quadruples)?;
+        let (mean_p, _) = alignment_divergence(&pop.labels, &pop.truth.sequences);
+
+        rows.push(AlignErrorSeed {
+            seed,
+            deletion_events: pop.deletion_events,
+            truth_gap_fraction: gap_fraction(&pop.truth.sequences),
+            inferred_gap_fraction: anchored.gap_fraction(),
+            inferred_width: anchored.width,
+            truth_width: length,
+            insertions_dropped: anchored.insertions_dropped.iter().sum(),
+            reference_label: anchored.reference_label.clone(),
+            column_recovery,
+            mean_p_distance: mean_p,
+            quadruples: truth_flags.len(),
+            truth_violating: truth_flags.iter().filter(|b| **b).count(),
+            inferred_violating: inferred_flags.iter().filter(|b| **b).count(),
+            agree,
+            manufactured_by_alignment: manufactured,
+            lost_to_alignment: lost,
+            truth_margin: margin_exact(truth_q.certificates.first().map(|c| c.margin())),
+            inferred_margin: margin_exact(inferred_q.certificates.first().map(|c| c.margin())),
+        });
+    }
+        Ok(rows)
+    };
+
+    let rows = measure_tier(deletion_rate, mean_deletion, max_gap)?;
+
+    // The admissibility ladder. A3 holding at one deletion load says nothing
+    // about another, and the whole point of the control is to find where the
+    // aligner starts inventing violations — because that boundary is what
+    // decides which real populations may be interpreted at all.
+    #[derive(serde::Serialize)]
+    struct LoadRung {
+        deletion_rate: f64,
+        mean_deletion_length: usize,
+        mean_truth_gap_fraction: f64,
+        /// The same load as the *inferred* alignment shows it. This is the one
+        /// a real dataset lets you see, so it is the one the threshold uses.
+        mean_inferred_gap_fraction: f64,
+        mean_insertions_dropped: f64,
+        /// Insertions dropped per aligned cell. A *rate*, because an absolute
+        /// count is not comparable between a 3 kb and a 12 kb genome, and
+        /// comparing it between them would be the incommensurable comparison
+        /// this project has made three times already.
+        mean_insertion_rate_per_site: f64,
+        worst_column_recovery: f64,
+        quadruples_per_seed: usize,
+        manufactured_total: usize,
+        lost_total: usize,
+        seeds_with_manufactured: usize,
+    }
+    let mut ladder: Vec<LoadRung> = Vec::new();
+    for mean_length in [30usize, 120usize] {
+        for rate in [0.0f64, 0.1, 0.2, 0.4, 0.6, 0.9] {
+            let tier = measure_tier(rate, mean_length, 0.3)?;
+            let count = tier.len().max(1) as f64;
+            ladder.push(LoadRung {
+                deletion_rate: rate,
+                mean_deletion_length: mean_length,
+                mean_truth_gap_fraction: tier.iter().map(|r| r.truth_gap_fraction).sum::<f64>()
+                    / count,
+                mean_inferred_gap_fraction: tier
+                    .iter()
+                    .map(|r| r.inferred_gap_fraction)
+                    .sum::<f64>()
+                    / count,
+                mean_insertions_dropped: tier
+                    .iter()
+                    .map(|r| r.insertions_dropped as f64)
+                    .sum::<f64>()
+                    / count,
+                mean_insertion_rate_per_site: tier
+                    .iter()
+                    .map(|r| {
+                        let cells = (r.inferred_width * (1usize << generations)) as f64;
+                        if cells == 0.0 {
+                            0.0
+                        } else {
+                            r.insertions_dropped as f64 / cells
+                        }
+                    })
+                    .sum::<f64>()
+                    / count,
+                worst_column_recovery: tier
+                    .iter()
+                    .map(|r| r.column_recovery)
+                    .fold(f64::INFINITY, f64::min),
+                quadruples_per_seed: tier.first().map_or(0, |r| r.quadruples),
+                manufactured_total: tier.iter().map(|r| r.manufactured_by_alignment).sum(),
+                lost_total: tier.iter().map(|r| r.lost_to_alignment).sum(),
+                seeds_with_manufactured: tier
+                    .iter()
+                    .filter(|r| r.manufactured_by_alignment > 0)
+                    .count(),
+            });
+        }
+    }
+    // The strictest rung at which nothing was manufactured, read off the
+    // ladder rather than assumed: this is the admissibility threshold
+    // `real-data` applies.
+    let admissible_gap = ladder
+        .iter()
+        .filter(|rung| rung.manufactured_total == 0)
+        .map(|rung| rung.mean_inferred_gap_fraction)
+        .fold(0.0f64, f64::max);
+    let admissible_insertions = ladder
+        .iter()
+        .filter(|rung| rung.manufactured_total == 0)
+        .map(|rung| rung.mean_insertion_rate_per_site)
+        .fold(0.0f64, f64::max);
+    let admissible_recovery = ladder
+        .iter()
+        .filter(|rung| rung.manufactured_total == 0)
+        .map(|rung| rung.worst_column_recovery)
+        .fold(1.0f64, f64::min);
+
+    let worst_recovery = rows
+        .iter()
+        .map(|r| r.column_recovery)
+        .fold(f64::INFINITY, f64::min);
+    let total_manufactured: usize = rows.iter().map(|r| r.manufactured_by_alignment).sum();
+    let total_lost: usize = rows.iter().map(|r| r.lost_to_alignment).sum();
+    let seeds_with_manufactured = rows
+        .iter()
+        .filter(|r| r.manufactured_by_alignment > 0)
+        .count();
+
+    let report = serde_json::json!({
+        "experiment": "does reference-anchored alignment manufacture four-point violations?",
+        "why": "A Lean certificate proves an arithmetic fact about counts taken from the \
+                sequences it embeds. If the alignment placed the wrong residues in the same \
+                column, the counts are right and the data is wrong, and the kernel cannot see \
+                it. Real data adds the aligner to the trust surface; this measures how big \
+                that addition is, on populations with no reticulation in them at all.",
+        "design": {
+            "generator": "clonal_tree_relaxed_with_deletions",
+            "reticulation_in_the_truth": "none",
+            "length": length,
+            "generations": generations,
+            "taxa": 1usize << generations,
+            "mu_per_generation": mu,
+            "relaxed_clock_spread": spread,
+            "deletion_rate_per_lineage_per_generation": deletion_rate,
+            "mean_deletion_length": mean_deletion,
+            "max_gap_fraction_per_lineage": max_gap,
+            "seeds": seeds,
+            "aligner": "reference-anchored affine-gap DP, centroid reference, banded with \
+                        band-edge detection",
+            "scoring": scoring,
+            "comparison": "per-quadruple verdicts, not margins: the two alignments have \
+                           different widths and their margins have different denominators"
+        },
+        "predictions": [
+            {
+                "id": "A1",
+                "claim": "With the deletion rate at zero the inferred alignment is exactly \
+                          the input, so no Phase 2 result changes by passing through the \
+                          aligner.",
+                "criterion": "inferred rows == truth rows at every seed, and the optimal \
+                              score equals the diagonal score",
+                "gated": true,
+                "corrected_after_a_first_run": "A1 failed at 1 of 5 seeds on the first \
+                    implementation, and the cause was not a bug in the DP: with a -10/-1 \
+                    affine gap, a run of three mismatches scores exactly what deleting one \
+                    reference residue and inserting one query residue scores (-12 + 5 against \
+                    -11 + 15 - 11), so the identity was one of two optimal alignments and the \
+                    aligner returned the other. The fix was to state the tie preference — M \
+                    over X over Y, a substitution over a gap pair — which is why the criterion \
+                    now checks the score as well as the rows. Regression test: \
+                    tests/aligner_identity.rs."
+            },
+            {
+                "id": "A2",
+                "claim": "At this deletion load the aligner recovers almost every column.",
+                "criterion": "worst-seed column recovery > 0.99",
+                "gated": false
+            },
+            {
+                "id": "A3",
+                "claim": "Alignment error manufactures no four-point violation on a \
+                          genealogy that is exactly a tree.",
+                "criterion": "manufactured_by_alignment == 0 at every seed",
+                "gated": false
+            }
+        ],
+        "A1_identity_control": {
+            "held": identity_holds,
+            "detail": if identity_holds { "the aligner is the identity on gapless input".to_string() } else { identity_detail.clone() }
+        },
+        "A2_column_recovery": {
+            "worst_seed": worst_recovery,
+            "held": worst_recovery > 0.99
+        },
+        "A3_manufactured_violations": {
+            "total_over_seeds": total_manufactured,
+            "seeds_with_any": seeds_with_manufactured,
+            "seeds": seeds,
+            "held": total_manufactured == 0,
+            "also_lost": total_lost,
+            "reading": "manufactured_by_alignment counts quadruples the inferred alignment \
+                        calls a four-point violation and the true alignment does not. \
+                        lost_to_alignment counts the reverse. Both are alignment error; the \
+                        first is the one that would be reported as reticulation."
+        },
+        "per_seed": rows,
+        "admissibility_ladder": {
+            "why": "A3 holding at one deletion load says nothing about another. This ladder \
+                    raises the load until the aligner starts inventing four-point violations \
+                    on a genealogy that is exactly a tree, which is the boundary that decides \
+                    which real populations may be interpreted.",
+            "rungs": ladder,
+            "largest_inferred_gap_fraction_with_nothing_manufactured": admissible_gap,
+            "largest_insertion_rate_per_site_with_nothing_manufactured": admissible_insertions,
+            "worst_column_recovery_with_nothing_manufactured": admissible_recovery,
+            "threshold_applied_by_real_data": {
+                "inferred_gap_fraction_at_most": admissible_gap,
+                "insertion_rate_per_site_at_most": admissible_insertions,
+                "reading": "A real population whose inferred alignment carries a heavier gap \
+                            load than this is reported BLOCKED rather than interpreted, \
+                            because at that load alignment error alone produces violations in \
+                            this control."
+            }
+        },
+        "gate": "A1 only. A2 and A3 are measurements: a run in which alignment error does \
+                 manufacture certificates is informative and must not be reported as a \
+                 failed run."
+    });
+    println!("{}", serde_json::to_string_pretty(&report).map_err(|e| e.to_string())?);
+    if !identity_holds {
+        eprintln!("FAIL A1: {identity_detail}");
+        return Ok(false);
+    }
+    Ok(true)
+}
+
+/// Tune `mu` so a relaxed-clock clonal population reaches a target divergence.
+///
+/// Bisection on the mean p-distance, which is monotone in `mu` over this range.
+/// The matched null is the whole point: the floor a real margin must clear has
+/// to come from a population at the *same* sequence length and the *same*
+/// divergence, or the comparison measures the floor rather than the signal.
+fn tune_mu_for_divergence(
+    length: usize,
+    generations: u32,
+    spread: f64,
+    target: f64,
+    seed: u64,
+) -> (f64, f64) {
+    use reticulation::simulate::clonal_tree_relaxed;
+    let mut low = 1e-6f64;
+    let mut high = 0.5f64;
+    let mut mid = 0.01f64;
+    let mut achieved = 0.0f64;
+    for _ in 0..40 {
+        mid = 0.5 * (low + high);
+        let pop = clonal_tree_relaxed(length, generations, mid, spread, seed);
+        let (mean, _) = divergence(&pop);
+        achieved = mean;
+        if mean < target {
+            low = mid;
+        } else {
+            high = mid;
+        }
+    }
+    (mid, achieved)
+}
+
+/// The matched null floor: the largest quartet margin a *tree* produces at this
+/// length, divergence and gap load.
+fn matched_floor(
+    length: usize,
+    target_divergence: f64,
+    gap_load: f64,
+    spread: f64,
+    seeds: u64,
+    max_quadruples: usize,
+) -> Result<(Option<reticulation::Ratio>, f64, f64, usize), String> {
+    use reticulation::simulate::{clonal_tree_relaxed, inject_gap_blocks};
+    use reticulation::subset::{find_quartet_certificates, Alignment};
+
+    let generations = 4u32; // 16 leaves, matching the real populations
+    let (mu, achieved) = tune_mu_for_divergence(length, generations, spread, target_divergence, 1);
+    let mut best: Option<reticulation::Ratio> = None;
+    let mut violating_total = 0usize;
+    for seed in 1..=seeds {
+        let mut pop = clonal_tree_relaxed(length, generations, mu, spread, seed);
+        if gap_load > 0.001 {
+            pop = inject_gap_blocks(pop, gap_load, seed ^ 0x5EED);
+        }
+        let aln = Alignment::new(pop.labels.clone(), pop.sequences.clone())?;
+        let search = find_quartet_certificates(&aln, 1, max_quadruples)?;
+        violating_total += search.violating;
+        if let Some(margin) = search.certificates.first().map(|c| c.margin()) {
+            let better = match best {
+                None => true,
+                Some(current) => margin
+                    .checked_cmp(current)
+                    .map(|o| o == std::cmp::Ordering::Greater)
+                    .unwrap_or(false),
+            };
+            if better {
+                best = Some(margin);
+            }
+        }
+    }
+    Ok((best, mu, achieved, violating_total))
+}
+
+/// Run the four-point test on real viral populations.
+///
+/// The populations come from `scripts/reticulata_hf_populations.py`, which
+/// pulls them from the Hugging Face `hiyata/Virus-Host-Genomes` set under
+/// pre-registered filters, and each carries a *literature* expectation about
+/// whether its genealogy is tree-like. The expectation is a prior, not a label
+/// derived from this data, and the test is allowed to contradict it — which is
+/// the only way the exercise means anything.
+///
+/// Every population is run twice, on two different alignment references, and
+/// the report says whether the verdict moved. Every margin is compared against
+/// a floor from a simulated tree at matched length, matched divergence and
+/// matched gap load, because a margin on its own is not a statistic.
+fn run_real_data(args: &[String]) -> Result<bool, String> {
+    use reticulation::align::{centroid_ranking, reference_anchored_alignment, Scoring};
+    use reticulation::subset::{find_complete_triple_certificates, find_quartet_certificates, Alignment};
+
+    let dir: String = parse_flag(
+        args,
+        "--populations",
+        "../../data/reticulata_phase3/populations".to_string(),
+    );
+    let band: usize = parse_flag(args, "--band", 64);
+    let max_band: usize = parse_flag(args, "--max-band", 4096);
+    let seeds: u64 = parse_flag(args, "--seeds", 5);
+    let spread: f64 = parse_flag(args, "--spread", 1.0);
+    let max_quadruples: usize = parse_flag(args, "--max-quadruples", 20_000);
+    // The admissibility threshold is *measured*, not chosen: it is the heaviest
+    // rung of `reticulation align-error`'s ladder at which alignment error
+    // manufactured no four-point violation at any seed. Above it, this command
+    // reports a population BLOCKED instead of interpreting it, because at that
+    // load the aligner alone produces violations on a genealogy that is exactly
+    // a tree. Raising these flags is a deliberate act with a known cost.
+    let max_gap_admissible: f64 = parse_flag(args, "--max-gap-fraction", 0.0039);
+    let max_insertion_rate: f64 = parse_flag(args, "--max-insertion-rate", 0.0008);
+
+    let path = std::path::Path::new(&dir);
+    let mut fastas: Vec<std::path::PathBuf> = std::fs::read_dir(path)
+        .map_err(|e| format!("--populations {dir}: {e}"))?
+        .filter_map(Result::ok)
+        .map(|entry| entry.path())
+        .filter(|p| p.extension().and_then(|s| s.to_str()) == Some("fasta"))
+        .collect();
+    fastas.sort();
+    if fastas.is_empty() {
+        return Err(format!("no .fasta files in {dir}"));
+    }
+
+    // Literature expectations, written by the extraction script.
+    let provenance: serde_json::Value = std::fs::read_to_string(path.join("provenance.json"))
+        .ok()
+        .and_then(|text| serde_json::from_str(&text).ok())
+        .unwrap_or(serde_json::Value::Null);
+    let expectation_for = |stem: &str| -> (String, String) {
+        if let Some(populations) = provenance.get("populations").and_then(|v| v.as_array()) {
+            for entry in populations {
+                let slug = entry.get("slug").and_then(|v| v.as_str()).unwrap_or("");
+                if !slug.is_empty() && stem.starts_with(slug) {
+                    return (
+                        entry
+                            .get("expectation")
+                            .and_then(|v| v.as_str())
+                            .unwrap_or("unknown")
+                            .to_string(),
+                        entry
+                            .get("virus_name")
+                            .and_then(|v| v.as_str())
+                            .unwrap_or(stem)
+                            .to_string(),
+                    );
+                }
+            }
+        }
+        ("unknown".to_string(), stem.to_string())
+    };
+
+    #[derive(serde::Serialize)]
+    struct ReferenceRun {
+        role: String,
+        reference_label: String,
+        width: usize,
+        gap_fraction: f64,
+        insertions_dropped: usize,
+        insertion_rate_per_site: f64,
+        max_band_used: usize,
+        mean_p_distance: f64,
+        max_p_distance: f64,
+        quadruples_examined: usize,
+        quartet_violating: usize,
+        quartet_margin: String,
+        quartet_margin_f64: f64,
+        quartet_labels: Vec<String>,
+        triple_violating: usize,
+        triple_margin: String,
+    }
+
+    #[derive(serde::Serialize)]
+    struct PopulationResult {
+        file: String,
+        virus_name: String,
+        literature_expectation: String,
+        taxa: usize,
+        raw_length_min: usize,
+        raw_length_max: usize,
+        status: String,
+        runs: Vec<ReferenceRun>,
+        references_agree_on_verdict: Option<bool>,
+        matched_floor: Option<String>,
+        matched_floor_f64: Option<f64>,
+        matched_floor_mu: Option<f64>,
+        matched_floor_divergence: Option<f64>,
+        exceeds_matched_floor: Option<bool>,
+        exceeds_twice_matched_floor: Option<bool>,
+    }
+
+    let scoring = Scoring::default();
+    let mut results: Vec<PopulationResult> = Vec::new();
+
+    for fasta in &fastas {
+        let stem = fasta
+            .file_stem()
+            .and_then(|s| s.to_str())
+            .unwrap_or("")
+            .to_string();
+        let (expectation, virus_name) = expectation_for(&stem);
+        let text = std::fs::read_to_string(fasta).map_err(|e| format!("{}: {e}", fasta.display()))?;
+        let records = reticulation::align::read_fasta(&text)?;
+        let labels: Vec<String> = records.iter().map(|r| r.label.clone()).collect();
+        let raw: Vec<Vec<u8>> = records.iter().map(|r| r.sequence.clone()).collect();
+        let lengths: Vec<usize> = raw.iter().map(Vec::len).collect();
+        let mut entry = PopulationResult {
+            file: stem.clone(),
+            virus_name,
+            literature_expectation: expectation,
+            taxa: raw.len(),
+            raw_length_min: lengths.iter().copied().min().unwrap_or(0),
+            raw_length_max: lengths.iter().copied().max().unwrap_or(0),
+            status: "ok".to_string(),
+            runs: Vec::new(),
+            references_agree_on_verdict: None,
+            matched_floor: None,
+            matched_floor_f64: None,
+            matched_floor_mu: None,
+            matched_floor_divergence: None,
+            exceeds_matched_floor: None,
+            exceeds_twice_matched_floor: None,
+        };
+        if raw.len() < 4 {
+            entry.status = format!("BLOCKED: {} sequences, a quartet needs 4", raw.len());
+            results.push(entry);
+            continue;
+        }
+        let ranking = centroid_ranking(&raw);
+        let mut blocked: Option<String> = None;
+        for (role, reference) in [("primary", ranking[0]), ("sensitivity", ranking[1])] {
+            let anchored = match reference_anchored_alignment(
+                &labels, &raw, reference, &scoring, band, max_band,
+            ) {
+                Ok(value) => value,
+                Err(error) => {
+                    blocked = Some(format!("BLOCKED at the {role} reference: {error}"));
+                    break;
+                }
+            };
+            let aln = match Alignment::new(anchored.labels.clone(), anchored.rows.clone()) {
+                Ok(value) => value,
+                Err(error) => {
+                    blocked = Some(format!("BLOCKED building the {role} alignment: {error}"));
+                    break;
+                }
+            };
+            let quartets = find_quartet_certificates(&aln, 1, max_quadruples)?;
+            let triples = find_complete_triple_certificates(&aln, 1)?;
+            if !quartets.all_validated || !triples.all_validated {
+                return Err(format!("{stem}: a certificate failed revalidation"));
+            }
+            let (mean_p, max_p) = alignment_divergence(&anchored.labels, &anchored.rows);
+            let top = quartets.certificates.first();
+            entry.runs.push(ReferenceRun {
+                role: role.to_string(),
+                reference_label: anchored.reference_label.clone(),
+                width: anchored.width,
+                gap_fraction: anchored.gap_fraction(),
+                insertions_dropped: anchored.insertions_dropped.iter().sum(),
+                insertion_rate_per_site: anchored.insertions_dropped.iter().sum::<usize>() as f64
+                    / (anchored.width * anchored.rows.len()).max(1) as f64,
+                max_band_used: anchored.bands.iter().copied().max().unwrap_or(0),
+                mean_p_distance: mean_p,
+                max_p_distance: max_p,
+                quadruples_examined: quartets.examined,
+                quartet_violating: quartets.violating,
+                quartet_margin: margin_exact(top.map(|c| c.margin())),
+                quartet_margin_f64: margin_f64(top.map(|c| c.margin())),
+                quartet_labels: top.map_or_else(Vec::new, |c| {
+                    vec![c.a.clone(), c.b.clone(), c.c.clone(), c.e.clone()]
+                }),
+                triple_violating: triples.violating,
+                triple_margin: margin_exact(triples.certificates.first().map(|c| c.margin())),
+            });
+        }
+        if let Some(reason) = blocked {
+            entry.status = reason;
+            results.push(entry);
+            continue;
+        }
+        if entry.runs.len() == 2 {
+            entry.references_agree_on_verdict = Some(
+                (entry.runs[0].quartet_violating > 0) == (entry.runs[1].quartet_violating > 0),
+            );
+        }
+        // The admissibility gate, before any margin is read.
+        let worst_gap = entry
+            .runs
+            .iter()
+            .map(|run| run.gap_fraction)
+            .fold(0.0f64, f64::max);
+        let worst_insertion_rate = entry
+            .runs
+            .iter()
+            .map(|run| {
+                let cells = (run.width * entry.taxa) as f64;
+                if cells == 0.0 {
+                    0.0
+                } else {
+                    run.insertions_dropped as f64 / cells
+                }
+            })
+            .fold(0.0f64, f64::max);
+        if worst_gap > max_gap_admissible || worst_insertion_rate > max_insertion_rate {
+            entry.status = format!(
+                "BLOCKED: the inferred alignment carries a gap fraction of {worst_gap:.4} and \
+                 drops insertions at {worst_insertion_rate:.5} per aligned cell, against the \
+                 measured admissibility threshold of {max_gap_admissible:.4} and \
+                 {max_insertion_rate:.5}. At that load `reticulation align-error` shows \
+                 alignment error alone manufacturing four-point violations on a genealogy \
+                 that is exactly a tree, so a verdict here would not be about this population. \
+                 The counts above are reported, and are not evidence of reticulation."
+            );
+            results.push(entry);
+            continue;
+        }
+        // The matched null, built from the primary run's own numbers.
+        let primary = &entry.runs[0];
+        let (floor, mu, achieved, _) = matched_floor(
+            primary.width,
+            primary.mean_p_distance,
+            primary.gap_fraction,
+            spread,
+            seeds,
+            max_quadruples,
+        )?;
+        let observed = if primary.quartet_margin == "none" {
+            None
+        } else {
+            let parts: Vec<i64> = primary
+                .quartet_margin
+                .split('/')
+                .filter_map(|p| p.parse().ok())
+                .collect();
+            if parts.len() == 2 {
+                Some(reticulation::Ratio {
+                    num: parts[0],
+                    den: parts[1],
+                })
+            } else {
+                None
+            }
+        };
+        entry.matched_floor = Some(margin_exact(floor));
+        entry.matched_floor_f64 = Some(margin_f64(floor));
+        entry.matched_floor_mu = Some(mu);
+        entry.matched_floor_divergence = Some(achieved);
+        entry.exceeds_matched_floor = Some(exceeds_k_times(observed, floor, 1));
+        entry.exceeds_twice_matched_floor = Some(exceeds_k_times(observed, floor, 2));
+        results.push(entry);
+    }
+
+    // Proof-carrying output. A real population that clears both the
+    // admissibility gate and its matched floor gets a Lean file embedding the
+    // four aligned rows, so the kernel recomputes every count itself and the
+    // only thing left trusted is that those rows are what the aligner produced.
+    // The corrupted twin must fail, or the check is checking nothing.
+    #[derive(serde::Serialize)]
+    struct KernelVerdict {
+        population: String,
+        file: String,
+        accepted: bool,
+        seconds: f64,
+        detail: String,
+    }
+    let mut kernel: Vec<KernelVerdict> = Vec::new();
+    let emit_dir: String = parse_flag(args, "--emit-lean", String::new());
+    if !emit_dir.is_empty() {
+        use reticulation::emit_lean;
+        let formal_dir: String =
+            parse_flag(args, "--formal-dir", "../../../../../formal".to_string());
+        let formal = std::path::Path::new(&formal_dir)
+            .canonicalize()
+            .map_err(|e| format!("--formal-dir {formal_dir}: {e}"))?;
+        std::fs::create_dir_all(&emit_dir).map_err(|e| format!("--emit-lean {emit_dir}: {e}"))?;
+        let targets: Vec<String> = results
+            .iter()
+            .filter(|r| r.status == "ok" && r.exceeds_matched_floor == Some(true))
+            .map(|r| r.file.clone())
+            .collect();
+        for stem in targets {
+            let fasta = path.join(format!("{stem}.fasta"));
+            let text =
+                std::fs::read_to_string(&fasta).map_err(|e| format!("{}: {e}", fasta.display()))?;
+            let records = reticulation::align::read_fasta(&text)?;
+            let labels: Vec<String> = records.iter().map(|r| r.label.clone()).collect();
+            let raw: Vec<Vec<u8>> = records.iter().map(|r| r.sequence.clone()).collect();
+            let reference = centroid_ranking(&raw)[0];
+            let anchored = reference_anchored_alignment(
+                &labels, &raw, reference, &scoring, band, max_band,
+            )?;
+            let aln = Alignment::new(anchored.labels.clone(), anchored.rows.clone())?;
+            let search = find_quartet_certificates(&aln, 1, max_quadruples)?;
+            let certificate = match search.certificates.first() {
+                Some(value) => value,
+                None => continue,
+            };
+            let [a, b, c, e] = certificate.indices;
+            let enc = |i: usize| emit_lean::encode(&anchored.rows[i]);
+            let source = format!(
+                "{stem}, real sequences from huggingface:hiyata/Virus-Host-Genomes, \
+                 reference-anchored alignment on {} ({} columns)",
+                anchored.reference_label, anchored.width
+            );
+            for (suffix, body) in [
+                (
+                    "",
+                    emit_lean::render_quartet(
+                        certificate,
+                        &enc(a),
+                        &enc(b),
+                        &enc(c),
+                        &enc(e),
+                        &source,
+                    ),
+                ),
+                (
+                    "_bad",
+                    emit_lean::render_quartet(
+                        &emit_lean::corrupt_quartet(certificate),
+                        &enc(a),
+                        &enc(b),
+                        &enc(c),
+                        &enc(e),
+                        &source,
+                    ),
+                ),
+            ] {
+                let out = std::path::Path::new(&emit_dir)
+                    .join(format!("reticulata_real_{stem}{suffix}.lean"));
+                std::fs::write(&out, body).map_err(|e| format!("{}: {e}", out.display()))?;
+                // `kernel_check` runs `lake` from the formal directory, so the
+                // file must be named absolutely. A relative path here made the
+                // first run report every file as rejected for want of a file,
+                // which is also how the rejection control came out vacuously
+                // true: both directions failed for the same irrelevant reason.
+                let out = out
+                    .canonicalize()
+                    .map_err(|e| format!("{}: {e}", out.display()))?;
+                let started = std::time::Instant::now();
+                let (ok, detail) = kernel_check(&formal, &out);
+                kernel.push(KernelVerdict {
+                    population: stem.clone(),
+                    file: out
+                        .file_name()
+                        .and_then(|s| s.to_str())
+                        .unwrap_or("")
+                        .to_string(),
+                    accepted: ok,
+                    seconds: started.elapsed().as_secs_f64(),
+                    detail: if suffix.is_empty() {
+                        if ok {
+                            "accepted, no axioms beyond the whitelist".to_string()
+                        } else {
+                            detail
+                        }
+                    } else if ok {
+                        "FAIL: the kernel accepted a corrupted certificate".to_string()
+                    } else {
+                        "rejected, as a corrupted certificate must be".to_string()
+                    },
+                });
+            }
+        }
+    }
+
+    let usable: Vec<&PopulationResult> = results.iter().filter(|r| r.status == "ok").collect();
+    let agree = usable
+        .iter()
+        .filter(|r| r.references_agree_on_verdict == Some(true))
+        .count();
+    let report = serde_json::json!({
+        "experiment": "the four-point test on real viral populations",
+        "data": {
+            "source": "huggingface:hiyata/Virus-Host-Genomes, via scripts/reticulata_hf_populations.py",
+            "selection": "pre-registered: near-median length, <=0.1% ambiguous, deduplicated, \
+                          then either accession order or greedy 6-mer diversity",
+            "alignment": "reference-anchored affine-gap DP in rust/reticulation/src/align.rs; \
+                          this machine has no mafft, muscle or clustalo",
+            "known_limitation": "insertions relative to the reference are dropped and every \
+                                 pair of non-reference sequences is related through the \
+                                 reference. `reticulation align-error` measures what that costs."
+        },
+        "admissibility": {
+            "max_gap_fraction": max_gap_admissible,
+            "max_insertion_rate_per_site": max_insertion_rate,
+            "provenance": "Both are the heaviest rung of `reticulation align-error`'s \
+                           admissibility ladder at which alignment error manufactured no \
+                           four-point violation at any seed, on simulated populations with no \
+                           reticulation in them at all. A population above either threshold is \
+                           reported BLOCKED with its counts, not interpreted.",
+            "rates_not_counts": "Both thresholds are rates per aligned cell. An absolute \
+                                 insertion count is not comparable between a 3 kb and a 12 kb \
+                                 genome."
+        },
+        "how_to_read_a_margin": "A margin is not a statistic on its own. Each population's \
+                                 margin is compared against a floor from a simulated clonal, \
+                                 relaxed-clock tree at the same alignment width, the same mean \
+                                 p-distance and the same gap load. Comparing margins between \
+                                 populations would compare different denominators and \
+                                 different divergences at once.",
+        "populations": results,
+        "kernel_verdicts": kernel,
+        "summary": {
+            "usable": usable.len(),
+            "blocked": results.len() - usable.len(),
+            "references_agree_on_verdict": format!("{agree}/{}", usable.len()),
+            "exceeding_matched_floor": usable
+                .iter()
+                .filter(|r| r.exceeds_matched_floor == Some(true))
+                .map(|r| r.file.clone())
+                .collect::<Vec<String>>(),
+            "exceeding_twice_matched_floor": usable
+                .iter()
+                .filter(|r| r.exceeds_twice_matched_floor == Some(true))
+                .map(|r| r.file.clone())
+                .collect::<Vec<String>>()
+        }
+    });
+    println!("{}", serde_json::to_string_pretty(&report).map_err(|e| e.to_string())?);
+    if usable.is_empty() {
+        eprintln!("no population could be aligned; nothing was tested");
+        return Ok(false);
+    }
+    Ok(true)
+}
+
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().skip(1).collect();
     let result = match args.first().map(String::as_str) {
@@ -1370,6 +2381,8 @@ fn main() -> ExitCode {
         Some("saturation") => run_saturation(&args),
         Some("verify-tree") => run_verify_tree(&args),
         Some("fasta") => run_fasta(&args),
+        Some("align-error") => run_align_error(&args),
+        Some("real-data") => run_real_data(&args),
         _ => {
             eprintln!(
                 "usage:\n  reticulation controls [--length N] [--generations G] \
@@ -1379,7 +2392,9 @@ fn main() -> ExitCode {
                  reticulation saturation [--seeds K] [--low-mu M] [--high-mu M]\n  \
                  reticulation verify-tree [--length N] [--seed S] [--formal-dir D] \
                  [--out D]\n  reticulation fasta <FILE> [--model p|jc] \
-                 [--top K] [--scale X]"
+                 [--top K] [--scale X]\n  reticulation align-error [--length N] \
+                 [--deletion-rate R] [--seeds K]\n  reticulation real-data \
+                 [--populations DIR] [--band N] [--max-band N] [--seeds K]"
             );
             return ExitCode::from(2);
         }

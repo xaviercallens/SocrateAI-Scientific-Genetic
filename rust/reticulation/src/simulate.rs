@@ -277,6 +277,147 @@ pub fn with_reciprocal_recombinants(
     (population, labels)
 }
 
+/// A population simulated with deletion events, carrying its own true alignment.
+///
+/// The point of this structure is that it holds *both* what an aligner would be
+/// handed ([`IndelPopulation::raw`], gap-free sequences of unequal length) and
+/// what the right answer is ([`IndelPopulation::truth`], rows in the founder's
+/// coordinate frame). Phase 3 needs the pair, because the alignment step is the
+/// one part of the pipeline whose errors the Lean certificate cannot catch: the
+/// kernel verifies counts against the sequences it is given, and an alignment
+/// error changes which sequences those are.
+pub struct IndelPopulation {
+    /// Labels, shared by `truth` and `raw` in the same order.
+    pub labels: Vec<String>,
+    /// The true alignment: rows of width `length`, `-` where a lineage has lost
+    /// the site. This is ground truth, not an inference.
+    pub truth: Population,
+    /// The same sequences with gaps removed: unequal lengths, which is what an
+    /// aligner actually sees.
+    pub raw: Vec<Vec<u8>>,
+    /// Number of deletion events that were realised along the tree.
+    pub deletion_events: usize,
+}
+
+/// Substitute, leaving gaps gapped.
+///
+/// A site already lost to a deletion cannot mutate, and letting it would make
+/// the truth frame incoherent.
+fn mutate_preserving_gaps(seq: &[u8], mu: f64, rng: &mut SplitMix64) -> Vec<u8> {
+    seq.iter()
+        .map(|&b| {
+            if b == b'-' {
+                return b'-';
+            }
+            if rng.next_f64() < mu {
+                let mut nb = BASES[rng.below(4)];
+                while nb == b {
+                    nb = BASES[rng.below(4)];
+                }
+                nb
+            } else {
+                b
+            }
+        })
+        .collect()
+}
+
+/// **The aligner's control.** Clonal, relaxed-clock descent with deletions, and
+/// the true alignment that goes with it.
+///
+/// Deletions are frame coordinates set to `-`, inherited by every descendant:
+/// once a lineage has lost a site it stays lost, which is what makes the founder
+/// frame a genuine alignment rather than a bookkeeping convenience. Insertions
+/// are not simulated directly, and do not need to be: a deletion in the lineage
+/// that is later chosen as alignment reference presents to the aligner exactly
+/// as an insertion in every other sequence, so both directions are exercised.
+///
+/// There is **no reticulation here at all**. Every quartet violation found in
+/// the inferred alignment of this population, and absent from its true
+/// alignment, was manufactured by the aligner.
+///
+/// The deletion half of the generator's parameters.
+pub struct DeletionModel {
+    /// Per-lineage, per-generation probability of one deletion event.
+    pub rate: f64,
+    /// Expected deletion length in sites.
+    pub mean_length: usize,
+    /// A lineage refuses an event that would take its gap load past this
+    /// fraction, so the truth frame stays comparable across the population.
+    pub max_gap_fraction: f64,
+}
+
+pub fn clonal_tree_relaxed_with_deletions(
+    length: usize,
+    generations: u32,
+    mu_per_generation: f64,
+    spread: f64,
+    deletions: &DeletionModel,
+    seed: u64,
+) -> IndelPopulation {
+    let DeletionModel {
+        rate: deletion_rate,
+        mean_length: mean_deletion_length,
+        max_gap_fraction,
+    } = *deletions;
+    let mut rng = SplitMix64::new(seed);
+    let founder: Vec<u8> = (0..length).map(|_| BASES[rng.below(4)]).collect();
+    let mean_multiplier = if spread.abs() < 1e-12 {
+        1.0
+    } else {
+        spread.sinh() / spread
+    };
+    let cap = ((max_gap_fraction.clamp(0.0, 0.45)) * length as f64) as usize;
+
+    let mut events = 0usize;
+    let mut current = vec![(founder, 1.0f64)];
+    for _ in 0..generations {
+        let mut next = Vec::with_capacity(current.len() * 2);
+        for (parent, rate) in &current {
+            for _ in 0..2 {
+                let u = 2.0 * rng.next_f64() - 1.0;
+                let child_rate = rate * (spread * u).exp() / mean_multiplier;
+                let mu = (mu_per_generation * child_rate).clamp(0.0, 1.0);
+                let mut child = mutate_preserving_gaps(parent, mu, &mut rng);
+                if deletion_rate > 0.0 && rng.next_f64() < deletion_rate {
+                    // Geometric-ish length: mean `mean_deletion_length`, at
+                    // least one site.
+                    let span = 1 + rng.below(2 * mean_deletion_length.max(1));
+                    let span = span.min(length);
+                    let start = rng.below(length - span + 1);
+                    let already = child.iter().filter(|&&b| b == b'-').count();
+                    if already + span <= cap {
+                        for site in child[start..start + span].iter_mut() {
+                            *site = b'-';
+                        }
+                        events += 1;
+                    }
+                }
+                next.push((child, child_rate));
+            }
+        }
+        current = next;
+    }
+
+    let labels: Vec<String> = (0..current.len())
+        .map(|i| format!("indel_{i:03}"))
+        .collect();
+    let rows: Vec<Vec<u8>> = current.into_iter().map(|(s, _)| s).collect();
+    let raw: Vec<Vec<u8>> = rows
+        .iter()
+        .map(|row| row.iter().copied().filter(|&b| b != b'-').collect())
+        .collect();
+    IndelPopulation {
+        labels: labels.clone(),
+        truth: Population {
+            labels,
+            sequences: rows,
+        },
+        raw,
+        deletion_events: events,
+    }
+}
+
 /// Replace a contiguous block of each sequence with gaps.
 ///
 /// Contiguous missing blocks are the realistic pattern — partial genes,
@@ -519,5 +660,72 @@ mod tests {
             dens.len() > 1,
             "gap blocks must produce differing denominators, got {dens:?}"
         );
+    }
+
+    #[test]
+    fn with_no_deletion_rate_the_truth_frame_is_gapless_and_raw_equals_truth() {
+        let pop = clonal_tree_relaxed_with_deletions(
+            500,
+            3,
+            0.004,
+            1.0,
+            &DeletionModel {
+                rate: 0.0,
+                mean_length: 10,
+                max_gap_fraction: 0.3,
+            },
+            11,
+        );
+        assert_eq!(pop.deletion_events, 0, "no events at rate 0");
+        assert_eq!(pop.truth.sequences.len(), 8);
+        assert!(
+            pop.truth.sequences.iter().all(|s| !s.contains(&b'-')),
+            "the truth frame must be gapless when nothing is deleted"
+        );
+        assert_eq!(
+            pop.raw, pop.truth.sequences,
+            "stripping gaps from a gapless frame is the identity"
+        );
+    }
+
+    #[test]
+    fn deletions_appear_in_the_truth_frame_and_shorten_the_raw_sequences() {
+        let pop = clonal_tree_relaxed_with_deletions(
+            1000,
+            4,
+            0.004,
+            1.0,
+            &DeletionModel {
+                rate: 0.6,
+                mean_length: 20,
+                max_gap_fraction: 0.3,
+            },
+            5,
+        );
+        assert!(
+            pop.deletion_events > 0,
+            "a rate of 0.6 over 4 generations must realise some events"
+        );
+        assert!(
+            pop.truth.sequences.iter().all(|s| s.len() == 1000),
+            "every truth row keeps the founder's width"
+        );
+        let shortened = pop.raw.iter().filter(|s| s.len() < 1000).count();
+        assert!(
+            shortened > 0,
+            "deletions must shorten at least one raw sequence"
+        );
+        for (row, raw) in pop.truth.sequences.iter().zip(&pop.raw) {
+            let gaps = row.iter().filter(|&&b| b == b'-').count();
+            assert_eq!(
+                row.len() - gaps,
+                raw.len(),
+                "the raw sequence is exactly the truth row minus its gaps"
+            );
+            assert!(
+                gaps <= 300,
+                "the 30% cap must be respected, got {gaps} gaps"
+            );
+        }
     }
 }

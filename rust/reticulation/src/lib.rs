@@ -105,6 +105,38 @@
 //! cost is power: at a 25% gap load roughly 1000–1700 of 4000 columns survive
 //! within a triple.
 //!
+//! # Real data, and the one item it adds to the trust surface
+//!
+//! The test consumes an alignment, and this machine has no `mafft`, no `muscle`
+//! and no `clustalo`. [`align`] therefore implements the step: affine-gap global
+//! DP, banded with band-edge detection, projected onto a centroid reference's
+//! coordinates — the construction viral surveillance pipelines use.
+//!
+//! That adds exactly one item to what a certificate leaves trusted: the kernel
+//! recomputes every count from the rows the file embeds, but on real data those
+//! rows come out of an aligner, and non-homologous residues placed in the same
+//! column yield counts that are faithfully computed from the wrong data.
+//!
+//! `reticulation align-error` sizes it rather than arguing about it. Simulated
+//! clonal, relaxed-clock descent with deletion events in a fixed frame — the
+//! frame *is* the true alignment, and there is **no reticulation in it at all** —
+//! is stripped of gaps, realigned, and compared verdict by verdict. At a light
+//! indel load nothing is manufactured. At the heaviest rung of the ladder the
+//! aligner invents **4876 of 9100 quadruple verdicts**. Past a threshold,
+//! alignment error is not a correction to this test; it is the result.
+//!
+//! So `reticulation real-data` applies the heaviest rung at which nothing was
+//! manufactured — a gap fraction of `0.0040` and `8.1e-4` dropped insertions per
+//! aligned cell, both *rates* — and reports anything above it as BLOCKED with
+//! its counts. On ten real viral populations from
+//! `hiyata/Virus-Host-Genomes`, seven are refused and three are tested: a
+//! Hepatitis B population exceeds twice its matched floor, a Coxsackievirus A6
+//! population exceeds it once, and a JC polyomavirus population — expected to be
+//! tree-like — comes in at a sixth of its floor. All three agree with a
+//! literature prior fixed before any margin was computed, and the verdict does
+//! not move when the alignment reference is changed. Three populations is not a
+//! validation; it is the first run on data that was not simulated.
+//!
 //! # What this does NOT solve
 //!
 //! Real sequence data is never *exactly* ultrametric. Finite sequence length
@@ -117,6 +149,7 @@
 //! real improvement in interpretability, not an escape from calibration, and it
 //! should not be described as one.
 
+pub mod align;
 pub mod certificate;
 pub mod distance;
 pub mod emit_lean;
@@ -125,6 +158,11 @@ pub mod rips;
 pub mod simulate;
 pub mod subset;
 
+pub use align::{
+    centroid_ranking,
+    align_pair, centroid_reference, project_to_reference, read_fasta, reference_anchored_alignment,
+    FastaRecord, PairAlignment, ReferenceAnchored, Scoring,
+};
 pub use certificate::{Certificate, CertificateReport, FourPointDefect};
 pub use distance::{DistanceMatrix, DistanceModel};
 pub use exact::{CountCertificate, ExactDistances, Ratio};

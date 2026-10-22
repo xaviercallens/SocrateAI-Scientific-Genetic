@@ -494,7 +494,9 @@ is the error this project keeps making.
 - **Four-point certificates still exist under the null**, by sampling noise, as
   §10.4's D1 column shows. The margin's magnitude still carries the inference and
   the calibration is still simulation-based. Phase 3 is unaffected by this work.
-- **No real data yet.** The gate that blocked it (finding 6) is closed, but this
+- **No real data yet.** *(Closed in Phase 3 — see §11. The aligner was built,
+  ten real viral populations were tested, and seven were refused by a measured
+  admissibility threshold.)* The gate that blocked it (finding 6) is closed, but this
   machine has no multiple-sequence aligner and no aligned homologous population
   with documented recombination. The genomic-benchmark sets cached locally are
   unaligned, non-homologous promoter and enhancer sequences; running a
@@ -587,3 +589,204 @@ The gap-manufacturing rate holds at scale too: 286–366 manufactured triples ou
 of 4960, the same 6–7% as at 16 taxa, with zero disagreement on gapless data.
 
 Raw output: [`data/reticulata_phase2/experiment_n32.json`](../data/reticulata_phase2/experiment_n32.json).
+
+## 11. Phase 3 — real data, and the aligner that had to be built to get there
+
+§10.7 recorded the one thing Phase 2 could not do: *"No real data yet … this
+machine has no multiple-sequence aligner and no aligned homologous population
+with documented recombination."* Phase 3 removes both halves of that block. It
+ends with three real viral populations tested and seven refused, and with a
+number that is more important than any of them: how many four-point violations
+reference-anchored alignment manufactures on a genealogy that is exactly a tree.
+
+### 11.1 What was built
+
+| piece | where | size |
+| :--- | :--- | :--- |
+| Reference-anchored alignment: affine-gap global DP (Needleman–Wunsch–Gotoh), banded with band-edge detection, centroid reference selection, FASTA | `rust/reticulation/src/align.rs` | 11 unit tests |
+| The identity regression test for the gap-pair tie | `rust/reticulation/tests/aligner_identity.rs` | 2 tests |
+| Clonal, relaxed-clock descent **with deletion events and its own true alignment** | `simulate::clonal_tree_relaxed_with_deletions` | 2 tests |
+| `reticulation align-error` — the aligner's control and the admissibility ladder | `src/main.rs` | — |
+| `reticulation real-data` — the test on real populations, two references each, matched floors, Lean emission | `src/main.rs` | — |
+| Population extraction from Hugging Face under pre-registered filters | `scripts/reticulata_hf_populations.py` | — |
+
+### 11.2 The data: ten real populations, with expectations fixed in advance
+
+`hiyata/Virus-Host-Genomes` (58 046 viral genomes with taxonomy, MIT licence) is
+reachable and carries enough near-complete genomes per species to build
+populations. Five taxa were chosen for one reason only: each has an *independent*
+literature expectation about whether its genealogy is tree-like, so the test can
+be wrong in a visible way.
+
+| taxon | genome | pool after filters | expectation | why |
+| :--- | --: | --: | :--- | :--- |
+| Hepatitis B virus | 3 182 nt | 862 | **reticulate** | inter-genotype recombinants are recognised taxonomic entities |
+| Coxsackievirus A6 | 7 434 nt | 559 | **reticulate** | enterovirus A lineages are named by recombinant form |
+| Lyssavirus rabies | 11 924 nt | 326 | tree-like | non-segmented negative-strand RNA; recombination reported only exceptionally |
+| Human papillomavirus 52 | 7 937 nt | 161 | tree-like | co-divergence with the host; within-type recombination considered rare |
+| JC polyomavirus | 5 121 nt | 89 | tree-like | genotypes track human migration and are analysed as a tree |
+
+Filters, fixed before any margin was computed: within 2% of the taxon's median
+length, at most 0.1% non-ACGT, exact duplicates removed, 16 sequences per
+population. Two selection strategies are built for every taxon and **both are
+reported**: `accession` order (arbitrary with respect to phylogeny) and greedy
+6-mer `spread` (deliberately harder — more divergence means more alignment error
+and more saturation). Ten populations in all. Provenance, accessions and the
+source digest: [`data/reticulata_phase3/populations/provenance.json`](../data/reticulata_phase3/populations/provenance.json).
+
+### 11.3 The alignment is part of the trust surface, and this is how big it is
+
+A certificate proves an arithmetic fact about counts the kernel takes from the
+sequences the file embeds. If the alignment put non-homologous residues in the
+same column, those counts are computed faithfully from the wrong data and the
+kernel accepts them. Real data therefore adds exactly one item to the trust
+surface — the aligner — and the only honest way to size it is to align data whose
+true alignment is known.
+
+`clonal_tree_relaxed_with_deletions` provides that. Deletions are frame
+coordinates set to `-`, inherited by every descendant, so the founder frame is a
+genuine alignment rather than bookkeeping. **There is no reticulation in these
+populations at all.** Strip the gaps, hand the ragged sequences to the aligner,
+realign, and compare per-quadruple *verdicts* — not margins, because the two
+alignments have different widths and §10.6 is the record of what comparing
+magnitudes across denominators does.
+
+16 taxa, 4000 nt, five seeds, 1820 quadruples each (9100 per rung):
+
+| mean deletion length | inferred gap fraction | worst column recovery | quadruples manufactured | seeds with any |
+| --: | --: | --: | --: | :--: |
+| 30 | 0.0000 | 1.00000 | 0 | 0/5 |
+| 30 | 0.0040 | 0.99997 | 0 | 0/5 |
+| 30 | 0.0055 | 0.99880 | 251 | 2/5 |
+| 30 | 0.0087 | 0.99712 | 108 | 1/5 |
+| 30 | 0.0149 | 0.99277 | 217 | 3/5 |
+| 30 | 0.0237 | 0.97533 | 1537 | 4/5 |
+| 120 | 0.0132 | 0.99901 | 57 | 2/5 |
+| 120 | 0.0206 | 0.93898 | 287 | 2/5 |
+| 120 | 0.0474 | 0.89393 | 2613 | 5/5 |
+| 120 | 0.0589 | 0.86360 | 2573 | 4/5 |
+| 120 | 0.0941 | 0.86812 | **4876** | 5/5 |
+
+At the heaviest rung the aligner invents 4876 of 9100 quadruple verdicts. **Past
+a threshold, alignment error is not a correction to this test; it is the
+result.** The curve is not monotone (0.0087 manufactures fewer than 0.0055),
+which is what an extreme-value statistic over 1820 quadruples at five seeds
+looks like — one more reason to gate on *whether anything was manufactured*
+rather than on how much.
+
+So the threshold is read off the ladder instead of chosen: **gap fraction
+≤ 0.00398 and insertions dropped ≤ 8.06 × 10⁻⁴ per aligned cell**, the heaviest
+rung at which nothing was manufactured at any seed. Both are rates, not counts:
+an absolute insertion count is not comparable between a 3 kb and a 12 kb genome,
+and treating it as if it were would be the fourth instance of the incommensurable
+comparison this project keeps making.
+
+Three predictions were registered before the run. **A1** (the aligner is the
+identity on gapless input, and its optimal score equals the diagonal score) is
+the gate and holds. **A2** (worst-seed column recovery > 0.99) holds at 0.99726.
+**A3** (nothing manufactured) holds at the registered load and *fails* higher up
+the ladder — which is the finding, not a failed run.
+
+Raw output: [`data/reticulata_phase3/align_error.json`](../data/reticulata_phase3/align_error.json).
+
+### 11.4 A tie-break that was nearly a result
+
+A1 failed at 1 of 5 seeds on the first implementation, and the cause was not a
+bug in the DP. With the affine gap at `-10` to open and `-1` per residue, three
+consecutive mismatches score `3×(-4) + 5 = -7`, and deleting one reference
+residue, aligning the rest, then inserting one query residue scores
+`-11 + 15 - 11 = -7`. The identity was one of *two* optimal alignments and the
+implementation returned the other, because `max_by_key` in Rust returns the last
+maximum.
+
+The repair was to state the preference — M over X over Y, a substitution over a
+gap pair — and to strengthen A1 so it checks the score as well as the rows. The
+lesson generalises past this crate: an aligner has free parameters that no amount
+of downstream proof constrains, and a tie-break is one of them. Regression test:
+`rust/reticulation/tests/aligner_identity.rs`.
+
+### 11.5 The real-data result
+
+Every population is aligned twice, on the two most central sequences by 6-mer
+distance, and the report says whether the verdict moved. Every margin is compared
+against a floor from a simulated clonal **relaxed-clock** tree at matched
+alignment width, matched mean p-distance (tuned by bisection on `mu`) and matched
+gap load — because a margin on its own is not a statistic, and a floor from the
+wrong divergence measures the floor.
+
+**Seven of ten populations are reported BLOCKED** by the §11.3 gate, with their
+counts, rather than interpreted:
+
+| population | gap fraction | insertions / cell | why blocked |
+| :--- | --: | --: | :--- |
+| `coxsackievirus_a6_accession` | 0.0025 | 3.5 × 10⁻³ | insertion load |
+| `hepatitis_b_spread` | 0.0588 | 5.8 × 10⁻² | both, by an order of magnitude |
+| `hpv52_accession` | 0.0005 | 1.7 × 10⁻³ | insertion load |
+| `hpv52_spread` | 0.0004 | 3.6 × 10⁻³ | insertion load |
+| `jc_polyomavirus_spread` | 0.0624 | 6.2 × 10⁻² | both |
+| `rabies_accession` | 0.0013 | 1.4 × 10⁻³ | insertion load |
+| `rabies_spread` | 0.0020 | 1.8 × 10⁻³ | insertion load |
+
+This is expensive on purpose. `hepatitis_b_spread` has a margin of 78/1737 and
+`jc_polyomavirus_spread` 141/3363; both are discarded. The alternative is a
+published claim about a virus that is really a claim about a dynamic-programming
+tie-break. Note also which strategy survives: `spread` maximises diversity, and
+diversity is exactly what breaks reference-anchored alignment.
+
+The three admissible populations:
+
+| population | expectation | mean p | quartet margin | matched floor | floor's `mu` | verdict | references agree |
+| :--- | :--- | --: | --: | --: | --: | :--- | :--: |
+| `hepatitis_b_accession` | **reticulate** | 0.0088 | **9/3182** | 2/3182 | 0.00121 | exceeds **2×** the floor | yes |
+| `coxsackievirus_a6_spread` | **reticulate** | 0.1096 | 329/7312 | 268/7390 | 0.03256 | exceeds the floor, not 2× | yes |
+| `jc_polyomavirus_accession` | tree-like | 0.0096 | 4/5108 | 24/5121 | 0.00588 | **below** the floor | yes |
+
+Three populations, three agreements with a prior fixed in advance, and the two
+alignment references agree on the verdict in all three. The JC polyomavirus row
+is the one that could most easily have embarrassed the method and did not: its
+margin is a sixth of the floor a tree produces at the same width and divergence.
+
+Two cautions that belong next to that table and not in a footnote:
+
+- **Three is not a validation.** It is the first time this test has run on data
+  that was not simulated, with the aligner's contribution bounded by a
+  measurement instead of assumed away.
+- **The Coxsackievirus row is weak and at high divergence** (mean p = 0.11). It
+  clears 1× and not 2×, and §10.6's length-scaling diagnostic says the floor
+  itself grows with divergence. Read it as "not inconsistent with the prior",
+  not as a detection.
+
+Both populations that clear their floor carry a Lean file embedding the four
+aligned rows, checked in both directions by the project's toolchain:
+
+| file | columns | kernel | time |
+| :--- | --: | :--: | --: |
+| `reticulata_real_hepatitis_b_accession.lean` | 3 182 | **accepted**, no axioms beyond the whitelist | 67.8 s |
+| `reticulata_real_hepatitis_b_accession_bad.lean` | 3 182 | **rejected** | 70.6 s |
+| `reticulata_real_coxsackievirus_a6_spread.lean` | 7 434 | **accepted**, no axioms beyond the whitelist | 130.5 s |
+| `reticulata_real_coxsackievirus_a6_spread_bad.lean` | 7 434 | **rejected** | 157.5 s |
+
+The kernel recomputes all six pair counts and the common column count from the
+embedded rows by `rfl`, so these are the first *real-data* findings in this
+programme that a reader can re-verify without running any of our code. One
+process note belongs here: the first attempt reported all four files rejected in
+0.3 s, for want of a file — `kernel_check` runs `lake` from the formal directory
+and the paths were relative. The rejection control came out vacuously true at
+the same time, both directions failing for the same irrelevant reason, which is
+precisely the shape of a control that cannot fail (`forced-not-measured`
+again). Fixed by canonicalising the path before the check.
+
+Raw output: [`data/reticulata_phase3/real_data.json`](../data/reticulata_phase3/real_data.json),
+certificates in [`data/reticulata_phase3/emitted/`](../data/reticulata_phase3/emitted/).
+
+### 11.6 Where this leaves the plan
+
+| phase | status after Phase 3 |
+| :--- | :--- |
+| **0, 1** | complete |
+| **2** (real data) | **done, with a gate.** Ten populations built, three tested, seven refused by a measured admissibility threshold. The missing-aligner block is gone. |
+| **3** (the margin's null) | still the critical path, and now sharper: the matched-floor machinery of §11.5 is a simulation-based stand-in for exactly the distribution Phase 3 owes. |
+| **4** (tree-level no-go) | unchanged: nesting proved, Buneman cited. |
+| **5** (stable summaries) | unchanged. |
+| **6** (upstream, publish) | unchanged. |
+| **new** | **a progressive or consistency-based aligner.** Reference-anchored alignment is what blocked seven of ten populations, and no published alignment of a recombinant virus family would use it. This is now the binding constraint on real-data coverage, ahead of anything in the original plan. |
