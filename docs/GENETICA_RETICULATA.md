@@ -73,10 +73,19 @@ Here the arrangement is inverted. **Lean defines what counts as evidence; Rust m
 └─────────────────────────────────────────────────────────────┘
 ```
 
-**What a Rust bug can do:** miss a certificate, or emit a triple that is not one.
-**What a Rust bug cannot do:** produce a false conclusion that survives checking.
+> ### ⚠ Corrected after an adversarial audit (2026-10-22)
+>
+> An earlier version of this section claimed that "a Rust bug cannot produce a false conclusion that survives checking". **A four-lens adversarial audit falsified that, and it was right.** The integer-only certificates are checked *given the counts*: the kernel proves an arithmetic fact about six integers, and nothing ties those integers to an alignment. A mislabelled triple or a transposed pair would still typecheck. The counting was trusted and we had written otherwise.
+>
+> The fix is implemented, not just documented: `render_with_sequences` embeds the three sequences so the **kernel computes the counts itself** by `rfl`, then instantiates `sequences_refute_from_counts` against them. Measured at 4000 sites: ~50 s, no axioms beyond the whitelist. The accurate claim is now:
+>
+> | | |
+> | :--- | :--- |
+> | **Excluded by the kernel** | a false inequality, a wrong count, a transposed pair, a miscomputed margin — everything downstream of the sequences |
+> | **Still trusted** | that the embedded lists *are* the dataset's sequences; checkable by diffing against the alignment, far narrower than trusting a search, but not nothing |
+> | **Not a kernel matter** | whether non-ultrametricity means recombination (see §4) |
 
-Compare §11.3 of the textbook, where a wrong subsampling stride silently produced a significant result that only a lucky nested-null design caught. Under this architecture that class of failure is not merely unlikely; it is structurally excluded, because the conclusion is carried by the certificate and not by the pipeline that found it.
+Compare §11.3 of the textbook, where a wrong subsampling stride silently produced a significant result that only a lucky nested-null design caught. Under the sequence-level form that class of failure *is* excluded — but it took an audit to get the claim right, and the first version of this document overstated it in exactly the way the project keeps finding elsewhere.
 
 ---
 
@@ -214,3 +223,68 @@ Stated because a plan with no failure mode is a wish.
 3. **The certificate is not the bottleneck anyone cared about.** Existing recombination detection (RDP, GARD, 3SEQ) is mature and well-calibrated. If this adds only "and it is machine-checked", that is a contribution to *epistemics* rather than to *detection*, and the paper should say so rather than claim an advance in power it has not demonstrated.
 
 On (3) we have a view: a method whose evidence a referee can verify with a kernel instead of rerunning a pipeline is worth having even at equal statistical power. But that is a claim about scientific practice, not about recombination, and it should be argued as one.
+
+---
+
+## 9. Adversarial audit of the proof of concept (2026-10-22)
+
+Phase 0 and Phase 1 were built, then attacked by a four-lens adversarial
+workflow — forgery, floating point on the evidence path, wrong counts, and
+controls that cannot fail — with every claimed finding independently re-verified
+by a second auditor instructed to default to REFUTED. 20 agents, 10 findings
+confirmed. The audit is the most useful thing that has happened to this design,
+so it is recorded in full rather than summarised away.
+
+### Confirmed, and what was done
+
+| # | Finding | Severity | Action |
+| :-- | :--- | :--- | :--- |
+| 1 | **Emitted file was not about the data** — the kernel proved `0 < margin cert0`, a closed fact about six integers; the inference rule and its dataset hypotheses were never instantiated. A mislabelled triple would typecheck. | high | **Fixed.** `render_with_sequences` embeds the sequences; the kernel computes the counts by `rfl` and instantiates `sequences_refute_from_counts`. Claim corrected everywhere. |
+| 2 | **Shadowing defeats the checker** — a hand-written file can redefine `CountCertificate` locally with its obligations as `True := trivial`, and `kernel_check` never verified the type came from the import. | minor–moderate | **Fixed.** All emitted names fully qualified (`ANSE.GeneticaReticulata.…`). |
+| 3, 10 | **`kernel_check` did not enforce the axiom whitelist** — it grepped for `sorryAx` only, so a file could declare its own axiom and pass. Also a repo-rule violation. | minor–moderate | **Fixed.** The verifier now parses every `depends on axioms:` line and rejects anything outside `{propext, Classical.choice, Quot.sound}`. |
+| 4 | **The PASS/FAIL discrimination gate was decided in `f64`** (`ratio > 2.0`). A verdict depending on rounding. | minor | **Fixed.** Gate is now an exact integer cross-product; `f64` survives only in the displayed ratio. |
+| 5 | **The overflow test could not fail** — the product of two `i64` always fits in `i128`, so `checked_cmp` never returns `None`. A forced test, which is this project's signature defect. | cosmetic | **Fixed.** Renamed to state the invariant honestly, and added a real test of `sub_exact`, which *can* overflow because it narrows back to `i64`. |
+| 6 | **Pairwise deletion of missing data can manufacture a certificate on an exactly ultrametric genealogy.** Different pairs get different comparable-site counts, and that alone can break the ultrametric inequality. | medium | **Documented** as a first-class caveat below. Not fixable by code: it is a property of pairwise deletion. |
+| 7 | **RNA silently analysed** — every `U` was dropped as non-`ACGT`, producing confident output on input the model does not fit. | medium | **Fixed.** `validate_alphabet` refuses RNA with an explicit message. |
+| 8 | **Protein alignments silently analysed** over whatever A/C/G/T columns they contained. | minor | **Fixed.** Refused, along with alignments more than half gaps. |
+| 9 | `CountCertificate` does not bound its integers, so impossible counts (`n > d`) are kernel-accepted. | minor | **Superseded** by #1's fix: in the sequence-level form the counts are computed, so impossible ones cannot arise. The integer-only form keeps the looser type and is now documented as the weaker of the two. |
+
+Also found and fixed, from the forgery lens as an untested suspicion that we then
+tested: **sequence labels came from FASTA headers and were interpolated into a
+Lean doc comment unescaped**, so a header containing `-/` closes the comment. We
+confirmed a label `a-/axiom` reaches the emitter. Full code injection was blocked
+only because the FASTA reader keeps the first whitespace token, which is a
+fragile accident rather than a defence; labels are now sanitised and a test
+asserts hostile headers cannot escape.
+
+### The caveat that cannot be coded away
+
+Finding 6 deserves more than a table row, because it limits the biological
+reading rather than the implementation.
+
+Under pairwise deletion, two pairs of sequences are compared over *different
+sets of columns*. Two distances computed over different columns are not
+commensurable, and their ratio can violate the ultrametric inequality even when
+the underlying genealogy is exactly a clock-like tree. So a kernel-accepted
+certificate on gappy data may be a true statement about the *distance matrix*
+and a false statement about the *genealogy*.
+
+The kernel cannot help here: it faithfully checks the inequality it is given. The
+honest mitigations are to report the per-pair denominators alongside every
+certificate — which the emitted files do — and to prefer complete-deletion within
+the triple when gap density is non-trivial. Neither is implemented as a default
+yet, and Phase 2 should not run on gappy real data until one of them is.
+
+### What the auditors tried that did *not* break it
+
+Recorded because a list of findings without this is not an audit result.
+
+- Constructing a certificate with `n > d` that the kernel accepts: possible, but
+  it cannot arise from the sequence-level form, where counts are computed.
+- Finding floating point in the distance computation, the triple search, or the
+  certificate ranking: none. All exact integer cross-products.
+- Making `emit_lean::corrupt` produce a still-valid certificate: impossible. The
+  swap inverts the strict inequality `far_xy` by construction, so the rejection
+  control cannot silently pass.
+- Getting a Rust bug to emit the shadowing text: impossible. The emitter writes a
+  fixed preamble and integer literals.

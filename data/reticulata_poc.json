@@ -1,0 +1,133 @@
+{
+  "clonal_baseline": {
+    "largest_margin": 0.0045,
+    "note": "finite sequences are never exactly ultrametric, so clonal data yields valid certificates with small margins; this is the noise floor, not a detection",
+    "violating_triples": 539
+  },
+  "exactness": {
+    "arithmetic": "integer cross-products in i128; no floating point on the evidence path",
+    "denominators_per_pair": true,
+    "note": "f64 appears only in the ranking display below"
+  },
+  "kernel_counts_the_data": {
+    "accepted": true,
+    "emitted_file": "/mnt/data/xdev-cache/tmp/claude-1000/-home-xavkal-xdev-AutoevolveAI/da32aa4f-c38b-4872-8c90-64448f5fc915/scratchpad/reticulata_sequences.lean",
+    "first_error": "",
+    "lean_theorem": "sequences_refute_from_counts",
+    "seconds": 46.788513821,
+    "what_changed": "the three sequences are embedded and every count is proved by `rfl`, so the kernel computes the differing and comparable sites rather than being handed them. This closes the gap an adversarial audit found in the integer-only form.",
+    "what_is_still_trusted": "that the embedded lists are the dataset's sequences -- checkable by diffing against the alignment, and far narrower than trusting the counting code."
+  },
+  "kernel_verdict": {
+    "corrupted_file": "/mnt/data/xdev-cache/tmp/claude-1000/-home-xavkal-xdev-AutoevolveAI/da32aa4f-c38b-4872-8c90-64448f5fc915/scratchpad/reticulata_corrupted.lean",
+    "corrupted_first_error": "/mnt/data/xdev-cache/tmp/claude-1000/-home-xavkal-xdev-AutoevolveAI/da32aa4f-c38b-4872-8c90-64448f5fc915/scratchpad/reticulata_corrupted.lean:37:12: error: unsolved goals",
+    "corrupted_rejected_by_kernel": true,
+    "corrupted_rejected_by_rust_validate": true,
+    "emitted_file": "/mnt/data/xdev-cache/tmp/claude-1000/-home-xavkal-xdev-AutoevolveAI/da32aa4f-c38b-4872-8c90-64448f5fc915/scratchpad/reticulata_emitted.lean",
+    "genuine_certificates_accepted": true,
+    "genuine_first_error": "",
+    "inference_rule": "count_certificate_refutes_ultrametric",
+    "lean_module": "ANSE.GeneticaReticulata"
+  },
+  "parameters": {
+    "alignment_length": 4000,
+    "generations": 4,
+    "mu_per_generation": 0.004,
+    "seed": 2026,
+    "top_k": {
+      "d_xy": 4000,
+      "d_xz": 4000,
+      "d_yz": 4000,
+      "indices": [
+        2,
+        16,
+        13
+      ],
+      "margin_den": 16000000,
+      "margin_num": 244000,
+      "n_xy": 69,
+      "n_xz": 131,
+      "n_yz": 70,
+      "x": "clonal_002",
+      "y": "recombinant_of_clonal_003_and_clonal_013",
+      "z": "clonal_013"
+    }
+  },
+  "positive_control": {
+    "certificates": [
+      {
+        "d_xy": 4000,
+        "d_xz": 4000,
+        "d_yz": 4000,
+        "indices": [
+          2,
+          16,
+          13
+        ],
+        "margin_den": 16000000,
+        "margin_num": 244000,
+        "n_xy": 69,
+        "n_xz": 131,
+        "n_yz": 70,
+        "x": "clonal_002",
+        "y": "recombinant_of_clonal_003_and_clonal_013",
+        "z": "clonal_013"
+      },
+      {
+        "d_xy": 4000,
+        "d_xz": 4000,
+        "d_yz": 4000,
+        "indices": [
+          3,
+          16,
+          13
+        ],
+        "margin_den": 16000000,
+        "margin_num": 232000,
+        "n_xy": 58,
+        "n_xz": 128,
+        "n_yz": 70,
+        "x": "clonal_003",
+        "y": "recombinant_of_clonal_003_and_clonal_013",
+        "z": "clonal_013"
+      },
+      {
+        "d_xy": 4000,
+        "d_xz": 4000,
+        "d_yz": 4000,
+        "indices": [
+          2,
+          16,
+          12
+        ],
+        "margin_den": 16000000,
+        "margin_num": 172000,
+        "n_xy": 69,
+        "n_xz": 126,
+        "n_yz": 83,
+        "x": "clonal_002",
+        "y": "recombinant_of_clonal_003_and_clonal_013",
+        "z": "clonal_012"
+      }
+    ],
+    "exceeds_twice_clonal_floor_exact": true,
+    "gate_arithmetic": "exact integer cross-product; the displayed ratio is f64 for reading only",
+    "largest_margin": 0.01525,
+    "largest_margin_exact": "244000/16000000",
+    "margin_ratio_to_clonal_floor": 3.3888888888888893,
+    "n_sequences": 17,
+    "recombinant_is_a_certificate_midpoint": true,
+    "recombinant_label": "recombinant_of_clonal_003_and_clonal_013",
+    "skipped_uninformative_triples": 0,
+    "violating_triples": 659
+  },
+  "proof_of_concept": "Genetica Reticulata Phase 1 -- the trust boundary moved into the Lean kernel. Rust emits integer count certificates; `lake env lean` decides them.",
+  "verdict": {
+    "acceptance_control_passes": true,
+    "criterion": "the kernel must ACCEPT genuine certificates AND REJECT a corrupted one; and the planted recombinant must be a certificate midpoint with margin > 2x the clonal floor",
+    "discriminates_recombinant": true,
+    "kernel_counted_the_data": true,
+    "rejection_control_passes": true
+  },
+  "what_this_does_not_show": "That a certificate implies recombination. It implies only that the data is not an ultrametric, which finite sampling alone achieves. Calibration against the clonal baseline is what carries the biological reading, and it remains simulation-based."
+}
