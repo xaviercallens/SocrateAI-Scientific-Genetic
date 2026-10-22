@@ -215,10 +215,287 @@ fn run_fasta(args: &[String]) -> Result<bool, String> {
     Ok(true)
 }
 
+/// Typecheck an emitted Lean file with the project toolchain.
+///
+/// Returns `(accepted, first_error_line)`. We invoke `lake env lean` from the
+/// repository's `formal` directory, which is the same path the project's Lean
+/// gate uses, so the kernel and the axiom whitelist are the ones already in use.
+fn kernel_check(formal_dir: &std::path::Path, file: &std::path::Path) -> (bool, String) {
+    let out = std::process::Command::new("lake")
+        .args(["env", "lean", &file.to_string_lossy()])
+        .current_dir(formal_dir)
+        .output();
+    match out {
+        Ok(o) => {
+            let text = format!(
+                "{}{}",
+                String::from_utf8_lossy(&o.stdout),
+                String::from_utf8_lossy(&o.stderr)
+            );
+            let first_error = text
+                .lines()
+                .find(|l| l.contains("error"))
+                .unwrap_or("")
+                .trim()
+                .to_string();
+            // Accepted only if the toolchain exited 0, reported no error, and
+            // every axiom the file depends on is whitelisted. Checking only for
+            // `sorryAx` was a gap an audit found: a file could declare its own
+            // axiom and still pass. Compilation alone is never sufficient.
+            let whitelist = ["propext", "Classical.choice", "Quot.sound"];
+            let mut axioms_ok = true;
+            for line in text.lines() {
+                if let Some(rest) = line.split("depends on axioms:").nth(1) {
+                    for ax in rest
+                        .trim()
+                        .trim_start_matches('[')
+                        .trim_end_matches(']')
+                        .split(',')
+                    {
+                        let ax = ax.trim();
+                        if !ax.is_empty() && !whitelist.contains(&ax) {
+                            axioms_ok = false;
+                        }
+                    }
+                }
+            }
+            let accepted = o.status.success()
+                && !text.contains("error")
+                && !text.contains("sorryAx")
+                && axioms_ok;
+            (accepted, first_error)
+        }
+        Err(e) => (false, format!("could not run lake: {e}")),
+    }
+}
+
+/// The proof of concept: Rust searches, the Lean kernel decides.
+///
+/// Runs the full chain on simulated data with known ground truth, then runs the
+/// rejection control. Both directions are required: a verifier that accepts
+/// everything would prove nothing.
+fn run_poc(args: &[String]) -> Result<bool, String> {
+    use reticulation::emit_lean;
+    use reticulation::exact::{find_count_certificates, ExactDistances};
+
+    let length: usize = parse_flag(args, "--length", 4000);
+    let generations: u32 = parse_flag(args, "--generations", 4);
+    let mu: f64 = parse_flag(args, "--mu", 0.004);
+    let seed: u64 = parse_flag(args, "--seed", 2026);
+    let top: usize = parse_flag(args, "--top", 3);
+    let formal_dir: String = parse_flag(
+        args,
+        "--formal-dir",
+        "../../../../../formal".to_string(),
+    );
+    let out_dir: String = parse_flag(args, "--out", "/tmp".to_string());
+
+    let formal = std::path::Path::new(&formal_dir)
+        .canonicalize()
+        .map_err(|e| format!("--formal-dir {formal_dir}: {e}"))?;
+
+    // --- clonal baseline, for the noise floor ---
+    let clonal = clonal_tree(length, generations, mu, seed);
+    let dm_clonal = ExactDistances::from_alignment(clonal.labels.clone(), &clonal.sequences)?;
+    let (clonal_certs, clonal_violating, _) = find_count_certificates(&dm_clonal, 1);
+    let clonal_floor = clonal_certs.first().map(|c| c.margin_f64()).unwrap_or(0.0);
+    // Keep the clonal margin as an exact rational: the PASS/FAIL gate below
+    // must not be decided in floating point. An audit found the original gate
+    // compared f64 ratios, which is a verdict depending on rounding.
+    let clonal_exact = clonal_certs
+        .first()
+        .map(|c| (c.margin_num as i128, c.margin_den as i128));
+
+    // --- the planted recombinant ---
+    let base = clonal_tree(length, generations, mu, seed);
+    let (recombined, recombinant_label) = with_recombination(base, 0.5, seed ^ 0xABCD);
+    let dist = ExactDistances::from_alignment(recombined.labels.clone(), &recombined.sequences)?;
+    let (certs, violating, skipped) = find_count_certificates(&dist, top);
+    if certs.is_empty() {
+        return Err("no certificate found on the positive control".into());
+    }
+
+    // --- emit and kernel-check the genuine certificates ---
+    let good_path = std::path::Path::new(&out_dir).join("reticulata_emitted.lean");
+    std::fs::write(
+        &good_path,
+        emit_lean::render(
+            &certs,
+            "poc-positive-control",
+            &format!(
+                "simulated clonal tree ({length} nt, {generations} generations, \
+                 mu={mu}, seed={seed}) plus one recombinant"
+            ),
+        ),
+    )
+    .map_err(|e| format!("{}: {e}", good_path.display()))?;
+    let (good_accepted, good_err) = kernel_check(&formal, &good_path);
+
+    // --- the audit fix: a certificate ABOUT THE SEQUENCES ---
+    // An adversarial audit found that the integer-only certificates above are
+    // not about the data: the kernel proves an arithmetic fact about six
+    // numbers, with nothing tying them to an alignment. Here the three
+    // sequences are embedded and the kernel computes the counts itself by
+    // `rfl`, which is what makes the certificate a statement about the data.
+    let top = &certs[0];
+    let [ix, iy, iz] = top.indices;
+    let seq_path = std::path::Path::new(&out_dir).join("reticulata_sequences.lean");
+    std::fs::write(
+        &seq_path,
+        emit_lean::render_with_sequences(
+            top,
+            &emit_lean::encode(&recombined.sequences[ix]),
+            &emit_lean::encode(&recombined.sequences[iy]),
+            &emit_lean::encode(&recombined.sequences[iz]),
+            &format!("simulated recombinant, seed {seed}"),
+        ),
+    )
+    .map_err(|e| format!("{}: {e}", seq_path.display()))?;
+    let seq_start = std::time::Instant::now();
+    let (seq_accepted, seq_err) = kernel_check(&formal, &seq_path);
+    let seq_secs = seq_start.elapsed().as_secs_f64();
+
+    // --- the rejection control: a deliberately corrupted certificate ---
+    let bad = emit_lean::corrupt(&certs[0]);
+    let bad_is_invalid = bad.validate().is_err();
+    let bad_path = std::path::Path::new(&out_dir).join("reticulata_corrupted.lean");
+    std::fs::write(
+        &bad_path,
+        emit_lean::render(
+            std::slice::from_ref(&bad),
+            "poc-rejection-control",
+            "deliberately corrupted: far and near distances swapped",
+        ),
+    )
+    .map_err(|e| format!("{}: {e}", bad_path.display()))?;
+    let (bad_accepted, bad_err) = kernel_check(&formal, &bad_path);
+
+    let recombinant_is_midpoint = certs.iter().any(|c| c.y == recombinant_label);
+    let ratio = if clonal_floor > 0.0 {
+        certs[0].margin_f64() / clonal_floor
+    } else {
+        f64::INFINITY
+    };
+
+    let accept_passes = good_accepted && seq_accepted;
+    let reject_passes = bad_is_invalid && !bad_accepted;
+    // Exact: margin_pos / margin_clonal > 2  <=>  num_p * den_c > 2 * num_c * den_p
+    let exceeds_twice_floor = match clonal_exact {
+        Some((cn, cd)) if cn > 0 => {
+            (certs[0].margin_num as i128) * cd > 2 * cn * (certs[0].margin_den as i128)
+        }
+        // No clonal violation at all: any positive margin exceeds the floor.
+        _ => certs[0].margin_num > 0,
+    };
+    let discriminates = exceeds_twice_floor && recombinant_is_midpoint;
+
+    let report = serde_json::json!({
+        "proof_of_concept": "Genetica Reticulata Phase 1 -- the trust boundary \
+                             moved into the Lean kernel. Rust emits integer \
+                             count certificates; `lake env lean` decides them.",
+        "parameters": {
+            "alignment_length": length, "generations": generations,
+            "mu_per_generation": mu, "seed": seed, "top_k": top,
+        },
+        "exactness": {
+            "arithmetic": "integer cross-products in i128; no floating point on \
+                           the evidence path",
+            "denominators_per_pair": true,
+            "note": "f64 appears only in the ranking display below",
+        },
+        "clonal_baseline": {
+            "violating_triples": clonal_violating,
+            "largest_margin": clonal_floor,
+            "note": "finite sequences are never exactly ultrametric, so clonal \
+                     data yields valid certificates with small margins; this is \
+                     the noise floor, not a detection",
+        },
+        "positive_control": {
+            "n_sequences": dist.len(),
+            "violating_triples": violating,
+            "skipped_uninformative_triples": skipped,
+            "recombinant_label": recombinant_label,
+            "recombinant_is_a_certificate_midpoint": recombinant_is_midpoint,
+            "largest_margin_exact": format!("{}/{}", certs[0].margin_num, certs[0].margin_den),
+            "largest_margin": certs[0].margin_f64(),
+            "margin_ratio_to_clonal_floor": ratio,
+            "exceeds_twice_clonal_floor_exact": exceeds_twice_floor,
+            "gate_arithmetic": "exact integer cross-product; the displayed ratio \
+                                is f64 for reading only",
+            "certificates": certs,
+        },
+        "kernel_counts_the_data": {
+            "emitted_file": seq_path.display().to_string(),
+            "accepted": seq_accepted,
+            "first_error": seq_err,
+            "seconds": seq_secs,
+            "lean_theorem": "sequences_refute_from_counts",
+            "what_changed": "the three sequences are embedded and every count is \
+                             proved by `rfl`, so the kernel computes the differing \
+                             and comparable sites rather than being handed them. \
+                             This closes the gap an adversarial audit found in the \
+                             integer-only form.",
+            "what_is_still_trusted": "that the embedded lists are the dataset's \
+                                      sequences -- checkable by diffing against \
+                                      the alignment, and far narrower than \
+                                      trusting the counting code.",
+        },
+        "kernel_verdict": {
+            "emitted_file": good_path.display().to_string(),
+            "genuine_certificates_accepted": good_accepted,
+            "genuine_first_error": good_err,
+            "corrupted_file": bad_path.display().to_string(),
+            "corrupted_rejected_by_rust_validate": bad_is_invalid,
+            "corrupted_rejected_by_kernel": !bad_accepted,
+            "corrupted_first_error": bad_err,
+            "lean_module": "ANSE.GeneticaReticulata",
+            "inference_rule": "count_certificate_refutes_ultrametric",
+        },
+        "verdict": {
+            "acceptance_control_passes": accept_passes,
+            "kernel_counted_the_data": seq_accepted,
+            "rejection_control_passes": reject_passes,
+            "discriminates_recombinant": discriminates,
+            "criterion": "the kernel must ACCEPT genuine certificates AND REJECT \
+                          a corrupted one; and the planted recombinant must be a \
+                          certificate midpoint with margin > 2x the clonal floor",
+        },
+        "what_this_does_not_show": "That a certificate implies recombination. It \
+            implies only that the data is not an ultrametric, which finite \
+            sampling alone achieves. Calibration against the clonal baseline is \
+            what carries the biological reading, and it remains simulation-based.",
+    });
+    println!("{}", serde_json::to_string_pretty(&report).unwrap());
+
+    if !accept_passes {
+        eprintln!(
+            "FAIL acceptance control: the kernel rejected a genuine certificate. \
+             First error: {good_err}"
+        );
+        return Ok(false);
+    }
+    if !reject_passes {
+        eprintln!(
+            "FAIL rejection control: the kernel ACCEPTED a corrupted certificate. \
+             The verifier is not checking anything and no result above is usable."
+        );
+        return Ok(false);
+    }
+    if !discriminates {
+        eprintln!(
+            "FAIL discrimination: margin ratio {ratio:.2} or the recombinant was \
+             not a midpoint. The architecture works but has no power here."
+        );
+        return Ok(false);
+    }
+    Ok(true)
+}
+
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().skip(1).collect();
     let result = match args.first().map(String::as_str) {
         Some("controls") => run_controls(&args),
+        Some("poc") => run_poc(&args),
         Some("fasta") => run_fasta(&args),
         _ => {
             eprintln!(
