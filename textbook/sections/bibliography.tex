@@ -183,6 +183,43 @@ INRIA. \url{https://gudhi.inria.fr/}
 \emph{Used in:} §\ref{sec:tda}. Version $3.13.0$; Vietoris--Rips persistence on
 the chaos-game point cloud.
 
+\item \textbf{Chan JM, Carlsson G, Rabadan R} (2013). Topology of viral
+evolution. \emph{Proceedings of the National Academy of Sciences USA}
+\textbf{110}(46):18566--18571. \doi{10.1073/pnas.1313480110}
+\\[0.15em]
+\emph{Used in:} Appendix~\ref{app:directions}, direction D3. The construction
+that makes persistent homology informative on sequence data, and the one this
+book should have used in Section~\ref{sec:tda}: compute persistence on a
+\emph{population} under a genetic-distance metric, not on an embedding of a
+single sequence. Clonal evolution is summarised by a tree; reticulate evolution
+exhibits nontrivial topology above dimension zero. The contrast with
+\S\ref{sub:tdanull} is the useful part --- there a loop had no meaning, so the
+null had to be an ensemble of shuffles; here a loop means non-tree-like
+evolution, and the null can be a theorem.
+
+\item \textbf{Bauer U, Roll F} (2021). Gromov hyperbolicity, geodesic defect,
+and apparent pairs in Vietoris--Rips filtrations. \texttt{arXiv:2112.06781}.
+\nodoi
+\\[0.15em]
+\emph{Used in:} Appendix~\ref{app:directions}, direction D3. The source for the
+claim that finite tree metrics have Vietoris--Rips complexes collapsing onto
+their subforests, hence acyclic. We cite this for the tree-metric case and
+prove only the sharper ultrametric case ourselves, in
+\file{formal/ANSE/ReticulationCertificate.lean} --- having searched for a
+citable statement of it and not found one. The asymmetry is recorded in the code,
+which labels four-point defects \emph{suggestive} and ultrametric certificates
+\emph{proved}.
+
+\item \textbf{Morozov D, Nigmetov A} (2020). Brief announcement: towards
+lockfree persistent homology. In \emph{Proceedings of the 32nd ACM Symposium on
+Parallelism in Algorithms and Architectures}, 555--557.
+\doi{10.1145/3350755.3400244}
+\\[0.15em]
+\emph{Used in:} the Rust implementation of direction D3, via
+\href{https://github.com/tomchaplin/lophat}{LoPHAT}, which implements this
+algorithm. Our crate supplies the Vietoris--Rips front-end that LoPHAT
+deliberately omits.
+
 \item \textbf{Altschul SF, Erickson BW} (1985). Significance of nucleotide
 sequence alignments: a method for random sequence permutation that preserves
 dinucleotide and codon usage. \emph{Molecular Biology and Evolution}

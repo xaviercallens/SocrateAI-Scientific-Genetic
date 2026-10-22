@@ -31,3 +31,6 @@ build/
 .DS_Store
 *.swp
 textbook/build/
+
+# Rust build artifacts for the reticulation crate
+rust/reticulation/target/

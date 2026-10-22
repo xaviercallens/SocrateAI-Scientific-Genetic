@@ -119,6 +119,43 @@ statistic fails to beat on a track where the features are independently known
 --- origins from Repli-Seq, say. That is the honest test, and it should be run
 before any claim, not after.
 
+\textbf{Begun, since this appendix was first written.} The most promising move
+turned out to be none of the three above, but a fourth: keep persistent
+homology and change the \emph{object}. Computing persistence on a
+\emph{population} of sequences under a genetic-distance metric, after Chan,
+Carlsson and Rabadan (2013), gives $H_1$ a meaning --- a loop indicates
+non-tree-like evolution --- because a tree has no loops.
+
+The part worth reporting here is what that buys epistemically. The null stops
+being an ensemble and becomes a theorem: an ultrametric, which is a strict
+molecular clock on a clonal genealogy, has no unfilled cycle at any scale,
+because $d \le \epsilon$ is then transitive and every Vietoris--Rips component
+is a clique. That is three lines of Lean
+(\file{formal/ANSE/ReticulationCertificate.lean}, $10$ of $10$ clean), and it
+converts an unfilled triangle from ``surprising relative to shuffles'' into a
+\emph{certificate} of non-ultrametricity. No shuffle ensemble, no $p$-value
+floor, no stride to get wrong.
+
+The architecture is the interesting consequence: a Rust implementation searches
+for certificates, the Lean theorem supplies the inference rule, and a
+certificate is three labels and three distances --- small enough to recheck by
+hand. So the conclusion does not depend on the search code being correct. A bug
+can fail to find a certificate or emit a triple that is not one, and the latter
+is caught by re-deriving the inequalities before anything is reported; what a
+bug cannot do is produce a false conclusion that survives checking. Contrast
+\S\ref{sub:strideartefact}, where a pipeline bug produced a significant result
+and only the nested nulls caught it.
+
+And the honest limitation, which is the reason this is \emph{begun} rather than
+done: finite sequences are never exactly ultrametric, so clonal data violates
+the null too --- $539$ of $560$ triples do, in our negative control. Every one
+of those certificates is valid; the theorem simply proves something weaker than
+the interesting claim. Only the margin's \emph{magnitude} discriminates
+($3.4\times$ the clonal floor for a planted recombinant), and that still needs
+calibration --- now against a mechanistic model of clonal evolution rather than
+a permutation. Full account, with the literature and the ranked next steps, in
+\file{docs/RETICULATION_TOPOLOGY_PROPOSAL.md}.
+
 \subsection*{D4. The hypomorphic mismatch-repair experiment}
 
 \textbf{The question.} Which of titration, interference, substrate invisibility

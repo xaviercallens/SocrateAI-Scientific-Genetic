@@ -1,0 +1,31 @@
+[package]
+name = "reticulation"
+version = "0.1.0"
+edition = "2024"
+license = "BSD-3-Clause"
+description = "Proof-carrying detection of reticulate evolution: Vietoris-Rips persistence over genetic distance, with certificates validated by a Lean 4 theorem"
+repository = "https://github.com/xaviercallens/SocrateAI-Scientific-Genetic"
+keywords = ["bioinformatics", "topology", "persistent-homology", "recombination", "phylogenetics"]
+categories = ["science"]
+
+[dependencies]
+# LoPHAT (tomchaplin/lophat, MIT) computes the R = DV decomposition of a filtered
+# boundary matrix by the lockfree algorithm of Morozov and Nigmetov. It is
+# deliberately NOT specialised to simplicial filtrations -- its README says so --
+# which is the gap this crate fills: we supply the Vietoris-Rips front-end over a
+# genetic-distance matrix and hand the boundary matrix to LoPHAT.
+lophat = { version = "0.14", default-features = false, features = ["local_thread_pool"] }
+rayon = "1.10"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[dev-dependencies]
+proptest = "1"
+
+[[bin]]
+name = "reticulation"
+path = "src/main.rs"
+
+[lib]
+name = "reticulation"
+path = "src/lib.rs"
