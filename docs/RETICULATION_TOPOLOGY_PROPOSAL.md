@@ -1,5 +1,7 @@
 # An alternative to "TDA doesn't work on DNA"
 
+> The approach described here is now named **[Genetica Reticulata](./GENETICA_RETICULATA.md)**, where the phased implementation plan lives — including the keystone change this document does *not* yet implement: moving the trust boundary into the Lean kernel by carrying certificates as exact rationals over integer site counts, so no floating point appears in the evidence chain.
+
 **Status:** implemented, controls passing, not yet run on real data.
 **Lean:** `formal/ANSE/ReticulationCertificate.lean` — 10/10 declarations clean, no `sorryAx`.
 **Rust:** `rust/reticulation/` — 25 tests passing, extends [lophat](https://github.com/tomchaplin/lophat).

@@ -362,6 +362,20 @@ ART discovery. The correct reference is Yoon et al., 23 September 2026.
 
   Along the way Section 11 catches an artefact of its own making, using a warning printed earlier in the same book: a subsampling stride of 6 on `POLD1` shares a factor with the codon period, which produced a spurious signal that the nested nulls then diagnosed.
 
+### Genetica Reticulata — certified detection of reticulate evolution
+
+> *The tree is the hypothesis. The loop is the refutation. The triple is the proof.*
+
+- **[GENETICA_RETICULATA.md](./docs/GENETICA_RETICULATA.md)** — the name, the architecture, and the phased implementation plan in Rust and Lean 4. | **[Scientific rationale and literature review](./docs/RETICULATION_TOPOLOGY_PROPOSAL.md)**
+
+Section 11 of the textbook found no topological signal in a chaos-game embedding of a single sequence. That failure was in the *construction*, not in persistent homology — so this replaces it. Following [Chan, Carlsson & Rabadan (PNAS 2013)](https://doi.org/10.1073/pnas.1313480110), persistence is computed on a **population** under a genetic-distance metric, where a loop means non-tree-like evolution because a tree has no loops.
+
+What is new is that **the null is a theorem rather than a shuffle ensemble**: an ultrametric (a strict molecular clock on a clonal genealogy) has no unfilled cycle at *any* scale, so an unfilled triangle is a **certificate** of non-ultrametricity. Lean defines what counts as evidence ([`ReticulationCertificate.lean`](./formal/ANSE/ReticulationCertificate.lean), 10/10 clean); Rust ([`rust/reticulation/`](./rust/reticulation/), 25 tests) merely searches for it, extending [lophat](https://github.com/tomchaplin/lophat) with the Vietoris–Rips front-end its README says it deliberately lacks.
+
+The consequence is the point: a certificate is three labels and three distances, so **the conclusion does not depend on the search code being correct**. Controls pass — a planted recombinant gives 3.39× the clonal margin floor, and the second-ranked certificate names its true parents exactly.
+
+Stated plainly, and first: finite sequences are never exactly ultrametric. **539 of 560 clonal triples violate the null.** Those certificates are all valid; the theorem proves something *weaker* than the interesting claim, and calibration is still required — now mechanistic rather than permutational.
+
 - **[Appendix C: Open Problems and Research Directions](./textbook/sections/appendix_research_directions.tex)** — every **Open** ledger line in the book turned into a ranked work programme (`D1`–`D7`), each with a first step and, unusually, a stated criterion for what would make the direction *not* worth pursuing. `D1` is the one measurement we would most like someone to make: the replication synthesis ratio, which discriminates between three live hypotheses including the one this book argues for.
 - **[10-Section University Textbook PDF: *Mathematical Genetics, Non-Equilibrium Chromatin Biophysics, and Formal Verification in Lean 4*](./papers/University_Textbook_Mathematical_Genetics_Biophysics_Lean4.pdf)** ([LaTeX Source](./papers/University_Textbook_Mathematical_Genetics_Biophysics_Lean4.tex) | [Markdown Companion](./docs/UNIVERSITY_TEXTBOOK_MATHEMATICAL_GENETICS_LEAN4.md)) — the earlier, separate manuscript. Edition 2 retracts the P286R stage-removal mechanism it previously taught.
 - **[Research Directions & 2026–2028 Roadmap](./docs/RESEARCH_DIRECTIONS_AND_ROADMAP.md)**
