@@ -36,11 +36,40 @@ Writes PDFs to \file{textbook/figures/} and every quantity quoted in the text to
 \file{textbook/data/figure_values.json}, so prose and plots cannot drift apart.
 Section~8 additionally caches the \texttt{POLE} coding sequence it fetches.
 
+\subsection*{2b. Run the two experiments of Section~\ref{sec:gaps}}
+
+\begin{lstlisting}[language=bash,style=lean,morekeywords={python}]
+python scripts/textbook/tda_sequence_null.py --shuffles 200
+python scripts/textbook/verify_yeast_human_correspondence.py
+\end{lstlisting}
+
+The first runs the shuffle null of \S\ref{sub:tdanull}: three nested nulls
+against the $H_1$ total persistence of each coding sequence, with an i.i.d.
+negative control and a tandem-repeat positive control. The second runs the
+full-length alignment of \S\ref{sub:ortho} under four scoring schemes, with a
+self-alignment positive control and a composition-matched-shuffle negative
+control.
+
+Both \textbf{assert} their controls and exit non-zero without writing if either
+fails, so a broken test cannot quietly emit a $p$-value. The first also verifies
+that each shuffle preserves the invariant it claims --- base counts,
+dinucleotide counts, codon usage --- before any null is drawn. Results land in
+\file{data/tda_sequence_null.json} and
+\file{data/yeast_human_correspondence.json}, including the individual shuffle
+draws so that Figure~\ref{fig:tdanull} plots the real distribution rather than a
+Gaussian fitted to its first two moments.
+
+The null is the slow step: roughly fifteen minutes on eight cores at $200$
+shuffles. Use \texttt{-{}-shuffles 20} for a smoke test, remembering that the
+attainable $p$ floor is then $2/21 = 0.095$ and the positive control cannot
+reach $0.05$.
+
 \subsection*{3. Check the Lean proofs}
 
 \begin{lstlisting}[language=bash,style=lean,morekeywords={python}]
 python -m anse.formal.lean_runner formal/ANSE/ProofreadingStageRemoval.lean
 python -m anse.formal.lean_runner formal/ANSE/GeneticsTextbook.lean
+python -m anse.formal.lean_runner formal/ANSE/InteractingStagesAndTransport.lean
 \end{lstlisting}
 
 Each exits~$0$ only if every declared theorem carries a \lean{\#print axioms}
@@ -58,6 +87,7 @@ not sufficient: a file full of \texttt{sorry} compiles perfectly well.
 \midrule
 \lean{ANSE.ProofreadingStageRemoval} & 7 & 7 & §\ref{sec:nogo}, §\ref{sec:refutation} \\
 \lean{ANSE.GeneticsTextbook}        & 11 & 11 & §\ref{sec:proofreading}, §\ref{sec:mmr}, §\ref{sec:dnatop} \\
+\lean{ANSE.InteractingStagesAndTransport} & 11 & 11 & §\ref{sec:gaps} \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -87,11 +117,16 @@ everything has been checked:
   \item \textbf{The literature rates.} The measurements of
         Section~\ref{sec:refutation} are read from published tables. We have not
         repeated the experiments, and nothing in this repository could.
-  \item \textbf{The yeast-to-human correspondence.} That \texttt{pol2-P301R}
-        models \texttt{P286R} is assumed throughout and established nowhere.
-  \item \textbf{The TDA biology.} Section~\ref{sec:tda} computes real persistent
-        homology but performs no shuffle null, so it demonstrates a method and
-        supports no claim about \texttt{POLE}.
+  \item \textbf{The yeast-to-human correspondence, functionally.}
+        \S\ref{sub:ortho} now verifies that \texttt{P301} is the orthologous
+        \emph{position} of \texttt{P286}. That the two enzymes respond
+        equivalently to the substitution is still assumed, and no alignment can
+        settle it.
+  \item \textbf{The synthesis ratio.} \lean{transport_needs_synthesis_bound}
+        names the hypothesis Section~\ref{sec:mmr} needs --- that the variant
+        synthesises no more of the genome than the exonuclease-null enzyme ---
+        and nothing in this repository measures it. It is the most useful
+        missing experiment in the book.
   \item \textbf{Theorem~\ref{thm:cwf}} (Călugăreanu--White--Fuller) is cited, not
         proved, and is not formalised.
   \item \textbf{Peer review.} This book has \emph{not} been peer reviewed.
@@ -157,6 +192,42 @@ content rather than merely confirming it. What it found:
 Items 1, 2, 3 and 7 are errors of fact. Items 4, 5 and 6 are overclaiming of the
 kind this book is organised against, found in the book itself. Readers should
 assume the list is incomplete.
+
+\subsection*{The third edition's own review}
+
+The same three checks were applied again when Section~\ref{sec:gaps} was added,
+and found two more things --- both in the new material, which is the expected
+place for them.
+
+\begin{enumerate}[leftmargin=*,itemsep=3pt]
+  \item \textbf{A frame-sampling artefact in our own experiment}
+        (\S\ref{sub:strideartefact}). The shuffle null subsamples the chaos-game
+        cloud, and the first run chose a stride of $6$ for \texttt{POLD1}, which
+        shares a factor with the codon period. Worked Example~8.1 of this book
+        warns about exactly that, in those words. The run produced an apparently
+        significant \texttt{POLD1} signal which was an artefact of our own
+        sampling. The nested nulls diagnosed it, the stride is now forced
+        coprime with~$3$, and both the script and
+        \file{tests/test_tda_null_and_orthologue.py} assert it.
+  \item \textbf{The wrong statistic reported as the evidence}
+        (Remark~\ref{rem:diagonal}). ``Human $286$ aligns to yeast $301$'' is
+        weak, because a global alignment of similar-length sequences follows the
+        diagonal: the composition-matched shuffle control lands on $302$, one
+        residue away. The script now gates on local conservation instead, which
+        has no such prior. Had we reported the position, the control would have
+        appeared to pass while establishing nothing.
+\end{enumerate}
+
+Outside the textbook, the repository's \file{README.md} carried a badge reading
+\texttt{Claude\_Opus\_4.6\_Peer\_Review — 5/5 Rounds PASSED | Score 1.00}, a
+diagram node repeating it, and a table citing the review files as a credential.
+That review made no model call: its referee findings were hard-coded strings and
+its scores were pass-fractions of local string checks. It had been withdrawn
+from the deposited papers in a previous edition but not from the front page. The
+badge now reads \texttt{NOT peer reviewed}.
+\file{docs/RESEARCH_DIRECTIONS_AND_ROADMAP.md} also still presented the refuted
+stage-removal mechanism as an established result in four places; each is now
+marked inline, with the arithmetic left visible and the model labelled false.
 
 \subsection*{Environment}
 

@@ -1,6 +1,6 @@
 % =============================================================================
 %  Formal Genetics: Proof, Computation and Evidence in Molecular Biology
-%  A student textbook in ten sections.
+%  A student textbook in eleven sections.
 %
 %  Each section lives in its own file under sections/ and builds independently
 %  (see build.py --section N), so a section can be written, compiled and
@@ -68,10 +68,13 @@
 
 % The epistemic ledger: the distinctive device of this book. Every section ends
 % with one, separating what is measured from what is assumed from what is proved.
-\newtcolorbox{ledger}{
+% The optional argument replaces the title, for the one case where the box
+% carries a section's controls rather than its ledger. Existing uses with no
+% argument keep the default title.
+\newtcolorbox{ledger}[1][Epistemic ledger for this section]{
   enhanced, breakable, colback=white, colframe=rulegrey,
   boxrule=0.5pt, left=8pt, right=8pt, top=6pt, bottom=6pt, arc=2pt,
-  title=\textbf{Epistemic ledger for this section},
+  title={\textbf{#1}},
   fonttitle=\small\bfseries, coltitle=white, colbacktitle=rulegrey}
 
 % Numerical result reproduced from a named script.
@@ -107,7 +110,8 @@
            {≠}{{$\neq$}}1 {¬}{{$\neg$}}1 {∧}{{$\wedge$}}1 {∨}{{$\vee$}}1
            {ι}{{$\iota$}}1 {κ}{{$\kappa$}}1 {ν}{{$\nu$}}1 {π}{{$\pi$}}1
            {φ}{{$\varphi$}}1 {ψ}{{$\psi$}}1 {ω}{{$\omega$}}1 {Σ}{{$\Sigma$}}1
-           {Π}{{$\Pi$}}1 {∅}{{$\emptyset$}}1 {∘}{{$\circ$}}1 {≈}{{$\approx$}}1
+           {Π}{{$\Pi$}}1 {Λ}{{$\Lambda$}}1 {Δ}{{$\Delta$}}1 {Ω}{{$\Omega$}}1
+           {∅}{{$\emptyset$}}1 {∘}{{$\circ$}}1 {≈}{{$\approx$}}1
            {⟨}{{$\langle$}}1 {⟩}{{$\rangle$}}1 {∣}{{$\mid$}}1 {·}{{$\cdot$}}1
            {₀}{{$_0$}}1 {₁}{{$_1$}}1 {₂}{{$_2$}}1 {₃}{{$_3$}}1 {ℚ}{{$\mathbb{Q}$}}1
            {∑}{{$\sum$}}1 {√}{{$\sqrt{}$}}1 {∞}{{$\infty$}}1,
@@ -155,7 +159,7 @@
 
 \title{\vspace{-1.5cm}\textbf{Formal Genetics}\\[0.35em]
   \large Proof, Computation and Evidence in Molecular Biology\\[0.55em]
-  \normalsize A Student Textbook in Ten Sections\\[0.9em]
+  \normalsize A Student Textbook in Eleven Sections\\[0.9em]
   \normalsize\itshape In tribute to Rosalind Franklin (1920--1958),\\
   \normalsize\itshape who produced the evidence}
 \author{Xavier Callens\\
@@ -172,7 +176,7 @@
 \begin{abstract}
 \noindent
 This book teaches molecular genetics to students who want to know \emph{why} a
-quantitative claim about a cell should be believed. Each of its ten sections
+quantitative claim about a cell should be believed. Each of its eleven sections
 develops one piece of biology three times over: as a mathematical argument the
 reader works through by hand, as a theorem checked by the Lean~4 kernel, and as
 a number produced by a solver or by topological analysis of a real dataset.
@@ -191,6 +195,16 @@ separating what was measured, what was assumed, and what was proved.
 Formal proof earns its place here for a specific and limited reason. It does not
 make biology certain. It makes a modelling hypothesis precise enough to be
 refuted --- which is what happened to ours.
+
+Section~11 then does to this book what Sections~3 and~4 did to its predecessor.
+It runs the shuffle null that Section~8 declined to run, and reports the
+negative result; it verifies by alignment the yeast-to-human correspondence that
+Sections~4 and~7 had assumed; it prices the one escape route the no-go theorem
+leaves open, showing that a stage-removal rescue would need the stages to
+interact fifty-two-fold; and it turns Section~5's caveat about transporting an
+in vitro measurement into a cell into a machine-checked counterexample. Along
+the way it catches an artefact of its own making, using a warning printed
+earlier in the same book.
 \end{abstract}
 
 \vspace{0.5em}
@@ -207,7 +221,8 @@ pattern, so you always know where you are:
   \item \textbf{Epistemic ledger} --- measured, assumed, proved, and open.
 \end{enumerate}
 Sections 1--4 are the spine and should be read in order. Sections 5--9 are
-largely independent. Section 10 depends on 3, 4 and 7.
+largely independent. Section 10 depends on 3, 4 and 7. Section 11 discharges
+the \textbf{Open} lines of Sections 3, 5, 7 and 8, and is best read after them.
 \end{objectives}
 
 \tableofcontents
@@ -224,10 +239,12 @@ largely independent. Section 10 depends on 3, 4 and 7.
 \input{sections/sec08_topological_genomics}
 \input{sections/sec09_dna_topology}
 \input{sections/sec10_model_to_clinic}
+\input{sections/sec11_gaps_closed}
 
 \appendix
 \input{sections/appendix_solutions}
 \input{sections/appendix_reproducibility}
+\input{sections/appendix_research_directions}
 \input{sections/bibliography}
 
 \end{document}

@@ -183,6 +183,33 @@ INRIA. \url{https://gudhi.inria.fr/}
 \emph{Used in:} §\ref{sec:tda}. Version $3.13.0$; Vietoris--Rips persistence on
 the chaos-game point cloud.
 
+\item \textbf{Altschul SF, Erickson BW} (1985). Significance of nucleotide
+sequence alignments: a method for random sequence permutation that preserves
+dinucleotide and codon usage. \emph{Molecular Biology and Evolution}
+\textbf{2}(6):526--538. \doi{10.1093/oxfordjournals.molbev.a040370}
+\\[0.15em]
+\emph{Used in:} \S\ref{sub:tdanull}. The Eulerian-path shuffle that preserves
+every dinucleotide count exactly, which is the \textbf{dinuc} null of
+Assumption~\ref{model:tdanull}. The paper also supplies the codon-preserving
+permutation used as the third null, and makes the same methodological point this
+book makes in Section~\ref{sec:accumulation}: that a shuffle is only a null if
+you can say exactly what it preserves.
+
+\item \textbf{Gotoh O} (1982). An improved algorithm for matching biological
+sequences. \emph{Journal of Molecular Biology} \textbf{162}(3):705--708.
+\doi{10.1016/0022-2836(82)90398-9}
+\\[0.15em]
+\emph{Used in:} \S\ref{sub:ortho}. The affine-gap alignment recursion
+implemented in
+\file{scripts/textbook/verify_yeast_human_correspondence.py}. Worth knowing: the
+1982 paper is reported to contain indexing and matrix-initialisation errors that
+can yield sub-optimal alignments, so an implementation should not be trusted
+because it follows the paper. Ours is checked against three cases whose answers
+are known independently --- a self-alignment must be the identity map, a
+single-residue deletion must place exactly one gap at that residue, and affine
+costs must prefer one long gap to several short ones --- in
+\file{tests/test_tda_null_and_orthologue.py}.
+
 \item \textbf{Jeffrey HJ} (1990). Chaos game representation of gene structure.
 \emph{Nucleic Acids Research} \textbf{18}(8):2163--2170.
 \doi{10.1093/nar/18.8.2163}

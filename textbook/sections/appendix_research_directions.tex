@@ -1,0 +1,234 @@
+% =============================================================================
+% Appendix C — Open Problems and Research Directions
+% =============================================================================
+\section{Open Problems and Research Directions}\label{app:directions}
+
+Every \textbf{Open} line in this book is a claim that something has not been
+done. This appendix turns those claims into a work programme, ordered by what we
+judge to be the ratio of value to effort, and written so that a reader could
+start on any one of them tomorrow.
+
+Each direction states four things, and the fourth is the one usually omitted:
+
+\begin{itemize}[leftmargin=*,itemsep=1pt,topsep=2pt]
+  \item \textbf{The question}, in a form that admits an answer.
+  \item \textbf{Where it comes from} --- the ledger line that records the gap.
+  \item \textbf{First step}, concrete enough to begin.
+  \item \textbf{What would refute it}, or in the case of a measurement, what
+        outcome would make the direction not worth pursuing. A research
+        programme with no such outcome is a plan to generate confirmations.
+\end{itemize}
+
+A note on honesty about priority. These are ranked by our judgement and nothing
+more; we have not surveyed the field to check that items~1--3 are unattempted,
+and a reader should assume some are already in progress elsewhere.
+
+\subsection*{D1. Measure the synthesis ratio}
+
+\textbf{The question.} What fraction of the genome does \texttt{pol2-P301R}
+copy, relative to the exonuclease-null enzyme, \emph{in vivo}?
+
+\textbf{Where it comes from.} Section~\ref{sec:mmr}'s ledger and
+Remark~\ref{rem:transport}. This book's replacement mechanism --- that repair
+capacity must fall --- rests on the hypothesis
+$p_{\mathrm{mut}} \le p_{\mathrm{null}}$, which is a statement about error load
+delivered per replicated genome. What is measured is error rate per nucleotide
+incorporated. \lean{transport_needs_synthesis_bound} names the missing factor
+exactly: the ratio $s_{\mathrm{mut}}/s_{\mathrm{null}}$.
+
+\textbf{Why it is first.} Exercise~11.5 makes the stakes numerical. The in vitro
+accuracy advantage is cancelled once $s_{\mathrm{mut}}/s_{\mathrm{null}} > 155/59
+\approx 2.63$, and the entire in vivo ratio would be accounted for without any
+repair effect at $\approx 137$. The first figure is not absurd for a hyperactive
+polymerase; the second is. So the measurement discriminates sharply between
+``the capacity story is right'', ``it is partly right'', and ``it is unnecessary''
+--- and no other single experiment in this book's orbit does that.
+
+\textbf{First step.} Strand-specific measurement of polymerase usage in the two
+strains. Ribonucleotide-incorporation mapping (HydEn-seq or Pu-seq in an
+\texttt{rnh201}$\Delta$ background) gives the fraction of each strand synthesised
+by Pol~$\varepsilon$ against Pol~$\delta$ directly, and both strains are already
+constructed and published.
+
+\textbf{What would make this not worth pursuing.} If $s_{\mathrm{mut}} /
+s_{\mathrm{null}}$ comes out indistinguishable from $1$, the transport objection
+evaporates and Section~\ref{sec:mmr}'s conclusion becomes unconditional ---
+which is a good outcome but means the direction is closed in one experiment. The
+risk is the opposite: a ratio near $2.6$ would leave the question genuinely
+undetermined and require the hypomorphic-MMR experiment of Exercise~5.4 as well.
+
+\subsection*{D2. Ask whether $\Lambda \ge 52$ is physically achievable}
+
+\textbf{The question.} Is there any cooperative mechanism by which proofreading
+stages interact strongly enough that removing them is fifty-two-fold more
+damaging than their product?
+
+\textbf{Where it comes from.} Section~\ref{sec:nogo}'s ledger, discharged into
+\S\ref{sub:interact}. Theorem~\ref{thm:psr3i} prices the one escape route the
+no-go theorem leaves, but pricing is not closing: nothing here shows the price
+cannot be paid.
+
+\textbf{First step.} This is theory before it is experiment. Replace the single
+lumped $\Lambda$ of \eqref{eq:interact} with a stage-resolved interaction ---
+the natural candidate is a Hopfield cascade in which the branch rates of stage
+$i$ depend on occupancy at stage $i-1$ --- and compute the maximum attainable
+$\Lambda$ over physically admissible rate constants. If that maximum has a
+closed form, the result is a second no-go theorem, and a stronger one: it would
+exclude the interacting class as well.
+
+\textbf{What would refute it.} A construction reaching $\Lambda \ge 52$ with
+rates in the measured range for a B-family polymerase. That would reopen the
+stage-removal account and would be a far more interesting outcome than
+confirming the refutation. Worked Example~11.2 gives the equivalent statement:
+each stage would need to be $\approx 3.7$ times leakier in the mutant than its
+own measured escape probability, and an enzymologist may well know immediately
+whether that is attainable.
+
+\subsection*{D3. A persistence statistic with a reason to work}
+
+\textbf{The question.} Is there a topological statistic of a sequence embedding
+that detects biological structure surviving a dinucleotide-preserving null?
+
+\textbf{Where it comes from.} \S\ref{sub:tdanull}. The negative result there is
+specific: $H_1$ total persistence of a 3D chaos-game cloud, on three coding
+sequences, against three nulls. Worked Example~11.1 is explicit that this does
+not generalise to ``topology does not work on sequence''.
+
+\textbf{Why the current answer is probably no, and what would change it.} The
+chaos game is a contraction onto a self-similar attractor, so its topology is
+dominated by the attractor and only perturbed by the sequence. Any statistic
+computed on that cloud is fighting the embedding. The promising moves change the
+embedding rather than the statistic:
+\begin{itemize}[leftmargin=*,itemsep=1pt,topsep=2pt]
+  \item \textbf{Embed a signal, not the letters.} Replication timing, GC skew or
+        nucleosome occupancy along the chromosome is a genuine spatial series;
+        sublevel-set persistence of such a track has real features (origins,
+        domain boundaries) that a circular-permutation null can test.
+  \item \textbf{Embed a contact map.} Hi-C data is already a metric structure,
+        and persistent homology of its Rips filtration asks a question ---
+        how many independent loops at what scale --- that no simple statistic
+        answers.
+  \item \textbf{Compare rather than measure.} Persistence landscapes of
+        orthologous sequences, where the embedding artefact is common to both and
+        cancels in the difference. \S\ref{sub:tdanull} runs three genes but
+        compares each only to its own shuffles, never to each other.
+\end{itemize}
+
+\textbf{What would refute it.} A circular-permutation null that the candidate
+statistic fails to beat on a track where the features are independently known
+--- origins from Repli-Seq, say. That is the honest test, and it should be run
+before any claim, not after.
+
+\subsection*{D4. The hypomorphic mismatch-repair experiment}
+
+\textbf{The question.} Which of titration, interference, substrate invisibility
+or loss of extrinsic Pol~$\delta$ proofreading reduces the repair capacity?
+
+\textbf{Where it comes from.} Section~\ref{sec:mmr}'s ledger and
+Exercise~5.4.
+
+\textbf{First step.} Measure \texttt{CAN1} rates for \texttt{pol2-P301R} and
+\texttt{pol2-4} across a graded series of MMR activity rather than the null.
+Hypomorphic \texttt{msh2} or \texttt{mlh1} alleles, or titratable expression from
+a regulated promoter, give $0 < c < c_{\mathrm{null}}$. Under
+Assumption~\ref{model:channel}, titration predicts that the capacity consumed
+scales with the error load the variant produces, while interference predicts a
+reduction independent of load --- so the two give different shapes for escape as
+a function of $c$, and a graded series separates them where a null background
+cannot.
+
+\textbf{What would make this inconclusive.} If the double mutants are inviable
+across the whole graded series, the window closes and the experiment returns
+nothing. Bulock \emph{et al.}\ (2020) showing that both MMR and Pol~$\delta$
+proofreading are required for viability makes this a real risk, and it should be
+checked with a viability titration before the rate measurements are attempted.
+
+\subsection*{D5. Variant effect as a function of repair background}
+
+\textbf{The question.} Does mismatch-repair status modify the relationship
+between \texttt{POLE} genotype and tumour mutational burden in patients?
+
+\textbf{Where it comes from.} Section~\ref{sec:clinic}'s ledger and
+Exercise~10.4 --- and, more sharply than when that exercise was written, from
+the \texttt{V411L} correction of Worked Example~7.1. A variant whose phenotype
+appears only when repair is removed is exactly what Section~\ref{sec:mmr}
+predicts, and \texttt{V411L} now looks like an instance.
+
+\textbf{Why this is the clinically consequential one.} It is the only direction
+here that could change what a clinician does. If MMR status modifies the
+variant-to-burden relationship, then interpreting a \texttt{POLE} variant of
+uncertain significance requires knowing the tumour's MMR status --- before a
+burden has accumulated, which is when the interpretation matters. The base rates
+of Section~\ref{sec:variants} say how often that situation arises: \texttt{POLE}
+carries $10\,737$ records of uncertain significance against $1891$
+pathogenic-matching ones.
+
+\textbf{First step.} A retrospective cohort stratified by MMR/MSI status, with
+exonuclease-domain \texttt{POLE} genotype as the exposure and TMB as the
+outcome. The analysis must be pre-registered, because the interaction term is
+exactly the kind of result that appears in any large cohort if enough subgroups
+are tried.
+
+\textbf{What would refute the hypothesis.} No interaction term distinguishable
+from zero at a cohort size adequate to detect the effect that
+Section~\ref{sec:mmr}'s channel model predicts. Stating that threshold in
+advance is part of the first step, not an afterthought.
+
+\subsection*{D6. Formalise what the refutation does \emph{not} reach}
+
+\textbf{The question.} Can the class of models excluded by PSR$_2$ be
+characterised exactly, rather than exhibited?
+
+\textbf{Where it comes from.} Section~\ref{sec:nogo} and Exercise~3.3. The
+no-go theorem bounds a family; it does not describe the boundary of that family.
+
+\textbf{First step.} Formalise the notion of empirical content used informally
+in Exercise~3.3: for a family $\{M_\theta\}_{\theta \in \Theta}$, the set of
+observations inconsistent with every member. Then prove the monotonicity ---
+enlarging $\Theta$ shrinks that set --- and apply it to the chain
+independent~$\subset$~interacting~$\subset$~arbitrary. This is a modest
+formalisation with an immediate use: it would let the book state precisely how
+much empirical content was given up when $\Lambda$ was introduced in
+\S\ref{sub:interact}, rather than observing qualitatively that some was.
+
+\textbf{What would make it pointless.} If the characterisation turns out to be
+trivial --- that the excluded set is simply $\{\rho > 1\}$ and nothing more is
+provable --- then the exercise is a definition, not a theorem, and should be
+written as one.
+
+\subsection*{D7. Audit the rest of this repository the way Section~11 audits the book}
+
+\textbf{The question.} How many of the claims elsewhere in this project are
+forced by construction, unsourced, or untested against a null?
+
+\textbf{Where it comes from.} Appendix~\ref{app:repro}, and the pattern of this
+edition. The internal review found four errors of fact and three overclaims in
+eleven sections. There is no reason to think the rate is lower in material that
+has not been reviewed, and some reason to think it is higher.
+
+\textbf{First step.} The three checks that actually found things here, applied
+mechanically: \emph{(i)} for every quoted number, locate the primary source and
+recompute; \emph{(ii)} for every control, construct the observation that would
+have failed it, and if none exists relabel it a consistency check;
+\emph{(iii)} for every author--year citation, verify the publication exists.
+Check \emph{(iii)} has already found one fabricated reference in this project,
+and check \emph{(ii)} has found several forced results.
+
+\textbf{What would make this unnecessary.} Nothing, and that is the point. This
+is maintenance rather than research, it produces no new findings, and it is the
+highest-value item on the list by any measure that counts avoided error. We
+record it last because it is the least interesting and the most likely to be
+skipped.
+
+\subsection*{A closing note on how to choose}
+
+The directions above are not equally good science, and the ranking encodes a
+judgement worth making explicit. D1 and D4 are measurements that would settle
+something; D2 and D6 are theory that would sharpen something; D3 is a method
+question whose most likely answer is negative; D5 is the only one with a patient
+at the end of it; D7 is housekeeping that will find real errors.
+
+If forced to pick one, pick D1. It is a single measurement, the strains exist,
+the technique is established, and the result discriminates between three live
+hypotheses including the one this book argues for. The worst outcome is that it
+proves us right.

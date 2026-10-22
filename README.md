@@ -4,8 +4,8 @@
 
 [![Lean 4.34.1](https://img.shields.io/badge/Lean_4.34.1-28_Theorems_%7C_0_sorryAx-brightgreen)](./formal/ANSE/GeneticAutoresearch.lean)
 [![Stochastic Thermo](https://img.shields.io/badge/Mathlib4-Pauli_Master_Eq_%7C_Jarzynski--Crooks_%7C_McGhee--von_Hippel-success)](./formal/ANSE/StochasticThermodynamics.lean)
-[![Zenodo DOI](https://img.shields.io/badge/Zenodo_DOI-10.5281%2Fzenodo.23511663_%7C_23511665-1f6feb)](https://doi.org/10.5281/zenodo.23511665)
-[![Peer Review](https://img.shields.io/badge/Claude_Opus_4.6_Peer_Review-5%2F5_Rounds_PASSED_%7C_Score_1.00-blueviolet)](./data/breakthrough_3d_biophysics_genetics_energy_materials_opus_5round_peer_review.json)
+[![Zenodo DOI](https://img.shields.io/badge/Zenodo_DOI-10.5281%2Fzenodo.23525655_%7C_23525664-1f6feb)](https://doi.org/10.5281/zenodo.23525664)
+[![Peer Review](https://img.shields.io/badge/Peer_Review-NOT_peer_reviewed-lightgrey)](#9-zenodo-doi-publications--documentation-links)
 [![Federated Hub](https://img.shields.io/badge/Federation-14_Repos_%7C_Socratic_Elenchus_v3-00b4d8)](./socrate_genetic_federation/elenchus_loop.py)
 [![GUDHI TDA](https://img.shields.io/badge/Inria_GUDHI-3.13.0_Persistent_Homology-blue)](./xgudhi_tda/xgudhi_leanflow_sundials_bridge.py)
 [![Rust Solver](https://img.shields.io/badge/rusty--SUNDIALS-v6.4.0_%7C_103%2F103_Tests-orange)](./rust_solver/genetics.rs)
@@ -120,7 +120,7 @@ flowchart TD
 
     Formal <--> Solvers
     Grounding --> Solvers
-    Solvers --> D1["Federated Elenchus Hub (socrate_genetic_federation) + GWAYA + runux-ai-runtime\n5-Round Socratic Elenchus & Claude Opus 4.6 Peer Review (Score = 1.00)\nCertified 538.84x ANSE Bio-Computational Energy Reduction (E = 0.03959)"]
+    Solvers --> D1["Federated Elenchus Hub (socrate_genetic_federation) + GWAYA + runux-ai-runtime\n5-Round Socratic Elenchus consistency checks (local string checks, no model call)\nMeasured 538.84x ANSE Bio-Computational Energy Reduction (E = 0.03959)"]
 ```
 
 ---
@@ -323,14 +323,47 @@ cd formal && lake build ANSE.StochasticThermodynamics ANSE.GeneticAutoresearch
 
 ---
 
-## 9. Zenodo DOI Publications, 5-Round Adversarial Peer Review & Documentation Links
+## 9. Zenodo DOI Publications & Documentation Links
 
-| Manuscript / Artifact | Zenodo DOI & Record URL | 5-Round `claude-opus-4-6` Adversarial Peer Review |
+> **None of the work in this repository has been peer reviewed.**
+>
+> Earlier versions of this README advertised a "5-round `claude-opus-4-6`
+> adversarial peer review" with scores of `1.00` and a verdict of
+> `APPROVED_FOR_ZENODO_PUBLICATION`. That review **made no model call of any
+> kind**: `run_5round_peer_review` emitted hard-coded referee strings and
+> pass-fractions of local string checks. The description was withdrawn on
+> 2026-10-21, the `*_opus_5round_peer_review.json` files were dropped from the
+> deposit bundles, and the papers were redeposited saying plainly that they are
+> not peer reviewed. The table below therefore has no review column, and the
+> DOIs point at the corrected editions of record rather than the superseded
+> first editions.
+
+| Manuscript / Artifact | Edition of record | Superseded |
 | :--- | :--- | :--- |
-| **[Paper D: Formalizing Non-Equilibrium Stochastic Thermodynamics, Jarzynski–Crooks Fluctuation Theorems, and ATP-Dependent Chromatin Remodeling Lattice Dynamics in Lean 4](./papers/PaperD_Biophysics_Genetics_EnergyMaterials_Autoresearch_Lean4.pdf)** (`ST.T1`–`ST.T6`, `ISWI`/`SNF2H` `PDB: 6NE3`, `SWI/SNF` `BRG1` `PDB: 6LTJ`, `NCP147` `PDB: 1KX5`) | **[`10.5281/zenodo.23511663`](https://doi.org/10.5281/zenodo.23511663)**<br>([`https://zenodo.org/record/23511663`](https://zenodo.org/record/23511663)) | **`5 / 5` Rounds PASSED (`Score = 1.00`, `APPROVED_FOR_ZENODO_PUBLICATION`)**<br>[`data/breakthrough_3d_biophysics_genetics_energy_materials_opus_5round_peer_review.json`](./data/breakthrough_3d_biophysics_genetics_energy_materials_opus_5round_peer_review.json) |
-| **[Paper E: Non-Equilibrium Hopfield–Ninio Proofreading, Chimeric `ART-Exo` Fidelity, Gosset $E_8$ Dicodon Quantization, and Topological DNA Supercoiling in LeanFlow, `rusty-SUNDIALS`, and Lean 4](./papers/PaperE_Genetics_DNAReplication_ART_LeanFlow_RustySundials_Lean4.pdf)** (`B3E.T1`–`B3E.T5` & `GAR.H1`–`GAR.H17`) | **[`10.5281/zenodo.23511665`](https://doi.org/10.5281/zenodo.23511665)**<br>([`https://zenodo.org/record/23511665`](https://zenodo.org/record/23511665)) | **`5 / 5` Rounds PASSED (`Score = 1.00`, `APPROVED_FOR_ZENODO_PUBLICATION`)**<br>[`data/breakthrough_3e_genetics_dna_replication_art_opus_5round_peer_review.json`](./data/breakthrough_3e_genetics_dna_replication_art_opus_5round_peer_review.json) |
+| **[Paper D: Formalizing Non-Equilibrium Stochastic Thermodynamics, Jarzynski–Crooks Fluctuation Theorems, and ATP-Dependent Chromatin Remodeling Lattice Dynamics in Lean 4](./papers/PaperD_Biophysics_Genetics_EnergyMaterials_Autoresearch_Lean4.pdf)** (`ST.T1`–`ST.T6`, `ISWI`/`SNF2H` `PDB: 6NE3`, `SWI/SNF` `BRG1` `PDB: 6LTJ`, `NCP147` `PDB: 1KX5`) | **[`10.5281/zenodo.23525655`](https://doi.org/10.5281/zenodo.23525655)** (edition 2)<br>concept [`23511662`](https://doi.org/10.5281/zenodo.23511662) | `10.5281/zenodo.23511663` |
+| **[Paper E: Non-Equilibrium Hopfield–Ninio Proofreading, Chimeric `ART-Exo` Fidelity, Gosset $E_8$ Dicodon Quantization, and Topological DNA Supercoiling in LeanFlow, `rusty-SUNDIALS`, and Lean 4](./papers/PaperE_Genetics_DNAReplication_ART_LeanFlow_RustySundials_Lean4.pdf)** (`B3E.T1`–`B3E.T5` & `GAR.H1`–`GAR.H17`) | **[`10.5281/zenodo.23525664`](https://doi.org/10.5281/zenodo.23525664)** (edition 2)<br>concept [`23511664`](https://doi.org/10.5281/zenodo.23511664) | `10.5281/zenodo.23511665` |
 
-- **[10-Section University Textbook PDF: *Mathematical Genetics, Non-Equilibrium Chromatin Biophysics, and Formal Verification in Lean 4*](./papers/University_Textbook_Mathematical_Genetics_Biophysics_Lean4.pdf)** ([LaTeX Source](./papers/University_Textbook_Mathematical_Genetics_Biophysics_Lean4.tex) | [Markdown Companion](./docs/UNIVERSITY_TEXTBOOK_MATHEMATICAL_GENETICS_LEAN4.md))
+Paper E's edition 2 also corrected a **fabricated citation**: edition 1 cited a
+non-existent bioRxiv preprint by an "Anthropic Molecular Biology Team" for the
+ART discovery. The correct reference is Yoon et al., 23 September 2026.
+
+### The student textbook
+
+- **[*Formal Genetics: Proof, Computation and Evidence in Molecular Biology*](./textbook/)** — an eleven-section student textbook, in tribute to Rosalind Franklin. Built from [`textbook/main.tex`](./textbook/main.tex) with `python textbook/build.py`; one file per section under [`textbook/sections/`](./textbook/sections/). Also not peer reviewed; [Appendix B](./textbook/sections/appendix_reproducibility.tex) records the internal review and says exactly what it is not.
+
+  Its organising case is a refutation of this project's *own* earlier POLE mechanism. [Section 11](./textbook/sections/sec11_gaps_closed.tex) then discharges four of the book's own **Open** ledger lines:
+
+  | Gap | Closed by | Outcome |
+  | :--- | :--- | :--- |
+  | §8 — no shuffle null was run | 3 nested nulls × 200 shuffles, 2 controls | **negative**: no topological signal beyond composition |
+  | §7 — yeast↔human correspondence assumed | full-length alignment, 4 scoring schemes | `P286` ↔ `P301`, conserved `F-P-D`, 78% vs 27% local identity |
+  | §3 — interacting stages uncovered | `PSR_2I`/`PSR_3I` in Lean | escape route **priced**: a rescue needs Λ ≥ 52.3 |
+  | §5 — in vitro → in vivo transport | `per_nucleotide_does_not_transport` | caveat becomes a machine-checked **counterexample** |
+
+  Along the way Section 11 catches an artefact of its own making, using a warning printed earlier in the same book: a subsampling stride of 6 on `POLD1` shares a factor with the codon period, which produced a spurious signal that the nested nulls then diagnosed.
+
+- **[Appendix C: Open Problems and Research Directions](./textbook/sections/appendix_research_directions.tex)** — every **Open** ledger line in the book turned into a ranked work programme (`D1`–`D7`), each with a first step and, unusually, a stated criterion for what would make the direction *not* worth pursuing. `D1` is the one measurement we would most like someone to make: the replication synthesis ratio, which discriminates between three live hypotheses including the one this book argues for.
+- **[10-Section University Textbook PDF: *Mathematical Genetics, Non-Equilibrium Chromatin Biophysics, and Formal Verification in Lean 4*](./papers/University_Textbook_Mathematical_Genetics_Biophysics_Lean4.pdf)** ([LaTeX Source](./papers/University_Textbook_Mathematical_Genetics_Biophysics_Lean4.tex) | [Markdown Companion](./docs/UNIVERSITY_TEXTBOOK_MATHEMATICAL_GENETICS_LEAN4.md)) — the earlier, separate manuscript. Edition 2 retracts the P286R stage-removal mechanism it previously taught.
 - **[Research Directions & 2026–2028 Roadmap](./docs/RESEARCH_DIRECTIONS_AND_ROADMAP.md)**
 - **[Architecture & Lean 4 Theorem Catalog](./docs/ARCHITECTURE_AND_LEAN4_CATALOG.md)**
 - **[Claude Opus 4.6 Controversy & Epistemic Audit](./docs/CONTROVERSY_AND_EPISTEMIC_AUDIT.md)**

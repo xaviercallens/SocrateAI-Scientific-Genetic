@@ -767,9 +767,201 @@ def fig_clinic() -> None:
     save(fig, "fig10_clinic.pdf")
 
 
+# -------------------------------------------------------------- section 11 ---
+NULL_RESULTS = ROOT / "data" / "tda_sequence_null.json"
+ORTHOLOGUE = ROOT / "data" / "yeast_human_correspondence.json"
+
+
+def fig_tda_null() -> None:
+    """The shuffle null that Section 8 declined to run, and its two controls.
+
+    Reads scripts/textbook/tda_sequence_null.py's output. Nothing is recomputed
+    here, so the figure cannot disagree with the experiment.
+    """
+    if not NULL_RESULTS.exists():
+        print("  skipped: run scripts/textbook/tda_sequence_null.py first")
+        return
+    report = json.loads(NULL_RESULTS.read_text())
+    pole = report["genes"]["POLE"]["nulls"]
+    controls = report["controls"]
+
+    fig, axes = plt.subplots(1, 3, figsize=(11.2, 3.5),
+                             gridspec_kw={"wspace": 0.28})
+    panels = [("mono", "preserves base counts"),
+              ("dinuc", "preserves dinucleotide counts"),
+              ("codon", "preserves codon usage")]
+    for panel_index, (ax, (kind, subtitle)) in enumerate(zip(axes, panels)):
+        entry = pole[kind]["total_persistence"]
+        draws = entry.get("draws")
+        mean = entry["null_mean"]
+        if draws:
+            # The actual shuffle draws, not a Gaussian fitted to two moments.
+            ax.hist(draws, bins=24, color=BLUE, alpha=0.62,
+                    label=f"{len(draws)} shuffles")
+        else:
+            ax.axvspan(entry["null_min"], entry["null_max"], color=BLUE,
+                       alpha=0.18, label="null range")
+        ax.axvline(mean, color=BLUE, lw=1.5, ls=":")
+        ax.axvline(entry["observed"], color=WARM, lw=2.4, label="POLE observed")
+        ax.set_xlabel(r"$H_1$ total persistence")
+        ax.set_ylabel("shuffles" if panel_index == 0 else "")
+        ax.set_title(f"({'abc'[panel_index]}) vs {kind} — {subtitle}",
+                     loc="left", fontsize=9.2)
+        ax.text(0.03, 0.95,
+                f"z = {entry['z']:+.2f}\np = {entry['p_two_sided']:.3f}",
+                transform=ax.transAxes, fontsize=8.4, color=INK, va="top")
+        ax.spines[["top", "right"]].set_visible(False)
+    axes[0].legend(frameon=False, fontsize=7.6, loc="center right")
+
+    verdict = controls["verdict"]
+    fig.suptitle(
+        "No topological signal beyond composition "
+        f"(controls: i.i.d. p={verdict['negative_p_two_sided']:.2f}, "
+        f"tandem repeat p={verdict['positive_p_two_sided']:.3f}, "
+        f"z={verdict['positive_z']:+.1f})",
+        fontsize=9.6, y=1.04)
+
+    put("sec11_tda_null", {
+        "shuffles": report["shuffles"],
+        "pole": {k: {"z": pole[k]["total_persistence"]["z"],
+                     "p_two_sided": pole[k]["total_persistence"]["p_two_sided"],
+                     "observed": pole[k]["total_persistence"]["observed"],
+                     "null_mean": pole[k]["total_persistence"]["null_mean"]}
+                 for k in pole},
+        "genes_tested": sorted(report["genes"]),
+        "controls": verdict})
+    save(fig, "fig11_tda_null.pdf")
+
+
+def fig_orthologue_alignment() -> None:
+    """Human POLE against yeast POL2 around the substituted residue."""
+    if not ORTHOLOGUE.exists():
+        print("  skipped: run scripts/textbook/verify_yeast_human_correspondence.py")
+        return
+    report = json.loads(ORTHOLOGUE.read_text())
+    ctx = report["context"]
+    human, yeast = ctx["human_279_293"], ctx["yeast_294_308"]
+    runs = report["alignments"]
+    neg = report["controls"]["negative_shuffled_yeast"]
+
+    fig, (ax, ax2) = plt.subplots(1, 2, figsize=(11.0, 3.5),
+                                  gridspec_kw={"wspace": 0.24,
+                                               "width_ratios": (1.35, 1.0)})
+    # (a) the aligned motif, residue by residue
+    for k, (h, y) in enumerate(zip(human, yeast)):
+        same = h == y
+        col = GREEN if same else WARM
+        ax.text(k, 0.70, h, ha="center", fontsize=11.5, family="monospace",
+                color=col, weight="bold" if same else "normal")
+        ax.text(k, 0.30, y, ha="center", fontsize=11.5, family="monospace",
+                color=col, weight="bold" if same else "normal")
+        if same:
+            ax.plot([k, k], [0.47, 0.53], color=GREEN, lw=1.0)
+    site = 7  # P286 is the 8th residue of the window 279-293
+    ax.add_patch(plt.Rectangle((site - 0.45, 0.18), 0.9, 0.68, fill=False,
+                               ec=INK, lw=1.8))
+    ax.text(site, 0.96, "P286 / P301", ha="center", fontsize=9.0, color=INK)
+    ax.text(-1.4, 0.70, "human POLE", ha="right", fontsize=9.0, color=INK)
+    ax.text(-1.4, 0.30, "yeast POL2", ha="right", fontsize=9.0, color=INK)
+    ax.text(-1.4, 0.04, "279–293 / 294–308", ha="right", fontsize=7.6, color=GREY)
+    n_same = sum(1 for h, y in zip(human, yeast) if h == y)
+    ax.set_xlim(-6.5, len(human) + 0.5); ax.set_ylim(0, 1.08)
+    ax.axis("off")
+    ax.set_title(f"(a) The ExoI motif aligns residue for residue "
+                 f"({n_same}/{len(human)} identical)", loc="left")
+
+    # (b) local conservation: real against the composition-matched shuffle
+    real_local = [r["local_percent_identity"] for r in runs]
+    shuf_local = [n["local_percent_identity"] for n in neg]
+    xs = np.arange(len(runs))
+    ax2.bar(xs - 0.19, real_local, width=0.36, color=GREEN, alpha=0.88,
+            label="human vs yeast")
+    ax2.bar(xs + 0.19, shuf_local, width=0.36, color=GREY, alpha=0.85,
+            label="human vs shuffled yeast")
+    ax2.set_xticks(xs)
+    ax2.set_xticklabels([f"{r['scheme']}\n{r['gap_open']:.0f}/{r['gap_extend']:.0f}"
+                         for r in runs], fontsize=7.8)
+    ax2.set_ylabel("local identity (%), $\\pm20$ residues")
+    ax2.set_ylim(0, 100)
+    ax2.legend(frameon=False, fontsize=7.8, loc="upper right")
+    ax2.set_title("(b) The correspondence is homology, not position", loc="left")
+    ax2.spines[["top", "right"]].set_visible(False)
+
+    put("sec11_orthologue", {
+        "human_286_maps_to": [r["human_286_aligns_to_yeast"] for r in runs],
+        "invariant_across_schemes": report["invariant_across_schemes"],
+        "motif_human": human, "motif_yeast": yeast,
+        "motif_identical_positions": n_same,
+        "local_identity_real": real_local,
+        "local_identity_shuffled": shuf_local,
+        "global_identity": [r["percent_identity"] for r in runs]})
+    save(fig, "fig12_orthologue_alignment.pdf")
+
+
+def fig_interaction_price() -> None:
+    """What a stage-removal rescue costs once stages are allowed to interact."""
+    rho_obs = KANE_P301R / KANE_EXO_NULL
+    fig, (ax, ax2) = plt.subplots(1, 2, figsize=(10.8, 3.9),
+                                  gridspec_kw={"wspace": 0.28})
+
+    # (a) the interacting ceiling: E/eps <= Lambda
+    lam = np.linspace(1, 80, 400)
+    ax.fill_between(lam, 0, lam, color=BLUE, alpha=0.16,
+                    label=r"permitted: $E/\varepsilon \leq \Lambda$")
+    ax.plot(lam, lam, color=BLUE, lw=1.8)
+    ax.axhline(rho_obs, color=WARM, lw=2.0, ls="--")
+    ax.axvline(rho_obs, color=INK, lw=1.6, ls=":")
+    ax.scatter([rho_obs], [rho_obs], s=80, color=WARM, zorder=6)
+    ax.text(3, rho_obs * 1.12, rf"measured $\rho = {rho_obs:.1f}$",
+            color=WARM, fontsize=8.6)
+    ax.text(rho_obs * 1.06, 6, rf"$\Lambda \geq {rho_obs:.1f}$ required",
+            color=INK, fontsize=8.6, rotation=90, va="bottom")
+    ax.set_xlabel(r"interaction factor $\Lambda$")
+    ax.set_ylabel(r"error relative to exo-null, $E/\varepsilon$")
+    ax.set_xlim(1, 80); ax.set_ylim(0, 80)
+    ax.legend(frameon=False, fontsize=8.2, loc="upper left")
+    ax.set_title(r"(a) PSR$_2$I: the ceiling is $\varepsilon\Lambda$, not $\varepsilon$",
+                 loc="left")
+    ax.spines[["top", "right"]].set_visible(False)
+
+    # (b) independence is the Lambda = 1 slice, where the old ceiling returns
+    lam_slice = np.array([1.0, 2.0, 5.0, 10.0, rho_obs])
+    ax2.barh(np.arange(len(lam_slice)), lam_slice, color=
+             [GREY if v < rho_obs else WARM for v in lam_slice], alpha=0.88)
+    ax2.axvline(rho_obs, color=WARM, lw=1.8, ls="--")
+    ax2.set_yticks(np.arange(len(lam_slice)))
+    ax2.set_yticklabels([r"$\Lambda=1$ (independent, PSR$_2$)", r"$\Lambda=2$",
+                         r"$\Lambda=5$", r"$\Lambda=10$",
+                         rf"$\Lambda={rho_obs:.1f}$ (needed)"], fontsize=8.4)
+    ax2.set_xlabel(r"highest $E/\varepsilon$ the model can reach")
+    ax2.set_xscale("log")
+    ax2.set_title("(b) How much interaction a rescue needs", loc="left")
+    ax2.spines[["top", "right"]].set_visible(False)
+
+    put("sec11_interaction", {
+        "rho_observed": rho_obs,
+        "lambda_required": rho_obs,
+        "lean_module": "ANSE.InteractingStagesAndTransport",
+        "theorems": ["PSR_2I_interacting_ceiling",
+                     "PSR_3I_excess_forces_interaction",
+                     "psr2I_recovers_psr2",
+                     "p301r_forces_interaction_at_least_fifty_two"],
+        "note": "the independent class is the Lambda = 1 slice; the measured "
+                "ratio forces Lambda >= rho, which prices the escape route "
+                "rather than closing it"})
+    save(fig, "fig13_interaction_price.pdf")
+
+
+def fig_section11() -> None:
+    fig_tda_null()
+    fig_orthologue_alignment()
+    fig_interaction_price()
+
+
 BUILDERS = {0: fig_photo51, 1: fig_three_claims, 2: fig_proofreading_cascade, 3: fig_nogo_ceiling, 4: fig_pole_panel,
             5: fig_repair_reversal, 6: fig_mutation_accumulation, 7: fig_variant_landscape,
-            8: fig_topological_genomics, 9: fig_dna_topology, 10: fig_clinic}
+            8: fig_topological_genomics, 9: fig_dna_topology, 10: fig_clinic,
+            11: fig_section11}
 
 
 def main() -> int:
