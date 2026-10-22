@@ -1,0 +1,219 @@
+% =============================================================================
+% References
+% =============================================================================
+\section{References}\label{app:refs}
+
+The first edition of this book cited its sources author-and-year in prose and
+supplied no list, which left a reader no way to check them. That is a poor
+arrangement in any textbook and an indefensible one here, since the book's
+argument is that a claim should be traceable to the measurement behind it. The
+list below closes the gap.
+
+Each entry carries a DOI where we could verify one against a primary record, and
+says so where we could not --- three entries are marked \textbf{[no verified
+DOI]} rather than given a plausible-looking string, which for a pre-1970 paper
+is the honest outcome and for this book the only tolerable one. The annotation
+says what the source is used \emph{for}, because a reference list that does not
+is only a bibliography of things the authors have heard of. Where this book
+relies on a specific table or figure, the location is named; the machine-readable
+version, with verbatim quotations of the sentences the numbers come from, is
+\file{data/pole_proofreading_literature.json}.
+
+\subsection*{The organising case}
+
+\begin{refs}
+\item \textbf{Kane DP, Shcherbakova PV} (2014). A common cancer-associated DNA
+polymerase $\varepsilon$ mutation causes an exceptionally strong mutator
+phenotype, indicating fidelity defects distinct from loss of proofreading.
+\emph{Cancer Research} \textbf{74}(7):1895--1901.
+\doi{10.1158/0008-5472.CAN-13-2892}
+\\[0.15em]
+\emph{Used in:} §\ref{sec:refutation}, Table~\ref{tab:kane}. The source of the
+three \texttt{CAN1} rates --- wild type $15$, \texttt{pol2-4} $44$,
+\texttt{pol2-P301R} $2300$, all $\times10^{-8}$ with $95\%$ CIs --- whose ratio
+$\rho = 52.3$ refutes the stage-removal class. The title states the paper's own
+conclusion, reached independently of any theorem in this book.
+
+\item \textbf{Xing X, Kane DP, Bulock CR, Moore EA, Sharma S, Chabes A,
+Shcherbakova PV} (2019). A recurrent cancer-associated substitution in DNA
+polymerase $\varepsilon$ produces a hyperactive enzyme. \emph{Nature
+Communications} \textbf{10}:374. \doi{10.1038/s41467-018-08145-2}
+\\[0.15em]
+\emph{Used in:} §\ref{sec:refutation}, §\ref{sec:mmr}. The purified-enzyme
+comparison ($59$ against $155 \times 10^{-6}$ base substitutions) that creates
+the reversal Section~\ref{sec:mmr} is built on, and the tetrad analysis
+establishing that \texttt{pol2-P301R msh6$\Delta$} is synthetic lethal. Its
+central result --- that the variant is a hyperactive polymerase --- is also the
+reason Remark~\ref{rem:transport} declines to call this book's capacity
+conclusion unconditionally forced.
+
+\item \textbf{Barbari SR, Kane DP, Moore EA, Shcherbakova PV} (2018). Functional
+analysis of cancer-associated DNA polymerase $\varepsilon$ variants in
+\emph{Saccharomyces cerevisiae}. \emph{G3: Genes, Genomes, Genetics}
+\textbf{8}(3):1019--1029. \doi{10.1534/g3.118.200042}
+\\[0.15em]
+\emph{Used in:} §\ref{sec:refutation}, control~1. Thirteen further
+cancer-associated alleles, of which three exceed the PSR$_2$ ceiling. This paper
+has no \texttt{pol2-4} arm, which is why those three ratios require a cross-paper
+normalisation and are flagged as weaker than the within-table comparison.
+
+\item \textbf{Barbari SR, Shcherbakova PV}, \emph{et al.}\ (2022). Enhanced
+polymerase activity permits efficient synthesis by cancer-associated DNA
+polymerase $\varepsilon$ variants at low dNTP levels. \emph{Nucleic Acids
+Research} \textbf{50}(14):8023--8040. \doi{10.1093/nar/gkac602}
+\\[0.15em]
+\emph{Used in:} §\ref{sec:refutation} control~2, Worked Example~7.1. The source
+that overturned this book's description of \texttt{V411L} as functionally
+neutral: the analogous yeast allele is a robust mutator in an MMR-deficient
+background and the purified enzyme is among the most active tested.
+
+\item \textbf{Bulock CR, Xing X, Shcherbakova PV} (2020). Mismatch repair and DNA
+polymerase $\delta$ proofreading prevent catastrophic accumulation of leading
+strand errors in cells expressing a cancer-associated DNA polymerase
+$\varepsilon$ variant. \emph{Nucleic Acids Research} \textbf{48}(16):9124--9134.
+\doi{10.1093/nar/gkaa633}
+\\[0.15em]
+\emph{Used in:} §\ref{sec:mmr}. Establishes that two distinct repair routes are
+required for viability, which is why the capacity $c$ of
+Assumption~\ref{model:channel} must be read as lumping them together.
+
+\item \textbf{Parkash V}, \emph{et al.}\ (2019). Structural consequence of the most
+frequently recurring cancer-associated substitution in DNA polymerase
+$\varepsilon$. \emph{Nature Communications} \textbf{10}:373.
+\doi{10.1038/s41467-018-08114-9}
+\\[0.15em]
+\emph{Used in:} not relied upon for any number in this book. Listed because it is
+the companion crystal structure to Xing \emph{et al.}\ (2019) and is the natural
+next reading for a student who wants the structural account of why the arginine
+substitution behaves as it does.
+\end{refs}
+
+\subsection*{Kinetic proofreading}
+
+\begin{refs}
+\item \textbf{Hopfield JJ} (1974). Kinetic proofreading: a new mechanism for
+reducing errors in biosynthetic processes requiring high specificity.
+\emph{Proceedings of the National Academy of Sciences USA}
+\textbf{71}(10):4135--4139. \doi{10.1073/pnas.71.10.4135}
+\\[0.15em]
+\emph{Used in:} §\ref{sec:proofreading}. The original argument that irreversible
+delay stages purchase discrimination beyond the equilibrium limit.
+
+\item \textbf{Ninio J} (1975). Kinetic amplification of enzyme discrimination.
+\emph{Biochimie} \textbf{57}(5):587--595.
+\doi{10.1016/S0300-9084(75)80139-8}
+\\[0.15em]
+\emph{Used in:} §\ref{sec:proofreading}. Independent and near-simultaneous; the
+mechanism is properly credited to both.
+\end{refs}
+
+\subsection*{Mutation rate estimation}
+
+\begin{refs}
+\item \textbf{Luria SE, Delbrück M} (1943). Mutations of bacteria from virus
+sensitivity to virus resistance. \emph{Genetics} \textbf{28}(6):491--511.
+\doi{10.1093/genetics/28.6.491}
+\\[0.15em]
+\emph{Used in:} §\ref{sec:accumulation}. The fluctuation test, and the argument
+that the variance rather than the mean distinguishes pre-existing mutation from
+induced adaptation.
+\end{refs}
+
+\subsection*{The structure of DNA}
+
+\begin{refs}
+\item \textbf{Cochran W, Crick FHC, Vand V} (1952). The structure of synthetic
+polypeptides. I. The transform of atoms on a helix. \emph{Acta
+Crystallographica} \textbf{5}:581--586. \nodoi
+\\[0.15em]
+\emph{Used in:} §\ref{sub:photo51}, equations \eqref{eq:ccv} and
+\eqref{eq:interf}. The helical diffraction theory from which
+Figure~\ref{fig:photo51} is recomputed, including the interference term that
+makes the fourth layer line vanish at $\delta = 3/8$.
+
+\item \textbf{Franklin R, Gosling RG} (1953). Molecular configuration in sodium
+thymonucleate. \emph{Nature} \textbf{171}(4356):740--741.
+\doi{10.1038/171740a0}
+\\[0.15em]
+\emph{Used in:} the dedication and §\ref{sub:photo51}. The published account of
+the B-form fibre diffraction data, including the helical parameters. Photograph
+51 itself was exposed in May 1952.
+
+\item \textbf{Watson JD, Crick FHC} (1953). Molecular structure of nucleic acids:
+a structure for deoxyribose nucleic acid. \emph{Nature}
+\textbf{171}(4356):737--738. \doi{10.1038/171737a0}
+\\[0.15em]
+\emph{Used in:} the dedication. The model that the data above constrained, and
+whose acknowledgements did not say so.
+\end{refs}
+
+\subsection*{DNA topology}
+
+\begin{refs}
+\item \textbf{Călugăreanu G} (1961). Sur les classes d'isotopie des n\oe{}uds
+tridimensionnels et leurs invariants. \emph{Czechoslovak Mathematical Journal}
+\textbf{11}(4):588--625. \doi{10.21136/CMJ.1961.100486}
+\\[0.15em]
+\emph{Used in:} §\ref{sec:dnatop}. The first form of the $\Lk = \Tw + \Wr$
+relation.
+
+\item \textbf{White JH} (1969). Self-linking and the Gauss integral in higher
+dimensions. \emph{American Journal of Mathematics} \textbf{91}(3):693--728.
+\nodoi{} JSTOR \texttt{2373348}.
+\\[0.15em]
+\emph{Used in:} §\ref{sec:dnatop}, Theorem~\ref{thm:cwf}. The general proof,
+without the curvature restriction. This book cites the theorem and does not
+prove or formalise it; only its consequence, Theorem~\ref{thm:trade}, is
+machine-checked.
+
+\item \textbf{Fuller FB} (1971). The writhing number of a space curve.
+\emph{Proceedings of the National Academy of Sciences USA}
+\textbf{68}(4):815--819. \doi{10.1073/pnas.68.4.815}
+\\[0.15em]
+\emph{Used in:} §\ref{sec:dnatop}, Definition~\ref{def:lktwwr}. The writhe, and
+the name.
+\end{refs}
+
+\subsection*{Methods and software}
+
+\begin{refs}
+\item \textbf{The GUDHI Project} (2015--). \emph{GUDHI User and Reference Manual}.
+INRIA. \url{https://gudhi.inria.fr/}
+\\[0.15em]
+\emph{Used in:} §\ref{sec:tda}. Version $3.13.0$; Vietoris--Rips persistence on
+the chaos-game point cloud.
+
+\item \textbf{Jeffrey HJ} (1990). Chaos game representation of gene structure.
+\emph{Nucleic Acids Research} \textbf{18}(8):2163--2170.
+\doi{10.1093/nar/18.8.2163}
+\\[0.15em]
+\emph{Used in:} §\ref{sec:tda}, Definition~\ref{def:cgr}. The embedding, in its
+original two-dimensional form; this book uses the tetrahedral extension to
+$\mathbb{R}^3$.
+
+\item \textbf{de Moura L, Kong S, Avigad J, van Doorn F, von Raumer J} (2015).
+The Lean theorem prover (system description). In \emph{Automated Deduction ---
+CADE-25}, Lecture Notes in Computer Science 9195, 378--388. Springer. \nodoi
+\\[0.15em]
+\emph{Used in:} throughout. The proofs in this book are checked with Lean~4 and
+\emph{mathlib}; the gate described in §\ref{sec:proof-and-cell} adds the
+\lean{\#print axioms} audit on top of compilation.
+\end{refs}
+
+\subsection*{A note on what is not cited here}
+
+Three absences are deliberate.
+
+The pembrolizumab TMB threshold in §\ref{sec:clinic} is stated as a regulatory
+criterion rather than attributed to a trial, because the book makes no claim
+about the evidence base behind it beyond the fact that the decision rule takes
+measured burden as an input.
+
+The $\Delta\Delta G \approx 4.6\,k_BT$ of §\ref{sec:proofreading} is a standard
+thermodynamic estimate rather than a specific measurement, and is used only to
+establish an order of magnitude.
+
+Earlier editions of this material carried a reference, \texttt{anthropic2026art},
+that did not correspond to a real publication. It was removed when discovered.
+The incident is the reason every entry above was re-verified against a primary
+record, with DOIs, rather than carried forward from a previous draft.

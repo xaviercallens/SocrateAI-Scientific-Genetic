@@ -91,6 +91,37 @@ because nothing was tuned: the theorem has no parameters, only hypotheses that
 the experiments supply.
 \end{remark}
 
+\begin{remark}[Where the entailment is weaker than it looks]\label{rem:transport}
+Having claimed the conclusion is forced, we owe the reader the place where that
+claim is vulnerable, because it is not in the theorem. It is in the first
+hypothesis.
+
+Theorem~\ref{thm:forced} needs $p_{\mathrm{mut}} \le p_{\mathrm{null}}$ --- the
+variant produces no more errors --- and what Xing \emph{et al.}\ measured is an
+error rate \emph{per nucleotide incorporated}, by purified holoenzyme, on a
+defined template, at S-phase dNTP concentrations. The theorem is then applied in
+a cell. That is a transport step, and it is not free.
+
+It matters here specifically because of what else Xing \emph{et al.}\ found. Their
+central conclusion is that \texttt{P301R} is a \emph{hyperactive} polymerase: it
+copies templates more efficiently, extends mismatched primer termini rather than
+surrendering them to the exonuclease site, and bypasses secondary structures that
+stall the wild-type enzyme. An enzyme with those properties need not deliver the
+same error \emph{load} per replicated genome that its per-nucleotide rate
+suggests --- it may synthesise more of the genome, retain primer termini it should
+have released, and traverse templates a stalling enzyme would have handed to
+another polymerase. Each of those raises $p_{\mathrm{mut}}$ in vivo without
+raising the quantity the purified assay reports.
+
+So the honest statement is conditional: \emph{if} the in vitro ordering of
+production survives transport to the cell, then capacity must drop. Section~4's
+reversal is real, and something must give; but the book's own channel model
+offers two ways out, and only one of them is a repair effect. We record this in
+the ledger as an assumption and not as a result, because the alternative ---
+calling the capacity drop ``forced'' without naming the hypothesis that carries
+it --- is the exact move Section~\ref{sec:proof-and-cell} warns against.
+\end{remark}
+
 \subsection{Formalisation}
 
 From \file{formal/ANSE/GeneticsTextbook.lean}, which passes the gate with $11$ of
@@ -136,23 +167,33 @@ above saturation.
 
 \subsection{What the model does not settle}
 
-Theorem~\ref{thm:forced} says the capacity differs. It does not say why, and three
+Theorem~\ref{thm:forced} says the capacity differs. It does not say why, and four
 mechanisms remain compatible with everything above:
 
 \begin{enumerate}[leftmargin=*,itemsep=1pt]
   \item \textbf{Titration} --- the variant generates lesions that occupy MMR, exhausting it.
   \item \textbf{Interference} --- the variant physically impedes MMR recognition at the fork.
   \item \textbf{Substrate invisibility} --- the variant's errors are of a kind MMR does not see.
+  \item \textbf{Loss of extrinsic proofreading} --- the errors are ordinarily
+        removed not by MMR but by the exonuclease of polymerase~$\delta$ acting
+        in \emph{trans}, and the variant denies them to it. Bulock
+        \emph{et al.}\ (2020) show that both MMR and Pol~$\delta$ proofreading are
+        required to keep \texttt{pol2-P301R} cells viable, so $c$ in
+        Assumption~\ref{model:channel} is lumping together at least two distinct
+        repair routes. The model cannot distinguish them, and the book should not
+        pretend otherwise.
 \end{enumerate}
 
 There is also a constraint that any of these must respect, and it is the reason
 this section stops short of a mechanism. The double mutant
-\texttt{pol2-P301R msh6$\Delta$} is synthetic lethal, whereas
-\texttt{pol2-4 msh6$\Delta$} is viable. If \texttt{P301R} had already abolished
-MMR function, deleting \texttt{MSH6} would add nothing and the double mutant
-should be no worse than the single. It is worse. So MMR is still doing real work
-on \texttt{P301R} errors, and $c_{\mathrm{mut}} > 0$: the capacity is reduced,
-not eliminated.
+\texttt{pol2-P301R msh6$\Delta$} is synthetic lethal --- Xing \emph{et al.}\ (2019)
+establish this by tetrad analysis, and report that the double mutants divide into
+microcolonies before stopping, the signature of replication error catastrophe ---
+whereas \texttt{pol2-4 msh6$\Delta$} is viable. If \texttt{P301R} had already
+abolished MMR function, deleting \texttt{MSH6} would add nothing and the double
+mutant should be no worse than the single. It is worse. So MMR is still doing
+real work on \texttt{P301R} errors, and $c_{\mathrm{mut}} > 0$: the capacity is
+reduced, not eliminated.
 
 A student should hold that tension rather than resolve it prematurely. The
 textbook's job here is to say exactly how far the evidence reaches.
@@ -200,17 +241,41 @@ The decisive experiment for the mechanism is a rate measurement in a
 separate the hypotheses, and what a partial reduction in $c$ would reveal.
 \end{exercise}
 
+\begin{exercise}[(harder)]
+Remark~\ref{rem:transport} argues that a hyperactive polymerase could raise
+$p_{\mathrm{mut}}$ in vivo without changing the per-nucleotide error rate the
+purified assay reports. Write Assumption~\ref{model:channel} with $p$ expressed
+as (errors per nucleotide) $\times$ (nucleotides synthesised per genome), and
+show that Theorem~\ref{thm:forced}'s hypothesis constrains the \emph{product} and
+not the first factor alone. Then state which of the two factors each of the two
+experiments of Section~\ref{sec:refutation} actually measures.
+\end{exercise}
+
 \begin{ledger}
 \textbf{Measured:} the two comparisons inherited from
 Section~\ref{sec:refutation}; the viability of \texttt{pol2-4 msh6$\Delta$} and
-the synthetic lethality of \texttt{pol2-P301R msh6$\Delta$}. \\
+the synthetic lethality of \texttt{pol2-P301R msh6$\Delta$} (Xing \emph{et al.},
+2019, tetrad analysis); the joint requirement for MMR and Pol~$\delta$
+proofreading (Bulock \emph{et al.}, 2020). \\
 \textbf{Assumed:} Assumption~\ref{model:channel} --- that repair acts as a
 capacity-limited subtraction. The hard threshold is a caricature; Exercise~5.2
-shows the qualitative conclusion survives a smooth alternative. \\
+shows the qualitative conclusion survives a smooth alternative. \emph{And}, as
+Remark~\ref{rem:transport} sets out, that the in vitro ordering
+$p_{\mathrm{mut}} \le p_{\mathrm{null}}$ still holds in a cell. Xing
+\emph{et al.}'s hyperactivity result gives a concrete reason it might not, and
+nothing in this book rules that out. The capacity drop is therefore
+\emph{conditionally} forced, and the condition is a modelling assumption rather
+than a measurement. \\
 \textbf{Proved:} Theorems~\ref{thm:norev} and~\ref{thm:forced}
 (\lean{no_reversal_at_fixed_capacity}, \lean{reversal_forces_capacity_drop}),
-with a non-vacuity witness and two controls. Gate: $11$ of $11$ clean. \\
-\textbf{Open:} which of titration, interference or substrate invisibility
-operates. No measurement reported here distinguishes them, and the hypomorphic
-experiment of Exercise~5.4 has not been done.
+with a non-vacuity witness and two controls. Gate: $11$ of $11$ clean. What is
+proved is the implication; the ledger line above is why the implication's
+antecedent is not itself established. \\
+\textbf{Open:} which of titration, interference, substrate invisibility or loss
+of extrinsic Pol~$\delta$ proofreading operates --- and, prior to that, whether
+production is ordered the same way in vivo as in vitro. No measurement reported
+here distinguishes any of them, and the hypomorphic experiment of
+Exercise~5.4 has not been done. A measurement of error production per replicated
+genome, rather than per nucleotide incorporated, would settle the transport
+question and has not been made.
 \end{ledger}

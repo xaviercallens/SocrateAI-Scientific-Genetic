@@ -44,9 +44,45 @@ plt.rcParams.update({
 
 # Kane & Shcherbakova 2014, Cancer Res 74:1895, Table 2 (CAN1, isogenic
 # MMR-proficient background, x10^-8). Provenance in data/pole_proofreading_literature.json.
-KANE_P301R, KANE_EXO_NULL, KANE_WT = 2300.0, 44.0, 1.5
+LITERATURE = ROOT / "data" / "pole_proofreading_literature.json"
+
+
+def literature() -> dict[str, Any]:
+    """The in-repo record of the primary sources, read from full text with CIs.
+
+    Every rate the book quotes is taken from here rather than retyped, so a
+    disagreement between prose and source shows up as a changed figure.
+    """
+    return json.loads(LITERATURE.read_text())
+
+
+_LIT = literature()
+_KANE = _LIT["in_vivo_can1"]["kane2014"]["strains"]
+_BARBARI = _LIT["in_vivo_can1"]["barbari2018"]["strains"]
+
+KANE_P301R = float(_KANE["pol2-P301R"]["rate"])
+KANE_EXO_NULL = float(_KANE["pol2-4_exonuclease_null"]["rate"])
+KANE_WT = float(_KANE["POL2_wild_type"]["rate"])
+KANE_P301R_CI = [float(x) for x in _KANE["pol2-P301R"]["ci"]]
+KANE_EXO_NULL_CI = [float(x) for x in _KANE["pol2-4_exonuclease_null"]["ci"]]
+BARBARI_WT = float(_BARBARI["POL2_wild_type"]["rate"])
+
 # Xing 2019, Nat Commun 10:374: purified enzyme, base substitutions x10^-6, no MMR.
-XING_P301R_INVITRO, XING_EXO_NULL_INVITRO = 59.0, 155.0
+_XING = _LIT["in_vitro_fidelity"]["base_substitution_error_rate"]
+XING_P301R_INVITRO = float(_XING["P301R"])
+XING_EXO_NULL_INVITRO = float(_XING["exonuclease_null"])
+
+
+def barbari_rho(allele: str) -> float:
+    """Rho for a Barbari 2018 allele against Kane's exonuclease-null reference.
+
+    Barbari 2018 carries no pol2-4 arm, so the comparison runs through each
+    paper's own wild type. This is a cross-paper step and the book flags it as
+    one; the provenance file records it in the same terms.
+    """
+    fold = float(_BARBARI[allele]["rate"]) / BARBARI_WT
+    exo_null_fold = KANE_EXO_NULL / KANE_WT
+    return fold / exo_null_fold
 
 
 def values() -> dict[str, Any]:
@@ -299,10 +335,17 @@ def fig_nogo_ceiling() -> None:
 # --------------------------------------------------------------- section 4 ---
 def fig_pole_panel() -> None:
     """Variant panel against the ceiling, plus the in vitro / in vivo reversal."""
+    # Every ratio is derived from the provenance record, not retyped. The
+    # Barbari alleles carry their yeast names (the human equivalents differ in
+    # numbering: pol2-F382S is POLE F367S, pol2-S474F is POLE S459F).
     panel = [("pol2-P301R", KANE_P301R / KANE_EXO_NULL, True),
-             ("pol2-P301H", 21.0, True), ("pol2-F367S", 12.5, True),
-             ("pol2-S459F", 9.1, True), ("pol2-V411L", 0.55, False),
+             ("pol2-S474F", barbari_rho("pol2-S474F"), True),
+             ("pol2-F382S", barbari_rho("pol2-F382S"), True),
+             ("pol2-P301H", barbari_rho("pol2-P301H"), True),
+             ("pol2-D290V", barbari_rho("pol2-D290V"), False),
+             ("pol2-V426L", barbari_rho("pol2-V426L"), False),
              ("pol2-4 (exo-null)", 1.0, False)]
+    panel = [(n, r, r > 1.0) for n, r, _ in panel]
     fig, (ax, ax2) = plt.subplots(1, 2, figsize=(10.8, 4.0),
                                   gridspec_kw={"wspace": 0.30})
 
@@ -338,6 +381,12 @@ def fig_pole_panel() -> None:
 
     put("sec04", {"reversal_factor": reversal,
                   "in_vitro_ratio": inv[0] / inv[1], "in_vivo_ratio": viv[0] / viv[1],
+                  "kane_wild_type_e8": KANE_WT,
+                  "p301r_over_wild_type": KANE_P301R / KANE_WT,
+                  "exo_null_over_wild_type": KANE_EXO_NULL / KANE_WT,
+                  # Worst case on the published 95% CIs: the bound still fails.
+                  "rho_ci_floor": KANE_P301R_CI[0] / KANE_EXO_NULL_CI[1],
+                  "barbari_wild_type_e8": BARBARI_WT,
                   "panel": [{"allele": n, "rho": r, "breaks_ceiling": b}
                             for n, r, b in panel]})
     save(fig, "fig04_pole_panel.pdf")
@@ -394,24 +443,52 @@ def fig_repair_reversal() -> None:
 def fig_mutation_accumulation() -> None:
     """Luria-Delbruck versus Poisson: why the variance, not the mean, is the
     signature of mutation arising before selection."""
-    rng = np.random.default_rng(20261021)
     n_cultures, generations, mu = 4000, 22, 2.0e-8
+    # Each cell divides into two daughters and each new strand is a chance to
+    # mutate, so the per-cell-per-generation probability is 2*mu. The book's
+    # closed forms are stated for this same 2*mu, not for mu.
+    p_div = 2.0 * mu
 
-    # Exact small-culture simulation: each generation doubles the wild-type
-    # population, each division is an independent chance to mutate, and existing
-    # mutants double along with everyone else. The jackpot comes from early
-    # mutations expanding for many generations.
-    finals = np.zeros(n_cultures, dtype=np.int64)
-    for c in range(n_cultures):
-        wt, mut = 1, 0
-        for _ in range(generations):
-            new_mut = rng.binomial(wt, mu * 2.0)
-            wt = wt * 2 - new_mut
-            mut = mut * 2 + new_mut
-        finals[c] = mut
+    def one_experiment(seed: int) -> np.ndarray:
+        """Exact simulation of `n_cultures` independent cultures.
+
+        Each generation doubles the wild-type population, each division is an
+        independent chance to mutate, and existing mutants double along with
+        everyone else. The jackpot comes from early mutations expanding for many
+        generations.
+        """
+        r = np.random.default_rng(seed)
+        out = np.zeros(n_cultures, dtype=np.int64)
+        for c in range(n_cultures):
+            wt, mut = 1, 0
+            for _ in range(generations):
+                new_mut = r.binomial(wt, p_div)
+                wt = wt * 2 - new_mut
+                mut = mut * 2 + new_mut
+            out[c] = mut
+        return out
+
+    rng = np.random.default_rng(20261021)
+    finals = one_experiment(20261021)
     n_final = 2 ** generations
     mean, var = float(finals.mean()), float(finals.var())
     poisson = rng.poisson(max(mean, 1e-9), size=n_cultures)
+
+    # The closed forms the book derives by hand, for this same p_div.
+    theory_mean = sum(p_div * 2 ** j * 2 ** (generations - j - 1)
+                      for j in range(generations))
+    theory_var = sum(p_div * 2 ** j * (2 ** (generations - j - 1)) ** 2
+                     for j in range(generations))
+
+    # The reported overdispersion is a single draw from a heavy-tailed
+    # estimator. Reseeding the whole experiment shows how unstable it is: the
+    # population variance is carried by first-generation events that 4000
+    # cultures essentially never sample, so the sample variance is a severe
+    # underestimate. This spread is the section's real lesson, so it is
+    # measured rather than asserted.
+    repeats = [one_experiment(20261021 + 1000 * k) for k in range(12)]
+    ratios = sorted(float(f.var()) / float(f.mean()) for f in repeats
+                    if f.mean() > 0)
 
     fig, (ax, ax2) = plt.subplots(1, 2, figsize=(10.6, 4.0),
                                   gridspec_kw={"wspace": 0.28})
@@ -425,21 +502,40 @@ def fig_mutation_accumulation() -> None:
     ax.legend(frameon=False)
     ax.spines[["top", "right"]].set_visible(False)
 
-    ax2.scatter([0.35], [var / mean], s=110, color=WARM, zorder=5)
-    ax2.scatter([0.65], [float(poisson.var()) / float(poisson.mean())], s=110,
+    # Twelve reseeds of the same experiment, against the closed-form value.
+    jitter = np.linspace(0.26, 0.44, len(ratios))
+    ax2.scatter(jitter, ratios, s=46, color=WARM, alpha=0.85, zorder=5,
+                label="12 reseeds of the same experiment")
+    ax2.scatter([0.35], [var / mean], s=120, facecolor="none", edgecolor=INK,
+                lw=1.6, zorder=6, label="the seed quoted in the text")
+    ax2.scatter([0.72], [float(poisson.var()) / float(poisson.mean())], s=90,
                 color=BLUE, zorder=5)
+    ax2.axhline(theory_var / theory_mean, color=GREEN, ls="-", lw=1.4)
+    ax2.text(0.04, theory_var / theory_mean * 1.35,
+             f"closed form, $N/g$ = {theory_var/theory_mean:,.0f}",
+             color=GREEN, fontsize=8.0)
     ax2.axhline(1, color=GREY, ls="--", lw=1.2)
-    ax2.text(0.05, 1.5, "Poisson: variance = mean", color=GREY, fontsize=8.5)
-    ax2.set_yscale("log"); ax2.set_xlim(0, 1); ax2.set_xticks([0.35, 0.65])
+    ax2.text(0.04, 1.4, "Poisson: variance = mean", color=GREY, fontsize=8.0)
+    ax2.set_yscale("log"); ax2.set_xlim(0, 0.9); ax2.set_xticks([0.35, 0.72])
     ax2.set_xticklabels(["Luria–Delbrück", "Poisson"])
     ax2.set_ylabel("variance / mean")
-    ax2.set_title(f"(b) Overdispersion = {var/mean:,.0f}$\\times$", loc="left")
+    ax2.set_title("(b) The overdispersion estimator is itself heavy-tailed",
+                  loc="left")
+    ax2.legend(frameon=False, loc="lower right", fontsize=7.4)
     ax2.spines[["top", "right"]].set_visible(False)
 
     put("sec06", {"cultures": n_cultures, "generations": generations,
-                  "mutation_rate_per_division": mu, "final_population": n_final,
+                  "mutation_rate_per_division": mu,
+                  "per_cell_per_generation_probability": p_div,
+                  "final_population": n_final,
                   "mean_mutants": mean, "variance_mutants": var,
                   "variance_over_mean": var / mean,
+                  "theory_mean": theory_mean, "theory_variance": theory_var,
+                  "theory_variance_over_mean": theory_var / theory_mean,
+                  "reseed_variance_over_mean_min": ratios[0],
+                  "reseed_variance_over_mean_max": ratios[-1],
+                  "reseed_variance_over_mean_median": ratios[len(ratios) // 2],
+                  "reseeds": len(ratios),
                   "max_mutants_observed": int(finals.max()),
                   "fraction_with_zero": float((finals == 0).mean()),
                   "seed": 20261021})

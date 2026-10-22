@@ -55,7 +55,7 @@ Shcherbakova (2014), Table~2. The final column is the quantity PSR$_2$ bounds.}
 \toprule
 \textbf{Allele} & \textbf{Proofreading} & \textbf{Rate} & \textbf{$\rho = $ rate / exo-null rate} \\
 \midrule
-wild type & intact & $1.5$ & $0.034$ \\
+wild type & intact & $15$ & $0.34$ \\
 \texttt{pol2-4} & absent (exo-null) & $44$ & $1$ by definition --- this is $\inserr$ \\
 \texttt{pol2-P301R} & domain mutated & $2300$ & $\mathbf{52.3}$ \\
 \bottomrule
@@ -68,8 +68,13 @@ PSR$_2$ says $\rho \le 1$ for every stage-removal mutant. The measurement gives
 \begin{equation}\label{eq:rho}
   \rho \;=\; \frac{2300 \times 10^{-8}}{44 \times 10^{-8}} \;=\; \frac{2300}{44} \;\approx\; 52.3 .
 \end{equation}
-On the published $95\%$ confidence intervals the ratio is at least $35.3$. Either
-way the bound is violated by more than an order of magnitude.
+The published $95\%$ confidence intervals are $[1800, 2800]$ for
+\texttt{pol2-P301R} and $[39, 51]$ for \texttt{pol2-4}, so even in the worst case
+the ratio is $1800/51 = 35.3$. Either way the bound is violated by more than an
+order of magnitude. Both intervals, and every other rate in this section, are
+recorded with their source location in
+\file{data/pole_proofreading_literature.json} and read from there by the figure
+script rather than retyped.
 
 \begin{theorem}[Refutation]\label{thm:refuted}
 The hypothesis that \texttt{P301R} acts by removing proofreading stages, in the
@@ -101,23 +106,54 @@ attached.
 A refutation is only as good as its controls. Three matter here.
 
 \begin{enumerate}[leftmargin=*,itemsep=2pt]
-  \item \textbf{Other cancer alleles.} \texttt{P286H}, \texttt{F367S} and
-        \texttt{S459F} also exceed the ceiling (Barbari \emph{et al.}, 2018),
-        so the failure is not a peculiarity of one substitution.
-  \item \textbf{Neutral alleles.} \texttt{V411L} and six functionally neutral
-        variants sit \emph{below} the ceiling and are not flagged. A test that
+  \item \textbf{Other cancer alleles.} Barbari \emph{et al.}\ (2018) measured
+        thirteen further cancer-associated substitutions. Three exceed the
+        ceiling --- \texttt{pol2-S474F} at $\rho = 10.1$, \texttt{pol2-F382S} at
+        $5.6$, \texttt{pol2-P301H} at $4.3$ --- so the failure is not a
+        peculiarity of one substitution. Note the numbering: these are the yeast
+        alleles corresponding to human \texttt{S459F}, \texttt{F367S} and
+        \texttt{P286H}, and yeast and human residue numbers differ.
+  \item \textbf{Alleles that do not break it.} \texttt{pol2-D290V}
+        ($\rho = 0.79$) and \texttt{pol2-V426L} ($\rho = 0.42$) sit \emph{below}
+        the ceiling and are not flagged, as do the remaining eight. A test that
         flagged everything would be worthless.
+
+        This control needs a caveat that the first edition of this section did
+        not give it, and the caveat is instructive. \texttt{pol2-V426L} ---
+        human \texttt{V411L} --- is \emph{not} a functionally neutral variant.
+        It is one of the most prevalent \texttt{POLE} substitutions in
+        ultramutated human tumours, and Barbari \emph{et al.}\ (2022) showed that
+        the purified enzyme is among the most active polymerases they tested and
+        that the allele \emph{does} produce a robust mutator phenotype --- in a
+        mismatch-repair-deficient background. It looks quiet here only because
+        Table~\ref{tab:kane}'s background is MMR-proficient.
+
+        So $\rho \le 1$ is evidence that an allele is consistent with the
+        stage-removal class \emph{in this background}, and nothing more. We flag
+        it at some length because a variant whose phenotype appears only when
+        repair is removed is exactly the behaviour Section~\ref{sec:mmr} is
+        about; the control and the mechanism are not independent.
   \item \textbf{The reference is not assumed.} $\inserr$ is not fitted; it is
         measured directly as the \texttt{pol2-4} rate in the same table. This is
         what makes $\rho$ a measurement rather than an estimate.
+
+        One qualification: Barbari \emph{et al.}\ (2018) includes no
+        \texttt{pol2-4} arm, so the three ratios in control~1 are obtained by
+        normalising each paper to its own wild type before dividing. That is a
+        cross-paper step, it is weaker than the within-table comparison that
+        carries Theorem~\ref{thm:refuted}, and the refutation does not depend on
+        it.
 \end{enumerate}
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\textwidth]{fig04_pole_panel.pdf}
   \caption{(a) The variant panel against the PSR$_2$ ceiling. Four
-  cancer-associated alleles break it; the neutral control \texttt{V411L} and the
-  exo-null reference do not. (b) The reversal that Section~\ref{sec:mmr} is built
+  cancer-associated alleles break it; two further alleles and the exo-null
+  reference do not. Every ratio is computed from
+  \file{data/pole_proofreading_literature.json}, and whether an allele is drawn
+  as breaking the ceiling is decided by $\rho > 1$ rather than asserted.
+  (b) The reversal that Section~\ref{sec:mmr} is built
   on: in a purified system \texttt{P301R} is \emph{more} accurate than exo-null,
   while in vivo it is $52\times$ worse. Between the test tube and the cell the
   ordering flips by a factor of $137$.}
@@ -149,16 +185,21 @@ theorem, and that the missing factor is forced to be an interaction with repair.
 \end{remark}
 
 \begin{worked}[4.1: why the wild-type comparison is the wrong one]
-\textbf{Problem.} A reviewer objects: ``\texttt{P301R} is $2300/1.5 \approx 1533$
+\textbf{Problem.} A reviewer objects: ``\texttt{P301R} is $2300/15 \approx 153$
 times wild type. Surely losing proofreading could produce that.'' Answer the
 objection.
 
 \textbf{Solution.} The objection compares against the wrong reference. Losing
-proofreading \emph{can} produce a large ratio to wild type --- that is exactly
-what \texttt{pol2-4} does, at $44/1.5 \approx 29$. The question PSR$_2$ asks is
+proofreading \emph{can} raise the rate above wild type --- that is exactly what
+\texttt{pol2-4} does, at $44/15 \approx 2.9$. The question PSR$_2$ asks is
 different: can losing proofreading produce more errors than losing \emph{all} of
 it? The answer is no, by Theorem~\ref{thm:psr2}, and the relevant ratio is
-therefore $2300/44$, not $2300/1.5$.
+therefore $2300/44$, not $2300/15$.
+
+Observe how much work the choice of denominator does. Against wild type the
+variant looks like a strong mutator and the stage-removal story looks adequate;
+against the exonuclease-null allele it is $52$ times past a ceiling that story
+cannot cross. The two ratios are computed from the same three numbers.
 
 The general lesson: a bound is only informative when you compare against the
 quantity it bounds. Choosing a reference that makes a number look big is not the
@@ -194,17 +235,28 @@ and state the general rule it violates.
 
 \begin{ledger}
 \textbf{Measured:} \texttt{CAN1} forward-mutation rates, Kane and Shcherbakova
-(2014) Table~2: wild type $1.5$, \texttt{pol2-4} $44$, \texttt{pol2-P301R}
-$2300$, all $\times10^{-8}$, same background and reporter. Purified-enzyme base
+(2014) Table~2: wild type $15$ $[10,20]$, \texttt{pol2-4} $44$ $[39,51]$,
+\texttt{pol2-P301R} $2300$ $[1800,2800]$, all $\times10^{-8}$ with $95\%$ CIs,
+same background and reporter. Purified-enzyme base
 substitution rates, Xing \emph{et al.}\ (2019): $59$ versus $155 \times 10^{-6}$.
-Additional alleles from Barbari \emph{et al.}\ (2018). Domain boundaries
+Additional alleles from Barbari \emph{et al.}\ (2018), \texttt{V411L} in
+MMR-deficient background from Barbari \emph{et al.}\ (2022). Domain boundaries
 \texttt{IPR006133} $= 220$--$426$ retrieved live from InterPro. \\
 \textbf{Assumed:} that \texttt{pol2-P301R} is an adequate model of human
 \texttt{P286R}, and that the \texttt{CAN1} reporter reflects genome-wide rates up
-to a constant that cancels in $\rho$. \\
+to a constant that cancels in $\rho$. For control~1, that normalising two papers
+to their respective wild types makes their alleles comparable. \\
 \textbf{Proved:} Theorem~\ref{thm:refuted}, by combining Theorem~\ref{thm:psr2}
 with \eqref{eq:rho}. The arithmetic $2300/44 > 1$ needs no formalisation; the
 bound it contradicts is machine-checked. \\
 \textbf{Open:} what \emph{does} carry the phenotype. Section~\ref{sec:mmr}
-narrows it; it does not finish the job.
+narrows it; it does not finish the job. \\
+\textbf{Corrected in this edition:} the wild-type rate in Table~\ref{tab:kane}
+read $1.5\times10^{-8}$ in the first edition against the $15\times10^{-8}$ in the
+repository's provenance record; $15$ is right, and it is what reproduces the
+source's own statement that \texttt{pol2-P301R} is ``$150$-fold'' over wild type
+($2300/15 = 153$). The error did not touch $\rho = 2300/44$, so
+Theorem~\ref{thm:refuted} is unaffected --- but it did change
+Worked Example~4.1 by a factor of ten, and it is recorded here rather than
+silently repaired.
 \end{ledger}

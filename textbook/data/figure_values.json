@@ -89,8 +89,12 @@
   "rho": 52.27272727272727
  },
  "sec04": {
+  "barbari_wild_type_e8": 23.0,
+  "exo_null_over_wild_type": 2.933333333333333,
   "in_vitro_ratio": 0.38064516129032255,
   "in_vivo_ratio": 52.27272727272727,
+  "kane_wild_type_e8": 15.0,
+  "p301r_over_wild_type": 153.33333333333334,
   "panel": [
    {
     "allele": "pol2-P301R",
@@ -98,24 +102,29 @@
     "rho": 52.27272727272727
    },
    {
+    "allele": "pol2-S474F",
+    "breaks_ceiling": true,
+    "rho": 10.07905138339921
+   },
+   {
+    "allele": "pol2-F382S",
+    "breaks_ceiling": true,
+    "rho": 5.632411067193676
+   },
+   {
     "allele": "pol2-P301H",
     "breaks_ceiling": true,
-    "rho": 21.0
+    "rho": 4.298418972332016
    },
    {
-    "allele": "pol2-F367S",
-    "breaks_ceiling": true,
-    "rho": 12.5
-   },
-   {
-    "allele": "pol2-S459F",
-    "breaks_ceiling": true,
-    "rho": 9.1
-   },
-   {
-    "allele": "pol2-V411L",
+    "allele": "pol2-D290V",
     "breaks_ceiling": false,
-    "rho": 0.55
+    "rho": 0.7855731225296443
+   },
+   {
+    "allele": "pol2-V426L",
+    "breaks_ceiling": false,
+    "rho": 0.41501976284584985
    },
    {
     "allele": "pol2-4 (exo-null)",
@@ -123,7 +132,8 @@
     "rho": 1.0
    }
   ],
-  "reversal_factor": 137.326656394453
+  "reversal_factor": 137.326656394453,
+  "rho_ci_floor": 35.294117647058826
  },
  "sec05": {
   "lean": "ANSE.GeneticsTextbook.reversal_forces_capacity_drop",
@@ -144,7 +154,15 @@
   "max_mutants_observed": 1024,
   "mean_mutants": 1.27225,
   "mutation_rate_per_division": 2e-08,
+  "per_cell_per_generation_probability": 4e-08,
+  "reseed_variance_over_mean_max": 2264.4952146464643,
+  "reseed_variance_over_mean_median": 346.6949341226174,
+  "reseed_variance_over_mean_min": 32.72861648250461,
+  "reseeds": 12,
   "seed": 20261021,
+  "theory_mean": 1.84549376,
+  "theory_variance": 351843.63700224,
+  "theory_variance_over_mean": 190650.13636363635,
   "variance_mutants": 441.0826299375,
   "variance_over_mean": 346.6949341226174
  },

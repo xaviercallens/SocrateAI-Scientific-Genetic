@@ -56,10 +56,11 @@ family-B DNA polymerase exonuclease domain, at residues $220$--$426$.
   \includegraphics[width=\textwidth]{fig07_variant_landscape.pdf}
   \caption{(a) \texttt{POLE} domain architecture from InterPro, drawn to scale,
   with the two variants discussed in this book marked. Both \texttt{P286R} and
-  the neutral control \texttt{V411L} fall inside the exonuclease domain --- which
-  is itself instructive: being in the proofreading domain does not make a variant
-  a mutator, as Section~\ref{sec:refutation}'s control shows. (b) ClinVar record
-  counts. Note that the categories overlap.}
+  \texttt{V411L} fall inside the exonuclease domain, and neither position
+  predicts its phenotype: \texttt{P286R} breaks the PSR$_2$ ceiling by a factor
+  of $52$, while \texttt{V411L} stays below it in an MMR-proficient background
+  and becomes a mutator when repair is removed (Worked Example~7.1). (b) ClinVar
+  record counts. Note that the categories overlap.}
   \label{fig:landscape}
 \end{figure}
 
@@ -85,24 +86,49 @@ that confidently classifies such variants should be viewed against that base
 rate, not against its own accuracy on curated examples.
 \end{remark}
 
-\begin{worked}[7.1: a variant in the right domain that does nothing]
+\begin{worked}[7.1: the variant that looked like it did nothing]
 \textbf{Problem.} \texttt{V411L} lies at residue $411$, inside \texttt{IPR006133}
-($220$--$426$), the same domain as \texttt{P286R}. Yet Section~\ref{sec:refutation}
-used it as a \emph{negative} control: it does not break the PSR$_2$ ceiling. Is
-this a contradiction?
+($220$--$426$), the same domain as \texttt{P286R}. Section~\ref{sec:refutation}
+used it as a \emph{negative} control, because it does not break the PSR$_2$
+ceiling. It is also one of the most recurrent \texttt{POLE} substitutions in
+ultramutated human tumours. Reconcile these facts.
 
-\textbf{Solution.} No, and the apparent tension is the point of the exercise.
-Domain membership is a statement about \emph{where} a residue sits in a sequence
-annotation; mutator phenotype is a statement about \emph{what} the substituted
-protein does. Localisation is evidence of opportunity, not of effect.
+\textbf{Solution.} They are reconciled by naming the background, and the first
+edition of this book got it wrong by not doing so.
 
-Concretely: the exonuclease domain contains catalytic residues, metal-coordinating
-residues, structural residues and surface residues. A substitution at a surface
-position inside the domain may leave catalysis untouched. Inferring function from
-domain membership is the same category error that Section~\ref{sec:proof-and-cell}
-warned about --- treating a modelling claim (``in the domain, therefore disrupts
-the domain'') as though it were established.
+Two distinct inferences are in play. The first is \emph{localisation to effect}:
+domain membership says \emph{where} a residue sits in a sequence annotation,
+while a mutator phenotype says \emph{what} the substituted protein does. The
+exonuclease domain contains catalytic, metal-coordinating, structural and surface
+residues, and a substitution at a surface position may leave catalysis untouched.
+Inferring function from domain membership is the category error
+Section~\ref{sec:proof-and-cell} warns about.
+
+The second is the one that actually applies here, and it is the opposite mistake:
+inferring \emph{absence} of effect from absence of a measured effect in one
+background. In MMR-proficient yeast, \texttt{pol2-V426L} --- the \texttt{V411L}
+analogue --- gives $\rho = 0.42$ and looks inert. Barbari \emph{et al.}\ (2022)
+then showed the purified enzyme is among the most active they tested, that its
+polymerase-to-exonuclease site switching is defective, and that the allele is a
+robust mutator \emph{once mismatch repair is removed}. The variant was never
+inert; the assay was blind to it.
+
+So \texttt{V411L} is a negative control for the PSR$_2$ test and not a negative
+control for pathogenicity, and those are different claims. Worse for the tidy
+version of the story, its background-dependence is precisely the signature
+Section~\ref{sec:mmr} predicts for a variant whose errors are handled by repair.
+The cleanest control in the panel turns out to be an instance of the mechanism
+the book is arguing for.
 \end{worked}
+
+\begin{remark}[What this example cost]
+We have left the error visible rather than replacing the example, because the
+mistake has a transferable shape. A variant was labelled neutral on the strength
+of one measurement in one genetic background, and the label then did evidential
+work elsewhere in the book. Nothing about the measurement was wrong. The
+overreach was in the word \emph{neutral}, which asserts something about all
+backgrounds from data about one.
+\end{remark}
 
 \begin{exercise}
 Using Table~\ref{tab:genes}, compute the genomic span of \texttt{MSH2} in
@@ -143,5 +169,12 @@ Worked Example~7.1. \\
 checks are assertions over fetched data, not theorems: they can fail at runtime,
 which is their purpose. \\
 \textbf{Open:} the yeast-to-human correspondence of Exercise~7.4 is assumed
-throughout this book and is nowhere established in it.
+throughout this book and is nowhere established in it. \\
+\textbf{Corrected in this edition:} the first edition called \texttt{V411L} a
+``functionally neutral'' variant, on the strength of its MMR-proficient yeast
+measurement alone. Barbari \emph{et al.}\ (2022) report a robust mutator
+phenotype for the analogous allele in an MMR-deficient background. The word
+``neutral'' has been withdrawn here and in Section~\ref{sec:refutation}'s
+control~2; what the measurement supports is ``below the ceiling in this
+background''.
 \end{ledger}

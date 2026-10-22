@@ -79,16 +79,26 @@ makes no prediction.
 
 \paragraph{4.1}
 PSR$_3$ with $\rho = 2300/44 \approx 52.3$ gives
-$\inserr' \ge 52.3\,\inserr$: the insertion/extension error would have to exceed
-wild type's by a factor of about $52$. Xing's purified measurement forbids it,
-because with no repair present \texttt{P301R} makes \emph{fewer} errors than
-exonuclease-null, so its intrinsic error is not elevated at all.
+$\inserr' \ge 52.3\,\inserr$, where $\inserr$ is the exonuclease-null rate: the
+insertion/extension error would have to exceed it by a factor of about $52$, and
+hence exceed \emph{wild type's} by $52 \times (44/15) \approx 153$. Xing's
+purified measurement forbids it, because with no repair present \texttt{P301R}
+makes \emph{fewer} errors than exonuclease-null, so its intrinsic error is not
+elevated at all. (Remark~\ref{rem:transport} notes the one way this rescue could
+survive: if the quantity the purified assay measures is not the quantity
+$\inserr$ denotes in a cell.)
 
 \paragraph{4.2}
 It establishes only that this allele is consistent with the model class --- it
 does not confirm the model, because every allele that is \emph{not} a mutator is
 equally consistent. A test that cannot fail for non-mutators provides no evidence
 when it passes. (Compare Exercise~4.4.)
+
+A complete answer should add the background qualification of Worked
+Example~7.1: $\rho \le 1$ is a statement about the genetic background the
+measurement was made in. \texttt{V411L} has $\rho = 0.42$ in MMR-proficient
+yeast and is a robust mutator once MMR is removed, so ``does not break the
+ceiling'' must not be read as ``has no phenotype''.
 
 \paragraph{4.4}
 If the statistic is forced to its extreme value by a symmetry of the pipeline,
@@ -121,18 +131,52 @@ hypotheses. A hypomorphic background gives $0 < c < c_{\mathrm{null}}$, where
 titration (capacity consumed in proportion to load) and interference (capacity
 reduced independently of load) predict different dependences of escape on $p$.
 
+\paragraph{5.5}
+Write $p = e \cdot s$, with $e$ the error rate per nucleotide incorporated and
+$s$ the nucleotides the enzyme incorporates per replicated genome. Then
+Theorem~\ref{thm:forced}'s hypothesis is
+$e_{\mathrm{mut}} s_{\mathrm{mut}} \le e_{\mathrm{null}} s_{\mathrm{null}}$,
+a constraint on the products. Xing \emph{et al.}\ measure $e$: the purified assay
+reports errors per nucleotide on a defined template. Kane and Shcherbakova
+measure neither factor but the \emph{outcome}, $\mathrm{esc}(p,c)$, as a fixed
+mutation rate. So nothing in Section~\ref{sec:refutation} measures $s$, and
+$e_{\mathrm{mut}} \le e_{\mathrm{null}}$ licenses the hypothesis only if
+$s_{\mathrm{mut}} \le s_{\mathrm{null}}$ --- which hyperactivity makes
+doubtful. This is the gap Remark~\ref{rem:transport} records.
+
 \subsection*{Section 6}
 
 \paragraph{6.1}
-For $g = 4$, $\mu = 10^{-2}$: the sum $\sum_{j=0}^{3} \mu 2^{j} 2^{3-j} =
-4\mu\cdot 2^{3} = 0.32$, and $\tfrac{1}{2}\mu g N = \tfrac{1}{2}(10^{-2})(4)(16)
-= 0.32$. They agree.
+For $g = 4$, $\nu = 10^{-2}$: every term of
+$\sum_{j=0}^{3} \nu 2^{j} 2^{3-j}$ equals $\nu 2^{3}$, so the sum is
+$4\nu\cdot 2^{3} = 0.32$, and $\tfrac{1}{2}\nu g N =
+\tfrac{1}{2}(10^{-2})(4)(16) = 0.32$. They agree. Note that the terms are equal
+in the \emph{mean} --- each generation contributes the same expected number of
+final mutants --- which is what makes the mean linear in $g$. The corresponding
+terms of \eqref{eq:ldvar} are not equal, and that asymmetry is the whole content
+of §\ref{sub:trap}.
 
 \paragraph{6.4}
 Both cultures have the same $g$ and $N$; by \eqref{eq:ldmean} the means are
-$\tfrac12\mu_1 gN$ and $\tfrac12\mu_2 gN$, whose ratio is $\mu_2/\mu_1 = \rho$.
+$\tfrac12\nu_1 gN$ and $\tfrac12\nu_2 gN$, whose ratio is $\nu_2/\nu_1 = \rho$.
 Every factor depending on the growth protocol cancels, which is why the ratio is
 the robust statistic and the individual rates are not.
+
+\paragraph{6.5}
+A generation-$0$ event occurs in a given culture with probability $\nu =
+4\times10^{-8}$, so one expects at least one such event only once there are
+$1/\nu = 2.5\times10^{7}$ cultures. Twenty-five million independent cultures is
+not an experiment anyone will run; at $4000$ cultures the chance of sampling one
+is $1.6\times10^{-4}$.
+
+The implication is not that fluctuation tests fail, but that the
+variance-to-mean ratio is the wrong summary of one. Its population value is
+dominated by events no feasible experiment samples, so a published
+variance-to-mean ratio is reporting the sample it got rather than the quantity
+\eqref{eq:ldvar} describes. This is why the standard estimators
+(Lea--Coulson, Ma--Sandri--Sarkar, maximum likelihood) fit the distribution's
+shape instead: the shape is determined by the generations that \emph{are}
+sampled, and the inference does not rest on the unsampled tail.
 
 \subsection*{Section 7}
 
