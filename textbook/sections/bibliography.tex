@@ -264,6 +264,110 @@ CADE-25}, Lecture Notes in Computer Science 9195, 378--388. Springer. \nodoi
 \lean{\#print axioms} audit on top of compilation.
 \end{refs}
 
+\subsection*{Reticulate evolution and the four-point condition}
+
+Every entry in this subsection was checked against a primary record while
+Section~\ref{sec:reticulata} was written; the two without a DOI say so.
+
+\begin{refs}
+\item \textbf{Buneman P} (1971/1974). The recovery of trees from measures of
+dissimilarity. In \emph{Mathematics in the Archaeological and Historical
+Sciences}, Edinburgh University Press, 387--395; and: A note on the metric
+properties of trees. \emph{Journal of Combinatorial Theory, Series B}
+\textbf{17}:48--50. \nodoi
+\\[0.15em]
+\emph{Used in:} §\ref{sec:reticulata}, Theorem~\ref{thm:buneman}. The converse
+this book cites and does not prove: a nonnegative dissimilarity map is realised
+by a weighted tree exactly when every quadruple satisfies the four-point
+condition. The attribution is genuinely contested in the secondary literature
+--- some sources give the 1971 chapter, others the 1974 note, and neither could
+be retrieved as a primary record here --- so both are listed and no DOI is
+asserted. Earlier precedents (Simões-Pereira 1969, Stotskii 1964) are cited by
+some authors and were likewise not retrievable.
+
+\item \textbf{Semple C, Steel M} (2003). \emph{Phylogenetics}. Oxford Lecture
+Series in Mathematics and its Applications 24. Oxford University Press. \nodoi
+\\[0.15em]
+\emph{Used in:} §\ref{sec:reticulata}. The standard modern reference for the
+Tree-Metric Theorem and its hypotheses. The exact statement used in this book
+--- \emph{nonnegative dissimilarity map}, not metric, with the four-point
+condition quantified over four points not necessarily distinct --- was taken
+from S.~Roch's lecture notes for MATH 833, which follow this book's Chapter~7
+(\url{https://people.math.wisc.edu/~roch/evol-gen/}). We do not assert a theorem
+number, because the book itself could not be consulted directly.
+
+\item \textbf{Francis AR, Steel M} (2014). Tree-like reticulation networks ---
+when do tree-like distances also support reticulate evolution?
+\emph{arXiv:1405.2965}. \nodoi
+\\[0.15em]
+\emph{Used in:} §\ref{sec:reticulata}, the limits stated after
+Theorem~\ref{thm:buneman}. Exhibits a reticulation network whose distances are
+representable by a tree other than the network's own underlying tree. This is
+why the section says that satisfying the four-point condition does not certify
+the \emph{absence} of reticulation, and a violation does not identify the tree.
+
+\item \textbf{Gibrat J-F} (2018). A short note on dynamic programming in a band.
+\emph{BMC Bioinformatics} \textbf{19}:226. \doi{10.1186/s12859-018-2228-9}
+\\[0.15em]
+\emph{Used in:} §\ref{sub:aligner}, Numerics~12.3. The source of the measured
+$2.2\%$ of alignments that are optimal yet reach the band edge and $0.5\%$ that
+are sub-optimal without reaching it --- the two numbers that establish the
+band-edge test is evidence of optimality and not proof of it, and hence the
+reason every alignment behind this section is certified against the unbanded
+optimum instead.
+
+\item \textbf{Bruen TC, Philippe H, Bryant D} (2006). A simple and robust
+statistical test for detecting the presence of recombination. \emph{Genetics}
+\textbf{172}(4):2665--2681. \doi{10.1534/genetics.105.048975}
+\\[0.15em]
+\emph{Used in:} §\ref{sec:reticulata}, epistemic ledger. The established test
+whose null, like this section's, assumes no molecular clock, and the source of
+the $5.7\%$ against $37.5\%$ false-positive comparison between $\Phi_w$ and NSS
+on a non-recombinant control. It is the comparison this book says has not yet
+been run against the quartet certificate.
+
+\item \textbf{Holland BR, Huber KT, Dress A, Moulton V} (2002). $\delta$ plots:
+a tool for analyzing phylogenetic distance data. \emph{Molecular Biology and
+Evolution} \textbf{19}(12):2051--2059.
+\doi{10.1093/oxfordjournals.molbev.a004030}
+\\[0.15em]
+\emph{Used in:} §\ref{sec:reticulata}, epistemic ledger. Defines the
+quartet-averaged statistic $\delta_q = (m_1-m_2)/(m_1-m_3)$ that the
+max-versus-mean comparison measures the certificate's maximum against.
+
+\item \textbf{Frankel LE, Ané C} (2023). Summary tests of introgression are
+highly sensitive to rate variation across lineages. \emph{Systematic Biology}
+\textbf{72}(6):1357--1369. \doi{10.1093/sysbio/syad056}
+\\[0.15em]
+\emph{Used in:} §\ref{sub:relaxed}. Independent confirmation, in a different
+method family, of the confound this section's relaxed-clock control exposes:
+rate variation across lineages produces false discovery of reticulation, with
+the $D_3$ statistic reaching about $80\%$ type-I error. The authors read this as
+$D_3$ responding more strongly to a departure from the clock than to
+reticulation itself --- which is exactly what Numerics~12.1 finds for the
+ultrametric margin.
+
+\item \textbf{Murahwa AT}, \emph{et al.}\ (2020). Recombination between
+high-risk human papillomaviruses and non-human primate papillomaviruses.
+\emph{Journal of Molecular Evolution} \textbf{88}:453--462.
+\doi{10.1007/s00239-020-09946-0}
+\\[0.15em]
+\emph{Used in:} §\ref{sub:realdata}, the footnote demoting HPV52. Papillomavirus
+recombination is documented rather than merely unexcluded, which is why that
+population is marked as the weakest prior in the table rather than used as a
+clean negative control.
+
+\item \textbf{hiyata} (2025). \emph{Virus-Host-Genomes}. Hugging Face dataset,
+$58\,046$ viral genomes with taxonomy, MIT licence.
+\url{https://huggingface.co/datasets/hiyata/Virus-Host-Genomes}
+\\[0.15em]
+\emph{Used in:} §\ref{sub:realdata}. The source of all ten real populations. The
+SHA-256 of the file actually downloaded, the filters applied and every accession
+selected are recorded in
+\file{data/reticulata\_phase3/populations/provenance.json}, so the selection can
+be reproduced or disputed without trusting this book's description of it.
+\end{refs}
+
 \subsection*{A note on what is not cited here}
 
 Three absences are deliberate.
