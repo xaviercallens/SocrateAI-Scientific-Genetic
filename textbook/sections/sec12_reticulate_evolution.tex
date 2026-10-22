@@ -1,0 +1,607 @@
+% =============================================================================
+% Section 12 — Reticulate evolution, and a null that is a theorem
+% =============================================================================
+\section{Reticulate Evolution: When the Null Can Be a Theorem}\label{sec:reticulata}
+
+\begin{objectives}
+\begin{itemize}[leftmargin=*,itemsep=1pt,topsep=1pt]
+  \item State the ultrametric and four-point conditions, and say which biological assumption each one encodes.
+  \item Prove that every symmetric ultrametric satisfies the four-point condition, and read off what a quartet violation refutes.
+  \item Explain why a violation of ultrametricity is \emph{not} evidence of recombination, using the relaxed-clock control that refuted that reading.
+  \item Compute a four-point verdict by hand from six integer counts under complete deletion.
+  \item Say what a machine-checked certificate does and does not vouch for once the data has passed through an aligner.
+\end{itemize}
+\end{objectives}
+
+\subsection{What Section 8 got wrong, and the shape of the repair}
+
+Section~\ref{sec:tda} embedded one DNA sequence by the chaos game and measured
+the topology of the resulting point cloud. Section~11 ran the null that section
+had declined to run, and the answer was negative. It is worth being precise
+about why, because the diagnosis determines the repair.
+
+The chaos game contracts \emph{any} sequence onto a self-similar attractor. The
+holes being measured were therefore the attractor's, not the sequence's. With no
+mathematical null available, the test had to be calibrated against shuffles,
+which bought a $p$-value floor, a frame-sampling artefact (\S11.3), and a
+statistic with no proved meaning.
+
+The repair is not a better statistic on the same object. It is a different
+object. Following Chan, Carlsson and Rabadan, compute topology on a
+\emph{population} of sequences under a genetic distance. There, a
+one-dimensional cycle has an interpretation: it indicates non-tree-like,
+\emph{reticulate} evolution --- recombination in a virus, reassortment between
+influenza segments, horizontal transfer between bacteria. And --- this is the
+part that is new in these pages --- the null becomes a theorem instead of an
+ensemble.
+
+\subsection{Two nulls, and the fact that they nest}
+
+Write $d(x,y)$ for the $p$-distance between two aligned sequences: the number of
+columns at which they differ, over the number of columns at which both are
+comparable.
+
+\begin{definition}[Ultrametric]\label{def:ultrametric}
+A symmetric $d$ is \emph{ultrametric} when for all $x,y,z$
+\begin{equation}\label{eq:ultrametric}
+  d(x,z) \;\le\; \max\!\left(d(x,y),\, d(y,z)\right).
+\end{equation}
+\end{definition}
+
+\begin{model}[What \eqref{eq:ultrametric} assumes]\label{mod:clock}
+Expected $p$-distances are ultrametric exactly when descent is \textbf{clonal}
+--- the genealogy is a tree --- \textbf{and} the molecular clock is
+\textbf{strict}, so that every lineage accumulates substitutions at the same
+rate. Two assumptions, one inequality. Remember that; \S\ref{sub:relaxed}
+turns on it.
+\end{model}
+
+The consequence that makes \eqref{eq:ultrametric} useful is immediate and worth
+seeing. If $d$ is ultrametric then the relation $d(\cdot,\cdot)\le\epsilon$ is
+transitive, so every connected component of the Vietoris--Rips complex at scale
+$\epsilon$ is a clique --- a filled simplex. An \emph{unfilled} cycle therefore
+cannot occur at any scale. Three sequences with
+\begin{equation}\label{eq:certificate}
+  \max\!\left(d(x,y),\, d(y,z)\right) \;<\; d(x,z)
+\end{equation}
+are not a surprise relative to shuffles. They are a \textbf{certificate} that
+the data is not ultrametric. Nothing is being calibrated; a universally
+quantified statement is being contradicted by a witness.
+
+\begin{definition}[Four-point condition]\label{def:fourpoint}
+A symmetric $d$ satisfies the \emph{four-point condition} when for all
+$a,b,c,e$
+\begin{equation}\label{eq:fourpoint}
+  d(a,b) + d(c,e) \;\le\;
+  \max\!\big(d(a,c)+d(b,e),\; d(a,e)+d(b,c)\big).
+\end{equation}
+\end{definition}
+
+A quadruple admits three ways of pairing its members. Condition
+\eqref{eq:fourpoint} says no pairing's distance sum strictly exceeds both
+others. That is a statement about \emph{tree structure} with no constraint on
+rates at all: branch lengths are free.
+
+\begin{theorem}[Tree-Metric Theorem; Buneman. Cited, not proved here]\label{thm:buneman}
+Let $\delta$ be a \emph{nonnegative dissimilarity map} on a finite set --- zero
+on the diagonal, symmetric, non-negative. Then $\delta$ is a tree metric if and
+only if it satisfies \eqref{eq:fourpoint}.
+\end{theorem}
+
+Note what Theorem~\ref{thm:buneman} does \emph{not} assume. It is tempting to
+write ``a metric satisfying the four-point condition'', and an earlier draft of
+this section did; but the triangle inequality is a \emph{consequence} of
+\eqref{eq:fourpoint} --- set $y = z$ and read it off --- so requiring it as a
+hypothesis would state something strictly weaker than the theorem. The
+uniqueness is up to canonical isomorphism once zero-weight interior edges are
+contracted.
+
+Two further limits belong here rather than in a footnote. The condition is
+necessary but \emph{not} sufficient for a tree whose internal vertices are also
+labelled, and --- the one that bounds what this section's certificates can mean
+--- satisfying \eqref{eq:fourpoint} does not certify the \emph{absence} of
+reticulation, nor does a violation pin down which tree the data departs from.
+
+Now the result that organises everything else.
+
+\begin{theorem}[The nulls nest]\label{thm:nesting}
+Every symmetric ultrametric satisfies the four-point condition.
+\end{theorem}
+
+\begin{proof}
+Fix $a,b,c,e$. Applying \eqref{eq:ultrametric} four times, with symmetry to put
+each application in the right order,
+\[
+  d(a,b) \le \max\!\big(d(a,c),d(b,c)\big), \qquad
+  d(a,b) \le \max\!\big(d(a,e),d(b,e)\big),
+\]
+\[
+  d(c,e) \le \max\!\big(d(a,c),d(a,e)\big), \qquad
+  d(c,e) \le \max\!\big(d(b,c),d(b,e)\big).
+\]
+Each bound is a disjunction, so there are $2^4$ cases. In each, split further on
+the order of the four quantities $d(a,c), d(a,e), d(b,c), d(b,e)$ that appear.
+Every branch gives $d(a,b)+d(c,e)$ bounded by one of the two right-hand sums of
+\eqref{eq:fourpoint} by a linear arithmetic step. The case analysis is tedious
+by hand and is exactly the sort of thing a kernel should do: see
+Listing~\ref{lst:nesting}.
+\end{proof}
+
+\begin{corollary}[What a quartet violation buys]\label{cor:quartet}
+If $d$ is symmetric and fails \eqref{eq:fourpoint}, then $d$ is not ultrametric
+either.
+\end{corollary}
+
+So the two nulls are nested, and Corollary~\ref{cor:quartet} says a quartet
+violation refutes \emph{strictly more} than a triple violation does. This is the
+licence --- a theorem, not a convention --- for the reading that organises
+\S\ref{sub:relaxed}: large triple margins together with floor-level quartet
+margins indicate rate variation on a tree, because that is the region the
+nesting leaves available.
+
+\subsection{Formalisation}
+
+\begin{lstlisting}[caption={The nesting theorem and its corollary, from \texttt{formal/ANSE/GeneticaReticulataTree.lean}. The \texttt{rcases} chain is the $2^4$ case split of the proof above, with four more splits on the order of the bounding quantities; \texttt{linarith} closes each branch.},label={lst:nesting}]
+def IsFourPoint (d : α → α → ℚ) : Prop :=
+  ∀ a b c e, d a b + d c e ≤ max (d a c + d b e) (d a e + d b c)
+
+theorem fourPoint_of_ultrametric {d : α → α → ℚ}
+    (hsym : ∀ x y, d x y = d y x) (hu : IsUltrametric d) : IsFourPoint d := by
+  intro a b c e
+  have h1 : d a b ≤ max (d a c) (d b c) := by
+    have := hu a c b; rwa [hsym c b] at this
+  have h2 : d a b ≤ max (d a e) (d b e) := by
+    have := hu a e b; rwa [hsym e b] at this
+  have h3 : d c e ≤ max (d a c) (d a e) := by
+    have := hu c a e; rwa [hsym c a] at this
+  have h4 : d c e ≤ max (d b c) (d b e) := by
+    have := hu c b e; rwa [hsym c b] at this
+  rw [le_max_iff] at h1 h2 h3 h4
+  rw [le_max_iff]
+  rcases h1 with h1 | h1 <;> rcases h2 with h2 | h2 <;>
+    rcases h3 with h3 | h3 <;> rcases h4 with h4 | h4 <;>
+    rcases le_total (d a c) (d a e) with k2 | k2 <;>
+    rcases le_total (d a c) (d b c) with k3 | k3 <;>
+    rcases le_total (d b e) (d a e) with k4 | k4 <;>
+    rcases le_total (d b e) (d b c) with k5 | k5 <;>
+    first | (left; linarith) | (right; linarith)
+
+theorem quartet_violation_refutes_ultrametric {d : α → α → ℚ}
+    (hsym : ∀ x y, d x y = d y x) (h : ¬ IsFourPoint d) : ¬ IsUltrametric d :=
+  fun hu => h (fourPoint_of_ultrametric hsym hu)
+\end{lstlisting}
+
+One further theorem in that module is the hinge of Buneman's converse, and it
+is worth seeing because it says the two nulls of this section are the same
+condition viewed from two places. Define the \emph{Gromov product} at a root
+$r$, as a dissimilarity,
+\[
+  g_r(x,y) \;=\; \tfrac{1}{2}\big(d(x,y) - d(r,x) - d(r,y)\big),
+\]
+which may be negative, and say $f$ satisfies the \emph{strong triangle
+inequality} when $f(x,z) \le \max(f(x,y), f(y,z))$ for all $x,y,z$ --- the
+ultrametric inequality of Definition~\ref{def:ultrametric} with no positivity
+required.
+
+\begin{theorem}[The hinge; proved, not cited]\label{thm:gromov}
+A symmetric $d$ satisfies the four-point condition if and only if $g_r$
+satisfies the strong triangle inequality for every root $r$.
+\end{theorem}
+
+\begin{proof}
+Relabelling and symmetry. Expanding $g_r(x,z) \le g_r(x,y)$ gives
+$d(x,z) + d(r,y) \le d(x,y) + d(r,z)$, and $g_r(x,z) \le g_r(y,z)$ gives
+$d(x,z) + d(r,y) \le d(y,z) + d(r,x)$; so the right-hand side of
+Theorem~\ref{thm:gromov} says exactly
+$d(x,z) + d(r,y) \le \max\big(d(x,y)+d(r,z),\, d(y,z)+d(r,x)\big)$, which is
+\eqref{eq:fourpoint} at $(a,b,c,e) = (x,z,r,y)$. Reading it backwards needs the
+root $c$ and the remaining three in the order $(a,e,b)$ --- getting that
+permutation wrong is how the first attempt failed, and the kernel said so.
+\end{proof}
+
+The constructive proof of Buneman's theorem continues from here by showing an
+ultrametric is realised by an equidistant tree and then re-rooting. That part is
+still cited. So the chain this section can claim is: certificate $\Rightarrow$
+not four-point $\Rightarrow$ (proved) some root's Gromov product fails the strong
+triangle inequality $\Rightarrow$ (cited) not realised by a weighted tree.
+
+The module carries eighteen theorems through the axiom gate of
+\S\ref{sec:proof-and-cell}: zero \texttt{sorry}, and no axioms beyond
+$\{\texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}\}$. It also
+carries the controls, which matter more than the theorems. One witness shows the
+violating configuration is realisable, so the statement is not vacuous; one
+control shows a tree quadruple admits no certificate; one shows a forged
+certificate is impossible; and one --- \S\ref{sub:deletion} explains why ---
+exhibits three sequences on which pairwise deletion grants a certificate that
+complete deletion denies.
+
+\subsection{The obvious statistic is the wrong one}\label{sub:relaxed}
+
+Condition \eqref{eq:certificate} is cheap: it needs three sequences, not four.
+The first version of this work therefore reported it, and reported a clean
+separation between a simulated clonal population and a simulated recombinant.
+That separation was real and the inference drawn from it was wrong, for the
+reason Modelling Assumption~\ref{mod:clock} warns about: ultrametricity bundles
+two assumptions, and violating it tells you only that \emph{one} of them failed.
+
+The decisive control is a \textbf{divergence-matched relaxed clock}: clonal
+descent on a tree, no reticulation whatever, but with each lineage's substitution
+rate multiplied by a random factor. Matching matters. For a multiplier
+$e^{s u}$ with $u$ uniform on $[-1,1]$ one has
+$\mathbb{E}[e^{su}] = \sinh(s)/s > 1$, so an unnormalised relaxed clock is also
+a \emph{faster} clock, and a violation could then be blamed on saturation rather
+than on rate variation. Dividing by that mean leaves the expected divergence
+equal to the strict-clock case while the realised rates vary widely.
+
+\begin{numerics}[12.1: the control that refutes the triple statistic]
+Thirty-two leaves, $4000$ nt, three seeds, exhaustive over all $35\,960$
+quadruples. Margins are exact rationals with denominator $4000$; the table gives
+numerators, seed by seed.
+
+\begin{center}\small
+\begin{tabular}{@{}lcc@{}}
+\toprule
+simulated population & triple margin & quartet margin \\
+\midrule
+clonal, strict clock (null)            & $24,\ 30,\ 29$     & $10,\ 9,\ 10$ \\
+clonal, \textbf{relaxed} clock (null)  & $155,\ 157,\ 99$   & $11,\ 18,\ 8$ \\
+one recombinant                        & $79,\ 77,\ 75$     & $79,\ 70,\ 69$ \\
+two reciprocal mosaics                 & $79,\ 77,\ 75$     & $158,\ 154,\ 126$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Read the second and third rows together. The smallest triple margin produced by
+a population with \emph{no reticulation in it at all} is $99/4000$; the largest
+produced by a population with a real recombinant is $79/4000$. The ordering is
+inverted, at every seed. The quartet column does not move: the relaxed clock
+stays at the level of the strict clock, while the reciprocal-mosaic positive
+control separates from it by a factor of $12.6$ at its weakest seed.
+
+Adding taxa makes the triple statistic worse, as the mechanism predicts: the
+statistic is a maximum over triples, so more leaves give more chances at an
+extreme pair of rates.
+
+Produced by \texttt{reticulation experiment}; results in
+\texttt{data/reticulata\_phase2/experiment\_n32.json}.
+\end{numerics}
+
+\begin{remark}[The recommendation, and its licence]
+Report the \textbf{quartet} statistic as primary. Keep the triple statistic ---
+it is cheaper, and a triple violation with \emph{no} quartet violation is
+informative in its own right, being the signature of rate variation on a tree
+--- but a triple certificate alone is not evidence of reticulation. What makes
+the second half of that sentence more than a hunch is
+Theorem~\ref{thm:nesting}.
+\end{remark}
+
+\subsection{Missing data: complete deletion within the subset}\label{sub:deletion}
+
+Real alignments have gaps. The usual convention, \emph{pairwise deletion},
+computes each pair's distance over the columns comparable in that pair --- which
+gives different pairs different denominators. That alone can break
+\eqref{eq:ultrametric} on a genealogy that is exactly a clock tree, with no
+reticulation present: an adversarial audit of the first version of this work
+found a case and the Lean module now carries it as a control.
+
+The fix is \emph{complete deletion within the subset}: count only the columns at
+which \emph{every} member of the triple or quadruple carries a definite base.
+All distances in a certificate then share one denominator, and the obligations
+become comparisons between integers --- no cross-multiplication, a smaller
+trust surface, and the repair, all at once.
+
+\begin{numerics}[12.2: how large the confound is]
+Gap-blocked but strictly clonal, strictly clock-like populations, sixteen taxa,
+$4000$ nt, five seeds. Pairwise deletion calls $33$ to $52$ of the $560$ triples
+violations that complete deletion within the triple denies --- six to nine per
+cent --- at every seed. At thirty-two taxa, $286$ to $366$ of $4960$. With no
+missing data the two policies agree on all $560$, as they must.
+
+The cost is power: at a $25\%$ gap load roughly $1000$ to $1700$ of the $4000$
+columns survive inside a triple.
+\end{numerics}
+
+\begin{remark}[Margins under the two policies are not comparable]
+Complete deletion shrinks the denominator, so one differing site is worth more
+and its margins come out \emph{larger}, although the policy is strictly more
+conservative. A criterion comparing the two sets of margins was written into the
+first run of this experiment and had to be withdrawn. Compare per-subset
+\emph{verdicts}, not magnitudes. This failure mode --- comparing numbers whose
+denominators, reference populations or sequence lengths differ --- is the single
+most frequent error in this book's own history, and \S11.3 is another instance.
+\end{remark}
+
+\subsection{The aligner is part of the trust surface}\label{sub:aligner}
+
+A certificate is machine-checked, so it is tempting to say the conclusion does
+not depend on the pipeline. It is not true, and the precise statement is worth
+having.
+
+The kernel is handed the sequences and recomputes every count from them by
+\texttt{rfl}. So a false inequality, a wrong count, a transposed pair or a
+miscomputed margin is excluded. What remains trusted is that the embedded rows
+are the data they are claimed to be --- and on real data those rows come out of
+an \textbf{aligner}. If the alignment puts non-homologous residues in the same
+column, the counts are computed faithfully from the wrong data and the kernel
+accepts them.
+
+A second, subtler version of the same problem sits inside the aligner. Its
+dynamic programme is \emph{banded}, and the natural test --- did the optimal
+traceback touch a band edge? --- is evidence of optimality but not proof: Gibrat
+(2018) measured $2.2\%$ of alignments optimal yet touching the edge and $0.5\%$
+sub-optimal without touching it. The repair is to compute the unbanded optimum
+in linear memory and refuse any banded path that falls short of it, which at this
+scale costs one extra pass per pair. Every number in this section comes from
+alignments certified that way. The general lesson is the one the book keeps
+returning to: a cheap test that usually agrees with the truth is not a
+certificate, and calling it one is how a pipeline acquires an unexamined step.
+
+That cannot be proved away, so it is measured. Simulate clonal, relaxed-clock
+descent with deletion events in a fixed coordinate frame; the frame \emph{is}
+the true alignment. Strip the gaps, hand the ragged sequences to the aligner,
+realign, and compare per-quadruple verdicts. Any quadruple the inferred
+alignment calls a four-point violation and the true alignment does not was
+manufactured by the aligner, on a genealogy with no reticulation in it.
+
+\begin{numerics}[12.3: the admissibility ladder]
+Sixteen taxa, $4000$ nt, five seeds, $1820$ quadruples each, reference-anchored
+affine-gap alignment. Raising the deletion load:
+
+\begin{center}\small
+\begin{tabular}{@{}cccrr@{}}
+\toprule
+mean deletion & inferred gap & worst column & quadruples & seeds with \\
+length (nt) & fraction & recovery & manufactured & any \\
+\midrule
+ 30 & $0.0000$ & $1.0000$ & $0$    & $0/5$ \\
+ 30 & $0.0040$ & $1.0000$ & $0$    & $0/5$ \\
+ 30 & $0.0055$ & $0.9988$ & $251$  & $2/5$ \\
+ 30 & $0.0151$ & $0.9991$ & $110$  & $3/5$ \\
+ 30 & $0.0201$ & $0.9983$ & $149$  & $3/5$ \\
+120 & $0.0132$ & $0.9990$ & $57$   & $2/5$ \\
+120 & $0.0373$ & $0.9947$ & $324$  & $3/5$ \\
+120 & $0.0823$ & $0.9603$ & $1600$ & $5/5$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+At the heaviest rung the aligner manufactures $1600$ of the $9100$ quadruple
+verdicts. Alignment error is not a rounding error in this test; past a
+threshold it \emph{is} the result.
+
+An earlier run of this same ladder reported $4876$ at that rung, with column
+recovery falling to $0.868$. The difference was not biology and not the
+aligner's design: it was the band, returning sub-optimal paths that the
+band-edge test did not flag. Roughly two thirds of what looked like alignment
+error was our own unchecked heuristic. The numbers above are from alignments
+certified against the unbanded optimum, and the lesson is worth more than the
+table: \emph{an uncertified step inside a measurement apparatus inflates the
+thing being measured.}
+
+The threshold is therefore read off the ladder rather than chosen: a gap
+fraction of $0.0040$ and an insertion load of $8.1\times10^{-4}$ dropped
+residues per aligned cell, the heaviest rung at which nothing was manufactured
+at any seed. Both are rates, not counts, because an absolute insertion count is
+not comparable between a $3$~kb and a $12$~kb genome.
+
+Produced by \texttt{reticulation align-error}; results in
+\texttt{data/reticulata\_phase3/align\_error.json}.
+\end{numerics}
+
+\begin{remark}[A tie-break that was nearly a result]
+The control that the aligner is the identity on gapless input failed at one seed
+of five on the first implementation, and the cause was not a bug in the dynamic
+programme. With an affine gap of $-10$ to open and $-1$ per residue, three
+consecutive mismatches score $3\times(-4) + 5 = -7$, and deleting one reference
+residue, aligning the rest, and inserting one query residue scores
+$-11 + 15 - 11 = -7$ as well. The identity was one of two optimal alignments and
+the implementation returned the other. The repair was to \emph{state} the
+preference --- substitution over gap pair --- and the lesson is that an aligner
+has free parameters that no amount of downstream proof will constrain.
+\end{remark}
+
+\subsection{Real populations}\label{sub:realdata}
+
+Five viral taxa were drawn from the \texttt{hiyata/Virus-Host-Genomes} corpus
+($58\,046$ genomes with taxonomy) under filters fixed in advance: near-median
+length, at most $0.1\%$ ambiguous residues, exact duplicates removed, sixteen
+sequences per population, selected either in accession order or by greedy
+$6$-mer diversity. Each taxon carries a \emph{literature} expectation, written
+before any margin was computed, and the test is free to contradict it.
+
+\begin{center}\small
+\begin{tabular}{@{}llp{0.40\textwidth}@{}}
+\toprule
+taxon & expectation & why \\
+\midrule
+Hepatitis B virus & reticulate & inter-genotype recombinants are recognised taxonomic entities \\
+Coxsackievirus A6 & reticulate & lineages are named by recombinant form \\
+Lyssavirus rabies & tree-like & non-segmented negative-strand RNA; recombination reported only exceptionally \\
+Papillomavirus 52 & tree-like$^\dagger$ & co-divergence with the host; within-type recombination rare but \emph{documented} --- the weakest prior in this table \\
+JC polyomavirus & tree-like & genotypes track human migration and are analysed as a tree \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent$^\dagger$ This prior is weaker than the others and is marked as such.
+Within-type papillomavirus recombination is reported in the literature, only
+rarely; a stronger real negative control would be a clonal bacterial lineage such
+as \emph{M.\ tuberculosis}, where the one positive claim has been attributed to
+methodological artefact. No verdict below depends on it: both HPV52 populations
+were refused by the admissibility gate.
+
+Seven of the ten populations fail the admissibility gate of
+Numerics~12.3 and are reported BLOCKED with their counts rather than
+interpreted. That is expensive --- some of the blocked numbers look interesting
+--- and it is the point: the alternative is a claim about a virus that is really
+a claim about a dynamic-programming tie-break. The three that pass are each run
+twice, on two different alignment references, and each margin is compared
+against a floor from a simulated clonal relaxed-clock tree at \emph{matched}
+alignment width, \emph{matched} mean $p$-distance and \emph{matched} gap load.
+
+\begin{numerics}[12.4: what the three admissible populations say]
+\begin{center}\footnotesize
+\begin{tabular}{@{}llrrl@{}}
+\toprule
+population & expected & margin & floor & verdict \\
+\midrule
+Hepatitis B, accession & reticulate & $9/3182$ & $2/3182$ & above $2\times$ \\
+Coxsackievirus A6, spread & reticulate & $329/7312$ & $268/7390$ & above $1\times$ \\
+JC polyomavirus, accession & tree-like & $4/5108$ & $24/5121$ & below \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Three populations, three agreements with the prior, and the two alignment
+references agree on the verdict in all three. Both populations that clear their
+floor carry a Lean file embedding the four aligned rows, so the kernel
+recomputes the six pair counts and the common column count itself: accepted at
+$3182$ columns in $67.8$~s and at $7434$ columns in $130.5$~s, with both
+corrupted twins rejected. These are the first findings in this programme on data
+that was not simulated which a reader can re-verify without running any of our
+code.
+
+Three populations is not a validation. It is the first time this test has been
+run on data that was not simulated, with the aligner's contribution bounded by a
+measurement rather than assumed away.
+\end{numerics}
+
+\subsection{Worked example and exercises}
+
+\begin{worked}[12.1: a four-point verdict from six integers]
+\textbf{Problem.} Under complete deletion a quadruple $(a,b,c,e)$ has $D = 60$
+columns comparable in all four sequences, and differing-site counts
+\[
+  n_{ab} = 31,\quad n_{ce} = 29,\quad
+  n_{ac} = 18,\quad n_{be} = 20,\quad
+  n_{ae} = 19,\quad n_{bc} = 17.
+\]
+Is there a certificate, and what is its exact margin?
+
+\textbf{Solution.} With one denominator the comparison is between integers; no
+division is needed and none should be done. The three pairing sums are
+\begin{align*}
+  s_{(ab|ce)} &= 31 + 29 = 60, \\
+  s_{(ac|be)} &= 18 + 20 = 38, \\
+  s_{(ae|bc)} &= 19 + 17 = 36 .
+\end{align*}
+The first strictly exceeds both others, so \eqref{eq:fourpoint} fails on this
+quadruple and we have a certificate. Its margin is the dominant sum minus the
+second largest, over the common count:
+\[
+  \frac{60 - 38}{60} \;=\; \frac{22}{60},
+\]
+and that fraction is exact, not rounded. By Corollary~\ref{cor:quartet} the data
+is also not ultrametric --- but note what has \emph{not} been shown: that the
+cause is recombination. The quadruple is consistent with a tree only if some
+pairing ties or dominates weakly, and here none does.
+
+Note also what the integers say about shape: $a$ and $b$ are far from each other
+while each is close to both $c$ and $e$. That is the reciprocal-mosaic
+configuration of Numerics~12.1, and the margin $22/60$ would have to be compared
+against a floor at $D = 60$ and at this divergence before it meant anything
+quantitative.
+\end{worked}
+
+\begin{exercise}
+Show directly from Definition~\ref{def:ultrametric} that if $d$ is ultrametric
+then among any three points the two largest distances are equal. Deduce
+\eqref{eq:certificate}'s role: the certificate asserts that the two largest
+distances in the triple are \emph{not} equal.
+\end{exercise}
+
+\begin{exercise}
+Verify Theorem~\ref{thm:nesting} by hand in the case
+$d(a,b) \le d(a,c)$, $d(a,b) \le d(a,e)$, $d(c,e) \le d(a,c)$,
+$d(c,e) \le d(b,e)$. Which of the two right-hand sums of \eqref{eq:fourpoint}
+does your argument use, and why can it not always be the same one?
+\end{exercise}
+
+\begin{exercise}
+A population satisfies \eqref{eq:fourpoint} on every quadruple but violates
+\eqref{eq:ultrametric} on many triples. What has been established about its
+genealogy, and what has been established about its substitution rates? Which
+row of the table in Numerics~12.1 is this?
+\end{exercise}
+
+\begin{exercise}
+Explain why complete deletion within the subset makes the four-point obligation
+a comparison between integers, and why pairwise deletion does not. Then
+construct three sequences of length $8$, with gaps, on which pairwise deletion
+grants a certificate and complete deletion denies one.
+\end{exercise}
+
+\begin{exercise}[(harder)]
+The relaxed-clock multipliers are divided by $\sinh(s)/s$. Derive that
+expectation, and explain what would be confounded with what if the division were
+omitted. Why does the \emph{quartet} statistic care less about this than the
+triple statistic does?
+\end{exercise}
+
+\begin{exercise}[(harder)]
+Sampling noise in a margin scales as $L^{-1/2}$ in the alignment length $L$,
+while a deterministic bias --- saturation making the $p$-distance a concave
+function of true divergence --- does not shrink with $L$ at all. Design the
+experiment that distinguishes them, and say what you would conclude from an
+exponent of $0.5$ and from an exponent of $0$.
+\end{exercise}
+
+\begin{ledger}
+\textbf{Measured:} the Phase~2 simulation grid (seven populations $\times$ five
+seeds at sixteen taxa, four $\times$ three seeds at thirty-two taxa, exhaustive
+over all quadruples); the deletion-policy comparison; the aligner's
+admissibility ladder (twelve rungs $\times$ five seeds, true alignments known);
+and ten real populations of sixteen viral genomes from
+\texttt{hiyata/Virus-Host-Genomes}, of which three pass the admissibility gate.
+Every verdict is decided by exact integer arithmetic; the decimal margins in
+this section are for reading only. \\
+\textbf{Assumed:} that $p$-distance is an adequate genetic distance at these
+divergences; that a quartet violation in a real population is caused by
+reticulation rather than by some other departure from tree-likeness; and that
+the embedded rows of a certificate are what the aligner produced. The last is
+checkable by diffing against the FASTA, and is the item real data added. \\
+\textbf{Proved:} the nesting theorem \eqref{thm:nesting} and its corollary; the
+Gromov-product equivalence \eqref{thm:gromov}, which is the first step of
+Buneman's converse; that a certificate refutes ultrametricity; non-vacuity, the
+tree control, the impossibility of a forged certificate, and the
+pairwise-versus-complete deletion witness. Eighteen theorems, zero
+\texttt{sorry}, no axioms outside the whitelist. \\
+\textbf{Open:} Buneman's converse (Theorem~\ref{thm:buneman}) is still cited for
+its second half --- the equidistant-tree construction and the re-rooting --- so
+``satisfies \eqref{eq:fourpoint} everywhere'' is not yet formally ``is a tree''
+in these pages. Theorem~\ref{thm:gromov} closes the first half. Nothing on tree
+metrics, splits or Buneman's theorem appears to be formalised in any proof
+assistant, so finishing it would be first of its kind.
+The deletion simulator's indel rate and mean length of Numerics~12.3 are
+\emph{chosen}, not calibrated: no published viral indel length distribution or
+per-site viral indel rate could be found, so the ladder's $x$-axis is a
+load that was varied, not a load matched to biology.
+The statistic reported throughout is a \emph{maximum} over subsets, which is an
+extreme-value statistic whose floor grows with taxon count --- the quartet floor
+moves from 5--7 to 9--10 between 16 and 32 taxa --- so margins are not comparable
+across populations of different size. The established treelikeness statistics
+avoid this by averaging instead. The head-to-head has now been run, seed-paired
+against the relaxed-clock null, and it does not favour the averages: the maximum
+separates the reciprocal-mosaic control from that null by $16.6\times$ at its
+weakest seed, the mean $\delta_q$ by $5.1\times$, and the proportion of violating
+quadruples by $1.2\times$ --- the last being the variant the literature
+independently reports as failing as a test. All three rank reticulation above the
+null at every seed, so none of them inherits the confound that destroyed the
+triple statistic. What the comparison does \emph{not} settle is the maximum's
+actual weakness, which is incomparability across taxon counts rather than poor
+separation within one. Both statistics are therefore reported, and only the
+maximum is exact and kernel-checkable --- a mean has no witness to exhibit. The sampling distribution of the margin under the tree null is not
+derived, only simulated at matched parameters. Three admissible populations is
+too few to call the method validated on real data, and the aligner that made
+them admissible is reference-anchored, which drops insertions and relates every
+pair through one reference. No head-to-head against the established tests
+---$\Phi_w$, which shares this section's no-clock null and reports a $5.7\%$
+false-positive rate where NSS reports $37.5\%$, or the quartet-averaged
+treelikeness tests --- has been run, and until it has, the case made here is for
+the \emph{discipline} rather than for the statistic. \\
+\textbf{Closed in this edition:} \S\ref{sec:tda}'s negative result is given a
+positive successor whose null is a theorem; the audit finding that pairwise
+deletion can manufacture certificates on gappy data is repaired and quantified;
+and the statistic the first version of this work reported is refuted on its own
+terms by a control it did not run.
+\end{ledger}

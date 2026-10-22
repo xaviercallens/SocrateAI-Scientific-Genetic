@@ -1,0 +1,1189 @@
+{
+  "cost_of_complete_deletion": "On D6 the common-column count per triple is far below the alignment length, because 15 of 16 sequences carry a gap block. That lost power is the price of removing the confound, and it is why complete deletion should be the default only when there is missing data to delete.",
+  "criteria_corrected_after_a_first_run": {
+    "corrections": [
+      {
+        "now": "The per-triple VERDICT is compared instead, and the statistic is the number of triples that pairwise deletion calls a violation and complete deletion does not. P5 adds the control that makes it meaningful: with no missing data the two policies must agree exactly.",
+        "was": "P6 compared the largest MARGIN under pairwise deletion with the largest margin under complete deletion.",
+        "wrong_because": "Complete deletion shrinks the denominator -- on D6 it leaves about 1100 of 4000 columns -- so one differing site is worth more and its margins are LARGER, even though it is strictly more conservative about what counts as a violation. The two numbers have different denominators and are no more comparable than the two pairwise distances that finding 6 is about."
+      },
+      {
+        "now": "The gate is the seed-PAIRED strict inequality (P1): the same clonal tree with a recombinant added must give a larger margin than without it. The 2x result is kept as an ungated finding (P1b) rather than dropped, because its failure at 2 of 5 seeds is itself the result.",
+        "was": "The power gate required the positive control's margin to exceed TWICE the clonal floor, the threshold v1.6.0 used.",
+        "wrong_because": "The floor is a maximum over 560 triples, an extreme-value statistic, and this run shows it varying from 18/4000 to 39/4000 across five seeds. A 2x threshold on a ratio whose denominator moves by 2.2x is not a stable criterion, and v1.6.0's reported 3.389x was the best of the five seeds, not a typical value."
+      }
+    ],
+    "why_this_block_exists": "A first run of this experiment used two criteria that were wrong, and both are recorded here rather than quietly replaced, because a criterion changed after seeing data is the easiest way to launder a negative result."
+  },
+  "datasets": {
+    "D1_clonal_strict_clock": {
+      "n_sequences": 16,
+      "per_seed": [
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.0045,
+          "complete_triple_margin_exact": "18/4000",
+          "complete_triple_violating": 539,
+          "deletion_policy_comparison": {
+            "both": 539,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 21,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 560
+          },
+          "max_delta_q": 0.21739130434782608,
+          "mean_delta_q": 0.026710477846820745,
+          "mean_p_distance": 0.026952083333333352,
+          "pairwise_triple_margin": 0.0045,
+          "pairwise_triple_margin_exact": "72000/16000000",
+          "proportion_violating": 0.6972527472527472,
+          "q_residual": 0.0002965036182750832,
+          "quartet_margin": 0.00175,
+          "quartet_margin_exact": "7/4000",
+          "quartet_violating": 1269,
+          "seed": 2026
+        },
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.006,
+          "complete_triple_margin_exact": "24/4000",
+          "complete_triple_violating": 526,
+          "deletion_policy_comparison": {
+            "both": 526,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 34,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 560
+          },
+          "max_delta_q": 0.18181818181818182,
+          "mean_delta_q": 0.02421556029795215,
+          "mean_p_distance": 0.025339583333333353,
+          "pairwise_triple_margin": 0.006,
+          "pairwise_triple_margin_exact": "96000/16000000",
+          "proportion_violating": 0.6241758241758242,
+          "q_residual": 0.00021933071778917082,
+          "quartet_margin": 0.00125,
+          "quartet_margin_exact": "5/4000",
+          "quartet_violating": 1136,
+          "seed": 2027
+        },
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.00475,
+          "complete_triple_margin_exact": "19/4000",
+          "complete_triple_violating": 519,
+          "deletion_policy_comparison": {
+            "both": 519,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 41,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 560
+          },
+          "max_delta_q": 0.17391304347826086,
+          "mean_delta_q": 0.021739414734015708,
+          "mean_p_distance": 0.02644583333333332,
+          "pairwise_triple_margin": 0.00475,
+          "pairwise_triple_margin_exact": "76000/16000000",
+          "proportion_violating": 0.6478021978021978,
+          "q_residual": 0.00018850037923173908,
+          "quartet_margin": 0.0015,
+          "quartet_margin_exact": "6/4000",
+          "quartet_violating": 1179,
+          "seed": 2028
+        },
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.00975,
+          "complete_triple_margin_exact": "39/4000",
+          "complete_triple_violating": 523,
+          "deletion_policy_comparison": {
+            "both": 523,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 37,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 560
+          },
+          "max_delta_q": 0.25925925925925924,
+          "mean_delta_q": 0.026825275092520882,
+          "mean_p_distance": 0.026633333333333346,
+          "pairwise_triple_margin": 0.00975,
+          "pairwise_triple_margin_exact": "156000/16000000",
+          "proportion_violating": 0.667032967032967,
+          "q_residual": 0.0002552791537497079,
+          "quartet_margin": 0.00175,
+          "quartet_margin_exact": "7/4000",
+          "quartet_violating": 1214,
+          "seed": 2029
+        },
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.00625,
+          "complete_triple_margin_exact": "25/4000",
+          "complete_triple_violating": 545,
+          "deletion_policy_comparison": {
+            "both": 545,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 15,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 560
+          },
+          "max_delta_q": 0.2,
+          "mean_delta_q": 0.028711840963749628,
+          "mean_p_distance": 0.026458333333333327,
+          "pairwise_triple_margin": 0.00625,
+          "pairwise_triple_margin_exact": "100000/16000000",
+          "proportion_violating": 0.7164835164835165,
+          "q_residual": 0.000268576361328549,
+          "quartet_margin": 0.00175,
+          "quartet_margin_exact": "7/4000",
+          "quartet_violating": 1304,
+          "seed": 2030
+        }
+      ],
+      "quartets_examined": 1820
+    },
+    "D2_clonal_relaxed_clock": {
+      "n_sequences": 16,
+      "per_seed": [
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.0265,
+          "complete_triple_margin_exact": "106/4000",
+          "complete_triple_violating": 552,
+          "deletion_policy_comparison": {
+            "both": 552,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 8,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 560
+          },
+          "max_delta_q": 0.5,
+          "mean_delta_q": 0.02979849668595741,
+          "mean_p_distance": 0.029252083333333328,
+          "pairwise_triple_margin": 0.0265,
+          "pairwise_triple_margin_exact": "424000/16000000",
+          "proportion_violating": 0.6054945054945055,
+          "q_residual": 0.0002460918162830969,
+          "quartet_margin": 0.00175,
+          "quartet_margin_exact": "7/4000",
+          "quartet_violating": 1102,
+          "seed": 2026
+        },
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.02625,
+          "complete_triple_margin_exact": "105/4000",
+          "complete_triple_violating": 552,
+          "deletion_policy_comparison": {
+            "both": 552,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 8,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 560
+          },
+          "max_delta_q": 0.3333333333333333,
+          "mean_delta_q": 0.02186832667288242,
+          "mean_p_distance": 0.03041666666666666,
+          "pairwise_triple_margin": 0.02625,
+          "pairwise_triple_margin_exact": "420000/16000000",
+          "proportion_violating": 0.589010989010989,
+          "q_residual": 0.00017304444476521857,
+          "quartet_margin": 0.00125,
+          "quartet_margin_exact": "5/4000",
+          "quartet_violating": 1072,
+          "seed": 2027
+        },
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.018,
+          "complete_triple_margin_exact": "72/4000",
+          "complete_triple_violating": 541,
+          "deletion_policy_comparison": {
+            "both": 541,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 19,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 560
+          },
+          "max_delta_q": 0.3333333333333333,
+          "mean_delta_q": 0.0077049300301643316,
+          "mean_p_distance": 0.018008333333333338,
+          "pairwise_triple_margin": 0.018,
+          "pairwise_triple_margin_exact": "288000/16000000",
+          "proportion_violating": 0.1467032967032967,
+          "q_residual": 0.0001051503774997382,
+          "quartet_margin": 0.0005,
+          "quartet_margin_exact": "2/4000",
+          "quartet_violating": 267,
+          "seed": 2028
+        },
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.016,
+          "complete_triple_margin_exact": "64/4000",
+          "complete_triple_violating": 548,
+          "deletion_policy_comparison": {
+            "both": 548,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 12,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 560
+          },
+          "max_delta_q": 0.36363636363636365,
+          "mean_delta_q": 0.03304899235779947,
+          "mean_p_distance": 0.01825625000000001,
+          "pairwise_triple_margin": 0.016,
+          "pairwise_triple_margin_exact": "256000/16000000",
+          "proportion_violating": 0.5016483516483516,
+          "q_residual": 0.00036762947702758466,
+          "quartet_margin": 0.0015,
+          "quartet_margin_exact": "6/4000",
+          "quartet_violating": 913,
+          "seed": 2029
+        },
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.00375,
+          "complete_triple_margin_exact": "15/4000",
+          "complete_triple_violating": 538,
+          "deletion_policy_comparison": {
+            "both": 538,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 22,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 560
+          },
+          "max_delta_q": 0.16666666666666666,
+          "mean_delta_q": 0.005372405372405367,
+          "mean_p_distance": 0.009497916666666665,
+          "pairwise_triple_margin": 0.00375,
+          "pairwise_triple_margin_exact": "60000/16000000",
+          "proportion_violating": 0.06153846153846154,
+          "q_residual": 0.00004263536078451248,
+          "quartet_margin": 0.00025,
+          "quartet_margin_exact": "1/4000",
+          "quartet_violating": 112,
+          "seed": 2030
+        }
+      ],
+      "quartets_examined": 1820
+    },
+    "D3_strict_clock_one_recombinant": {
+      "n_sequences": 17,
+      "per_seed": [
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.01525,
+          "complete_triple_margin_exact": "61/4000",
+          "complete_triple_violating": 659,
+          "deletion_policy_comparison": {
+            "both": 659,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 21,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 680
+          },
+          "max_delta_q": 1.0,
+          "mean_delta_q": 0.10571892080395721,
+          "mean_p_distance": 0.02672242647058825,
+          "pairwise_triple_margin": 0.01525,
+          "pairwise_triple_margin_exact": "244000/16000000",
+          "proportion_violating": 0.7457983193277311,
+          "q_residual": 0.010004201915505785,
+          "quartet_margin": 0.01275,
+          "quartet_margin_exact": "51/4000",
+          "quartet_violating": 1775,
+          "seed": 2026
+        },
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.01175,
+          "complete_triple_margin_exact": "47/4000",
+          "complete_triple_violating": 643,
+          "deletion_policy_comparison": {
+            "both": 643,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 37,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 680
+          },
+          "max_delta_q": 1.0,
+          "mean_delta_q": 0.08811819385237346,
+          "mean_p_distance": 0.025001838235294137,
+          "pairwise_triple_margin": 0.01175,
+          "pairwise_triple_margin_exact": "188000/16000000",
+          "proportion_violating": 0.6785714285714286,
+          "q_residual": 0.005593295073425142,
+          "quartet_margin": 0.011,
+          "quartet_margin_exact": "44/4000",
+          "quartet_violating": 1615,
+          "seed": 2027
+        },
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.01525,
+          "complete_triple_margin_exact": "61/4000",
+          "complete_triple_violating": 639,
+          "deletion_policy_comparison": {
+            "both": 639,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 41,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 680
+          },
+          "max_delta_q": 1.0,
+          "mean_delta_q": 0.10045271229814486,
+          "mean_p_distance": 0.026419117647058815,
+          "pairwise_triple_margin": 0.01525,
+          "pairwise_triple_margin_exact": "244000/16000000",
+          "proportion_violating": 0.7096638655462185,
+          "q_residual": 0.010768288787048235,
+          "quartet_margin": 0.01575,
+          "quartet_margin_exact": "63/4000",
+          "quartet_violating": 1689,
+          "seed": 2028
+        },
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.01675,
+          "complete_triple_margin_exact": "67/4000",
+          "complete_triple_violating": 642,
+          "deletion_policy_comparison": {
+            "both": 642,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 38,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 680
+          },
+          "max_delta_q": 1.0,
+          "mean_delta_q": 0.10173387762914264,
+          "mean_p_distance": 0.026426470588235315,
+          "pairwise_triple_margin": 0.01675,
+          "pairwise_triple_margin_exact": "268000/16000000",
+          "proportion_violating": 0.7277310924369748,
+          "q_residual": 0.010803472747837281,
+          "quartet_margin": 0.0155,
+          "quartet_margin_exact": "62/4000",
+          "quartet_violating": 1732,
+          "seed": 2029
+        },
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.01525,
+          "complete_triple_margin_exact": "61/4000",
+          "complete_triple_violating": 664,
+          "deletion_policy_comparison": {
+            "both": 664,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 16,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 680
+          },
+          "max_delta_q": 1.0,
+          "mean_delta_q": 0.10418347690912433,
+          "mean_p_distance": 0.02622426470588236,
+          "pairwise_triple_margin": 0.01525,
+          "pairwise_triple_margin_exact": "244000/16000000",
+          "proportion_violating": 0.7626050420168067,
+          "q_residual": 0.009015057350010855,
+          "quartet_margin": 0.013,
+          "quartet_margin_exact": "52/4000",
+          "quartet_violating": 1815,
+          "seed": 2030
+        }
+      ],
+      "quartets_examined": 2380
+    },
+    "D4_relaxed_clock_one_recombinant": {
+      "n_sequences": 17,
+      "per_seed": [
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.0265,
+          "complete_triple_margin_exact": "106/4000",
+          "complete_triple_violating": 671,
+          "deletion_policy_comparison": {
+            "both": 671,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 9,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 680
+          },
+          "max_delta_q": 1.0,
+          "mean_delta_q": 0.10211690578755322,
+          "mean_p_distance": 0.02958088235294117,
+          "pairwise_triple_margin": 0.0265,
+          "pairwise_triple_margin_exact": "424000/16000000",
+          "proportion_violating": 0.6558823529411765,
+          "q_residual": 0.015542139039078522,
+          "quartet_margin": 0.021,
+          "quartet_margin_exact": "84/4000",
+          "quartet_violating": 1561,
+          "seed": 2026
+        },
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.0265,
+          "complete_triple_margin_exact": "106/4000",
+          "complete_triple_violating": 670,
+          "deletion_policy_comparison": {
+            "both": 670,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 10,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 680
+          },
+          "max_delta_q": 0.968,
+          "mean_delta_q": 0.0956330500703428,
+          "mean_p_distance": 0.031204044117647062,
+          "pairwise_triple_margin": 0.0265,
+          "pairwise_triple_margin_exact": "424000/16000000",
+          "proportion_violating": 0.6642857142857143,
+          "q_residual": 0.02017697435647963,
+          "quartet_margin": 0.03025,
+          "quartet_margin_exact": "121/4000",
+          "quartet_violating": 1581,
+          "seed": 2027
+        },
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.018,
+          "complete_triple_margin_exact": "72/4000",
+          "complete_triple_violating": 650,
+          "deletion_policy_comparison": {
+            "both": 650,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 30,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 680
+          },
+          "max_delta_q": 0.9411764705882353,
+          "mean_delta_q": 0.06911999431794817,
+          "mean_p_distance": 0.0175827205882353,
+          "pairwise_triple_margin": 0.018,
+          "pairwise_triple_margin_exact": "288000/16000000",
+          "proportion_violating": 0.27058823529411763,
+          "q_residual": 0.008749110853530253,
+          "quartet_margin": 0.0085,
+          "quartet_margin_exact": "34/4000",
+          "quartet_violating": 644,
+          "seed": 2028
+        },
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.016,
+          "complete_triple_margin_exact": "64/4000",
+          "complete_triple_violating": 668,
+          "deletion_policy_comparison": {
+            "both": 668,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 12,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 680
+          },
+          "max_delta_q": 0.9705882352941176,
+          "mean_delta_q": 0.09377842191942888,
+          "mean_p_distance": 0.018420955882352947,
+          "pairwise_triple_margin": 0.016,
+          "pairwise_triple_margin_exact": "256000/16000000",
+          "proportion_violating": 0.561344537815126,
+          "q_residual": 0.012159964808075649,
+          "quartet_margin": 0.012,
+          "quartet_margin_exact": "48/4000",
+          "quartet_violating": 1336,
+          "seed": 2029
+        },
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.00775,
+          "complete_triple_margin_exact": "31/4000",
+          "complete_triple_violating": 648,
+          "deletion_policy_comparison": {
+            "both": 648,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 32,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 680
+          },
+          "max_delta_q": 1.0,
+          "mean_delta_q": 0.061883977622426874,
+          "mean_p_distance": 0.009597426470588234,
+          "pairwise_triple_margin": 0.00775,
+          "pairwise_triple_margin_exact": "124000/16000000",
+          "proportion_violating": 0.21260504201680672,
+          "q_residual": 0.012630961508178997,
+          "quartet_margin": 0.005,
+          "quartet_margin_exact": "20/4000",
+          "quartet_violating": 506,
+          "seed": 2030
+        }
+      ],
+      "quartets_examined": 2380
+    },
+    "D5_strict_clock_reciprocal_mosaics": {
+      "n_sequences": 18,
+      "per_seed": [
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.01525,
+          "complete_triple_margin_exact": "61/4000",
+          "complete_triple_violating": 794,
+          "deletion_policy_comparison": {
+            "both": 794,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 22,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 816
+          },
+          "max_delta_q": 1.0,
+          "mean_delta_q": 0.17278871007658234,
+          "mean_p_distance": 0.026568627450980407,
+          "pairwise_triple_margin": 0.01525,
+          "pairwise_triple_margin_exact": "244000/16000000",
+          "proportion_violating": 0.7856209150326797,
+          "q_residual": 0.021316781498073503,
+          "quartet_margin": 0.029,
+          "quartet_margin_exact": "116/4000",
+          "quartet_violating": 2404,
+          "seed": 2026
+        },
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.01425,
+          "complete_triple_margin_exact": "57/4000",
+          "complete_triple_violating": 778,
+          "deletion_policy_comparison": {
+            "both": 778,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 38,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 816
+          },
+          "max_delta_q": 1.0,
+          "mean_delta_q": 0.15221917950008645,
+          "mean_p_distance": 0.02484477124183009,
+          "pairwise_triple_margin": 0.01425,
+          "pairwise_triple_margin_exact": "228000/16000000",
+          "proportion_violating": 0.7205882352941176,
+          "q_residual": 0.016752324177272047,
+          "quartet_margin": 0.0235,
+          "quartet_margin_exact": "94/4000",
+          "quartet_violating": 2205,
+          "seed": 2027
+        },
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.01525,
+          "complete_triple_margin_exact": "61/4000",
+          "complete_triple_violating": 772,
+          "deletion_policy_comparison": {
+            "both": 772,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 44,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 816
+          },
+          "max_delta_q": 1.0,
+          "mean_delta_q": 0.1691304212410633,
+          "mean_p_distance": 0.026125816993464057,
+          "pairwise_triple_margin": 0.01525,
+          "pairwise_triple_margin_exact": "244000/16000000",
+          "proportion_violating": 0.7473856209150327,
+          "q_residual": 0.02246997915545009,
+          "quartet_margin": 0.0305,
+          "quartet_margin_exact": "122/4000",
+          "quartet_violating": 2287,
+          "seed": 2028
+        },
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.01675,
+          "complete_triple_margin_exact": "67/4000",
+          "complete_triple_violating": 776,
+          "deletion_policy_comparison": {
+            "both": 776,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 40,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 816
+          },
+          "max_delta_q": 1.0,
+          "mean_delta_q": 0.16759829684656238,
+          "mean_p_distance": 0.02654248366013073,
+          "pairwise_triple_margin": 0.01675,
+          "pairwise_triple_margin_exact": "268000/16000000",
+          "proportion_violating": 0.7643790849673202,
+          "q_residual": 0.02574569252808773,
+          "quartet_margin": 0.0335,
+          "quartet_margin_exact": "134/4000",
+          "quartet_violating": 2339,
+          "seed": 2029
+        },
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.01525,
+          "complete_triple_margin_exact": "61/4000",
+          "complete_triple_violating": 800,
+          "deletion_policy_comparison": {
+            "both": 800,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 16,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 816
+          },
+          "max_delta_q": 1.0,
+          "mean_delta_q": 0.17794528362202938,
+          "mean_p_distance": 0.02603758169934641,
+          "pairwise_triple_margin": 0.01525,
+          "pairwise_triple_margin_exact": "244000/16000000",
+          "proportion_violating": 0.7986928104575164,
+          "q_residual": 0.022062525739716215,
+          "quartet_margin": 0.0305,
+          "quartet_margin_exact": "122/4000",
+          "quartet_violating": 2444,
+          "seed": 2030
+        }
+      ],
+      "quartets_examined": 3060
+    },
+    "D6_strict_clock_gap_blocks": {
+      "n_sequences": 16,
+      "per_seed": [
+        {
+          "complete_triple_common_columns": 1158,
+          "complete_triple_margin": 0.011226252158894647,
+          "complete_triple_margin_exact": "13/1158",
+          "complete_triple_violating": 527,
+          "deletion_policy_comparison": {
+            "both": 521,
+            "complete_only": 6,
+            "example_pairwise_only": [
+              "clonal_000",
+              "clonal_002",
+              "clonal_007"
+            ],
+            "neither": 0,
+            "pairwise_only": 33,
+            "skipped_no_common_columns": 0,
+            "triples": 560
+          },
+          "max_delta_q": 1.0,
+          "mean_delta_q": 0.04397410001666806,
+          "mean_p_distance": 0.026900822597674384,
+          "pairwise_triple_margin": 0.008688102220360285,
+          "pairwise_triple_margin_exact": "41477/4774000",
+          "proportion_violating": 0.39065934065934066,
+          "q_residual": 0.0008202132917208737,
+          "quartet_margin": 0.004132231404958678,
+          "quartet_margin_exact": "4/968",
+          "quartet_violating": 711,
+          "seed": 2026
+        },
+        {
+          "complete_triple_common_columns": 1042,
+          "complete_triple_margin": 0.011516314779270634,
+          "complete_triple_margin_exact": "12/1042",
+          "complete_triple_violating": 523,
+          "deletion_policy_comparison": {
+            "both": 519,
+            "complete_only": 4,
+            "example_pairwise_only": [
+              "clonal_000",
+              "clonal_001",
+              "clonal_008"
+            ],
+            "neither": 1,
+            "pairwise_only": 36,
+            "skipped_no_common_columns": 0,
+            "triples": 560
+          },
+          "max_delta_q": 0.5,
+          "mean_delta_q": 0.023803332768423533,
+          "mean_p_distance": 0.025070174975639195,
+          "pairwise_triple_margin": 0.0135,
+          "pairwise_triple_margin_exact": "54000/4000000",
+          "proportion_violating": 0.3038461538461538,
+          "q_residual": 0.0005100322193458071,
+          "quartet_margin": 0.0040941658137154556,
+          "quartet_margin_exact": "4/977",
+          "quartet_violating": 553,
+          "seed": 2027
+        },
+        {
+          "complete_triple_common_columns": 1259,
+          "complete_triple_margin": 0.011119936457505957,
+          "complete_triple_margin_exact": "14/1259",
+          "complete_triple_violating": 508,
+          "deletion_policy_comparison": {
+            "both": 501,
+            "complete_only": 7,
+            "example_pairwise_only": [
+              "clonal_000",
+              "clonal_001",
+              "clonal_003"
+            ],
+            "neither": 0,
+            "pairwise_only": 52,
+            "skipped_no_common_columns": 0,
+            "triples": 560
+          },
+          "max_delta_q": 0.5,
+          "mean_delta_q": 0.035834238640559464,
+          "mean_p_distance": 0.026650342417643916,
+          "pairwise_triple_margin": 0.011151898734177216,
+          "pairwise_triple_margin_exact": "52860/4740000",
+          "proportion_violating": 0.47307692307692306,
+          "q_residual": 0.0007232591548835701,
+          "quartet_margin": 0.004120879120879121,
+          "quartet_margin_exact": "3/728",
+          "quartet_violating": 861,
+          "seed": 2028
+        },
+        {
+          "complete_triple_common_columns": 1299,
+          "complete_triple_margin": 0.01308698999230177,
+          "complete_triple_margin_exact": "17/1299",
+          "complete_triple_violating": 509,
+          "deletion_policy_comparison": {
+            "both": 500,
+            "complete_only": 9,
+            "example_pairwise_only": [
+              "clonal_000",
+              "clonal_003",
+              "clonal_005"
+            ],
+            "neither": 1,
+            "pairwise_only": 50,
+            "skipped_no_common_columns": 0,
+            "triples": 560
+          },
+          "max_delta_q": 1.0,
+          "mean_delta_q": 0.042073244313705446,
+          "mean_p_distance": 0.026740021445937744,
+          "pairwise_triple_margin": 0.009993377483443708,
+          "pairwise_triple_margin_exact": "48288/4832000",
+          "proportion_violating": 0.382967032967033,
+          "q_residual": 0.0007580535022334871,
+          "quartet_margin": 0.0037174721189591076,
+          "quartet_margin_exact": "4/1076",
+          "quartet_violating": 697,
+          "seed": 2029
+        },
+        {
+          "complete_triple_common_columns": 1716,
+          "complete_triple_margin": 0.007575757575757576,
+          "complete_triple_margin_exact": "13/1716",
+          "complete_triple_violating": 510,
+          "deletion_policy_comparison": {
+            "both": 499,
+            "complete_only": 11,
+            "example_pairwise_only": [
+              "clonal_000",
+              "clonal_001",
+              "clonal_004"
+            ],
+            "neither": 1,
+            "pairwise_only": 49,
+            "skipped_no_common_columns": 0,
+            "triples": 560
+          },
+          "max_delta_q": 1.0,
+          "mean_delta_q": 0.03706818651980128,
+          "mean_p_distance": 0.026158812472944035,
+          "pairwise_triple_margin": 0.0085,
+          "pairwise_triple_margin_exact": "34000/4000000",
+          "proportion_violating": 0.3576923076923077,
+          "q_residual": 0.0006575579960683078,
+          "quartet_margin": 0.004629629629629629,
+          "quartet_margin_exact": "3/648",
+          "quartet_violating": 651,
+          "seed": 2030
+        }
+      ],
+      "quartets_examined": 1820
+    },
+    "D7_strict_clock_saturated": {
+      "n_sequences": 16,
+      "per_seed": [
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.0185,
+          "complete_triple_margin_exact": "74/4000",
+          "complete_triple_violating": 551,
+          "deletion_policy_comparison": {
+            "both": 551,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 9,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 560
+          },
+          "max_delta_q": 0.16666666666666666,
+          "mean_delta_q": 0.02728958952368267,
+          "mean_p_distance": 0.22259374999999984,
+          "pairwise_triple_margin": 0.0185,
+          "pairwise_triple_margin_exact": "296000/16000000",
+          "proportion_violating": 0.9692307692307692,
+          "q_residual": 0.0002264614616961143,
+          "quartet_margin": 0.0115,
+          "quartet_margin_exact": "46/4000",
+          "quartet_violating": 1764,
+          "seed": 2026
+        },
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.0125,
+          "complete_triple_margin_exact": "50/4000",
+          "complete_triple_violating": 546,
+          "deletion_policy_comparison": {
+            "both": 546,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 14,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 560
+          },
+          "max_delta_q": 0.18430034129692832,
+          "mean_delta_q": 0.02719602426363755,
+          "mean_p_distance": 0.2210270833333333,
+          "pairwise_triple_margin": 0.0125,
+          "pairwise_triple_margin_exact": "200000/16000000",
+          "proportion_violating": 0.9626373626373627,
+          "q_residual": 0.0002416711336755559,
+          "quartet_margin": 0.0135,
+          "quartet_margin_exact": "54/4000",
+          "quartet_violating": 1752,
+          "seed": 2027
+        },
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.0105,
+          "complete_triple_margin_exact": "42/4000",
+          "complete_triple_violating": 543,
+          "deletion_policy_comparison": {
+            "both": 543,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 17,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 560
+          },
+          "max_delta_q": 0.20701754385964913,
+          "mean_delta_q": 0.031102727563361295,
+          "mean_p_distance": 0.2246479166666666,
+          "pairwise_triple_margin": 0.0105,
+          "pairwise_triple_margin_exact": "168000/16000000",
+          "proportion_violating": 0.9813186813186813,
+          "q_residual": 0.00030077234271582565,
+          "quartet_margin": 0.01475,
+          "quartet_margin_exact": "59/4000",
+          "quartet_violating": 1786,
+          "seed": 2028
+        },
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.0145,
+          "complete_triple_margin_exact": "58/4000",
+          "complete_triple_violating": 545,
+          "deletion_policy_comparison": {
+            "both": 545,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 15,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 560
+          },
+          "max_delta_q": 0.14909090909090908,
+          "mean_delta_q": 0.027089314075818632,
+          "mean_p_distance": 0.22193958333333316,
+          "pairwise_triple_margin": 0.0145,
+          "pairwise_triple_margin_exact": "232000/16000000",
+          "proportion_violating": 0.9736263736263736,
+          "q_residual": 0.0002243132628445708,
+          "quartet_margin": 0.0115,
+          "quartet_margin_exact": "46/4000",
+          "quartet_violating": 1772,
+          "seed": 2029
+        },
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.01975,
+          "complete_triple_margin_exact": "79/4000",
+          "complete_triple_violating": 544,
+          "deletion_policy_comparison": {
+            "both": 544,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 16,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 560
+          },
+          "max_delta_q": 0.18253968253968253,
+          "mean_delta_q": 0.02986699737477738,
+          "mean_p_distance": 0.22410833333333322,
+          "pairwise_triple_margin": 0.01975,
+          "pairwise_triple_margin_exact": "316000/16000000",
+          "proportion_violating": 0.9637362637362638,
+          "q_residual": 0.00026948961136737966,
+          "quartet_margin": 0.0115,
+          "quartet_margin_exact": "46/4000",
+          "quartet_violating": 1754,
+          "seed": 2030
+        }
+      ],
+      "quartets_examined": 1820
+    }
+  },
+  "design": {
+    "margins_are_exact_rationals": true,
+    "null_nesting_theorem": "ANSE.GeneticaReticulata.fourPoint_of_ultrametric -- every symmetric ultrametric satisfies the four-point condition, so a quartet certificate refutes strictly more than a triple one.",
+    "parameters": {
+      "alignment_length": 4000,
+      "gap_block_fraction": 0.25,
+      "generations": 4,
+      "mu_per_generation": 0.004,
+      "relaxed_clock_spread": 1.0,
+      "saturated_mu": 0.04,
+      "seeds": [
+        2026,
+        2027,
+        2028,
+        2029,
+        2030
+      ]
+    },
+    "reference_dataset": "D1_clonal_strict_clock. Every comparison is SEED-PAIRED against D1 at the same seed and decided by an exact integer cross-product.",
+    "why_several_seeds": "A single-seed margin is not a result. Each prediction reports the number of seeds at which it held, not an average of margins."
+  },
+  "experiment": "Does the four-point (tree-level) test separate reticulation from rate variation, where the ultrametric (clock-level) test cannot? And does complete deletion within the subset remove the gap confound of the audit's finding 6?",
+  "max_versus_mean": {
+    "reference_null": "D2_clonal_relaxed_clock -- clonal descent, no                     reticulation whatever, divergence-matched relaxed clock. The                     hard null, not the easy one.",
+    "statistics": [
+      {
+        "beats_relaxed_clock_null_at": {
+          "D3_one_recombinant": "5/5",
+          "D5_reciprocal_mosaics": "5/5"
+        },
+        "statistic": "quartet_max_margin",
+        "value_on_reciprocal_mosaics_per_seed": [
+          0.029,
+          0.0235,
+          0.0305,
+          0.0335,
+          0.0305
+        ],
+        "value_on_the_relaxed_clock_null_per_seed": [
+          0.00175,
+          0.00125,
+          0.0005,
+          0.0015,
+          0.00025
+        ],
+        "what_it_is": "maximum over quadruples -- the certificate's own statistic, the only              one with a single exhibitable witness, and the only one decided by              exact integer arithmetic",
+        "worst_seed_separation_over_relaxed_clock_null": 16.571428571428573
+      },
+      {
+        "beats_relaxed_clock_null_at": {
+          "D3_one_recombinant": "5/5",
+          "D5_reciprocal_mosaics": "5/5"
+        },
+        "statistic": "mean_delta_q",
+        "value_on_reciprocal_mosaics_per_seed": [
+          0.17278871007658234,
+          0.15221917950008645,
+          0.1691304212410633,
+          0.16759829684656238,
+          0.17794528362202938
+        ],
+        "value_on_the_relaxed_clock_null_per_seed": [
+          0.02979849668595741,
+          0.02186832667288242,
+          0.0077049300301643316,
+          0.03304899235779947,
+          0.005372405372405367
+        ],
+        "what_it_is": "mean of (m1-m2)/(m1-m3) over quadruples -- the averaged statistic the              literature reports as holding a correct false-positive rate",
+        "worst_seed_separation_over_relaxed_clock_null": 5.0712074677523304
+      },
+      {
+        "beats_relaxed_clock_null_at": {
+          "D3_one_recombinant": "5/5",
+          "D5_reciprocal_mosaics": "5/5"
+        },
+        "statistic": "proportion_violating",
+        "value_on_reciprocal_mosaics_per_seed": [
+          0.7856209150326797,
+          0.7205882352941176,
+          0.7473856209150327,
+          0.7643790849673202,
+          0.7986928104575164
+        ],
+        "value_on_the_relaxed_clock_null_per_seed": [
+          0.6054945054945055,
+          0.589010989010989,
+          0.1467032967032967,
+          0.5016483516483516,
+          0.06153846153846154
+        ],
+        "what_it_is": "share of quadruples with a strictly dominant pairing -- the variant              the literature reports as FAILING as a test, included because its              failure is informative",
+        "worst_seed_separation_over_relaxed_clock_null": 1.2233867427568041
+      }
+    ],
+    "these_are_floating_point": "mean_delta_q, proportion_violating and                     q_residual are f64 summaries and are NOT certificates. Only the                     max-margin row is decided by exact integer arithmetic and                     checkable by the Lean kernel. Nothing here changes that                     division.",
+    "what_it_does_not_settle": "Separation at a FIXED taxon count is not                     the max statistic's weakness. Its weakness is that its null                     level grows with the number of subsets, so margins cannot be                     compared across populations of different size, and this grid                     is all at one size. A verdict on max-versus-mean needs the                     comparison repeated across taxon counts, and the averaged                     statistics calibrated by parametric bootstrap rather than                     against a shuffled null -- which misalignment artefacts are                     reported to be invisible to.",
+    "what_this_run_found": "All three statistics rank both reticulate                     populations above the relaxed-clock null at every seed, so                     none of them is confounded by rate variation the way the                     TRIPLE statistic is. They differ in how widely they separate,                     and the ordering is not the one the literature's results would                     suggest: read                     `worst_seed_separation_over_relaxed_clock_null` on each row.                     `proportion_violating` separating barely at all is consistent                     with the published finding that this variant fails as a test.",
+    "why": "The certificate's statistic is a maximum over quadruples, which                     is an extreme-value statistic: its null level grows with the                     number of subsets examined, and this grid shows it -- the                     quartet floor moves from 5-7 at 16 taxa to 9-10 at 32. So                     margins are not comparable across population sizes, which is                     the same incommensurability that has already cost this project                     three criteria. The averaged statistics do not have that                     defect and cannot be certified, because a mean has no witness                     to exhibit. This block measures the price."
+  },
+  "preregistered_predictions": [
+    {
+      "claim": "POWER CONTROL, seed-paired. Adding one recombinant to a clonal tree raises the complete-deletion triple margin above the same tree's margin without it.",
+      "criterion": "holds at all seeds",
+      "gated": true,
+      "held": true,
+      "id": "P1",
+      "observed": "5/5"
+    },
+    {
+      "claim": "FINDING. The same comparison at v1.6.0's threshold: D3's margin exceeds 2x D1's.",
+      "criterion": "reported, not gated",
+      "gated": false,
+      "id": "P1b",
+      "observed": "3/5",
+      "reading": "Where this fails, the triple statistic does not clear its own published threshold. The clonal floor is a maximum over triples and varies by more than 2x across seeds, so this threshold cannot be relied on."
+    },
+    {
+      "claim": "A relaxed clock on a purely clonal tree breaks ULTRAMETRICITY: D2's complete-triple margin exceeds 2x D1's at the same seed.",
+      "criterion": "reported, not gated",
+      "divergence_matched": "The relaxed clock's rate multipliers are normalised to mean 1, so D2 has the same expected divergence as D1 and only the clock differs. Without that, a relaxed clock is also a faster clock and the result would confound rate variation with saturation.",
+      "gated": false,
+      "id": "P2",
+      "observed_above_1x_paired": "4/5",
+      "observed_above_2x": "3/5",
+      "reading": "Where this holds, a triple certificate does not distinguish reticulation from rate variation -- risk 2 of docs/GENETICA_RETICULATA.md section 7, realised. Compare D2's per-seed margins against D3's directly: if they overlap, the statistic cannot separate the causes."
+    },
+    {
+      "claim": "THE DISCRIMINATING PREDICTION. The same relaxed-clock data does NOT break the FOUR-POINT condition beyond the floor: D2's quartet margin does not exceed 2x D1's.",
+      "criterion": "violations at <= 1 of 5 seeds",
+      "gated": false,
+      "held": true,
+      "id": "P3",
+      "observed_violations": "0/5",
+      "reading": "A violation count of 0 or 1 means the four-point test is largely immune to the confound that defeats the triple test. A higher count means it is confounded too, and the method has no statistic that separates the two causes -- a negative result about this approach, reported rather than gated away. Read it next to P7: a relaxed clock also redistributes divergence among lineages, so some elevation may be local saturation rather than non-additivity."
+    },
+    {
+      "claim": "POWER CONTROL for the four-point test. Reciprocal mosaics break it: D5's quartet margin exceeds 2x D1's quartet floor at the same seed.",
+      "criterion": "holds at all seeds",
+      "gated": true,
+      "held": true,
+      "id": "P4",
+      "observed_above_1x_paired": "5/5",
+      "observed_above_2x": "5/5",
+      "why_reciprocal": "A single recombinant need not violate the four-point condition; the shape that does is a pair of reciprocal mosaics, each close to both parents. This is the configuration Lean's reciprocal_recombinants_witness proves non-vacuous."
+    },
+    {
+      "claim": "CONTROL FOR THE POLICY COMPARISON. With no missing data, complete deletion within the triple IS pairwise deletion, so the two policies must agree on every one of D1's 560 triples.",
+      "criterion": "holds at all seeds",
+      "gated": true,
+      "held": true,
+      "id": "P5b",
+      "observed": "5/5",
+      "why": "Without this, a non-zero manufactured count on gappy data could be an artefact of the comparison itself."
+    },
+    {
+      "claim": "THE FIX BITES, AND FINDING 6 IS REAL. On gap-blocked but strictly clonal data with no reticulation, pairwise deletion calls triples violations that complete deletion within the same triple does not.",
+      "criterion": "at least one manufactured triple at >= 4 of 5 seeds",
+      "gated": true,
+      "held": true,
+      "id": "P6",
+      "observed": "5/5",
+      "reading": "Every manufactured triple is a kernel-acceptable certificate about a genealogy that is exactly a clock tree. The count is the size of the confound; complete deletion is what removes it."
+    },
+    {
+      "claim": "EXPLORATORY. A high-divergence clonal population lifts the quartet margin above 2x the low-divergence floor, with no reticulation and a strict clock.",
+      "criterion": "reported, not gated",
+      "gated": false,
+      "id": "P7",
+      "observed": "5/5",
+      "this_comparison_is_mis_specified": "D7's margin is compared against D1's floor, but D1 is ten times less divergent. The `saturation` subcommand shows the quartet noise floor grows monotonically with divergence, so the two are not commensurable -- the same error, in a third guise, as comparing margins across different denominators.",
+      "what_the_diagnostic_found": "At BOTH low and high divergence the clonal quartet margin shrinks by a factor near 0.5 when the alignment length quadruples: the L^(-1/2) signature of sampling noise. A saturation bias is deterministic and would not shrink at all. So this row is NOT evidence of a divergence ceiling -- it is evidence that a null must be calibrated at matched divergence AND matched length. Run `reticulation saturation` for the numbers."
+    },
+    {
+      "claim": "SECONDARY. A single recombinant need not violate the four-point condition, so D3's and D4's quartet margins may stay at the floor while their triple margins do not.",
+      "criterion": "reported, not gated",
+      "gated": false,
+      "id": "P8",
+      "observed_D3": "5/5",
+      "observed_D4": "5/5"
+    }
+  ],
+  "separation_display_only": {
+    "note": "Ratios of the positive control's margin to its own floor at the weakest of the five seeds. f64, for reading; every verdict below is an exact integer comparison.",
+    "quartet_test_worst_case_D5_over_D1": 16.571428571428573,
+    "relaxed_clock_quartet_worst_case_D2_over_D1": 0.14285714285714285,
+    "relaxed_clock_triple_worst_case_D2_over_D1": 0.6,
+    "triple_test_worst_case_D3_over_D1": 1.717948717948718
+  },
+  "verdict": {
+    "complete_deletion_fix_bites_P6": true,
+    "criterion": "The gate is the two power controls and the two policy-comparison controls. P1b, P2, P3, P7 and P8 are findings: the discriminating prediction must be able to come out false without the run reporting failure.",
+    "gated_predictions_pass": true,
+    "policies_agree_without_gaps_P5b": true,
+    "power_quartet_P4": true,
+    "power_triple_P1": true
+  }
+}

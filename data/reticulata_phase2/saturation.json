@@ -1,0 +1,242 @@
+{
+  "diagnostic": "Is the four-point violation seen on high-divergence clonal data sampling noise or saturation bias? The two scale differently in the alignment length, so quadrupling it separates them.",
+  "divergence_sweep_at_4000_sites": [
+    {
+      "max_pairwise_divergence": 0.01225,
+      "mean_pairwise_divergence": 0.006249999999999996,
+      "mean_quartet_margin": 0.00025,
+      "mu_per_generation": 0.001,
+      "quartet_margins_per_seed": [
+        0.0,
+        0.0,
+        0.0005,
+        0.00025,
+        0.0005
+      ]
+    },
+    {
+      "max_pairwise_divergence": 0.02125,
+      "mean_pairwise_divergence": 0.012755833333333333,
+      "mean_quartet_margin": 0.00075,
+      "mu_per_generation": 0.002,
+      "quartet_margins_per_seed": [
+        0.001,
+        0.0005,
+        0.00075,
+        0.00075,
+        0.00075
+      ]
+    },
+    {
+      "max_pairwise_divergence": 0.03775,
+      "mean_pairwise_divergence": 0.02636583333333334,
+      "mean_quartet_margin": 0.0016,
+      "mu_per_generation": 0.004,
+      "quartet_margins_per_seed": [
+        0.00175,
+        0.00125,
+        0.0015,
+        0.00175,
+        0.00175
+      ]
+    },
+    {
+      "max_pairwise_divergence": 0.07225,
+      "mean_pairwise_divergence": 0.050445000000000004,
+      "mean_quartet_margin": 0.0032499999999999994,
+      "mu_per_generation": 0.008,
+      "quartet_margins_per_seed": [
+        0.0035,
+        0.00375,
+        0.00325,
+        0.00325,
+        0.0025
+      ]
+    },
+    {
+      "max_pairwise_divergence": 0.1275,
+      "mean_pairwise_divergence": 0.09679125000000002,
+      "mean_quartet_margin": 0.0059,
+      "mu_per_generation": 0.016,
+      "quartet_margins_per_seed": [
+        0.006,
+        0.0055,
+        0.0055,
+        0.006,
+        0.0065
+      ]
+    },
+    {
+      "max_pairwise_divergence": 0.1825,
+      "mean_pairwise_divergence": 0.14251,
+      "mean_quartet_margin": 0.0093,
+      "mu_per_generation": 0.024,
+      "quartet_margins_per_seed": [
+        0.007,
+        0.00925,
+        0.00925,
+        0.00975,
+        0.01125
+      ]
+    },
+    {
+      "max_pairwise_divergence": 0.23525,
+      "mean_pairwise_divergence": 0.18492833333333342,
+      "mean_quartet_margin": 0.010949999999999998,
+      "mu_per_generation": 0.032,
+      "quartet_margins_per_seed": [
+        0.01,
+        0.0105,
+        0.0105,
+        0.0115,
+        0.01225
+      ]
+    },
+    {
+      "max_pairwise_divergence": 0.3235,
+      "mean_pairwise_divergence": 0.2596470833333333,
+      "mean_quartet_margin": 0.014499999999999999,
+      "mu_per_generation": 0.048,
+      "quartet_margins_per_seed": [
+        0.0155,
+        0.01475,
+        0.01275,
+        0.01525,
+        0.01425
+      ]
+    },
+    {
+      "max_pairwise_divergence": 0.4005,
+      "mean_pairwise_divergence": 0.32538124999999996,
+      "mean_quartet_margin": 0.01675,
+      "mu_per_generation": 0.064,
+      "quartet_margins_per_seed": [
+        0.0175,
+        0.01775,
+        0.01475,
+        0.0185,
+        0.01525
+      ]
+    }
+  ],
+  "length_scaling": {
+    "high_divergence": {
+      "mu_per_generation": 0.04,
+      "per_length": [
+        {
+          "alignment_length": 1000,
+          "mean_pairwise_divergence": 0.220445,
+          "mean_quartet_margin": 0.026199999999999994,
+          "quartet_margins_per_seed": [
+            0.027,
+            0.033,
+            0.026,
+            0.026,
+            0.019
+          ]
+        },
+        {
+          "alignment_length": 4000,
+          "mean_pairwise_divergence": 0.22286333333333325,
+          "mean_quartet_margin": 0.01255,
+          "quartet_margins_per_seed": [
+            0.0115,
+            0.0135,
+            0.01475,
+            0.0115,
+            0.0115
+          ]
+        },
+        {
+          "alignment_length": 16000,
+          "mean_pairwise_divergence": 0.2227326041666667,
+          "mean_quartet_margin": 0.006649999999999999,
+          "quartet_margins_per_seed": [
+            0.006,
+            0.0090625,
+            0.0065625,
+            0.0061875,
+            0.0054375
+          ]
+        }
+      ],
+      "prediction_if_pure_sampling_noise": 0.5,
+      "prediction_if_pure_saturation_bias": 1.0,
+      "ratio_of_mean_margin_when_length_quadruples": [
+        0.47900763358778636,
+        0.5298804780876493
+      ]
+    },
+    "low_divergence": {
+      "mu_per_generation": 0.004,
+      "per_length": [
+        {
+          "alignment_length": 1000,
+          "mean_pairwise_divergence": 0.025804999999999988,
+          "mean_quartet_margin": 0.0038,
+          "quartet_margins_per_seed": [
+            0.005,
+            0.003,
+            0.004,
+            0.004,
+            0.003
+          ]
+        },
+        {
+          "alignment_length": 4000,
+          "mean_pairwise_divergence": 0.02636583333333334,
+          "mean_quartet_margin": 0.0016,
+          "quartet_margins_per_seed": [
+            0.00175,
+            0.00125,
+            0.0015,
+            0.00175,
+            0.00175
+          ]
+        },
+        {
+          "alignment_length": 16000,
+          "mean_pairwise_divergence": 0.025670312499999997,
+          "mean_quartet_margin": 0.0007124999999999999,
+          "quartet_margins_per_seed": [
+            0.0006875,
+            0.00075,
+            0.0006875,
+            0.00075,
+            0.0006875
+          ]
+        }
+      ],
+      "prediction_if_pure_sampling_noise": 0.5,
+      "prediction_if_pure_saturation_bias": 1.0,
+      "ratio_of_mean_margin_when_length_quadruples": [
+        0.4210526315789474,
+        0.44531249999999994
+      ]
+    }
+  },
+  "parameters": {
+    "generations": 4,
+    "high_mu": 0.04,
+    "lengths": [
+      1000,
+      4000,
+      16000
+    ],
+    "low_mu": 0.004,
+    "seeds": [
+      2026,
+      2027,
+      2028,
+      2029,
+      2030
+    ]
+  },
+  "verdict": {
+    "gated": "only the first -- the diagnostic must be able to see the noise scaling it relies on. The second is the finding.",
+    "noise_scaling_observed_at_low_divergence": true,
+    "reading": "If both are true, the high-divergence four-point violations are a p-distance artefact and the method has a divergence ceiling that must be stated with every result.",
+    "systematic_component_at_high_divergence": false
+  },
+  "why_it_matters": "A noise floor shrinks with longer sequences, so the method simply needs more data. A saturation bias does not, so the method needs a divergence ceiling or a distance that corrects for multiple hits. The second is the harder case, because a Jukes-Cantor-corrected distance is a logarithm and therefore irrational, which the exact-rational certificate architecture cannot represent. There is no quick fix available if the bias is real."
+}

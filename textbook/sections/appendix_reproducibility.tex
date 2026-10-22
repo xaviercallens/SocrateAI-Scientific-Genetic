@@ -64,6 +64,36 @@ shuffles. Use \texttt{-{}-shuffles 20} for a smoke test, remembering that the
 attainable $p$ floor is then $2/21 = 0.095$ and the positive control cannot
 reach $0.05$.
 
+\subsection*{2c. Run the four experiments of Section~\ref{sec:reticulata}}
+
+\begin{lstlisting}[language=bash,style=lean,morekeywords={python,curl,cargo,cd}]
+cd rust/reticulation && cargo build --release
+./target/release/reticulation experiment      # the relaxed-clock refutation
+./target/release/reticulation align-error     # the aligner's admissibility ladder
+curl -L -o test.parquet \
+  https://huggingface.co/datasets/hiyata/Virus-Host-Genomes/resolve/main/test.parquet
+python scripts/reticulata_hf_populations.py --parquet test.parquet \
+  --out data/reticulata_phase3/populations --taxa 16
+./target/release/reticulation real-data \
+  --populations ../../data/reticulata_phase3/populations \
+  --emit-lean ../../data/reticulata_phase3/emitted
+\end{lstlisting}
+
+The first reproduces Numerics~12.1 and~12.2; add \texttt{-{}-generations 5
+-{}-seeds 3 -{}-max-quadruples 60000} for the thirty-two-taxon table, which
+searches $35\,960$ quadruples per dataset and refuses to subsample. The second
+reproduces Numerics~12.3 in about two minutes and \emph{prints the admissibility
+threshold it measures}; the third and fourth reproduce Numerics~12.4. All are
+deterministic given their seeds, and the population extraction is deterministic
+given the parquet, whose SHA-256 is recorded in
+\file{data/reticulata\_phase3/populations/provenance.json}.
+
+\texttt{real-data} applies the threshold \texttt{align-error} measured, as
+defaults to \texttt{-{}-max-gap-fraction} and \texttt{-{}-max-insertion-rate}.
+Raising either is a deliberate act with a known cost: at a heavier load the
+aligner alone manufactures four-point violations on a genealogy that is exactly
+a tree, and the command would then be reporting that instead of the population.
+
 \subsection*{3. Check the Lean proofs}
 
 \begin{lstlisting}[language=bash,style=lean,morekeywords={python}]

@@ -1,0 +1,73 @@
+{
+  "complete_deletion_triple": {
+    "accepted": true,
+    "counts": {
+      "common_columns": 4000,
+      "n_xy": 69,
+      "n_xz": 131,
+      "n_yz": 70
+    },
+    "file": "/mnt/data/xdev-cache/tmp/claude-1000/-home-xavkal-xdev-AutoevolveAI/da32aa4f-c38b-4872-8c90-64448f5fc915/scratchpad/emitted/reticulata_complete_triple.lean",
+    "first_error": "",
+    "lean_theorem": "complete_triple_refute_from_counts",
+    "margin_exact": "61/4000",
+    "seconds": 42.378879338,
+    "triple": [
+      "clonal_002",
+      "mosaic_clonal_003_then_clonal_013",
+      "clonal_013"
+    ],
+    "what_the_kernel_did": "computed diff3xy, diff3yz, diff3xz and comparable3 from the three embedded sequences by rfl, then checked two integer inequalities on one denominator -- no cross-multiplication."
+  },
+  "four_point_quartet": {
+    "accepted": true,
+    "common_columns": 4000,
+    "file": "/mnt/data/xdev-cache/tmp/claude-1000/-home-xavkal-xdev-AutoevolveAI/da32aa4f-c38b-4872-8c90-64448f5fc915/scratchpad/emitted/reticulata_quartet.lean",
+    "first_error": "",
+    "lean_theorem": "quartet_refute_from_counts",
+    "margin_exact": "116/4000",
+    "mosaics_in_the_non_dominant_pair": 2,
+    "pairing_sums": [
+      256,
+      116,
+      140
+    ],
+    "planted_mosaics": [
+      "mosaic_clonal_003_then_clonal_013",
+      "mosaic_clonal_013_then_clonal_003"
+    ],
+    "quadruple": {
+      "far_pair": [
+        "clonal_003",
+        "clonal_013"
+      ],
+      "other_pair": [
+        "mosaic_clonal_003_then_clonal_013",
+        "mosaic_clonal_013_then_clonal_003"
+      ]
+    },
+    "seconds": 71.081170079,
+    "what_this_refutes": "the four-point condition, hence (Buneman, cited) that any weighted tree realises these distances -- and hence, by the proved nesting fourPoint_of_ultrametric, ultrametricity too."
+  },
+  "parameters": {
+    "alignment_length": 4000,
+    "generations": 4,
+    "mu_per_generation": 0.004,
+    "seed": 2026
+  },
+  "rejection_controls": {
+    "both_invalid_in_rust_too": true,
+    "corrupted_quartet_file": "/mnt/data/xdev-cache/tmp/claude-1000/-home-xavkal-xdev-AutoevolveAI/da32aa4f-c38b-4872-8c90-64448f5fc915/scratchpad/emitted/reticulata_quartet_bad.lean",
+    "corrupted_quartet_first_error": "/mnt/data/xdev-cache/tmp/claude-1000/-home-xavkal-xdev-AutoevolveAI/da32aa4f-c38b-4872-8c90-64448f5fc915/scratchpad/emitted/reticulata_quartet_bad.lean:41:13: error: unsolved goals",
+    "corrupted_quartet_rejected": true,
+    "corrupted_triple_file": "/mnt/data/xdev-cache/tmp/claude-1000/-home-xavkal-xdev-AutoevolveAI/da32aa4f-c38b-4872-8c90-64448f5fc915/scratchpad/emitted/reticulata_complete_triple_bad.lean",
+    "corrupted_triple_first_error": "/mnt/data/xdev-cache/tmp/claude-1000/-home-xavkal-xdev-AutoevolveAI/da32aa4f-c38b-4872-8c90-64448f5fc915/scratchpad/emitted/reticulata_complete_triple_bad.lean:34:132: error: unsolved goals",
+    "corrupted_triple_rejected": true
+  },
+  "verdict": {
+    "acceptance_passes": true,
+    "criterion": "the kernel must accept both genuine forms AND reject both corrupted ones",
+    "rejection_passes": true
+  },
+  "verification": "Kernel-check the two certificate forms introduced for Phase 2: complete deletion within the triple, and the four-point quartet. The kernel counts the sequences in both; nothing is handed to it but the sequences and the claimed counts."
+}

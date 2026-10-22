@@ -1,6 +1,6 @@
 % =============================================================================
 %  Formal Genetics: Proof, Computation and Evidence in Molecular Biology
-%  A student textbook in eleven sections.
+%  A student textbook in twelve sections.
 %
 %  Each section lives in its own file under sections/ and builds independently
 %  (see build.py --section N), so a section can be written, compiled and
@@ -176,7 +176,7 @@
 \begin{abstract}
 \noindent
 This book teaches molecular genetics to students who want to know \emph{why} a
-quantitative claim about a cell should be believed. Each of its eleven sections
+quantitative claim about a cell should be believed. Each of its twelve sections
 develops one piece of biology three times over: as a mathematical argument the
 reader works through by hand, as a theorem checked by the Lean~4 kernel, and as
 a number produced by a solver or by topological analysis of a real dataset.
@@ -205,6 +205,20 @@ interact fifty-two-fold; and it turns Section~5's caveat about transporting an
 in vitro measurement into a cell into a machine-checked counterexample. Along
 the way it catches an artefact of its own making, using a warning printed
 earlier in the same book.
+
+Section~12 is new in this edition and does the harder thing: it replaces
+Section~8's failed test rather than only reporting that it failed. Moving from
+one sequence to a \emph{population} makes the null a theorem --- a strict
+molecular clock on a clonal genealogy admits no unfilled cycle --- so a
+violation becomes a certificate the Lean kernel can check rather than a
+$p$-value against shuffles. The section then refutes its own first statistic: a
+clonal population with a relaxed clock and no recombination whatever violates
+the clock-level condition \emph{more} strongly than a real recombinant does, so
+the tree-level four-point condition must carry the method, and a proof that the
+two conditions nest is what licenses reading the difference between them. It
+closes on ten real viral populations, seven of which are reported blocked
+because a measured control shows the aligner alone would have produced the
+answer.
 \end{abstract}
 
 \vspace{0.5em}
@@ -223,6 +237,8 @@ pattern, so you always know where you are:
 Sections 1--4 are the spine and should be read in order. Sections 5--9 are
 largely independent. Section 10 depends on 3, 4 and 7. Section 11 discharges
 the \textbf{Open} lines of Sections 3, 5, 7 and 8, and is best read after them.
+Section 12 is the positive successor to Section 8's negative result and should
+be read after 8 and 11.
 \end{objectives}
 
 \tableofcontents
@@ -240,6 +256,7 @@ the \textbf{Open} lines of Sections 3, 5, 7 and 8, and is best read after them.
 \input{sections/sec09_dna_topology}
 \input{sections/sec10_model_to_clinic}
 \input{sections/sec11_gaps_closed}
+\input{sections/sec12_reticulate_evolution}
 
 \appendix
 \input{sections/appendix_solutions}

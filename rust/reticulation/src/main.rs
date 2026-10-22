@@ -491,17 +491,2000 @@ fn run_poc(args: &[String]) -> Result<bool, String> {
     Ok(true)
 }
 
+/// One dataset at one seed.
+struct SeedResult {
+    seed: u64,
+    n_sequences: usize,
+    /// Largest exact margin from the complete-deletion triple search.
+    triple_margin: Option<reticulation::Ratio>,
+    triple_violating: usize,
+    triple_common_columns: i64,
+    /// Largest exact margin from the quartet (four-point) search.
+    quartet_margin: Option<reticulation::Ratio>,
+    quartet_violating: usize,
+    quartet_examined: usize,
+    /// Largest exact margin from the *pairwise*-deletion triple search. Kept for
+    /// the record only: margins under the two policies have different
+    /// denominators and are not comparable to each other.
+    pairwise_triple_margin: Option<reticulation::Ratio>,
+    /// Per-triple comparison of the two deletion policies — the statistic that
+    /// actually measures the gap confound.
+    policy: reticulation::subset::PolicyComparison,
+    /// The averaged quartet statistics, for the max-versus-mean comparison.
+    distribution: reticulation::subset::QuartetDistribution,
+}
+
+/// Exact comparison `a > k * b`, by integer cross-product.
+///
+/// No floating point decides any verdict in this experiment; the `f64` margins
+/// in the report are for reading.
+fn exceeds_k_times(
+    a: Option<reticulation::Ratio>,
+    b: Option<reticulation::Ratio>,
+    k: i128,
+) -> bool {
+    match (a, b) {
+        (Some(x), Some(y)) if y.num > 0 => {
+            (x.num as i128) * (y.den as i128) > k * (y.num as i128) * (x.den as i128)
+        }
+        // No reference violation at all: any positive margin exceeds it.
+        (Some(x), _) => x.num > 0,
+        (None, _) => false,
+    }
+}
+
+fn margin_f64(m: Option<reticulation::Ratio>) -> f64 {
+    m.map_or(0.0, reticulation::Ratio::to_f64)
+}
+
+fn margin_exact(m: Option<reticulation::Ratio>) -> String {
+    m.map_or_else(|| "none".to_string(), |r| format!("{}/{}", r.num, r.den))
+}
+
+/// Run both searches on one population.
+fn measure(pop: &reticulation::simulate::Population, max_quadruples: usize) -> Result<SeedResult, String> {
+    use reticulation::exact::{find_count_certificates, ExactDistances};
+    use reticulation::subset::{
+        compare_deletion_policies, find_complete_triple_certificates, find_quartet_certificates,
+        quartet_distribution, Alignment,
+    };
+
+    let aln = Alignment::new(pop.labels.clone(), pop.sequences.clone())?;
+    let policy = compare_deletion_policies(&aln)?;
+    let triples = find_complete_triple_certificates(&aln, 1)?;
+    let quartets = find_quartet_certificates(&aln, 1, max_quadruples)?;
+    if !triples.all_validated || !quartets.all_validated {
+        return Err("a search produced a certificate that failed revalidation".into());
+    }
+
+    // Pairwise deletion, for the comparison of policies.
+    let pw = ExactDistances::from_alignment(pop.labels.clone(), &pop.sequences)?;
+    let (pw_certs, _, _) = find_count_certificates(&pw, 1);
+
+    Ok(SeedResult {
+        seed: 0,
+        n_sequences: aln.len(),
+        triple_margin: triples.certificates.first().map(|c| c.margin()),
+        triple_violating: triples.violating,
+        triple_common_columns: triples.certificates.first().map_or(0, |c| c.common),
+        quartet_margin: quartets.certificates.first().map(|c| c.margin()),
+        quartet_violating: quartets.violating,
+        quartet_examined: quartets.examined,
+        pairwise_triple_margin: pw_certs.first().map(|c| reticulation::Ratio {
+            num: c.margin_num,
+            den: c.margin_den,
+        }),
+        policy,
+        distribution: quartet_distribution(&aln, max_quadruples)?,
+    })
+}
+
+/// Fraction of seeds at which a per-seed, exactly-decided condition held.
+fn held_at(flags: &[bool]) -> (usize, usize) {
+    (flags.iter().filter(|b| **b).count(), flags.len())
+}
+
+/// The experiment the whole module exists for: does the four-point test separate
+/// reticulation from rate variation, where the ultrametric test cannot?
+///
+/// Predictions are registered in the output *before* the measurements, each with
+/// a criterion that can fail. The PASS/FAIL gate rests only on the power and
+/// fix-efficacy controls, deliberately: the discriminating prediction (P3) must
+/// be able to come out false without the run being reported as a failure, or the
+/// experiment would be rigged to confirm it.
+fn run_experiment(args: &[String]) -> Result<bool, String> {
+    use reticulation::simulate::{
+        clonal_tree, clonal_tree_relaxed, inject_gap_blocks, with_recombination,
+        with_reciprocal_recombinants,
+    };
+
+    let length: usize = parse_flag(args, "--length", 4000);
+    let generations: u32 = parse_flag(args, "--generations", 4);
+    let mu: f64 = parse_flag(args, "--mu", 0.004);
+    let spread: f64 = parse_flag(args, "--spread", 1.0);
+    let saturated_mu: f64 = parse_flag(args, "--saturated-mu", 0.04);
+    let gap_fraction: f64 = parse_flag(args, "--gap-fraction", 0.25);
+    let n_seeds: usize = parse_flag(args, "--seeds", 5);
+    let seed0: u64 = parse_flag(args, "--seed", 2026);
+    let max_quadruples: usize = parse_flag(args, "--max-quadruples", 20_000);
+
+    let seeds: Vec<u64> = (0..n_seeds).map(|i| seed0 + i as u64).collect();
+
+    // --- build and measure every dataset at every seed ---
+    let mut results: std::collections::BTreeMap<&str, Vec<SeedResult>> = Default::default();
+    for &seed in &seeds {
+        let mut push = |name: &'static str, pop: reticulation::simulate::Population| -> Result<(), String> {
+            let mut r = measure(&pop, max_quadruples)?;
+            r.seed = seed;
+            results.entry(name).or_default().push(r);
+            Ok(())
+        };
+
+        push("D1_clonal_strict_clock", clonal_tree(length, generations, mu, seed))?;
+        push(
+            "D2_clonal_relaxed_clock",
+            clonal_tree_relaxed(length, generations, mu, spread, seed),
+        )?;
+        push(
+            "D3_strict_clock_one_recombinant",
+            with_recombination(clonal_tree(length, generations, mu, seed), 0.5, seed ^ 0xABCD).0,
+        )?;
+        push(
+            "D4_relaxed_clock_one_recombinant",
+            with_recombination(
+                clonal_tree_relaxed(length, generations, mu, spread, seed),
+                0.5,
+                seed ^ 0xABCD,
+            )
+            .0,
+        )?;
+        push(
+            "D5_strict_clock_reciprocal_mosaics",
+            with_reciprocal_recombinants(clonal_tree(length, generations, mu, seed), 0.5, seed ^ 0xABCD).0,
+        )?;
+        push(
+            "D6_strict_clock_gap_blocks",
+            inject_gap_blocks(clonal_tree(length, generations, mu, seed), gap_fraction, seed ^ 0x1357),
+        )?;
+        push(
+            "D7_strict_clock_saturated",
+            clonal_tree(length, generations, saturated_mu, seed),
+        )?;
+    }
+
+    let get = |name: &str| -> &Vec<SeedResult> { &results[name] };
+    let d1 = get("D1_clonal_strict_clock");
+
+    // --- the per-seed, exactly-decided comparisons ---
+    let paired = |name: &str, f: &dyn Fn(&SeedResult, &SeedResult) -> bool| -> Vec<bool> {
+        get(name)
+            .iter()
+            .zip(d1.iter())
+            .map(|(r, base)| f(r, base))
+            .collect()
+    };
+    let triple_above = |r: &SeedResult, base: &SeedResult| {
+        exceeds_k_times(r.triple_margin, base.triple_margin, 2)
+    };
+    let quartet_above = |r: &SeedResult, base: &SeedResult| {
+        exceeds_k_times(r.quartet_margin, base.quartet_margin, 2)
+    };
+
+    let triple_strictly_above = |r: &SeedResult, base: &SeedResult| {
+        exceeds_k_times(r.triple_margin, base.triple_margin, 1)
+    };
+    let quartet_strictly_above = |r: &SeedResult, base: &SeedResult| {
+        exceeds_k_times(r.quartet_margin, base.quartet_margin, 1)
+    };
+
+    let p1 = paired("D3_strict_clock_one_recombinant", &triple_strictly_above);
+    let p1b = paired("D3_strict_clock_one_recombinant", &triple_above);
+    let p2 = paired("D2_clonal_relaxed_clock", &triple_above);
+    let p2b = paired("D2_clonal_relaxed_clock", &triple_strictly_above);
+    let p3 = paired("D2_clonal_relaxed_clock", &quartet_above);
+    let p4 = paired("D5_strict_clock_reciprocal_mosaics", &quartet_above);
+    let p4c = paired("D5_strict_clock_reciprocal_mosaics", &quartet_strictly_above);
+    let p7 = paired("D7_strict_clock_saturated", &quartet_above);
+    let p8 = paired("D3_strict_clock_one_recombinant", &quartet_above);
+    let p8b = paired("D4_relaxed_clock_one_recombinant", &quartet_above);
+    // Finding 6, measured by the per-triple verdict rather than by margin
+    // magnitude: with no missing data the policies must agree exactly, and with
+    // gap blocks pairwise deletion must manufacture violations.
+    let p5: Vec<bool> = d1
+        .iter()
+        .map(|r| r.policy.pairwise_only == 0 && r.policy.complete_only == 0)
+        .collect();
+    let p6: Vec<bool> = get("D6_strict_clock_gap_blocks")
+        .iter()
+        .map(|r| r.policy.pairwise_only > 0)
+        .collect();
+
+    let frac = |v: &[bool]| {
+        let (k, n) = held_at(v);
+        format!("{k}/{n}")
+    };
+    let at_least = |v: &[bool], k: usize| held_at(v).0 >= k;
+
+    // Worst-case separation: the weakest seed's ratio of the positive control's
+    // margin to its own floor. Display only -- every verdict above is exact.
+    let worst_ratio = |name: &str, quartet: bool| -> f64 {
+        get(name)
+            .iter()
+            .zip(d1.iter())
+            .map(|(r, base)| {
+                let (a, b) = if quartet {
+                    (margin_f64(r.quartet_margin), margin_f64(base.quartet_margin))
+                } else {
+                    (margin_f64(r.triple_margin), margin_f64(base.triple_margin))
+                };
+                if b > 0.0 {
+                    a / b
+                } else {
+                    f64::INFINITY
+                }
+            })
+            .fold(f64::INFINITY, f64::min)
+    };
+
+    // --- the max-versus-mean head-to-head -------------------------------------
+    // The certificate's statistic is a MAXIMUM over quadruples. The published
+    // treelikeness tests are AVERAGES, and in the one comparison of
+    // treelikeness statistics used as tests, the averaged variants held a
+    // correct false-positive rate while the mode-based and
+    // proportion-of-resolved-quartets variants failed. That comparison has not
+    // been run against a certificate-style maximum, so it is run here, on the
+    // dataset the whole experiment turns on: D2, clonal with a relaxed clock
+    // and no reticulation, the null that defeated the triple statistic.
+    //
+    // Every comparison is SEED-PAIRED. The question is not which statistic is
+    // larger but at how many seeds each one ranks a reticulate population above
+    // the hard null, which is the only form in which an extreme-value statistic
+    // and an average are commensurable at all.
+    let seed_paired_above = |name: &str, pick: &dyn Fn(&SeedResult) -> f64| -> Vec<bool> {
+        get(name)
+            .iter()
+            .zip(get("D2_clonal_relaxed_clock").iter())
+            .map(|(positive, null)| pick(positive) > pick(null))
+            .collect()
+    };
+    let mean_delta = |r: &SeedResult| r.distribution.mean_delta_q;
+    let proportion = |r: &SeedResult| r.distribution.proportion_violating;
+    let max_margin = |r: &SeedResult| margin_f64(r.quartet_margin);
+    let statistic_rows: Vec<serde_json::Value> = [
+        (
+            "quartet_max_margin",
+            "maximum over quadruples -- the certificate's own statistic, the only              one with a single exhibitable witness, and the only one decided by              exact integer arithmetic",
+            &max_margin as &dyn Fn(&SeedResult) -> f64,
+        ),
+        (
+            "mean_delta_q",
+            "mean of (m1-m2)/(m1-m3) over quadruples -- the averaged statistic the              literature reports as holding a correct false-positive rate",
+            &mean_delta,
+        ),
+        (
+            "proportion_violating",
+            "share of quadruples with a strictly dominant pairing -- the variant              the literature reports as FAILING as a test, included because its              failure is informative",
+            &proportion,
+        ),
+    ]
+    .iter()
+    .map(|(name, what, pick)| {
+        serde_json::json!({
+            "statistic": name,
+            "what_it_is": what,
+            "beats_relaxed_clock_null_at": {
+                "D3_one_recombinant": frac(&seed_paired_above("D3_strict_clock_one_recombinant", *pick)),
+                "D5_reciprocal_mosaics": frac(&seed_paired_above("D5_strict_clock_reciprocal_mosaics", *pick)),
+            },
+            "value_on_the_relaxed_clock_null_per_seed": get("D2_clonal_relaxed_clock")
+                .iter().map(*pick).collect::<Vec<f64>>(),
+            "value_on_reciprocal_mosaics_per_seed": get("D5_strict_clock_reciprocal_mosaics")
+                .iter().map(*pick).collect::<Vec<f64>>(),
+            // The weakest seed's ratio of the positive control to the hard null.
+            // Display only, like every other ratio in this report, but it is the
+            // number that decides which statistic separates better at FIXED
+            // taxon count -- which is the only comparison the two share.
+            "worst_seed_separation_over_relaxed_clock_null":
+                get("D5_strict_clock_reciprocal_mosaics")
+                    .iter()
+                    .zip(get("D2_clonal_relaxed_clock").iter())
+                    .map(|(positive, null)| {
+                        let (a, b) = (pick(positive), pick(null));
+                        if b > 0.0 { a / b } else { f64::INFINITY }
+                    })
+                    .fold(f64::INFINITY, f64::min),
+        })
+    })
+    .collect();
+
+    let dataset_json: serde_json::Value = results
+        .iter()
+        .map(|(name, rows)| {
+            (
+                (*name).to_string(),
+                serde_json::json!({
+                    "n_sequences": rows[0].n_sequences,
+                    "quartets_examined": rows[0].quartet_examined,
+                    "per_seed": rows.iter().map(|r| serde_json::json!({
+                        "seed": r.seed,
+                        "complete_triple_margin_exact": margin_exact(r.triple_margin),
+                        "complete_triple_margin": margin_f64(r.triple_margin),
+                        "complete_triple_violating": r.triple_violating,
+                        "complete_triple_common_columns": r.triple_common_columns,
+                        "quartet_margin_exact": margin_exact(r.quartet_margin),
+                        "quartet_margin": margin_f64(r.quartet_margin),
+                        "quartet_violating": r.quartet_violating,
+                        "pairwise_triple_margin_exact": margin_exact(r.pairwise_triple_margin),
+                        "pairwise_triple_margin": margin_f64(r.pairwise_triple_margin),
+                        "deletion_policy_comparison": r.policy,
+                        "mean_delta_q": r.distribution.mean_delta_q,
+                        "max_delta_q": r.distribution.max_delta_q,
+                        "proportion_violating": r.distribution.proportion_violating,
+                        "q_residual": r.distribution.q_residual,
+                        "mean_p_distance": r.distribution.mean_p_distance,
+                    })).collect::<Vec<_>>(),
+                }),
+            )
+        })
+        .collect::<serde_json::Map<String, serde_json::Value>>()
+        .into();
+
+    // Gate: power and fix-efficacy only. P2, P3, P7, P8 are findings.
+    let power_triple = at_least(&p1, seeds.len());
+    let power_quartet = at_least(&p4, seeds.len());
+    let policies_agree = at_least(&p5, seeds.len());
+    let fix_bites = at_least(&p6, seeds.len() - 1);
+    let gate = power_triple && power_quartet && policies_agree && fix_bites;
+
+    let report = serde_json::json!({
+        "experiment": "Does the four-point (tree-level) test separate reticulation \
+                       from rate variation, where the ultrametric (clock-level) \
+                       test cannot? And does complete deletion within the subset \
+                       remove the gap confound of the audit's finding 6?",
+        "design": {
+            "null_nesting_theorem": "ANSE.GeneticaReticulata.fourPoint_of_ultrametric \
+                                     -- every symmetric ultrametric satisfies the \
+                                     four-point condition, so a quartet certificate \
+                                     refutes strictly more than a triple one.",
+            "reference_dataset": "D1_clonal_strict_clock. Every comparison is \
+                                  SEED-PAIRED against D1 at the same seed and \
+                                  decided by an exact integer cross-product.",
+            "margins_are_exact_rationals": true,
+            "parameters": {
+                "alignment_length": length, "generations": generations,
+                "mu_per_generation": mu, "relaxed_clock_spread": spread,
+                "saturated_mu": saturated_mu, "gap_block_fraction": gap_fraction,
+                "seeds": seeds,
+            },
+            "why_several_seeds": "A single-seed margin is not a result. Each \
+                                  prediction reports the number of seeds at which \
+                                  it held, not an average of margins.",
+        },
+        "criteria_corrected_after_a_first_run": {
+            "why_this_block_exists": "A first run of this experiment used two \
+                criteria that were wrong, and both are recorded here rather than \
+                quietly replaced, because a criterion changed after seeing data is \
+                the easiest way to launder a negative result.",
+            "corrections": [
+                {
+                    "was": "P6 compared the largest MARGIN under pairwise deletion \
+                            with the largest margin under complete deletion.",
+                    "wrong_because": "Complete deletion shrinks the denominator -- \
+                        on D6 it leaves about 1100 of 4000 columns -- so one \
+                        differing site is worth more and its margins are LARGER, \
+                        even though it is strictly more conservative about what \
+                        counts as a violation. The two numbers have different \
+                        denominators and are no more comparable than the two \
+                        pairwise distances that finding 6 is about.",
+                    "now": "The per-triple VERDICT is compared instead, and the \
+                            statistic is the number of triples that pairwise \
+                            deletion calls a violation and complete deletion does \
+                            not. P5 adds the control that makes it meaningful: with \
+                            no missing data the two policies must agree exactly.",
+                },
+                {
+                    "was": "The power gate required the positive control's margin \
+                            to exceed TWICE the clonal floor, the threshold v1.6.0 \
+                            used.",
+                    "wrong_because": "The floor is a maximum over 560 triples, an \
+                        extreme-value statistic, and this run shows it varying from \
+                        18/4000 to 39/4000 across five seeds. A 2x threshold on a \
+                        ratio whose denominator moves by 2.2x is not a stable \
+                        criterion, and v1.6.0's reported 3.389x was the best of the \
+                        five seeds, not a typical value.",
+                    "now": "The gate is the seed-PAIRED strict inequality (P1): the \
+                            same clonal tree with a recombinant added must give a \
+                            larger margin than without it. The 2x result is kept as \
+                            an ungated finding (P1b) rather than dropped, because \
+                            its failure at 2 of 5 seeds is itself the result.",
+                },
+            ],
+        },
+        "separation_display_only": {
+            "note": "Ratios of the positive control's margin to its own floor at \
+                     the weakest of the five seeds. f64, for reading; every verdict \
+                     below is an exact integer comparison.",
+            "triple_test_worst_case_D3_over_D1": worst_ratio("D3_strict_clock_one_recombinant", false),
+            "quartet_test_worst_case_D5_over_D1": worst_ratio("D5_strict_clock_reciprocal_mosaics", true),
+            "relaxed_clock_triple_worst_case_D2_over_D1": worst_ratio("D2_clonal_relaxed_clock", false),
+            "relaxed_clock_quartet_worst_case_D2_over_D1": worst_ratio("D2_clonal_relaxed_clock", true),
+        },
+        "preregistered_predictions": [
+            {
+                "id": "P1", "gated": true,
+                "claim": "POWER CONTROL, seed-paired. Adding one recombinant to a \
+                          clonal tree raises the complete-deletion triple margin \
+                          above the same tree's margin without it.",
+                "criterion": "holds at all seeds",
+                "observed": frac(&p1), "held": power_triple,
+            },
+            {
+                "id": "P1b", "gated": false,
+                "claim": "FINDING. The same comparison at v1.6.0's threshold: D3's \
+                          margin exceeds 2x D1's.",
+                "criterion": "reported, not gated",
+                "observed": frac(&p1b),
+                "reading": "Where this fails, the triple statistic does not clear \
+                            its own published threshold. The clonal floor is a \
+                            maximum over triples and varies by more than 2x across \
+                            seeds, so this threshold cannot be relied on.",
+            },
+            {
+                "id": "P2", "gated": false,
+                "claim": "A relaxed clock on a purely clonal tree breaks \
+                          ULTRAMETRICITY: D2's complete-triple margin exceeds 2x \
+                          D1's at the same seed.",
+                "criterion": "reported, not gated",
+                "observed_above_2x": frac(&p2),
+                "observed_above_1x_paired": frac(&p2b),
+                "divergence_matched": "The relaxed clock's rate multipliers are \
+                    normalised to mean 1, so D2 has the same expected divergence as \
+                    D1 and only the clock differs. Without that, a relaxed clock is \
+                    also a faster clock and the result would confound rate \
+                    variation with saturation.",
+                "reading": "Where this holds, a triple certificate does not \
+                            distinguish reticulation from rate variation -- risk 2 \
+                            of docs/GENETICA_RETICULATA.md section 7, realised. \
+                            Compare D2's per-seed margins against D3's directly: if \
+                            they overlap, the statistic cannot separate the causes.",
+            },
+            {
+                "id": "P3", "gated": false,
+                "claim": "THE DISCRIMINATING PREDICTION. The same relaxed-clock \
+                          data does NOT break the FOUR-POINT condition beyond the \
+                          floor: D2's quartet margin does not exceed 2x D1's.",
+                "criterion": "violations at <= 1 of 5 seeds",
+                "observed_violations": frac(&p3), "held": !at_least(&p3, 2),
+                "reading": "A violation count of 0 or 1 means the four-point test \
+                            is largely immune to the confound that defeats the \
+                            triple test. A higher count means it is confounded too, \
+                            and the method has no statistic that separates the two \
+                            causes -- a negative result about this approach, \
+                            reported rather than gated away. Read it next to P7: a \
+                            relaxed clock also redistributes divergence among \
+                            lineages, so some elevation may be local saturation \
+                            rather than non-additivity.",
+            },
+            {
+                "id": "P4", "gated": true,
+                "claim": "POWER CONTROL for the four-point test. Reciprocal \
+                          mosaics break it: D5's quartet margin exceeds 2x D1's \
+                          quartet floor at the same seed.",
+                "criterion": "holds at all seeds",
+                "observed_above_2x": frac(&p4),
+                "observed_above_1x_paired": frac(&p4c),
+                "held": power_quartet,
+                "why_reciprocal": "A single recombinant need not violate the \
+                                   four-point condition; the shape that does is a \
+                                   pair of reciprocal mosaics, each close to both \
+                                   parents. This is the configuration Lean's \
+                                   reciprocal_recombinants_witness proves \
+                                   non-vacuous.",
+            },
+            {
+                "id": "P5b", "gated": true,
+                "claim": "CONTROL FOR THE POLICY COMPARISON. With no missing data, \
+                          complete deletion within the triple IS pairwise deletion, \
+                          so the two policies must agree on every one of D1's 560 \
+                          triples.",
+                "criterion": "holds at all seeds",
+                "observed": frac(&p5), "held": policies_agree,
+                "why": "Without this, a non-zero manufactured count on gappy data \
+                        could be an artefact of the comparison itself.",
+            },
+            {
+                "id": "P6", "gated": true,
+                "claim": "THE FIX BITES, AND FINDING 6 IS REAL. On gap-blocked but \
+                          strictly clonal data with no reticulation, pairwise \
+                          deletion calls triples violations that complete deletion \
+                          within the same triple does not.",
+                "criterion": "at least one manufactured triple at >= 4 of 5 seeds",
+                "observed": frac(&p6), "held": fix_bites,
+                "reading": "Every manufactured triple is a kernel-acceptable \
+                            certificate about a genealogy that is exactly a clock \
+                            tree. The count is the size of the confound; complete \
+                            deletion is what removes it.",
+            },
+            {
+                "id": "P7", "gated": false,
+                "claim": "EXPLORATORY. A high-divergence clonal population lifts \
+                          the quartet margin above 2x the low-divergence floor, \
+                          with no reticulation and a strict clock.",
+                "criterion": "reported, not gated",
+                "observed": frac(&p7),
+                "this_comparison_is_mis_specified": "D7's margin is compared \
+                    against D1's floor, but D1 is ten times less divergent. The \
+                    `saturation` subcommand shows the quartet noise floor grows \
+                    monotonically with divergence, so the two are not \
+                    commensurable -- the same error, in a third guise, as \
+                    comparing margins across different denominators.",
+                "what_the_diagnostic_found": "At BOTH low and high divergence the \
+                    clonal quartet margin shrinks by a factor near 0.5 when the \
+                    alignment length quadruples: the L^(-1/2) signature of \
+                    sampling noise. A saturation bias is deterministic and would \
+                    not shrink at all. So this row is NOT evidence of a divergence \
+                    ceiling -- it is evidence that a null must be calibrated at \
+                    matched divergence AND matched length. Run \
+                    `reticulation saturation` for the numbers.",
+            },
+            {
+                "id": "P8", "gated": false,
+                "claim": "SECONDARY. A single recombinant need not violate the \
+                          four-point condition, so D3's and D4's quartet margins \
+                          may stay at the floor while their triple margins do not.",
+                "criterion": "reported, not gated",
+                "observed_D3": frac(&p8), "observed_D4": frac(&p8b),
+            },
+        ],
+        "max_versus_mean": {
+            "why": "The certificate's statistic is a maximum over quadruples, which                     is an extreme-value statistic: its null level grows with the                     number of subsets examined, and this grid shows it -- the                     quartet floor moves from 5-7 at 16 taxa to 9-10 at 32. So                     margins are not comparable across population sizes, which is                     the same incommensurability that has already cost this project                     three criteria. The averaged statistics do not have that                     defect and cannot be certified, because a mean has no witness                     to exhibit. This block measures the price.",
+            "these_are_floating_point": "mean_delta_q, proportion_violating and                     q_residual are f64 summaries and are NOT certificates. Only the                     max-margin row is decided by exact integer arithmetic and                     checkable by the Lean kernel. Nothing here changes that                     division.",
+            "reference_null": "D2_clonal_relaxed_clock -- clonal descent, no                     reticulation whatever, divergence-matched relaxed clock. The                     hard null, not the easy one.",
+            "statistics": statistic_rows,
+            "what_this_run_found": "All three statistics rank both reticulate                     populations above the relaxed-clock null at every seed, so                     none of them is confounded by rate variation the way the                     TRIPLE statistic is. They differ in how widely they separate,                     and the ordering is not the one the literature's results would                     suggest: read                     `worst_seed_separation_over_relaxed_clock_null` on each row.                     `proportion_violating` separating barely at all is consistent                     with the published finding that this variant fails as a test.",
+            "what_it_does_not_settle": "Separation at a FIXED taxon count is not                     the max statistic's weakness. Its weakness is that its null                     level grows with the number of subsets, so margins cannot be                     compared across populations of different size, and this grid                     is all at one size. A verdict on max-versus-mean needs the                     comparison repeated across taxon counts, and the averaged                     statistics calibrated by parametric bootstrap rather than                     against a shuffled null -- which misalignment artefacts are                     reported to be invisible to.",
+        },
+        "datasets": dataset_json,
+        "verdict": {
+            "gated_predictions_pass": gate,
+            "power_triple_P1": power_triple,
+            "power_quartet_P4": power_quartet,
+            "policies_agree_without_gaps_P5b": policies_agree,
+            "complete_deletion_fix_bites_P6": fix_bites,
+            "criterion": "The gate is the two power controls and the two \
+                          policy-comparison controls. P1b, P2, P3, P7 and P8 are \
+                          findings: the discriminating prediction must be able to \
+                          come out false without the run reporting failure.",
+        },
+        "cost_of_complete_deletion": "On D6 the common-column count per triple is \
+            far below the alignment length, because 15 of 16 sequences carry a \
+            gap block. That lost power is the price of removing the confound, and \
+            it is why complete deletion should be the default only when there is \
+            missing data to delete.",
+    });
+    println!("{}", serde_json::to_string_pretty(&report).unwrap());
+
+    if !power_triple {
+        eprintln!(
+            "FAIL P1: adding a recombinant to a clonal tree did not raise the \
+             complete-deletion triple margin above the same tree's margin without \
+             it ({}). With no power the other columns are uninterpretable.",
+            frac(&p1)
+        );
+        return Ok(false);
+    }
+    if !power_quartet {
+        eprintln!(
+            "FAIL P4: reciprocal mosaics did not lift the quartet margin above \
+             twice the clonal floor ({}). The four-point test has no demonstrated \
+             power, so its silence on D2 would mean nothing.",
+            frac(&p4)
+        );
+        return Ok(false);
+    }
+    if !policies_agree {
+        eprintln!(
+            "FAIL P5b: the two deletion policies disagreed on gapless data ({}). \
+             The policy comparison is then measuring itself, not the confound.",
+            frac(&p5)
+        );
+        return Ok(false);
+    }
+    if !fix_bites {
+        eprintln!(
+            "FAIL P6: pairwise deletion manufactured no violations on gap-blocked \
+             clonal data ({}). Either the gap pattern does not create the \
+             confound, or complete deletion is not doing what it claims.",
+            frac(&p6)
+        );
+        return Ok(false);
+    }
+    Ok(true)
+}
+
+/// Mean and maximum pairwise p-distance of a population, for reporting the
+/// divergence a result was obtained at.
+fn divergence(pop: &reticulation::simulate::Population) -> (f64, f64) {
+    let dm = pop
+        .distances(DistanceModel::PDistance)
+        .expect("simulated populations are well-formed alignments");
+    let mut sum = 0.0;
+    let mut n = 0.0;
+    let mut max = 0.0f64;
+    for i in 0..dm.len() {
+        for j in (i + 1)..dm.len() {
+            sum += dm.get(i, j);
+            max = max.max(dm.get(i, j));
+            n += 1.0;
+        }
+    }
+    (sum / n, max)
+}
+
+/// Is the clonal four-point signal noise, or is it saturation bias?
+///
+/// P7 of the experiment showed that a high-divergence, strictly clonal, strictly
+/// clock-like population violates the four-point condition — which it should not,
+/// since its genealogy is a tree. Two causes are possible and they have opposite
+/// signatures in the alignment length `L`:
+///
+/// * **Sampling noise.** The margin is a difference of order statistics on
+///   multinomial counts, so it scales as `L^(-1/2)`: quadrupling `L` halves it.
+/// * **Saturation bias.** Multiple hits make the p-distance a concave function
+///   of true divergence, which is a *deterministic* distortion of the metric. It
+///   does not shrink with `L` at all.
+///
+/// So the diagnostic is to quadruple `L` at fixed divergence and watch the
+/// margin. This decides whether the method needs a divergence ceiling or merely
+/// longer sequences, and the answer determines which real datasets are in range.
+fn run_saturation(args: &[String]) -> Result<bool, String> {
+    use reticulation::simulate::clonal_tree;
+    use reticulation::subset::{find_quartet_certificates, Alignment};
+
+    let generations: u32 = parse_flag(args, "--generations", 4);
+    let n_seeds: usize = parse_flag(args, "--seeds", 5);
+    let seed0: u64 = parse_flag(args, "--seed", 2026);
+    let low_mu: f64 = parse_flag(args, "--low-mu", 0.004);
+    let high_mu: f64 = parse_flag(args, "--high-mu", 0.04);
+    let seeds: Vec<u64> = (0..n_seeds).map(|i| seed0 + i as u64).collect();
+    let lengths: Vec<usize> = vec![1000, 4000, 16_000];
+
+    // --- the L-scaling diagnostic at two divergences ---
+    let mut scaling = serde_json::Map::new();
+    let mut ratios: std::collections::BTreeMap<String, Vec<f64>> = Default::default();
+    for (name, mu) in [("low_divergence", low_mu), ("high_divergence", high_mu)] {
+        let mut rows = Vec::new();
+        let mut by_length: Vec<Vec<f64>> = Vec::new();
+        for &length in &lengths {
+            let mut margins = Vec::new();
+            let mut divs = Vec::new();
+            for &seed in &seeds {
+                let pop = clonal_tree(length, generations, mu, seed);
+                divs.push(divergence(&pop).0);
+                let aln = Alignment::new(pop.labels.clone(), pop.sequences.clone())?;
+                let q = find_quartet_certificates(&aln, 1, 20_000)?;
+                margins.push(
+                    q.certificates
+                        .first()
+                        .map_or(0.0, |c| c.margin().to_f64()),
+                );
+            }
+            let mean_margin = margins.iter().sum::<f64>() / margins.len() as f64;
+            rows.push(serde_json::json!({
+                "alignment_length": length,
+                "mean_pairwise_divergence": divs.iter().sum::<f64>() / divs.len() as f64,
+                "quartet_margins_per_seed": margins,
+                "mean_quartet_margin": mean_margin,
+            }));
+            by_length.push(margins);
+        }
+        // Ratio of the mean margin at 4L to the mean margin at L. Pure noise
+        // predicts 0.5; a deterministic bias predicts 1.
+        let mean = |v: &Vec<f64>| v.iter().sum::<f64>() / v.len() as f64;
+        let r: Vec<f64> = (1..by_length.len())
+            .map(|i| mean(&by_length[i]) / mean(&by_length[i - 1]).max(1e-12))
+            .collect();
+        ratios.insert(name.to_string(), r.clone());
+        scaling.insert(
+            name.to_string(),
+            serde_json::json!({
+                "mu_per_generation": mu,
+                "per_length": rows,
+                "ratio_of_mean_margin_when_length_quadruples": r,
+                "prediction_if_pure_sampling_noise": 0.5,
+                "prediction_if_pure_saturation_bias": 1.0,
+            }),
+        );
+    }
+
+    let low = &ratios["low_divergence"];
+    let high = &ratios["high_divergence"];
+    // The noise scaling must actually be observed, or the diagnostic says
+    // nothing. Generous band: L^(-1/2) is 0.5, and a max over 1820 quadruples is
+    // an extreme-value statistic with its own drift.
+    let noise_scaling_seen = low.iter().all(|r| *r < 0.75);
+    let bias_at_high_divergence = high.iter().any(|r| *r > 0.75);
+
+    // --- a divergence sweep, so the operating range is in biological units ---
+    let mut sweep = Vec::new();
+    for mu in [0.001f64, 0.002, 0.004, 0.008, 0.016, 0.024, 0.032, 0.048, 0.064] {
+        let mut divs = Vec::new();
+        let mut margins = Vec::new();
+        for &seed in &seeds {
+            let pop = clonal_tree(4000, generations, mu, seed);
+            let (mean_d, max_d) = divergence(&pop);
+            divs.push((mean_d, max_d));
+            let aln = Alignment::new(pop.labels.clone(), pop.sequences.clone())?;
+            let q = find_quartet_certificates(&aln, 1, 20_000)?;
+            margins.push(q.certificates.first().map_or(0.0, |c| c.margin().to_f64()));
+        }
+        sweep.push(serde_json::json!({
+            "mu_per_generation": mu,
+            "mean_pairwise_divergence": divs.iter().map(|d| d.0).sum::<f64>() / divs.len() as f64,
+            "max_pairwise_divergence": divs.iter().map(|d| d.1).fold(0.0, f64::max),
+            "mean_quartet_margin": margins.iter().sum::<f64>() / margins.len() as f64,
+            "quartet_margins_per_seed": margins,
+        }));
+    }
+
+    let report = serde_json::json!({
+        "diagnostic": "Is the four-point violation seen on high-divergence clonal \
+                       data sampling noise or saturation bias? The two scale \
+                       differently in the alignment length, so quadrupling it \
+                       separates them.",
+        "why_it_matters": "A noise floor shrinks with longer sequences, so the \
+            method simply needs more data. A saturation bias does not, so the \
+            method needs a divergence ceiling or a distance that corrects for \
+            multiple hits. The second is the harder case, because a \
+            Jukes-Cantor-corrected distance is a logarithm and therefore \
+            irrational, which the exact-rational certificate architecture cannot \
+            represent. There is no quick fix available if the bias is real.",
+        "parameters": {
+            "generations": generations, "seeds": seeds,
+            "lengths": lengths, "low_mu": low_mu, "high_mu": high_mu,
+        },
+        "length_scaling": scaling,
+        "divergence_sweep_at_4000_sites": sweep,
+        "verdict": {
+            "noise_scaling_observed_at_low_divergence": noise_scaling_seen,
+            "systematic_component_at_high_divergence": bias_at_high_divergence,
+            "gated": "only the first -- the diagnostic must be able to see the \
+                      noise scaling it relies on. The second is the finding.",
+            "reading": "If both are true, the high-divergence four-point \
+                        violations are a p-distance artefact and the method has a \
+                        divergence ceiling that must be stated with every result.",
+        },
+    });
+    println!("{}", serde_json::to_string_pretty(&report).unwrap());
+
+    if !noise_scaling_seen {
+        eprintln!(
+            "FAIL: the clonal quartet margin did not shrink with alignment length \
+             at low divergence (ratios {low:?}). Without that baseline the \
+             high-divergence comparison distinguishes nothing."
+        );
+        return Ok(false);
+    }
+    Ok(true)
+}
+
+/// Emit and kernel-check the two new certificate forms, with both controls.
+///
+/// The acceptance and rejection directions are both required: a verifier that
+/// accepts everything proves nothing.
+fn run_verify_tree(args: &[String]) -> Result<bool, String> {
+    use reticulation::emit_lean;
+    use reticulation::simulate::{clonal_tree, with_reciprocal_recombinants};
+    use reticulation::subset::{
+        find_complete_triple_certificates, find_quartet_certificates, Alignment,
+    };
+
+    let length: usize = parse_flag(args, "--length", 4000);
+    let generations: u32 = parse_flag(args, "--generations", 4);
+    let mu: f64 = parse_flag(args, "--mu", 0.004);
+    let seed: u64 = parse_flag(args, "--seed", 2026);
+    let formal_dir: String = parse_flag(args, "--formal-dir", "../../../../../formal".to_string());
+    let out_dir: String = parse_flag(args, "--out", "/tmp".to_string());
+
+    let formal = std::path::Path::new(&formal_dir)
+        .canonicalize()
+        .map_err(|e| format!("--formal-dir {formal_dir}: {e}"))?;
+
+    let (pop, mosaics) =
+        with_reciprocal_recombinants(clonal_tree(length, generations, mu, seed), 0.5, seed ^ 0xABCD);
+    let aln = Alignment::new(pop.labels.clone(), pop.sequences.clone())?;
+
+    let triples = find_complete_triple_certificates(&aln, 1)?;
+    let quartets = find_quartet_certificates(&aln, 1, 20_000)?;
+    let triple = triples
+        .certificates
+        .first()
+        .ok_or("no complete-deletion triple certificate on the positive control")?;
+    let quartet = quartets
+        .certificates
+        .first()
+        .ok_or("no quartet certificate on the positive control")?;
+
+    let enc = |i: usize| emit_lean::encode(&pop.sequences[i]);
+    let source = format!("simulated reciprocal mosaics, seed {seed}, {length} nt");
+
+    // --- acceptance: the complete-deletion triple ---
+    let t_path = std::path::Path::new(&out_dir).join("reticulata_complete_triple.lean");
+    let [tx, ty, tz] = triple.indices;
+    std::fs::write(
+        &t_path,
+        emit_lean::render_complete_triple(triple, &enc(tx), &enc(ty), &enc(tz), &source),
+    )
+    .map_err(|e| format!("{}: {e}", t_path.display()))?;
+    let t_start = std::time::Instant::now();
+    let (t_ok, t_err) = kernel_check(&formal, &t_path);
+    let t_secs = t_start.elapsed().as_secs_f64();
+
+    // --- acceptance: the quartet ---
+    let q_path = std::path::Path::new(&out_dir).join("reticulata_quartet.lean");
+    let [qa, qb, qc, qe] = quartet.indices;
+    std::fs::write(
+        &q_path,
+        emit_lean::render_quartet(quartet, &enc(qa), &enc(qb), &enc(qc), &enc(qe), &source),
+    )
+    .map_err(|e| format!("{}: {e}", q_path.display()))?;
+    let q_start = std::time::Instant::now();
+    let (q_ok, q_err) = kernel_check(&formal, &q_path);
+    let q_secs = q_start.elapsed().as_secs_f64();
+
+    // --- rejection: both corrupted forms ---
+    let bad_t = emit_lean::corrupt_complete_triple(triple);
+    let bad_t_path = std::path::Path::new(&out_dir).join("reticulata_complete_triple_bad.lean");
+    std::fs::write(
+        &bad_t_path,
+        emit_lean::render_complete_triple(
+            &bad_t,
+            &enc(tx),
+            &enc(ty),
+            &enc(tz),
+            "deliberately corrupted: far and near numerators swapped",
+        ),
+    )
+    .map_err(|e| format!("{}: {e}", bad_t_path.display()))?;
+    let (bad_t_ok, bad_t_err) = kernel_check(&formal, &bad_t_path);
+
+    let bad_q = emit_lean::corrupt_quartet(quartet);
+    let bad_q_path = std::path::Path::new(&out_dir).join("reticulata_quartet_bad.lean");
+    std::fs::write(
+        &bad_q_path,
+        emit_lean::render_quartet(
+            &bad_q,
+            &enc(qa),
+            &enc(qb),
+            &enc(qc),
+            &enc(qe),
+            "deliberately corrupted: the dominant pairing exchanged with a dominated one",
+        ),
+    )
+    .map_err(|e| format!("{}: {e}", bad_q_path.display()))?;
+    let (bad_q_ok, bad_q_err) = kernel_check(&formal, &bad_q_path);
+
+    let mosaic_in_quartet = [&quartet.c, &quartet.e]
+        .iter()
+        .filter(|l| mosaics.contains(l))
+        .count();
+
+    let accept = t_ok && q_ok;
+    let reject = !bad_t_ok
+        && !bad_q_ok
+        && bad_t.validate().is_err()
+        && bad_q.validate().is_err();
+
+    let report = serde_json::json!({
+        "verification": "Kernel-check the two certificate forms introduced for \
+                         Phase 2: complete deletion within the triple, and the \
+                         four-point quartet. The kernel counts the sequences in \
+                         both; nothing is handed to it but the sequences and the \
+                         claimed counts.",
+        "parameters": {
+            "alignment_length": length, "generations": generations,
+            "mu_per_generation": mu, "seed": seed,
+        },
+        "complete_deletion_triple": {
+            "file": t_path.display().to_string(),
+            "accepted": t_ok, "first_error": t_err, "seconds": t_secs,
+            "lean_theorem": "complete_triple_refute_from_counts",
+            "triple": [&triple.x, &triple.y, &triple.z],
+            "counts": {"n_xy": triple.n_xy, "n_yz": triple.n_yz,
+                       "n_xz": triple.n_xz, "common_columns": triple.common},
+            "margin_exact": format!("{}/{}", triple.margin_num, triple.margin_den),
+            "what_the_kernel_did": "computed diff3xy, diff3yz, diff3xz and \
+                                    comparable3 from the three embedded sequences \
+                                    by rfl, then checked two integer inequalities \
+                                    on one denominator -- no cross-multiplication.",
+        },
+        "four_point_quartet": {
+            "file": q_path.display().to_string(),
+            "accepted": q_ok, "first_error": q_err, "seconds": q_secs,
+            "lean_theorem": "quartet_refute_from_counts",
+            "quadruple": {"far_pair": [&quartet.a, &quartet.b],
+                          "other_pair": [&quartet.c, &quartet.e]},
+            "pairing_sums": [quartet.n_ab + quartet.n_ce,
+                             quartet.n_ac + quartet.n_be,
+                             quartet.n_ae + quartet.n_bc],
+            "common_columns": quartet.common,
+            "margin_exact": format!("{}/{}", quartet.margin_num, quartet.margin_den),
+            "planted_mosaics": mosaics,
+            "mosaics_in_the_non_dominant_pair": mosaic_in_quartet,
+            "what_this_refutes": "the four-point condition, hence (Buneman, cited) \
+                                  that any weighted tree realises these distances \
+                                  -- and hence, by the proved nesting \
+                                  fourPoint_of_ultrametric, ultrametricity too.",
+        },
+        "rejection_controls": {
+            "corrupted_triple_file": bad_t_path.display().to_string(),
+            "corrupted_triple_rejected": !bad_t_ok,
+            "corrupted_triple_first_error": bad_t_err,
+            "corrupted_quartet_file": bad_q_path.display().to_string(),
+            "corrupted_quartet_rejected": !bad_q_ok,
+            "corrupted_quartet_first_error": bad_q_err,
+            "both_invalid_in_rust_too": bad_t.validate().is_err() && bad_q.validate().is_err(),
+        },
+        "verdict": {
+            "acceptance_passes": accept,
+            "rejection_passes": reject,
+            "criterion": "the kernel must accept both genuine forms AND reject \
+                          both corrupted ones",
+        },
+    });
+    println!("{}", serde_json::to_string_pretty(&report).unwrap());
+
+    if !accept {
+        eprintln!("FAIL acceptance: triple error {t_err:?}; quartet error {q_err:?}");
+        return Ok(false);
+    }
+    if !reject {
+        eprintln!(
+            "FAIL rejection: the kernel accepted a corrupted certificate. The \
+             verifier is not checking anything."
+        );
+        return Ok(false);
+    }
+    Ok(true)
+}
+
+/// Per-quadruple four-point verdicts, in canonical enumeration order.
+///
+/// Returned as flags rather than margins on purpose. Two alignments of the same
+/// population have different widths, so their margins have different
+/// denominators and comparing the magnitudes would repeat the mistake that
+/// finding 6 of the Phase 1 audit and P6 of the Phase 2 experiment both turned
+/// on. Verdicts are commensurable; margins are not.
+fn quartet_verdicts(aln: &reticulation::subset::Alignment) -> (Vec<bool>, usize) {
+    let n = aln.len();
+    let mut flags = Vec::new();
+    let mut skipped = 0usize;
+    for i in 0..n {
+        for j in (i + 1)..n {
+            for k in (j + 1)..n {
+                for l in (k + 1)..n {
+                    let counts = aln.quadruple_counts(i, j, k, l);
+                    if counts.common == 0 {
+                        skipped += 1;
+                        flags.push(false);
+                        continue;
+                    }
+                    let sums = counts.pairing_sums();
+                    let top = sums.iter().copied().max().unwrap_or(0);
+                    let strictly_dominant = sums.iter().filter(|&&s| s == top).count() == 1;
+                    flags.push(strictly_dominant);
+                }
+            }
+        }
+    }
+    (flags, skipped)
+}
+
+/// Mean and maximum p-distance of an already-built alignment.
+fn alignment_divergence(labels: &[String], rows: &[Vec<u8>]) -> (f64, f64) {
+    let pop = reticulation::simulate::Population {
+        labels: labels.to_vec(),
+        sequences: rows.to_vec(),
+    };
+    divergence(&pop)
+}
+
+/// Gap fraction of a row set.
+fn gap_fraction(rows: &[Vec<u8>]) -> f64 {
+    let total: usize = rows.iter().map(Vec::len).sum();
+    if total == 0 {
+        return 0.0;
+    }
+    let gaps: usize = rows
+        .iter()
+        .map(|row| row.iter().filter(|&&b| b == b'-').count())
+        .sum();
+    gaps as f64 / total as f64
+}
+
+/// Does reference-anchored alignment manufacture quartet certificates?
+///
+/// This is the control the Lean kernel cannot supply. A certificate proves an
+/// arithmetic fact about counts taken from the sequences it embeds; if the
+/// alignment put the wrong residues in the same column, those counts are
+/// faithfully computed from the wrong data and the kernel will accept them. The
+/// trust surface of Phase 2 therefore grows by exactly one item when real data
+/// enters — the alignment — and the only honest way to size it is to align data
+/// whose true alignment is known.
+///
+/// So: simulate clonal, relaxed-clock descent with deletion events, which has
+/// **no reticulation in it at all**; keep the true alignment; strip the gaps;
+/// realign; and compare per-quadruple verdicts. Any quadruple the inferred
+/// alignment calls a four-point violation and the true alignment does not was
+/// manufactured by the aligner.
+fn run_align_error(args: &[String]) -> Result<bool, String> {
+    use reticulation::align::{
+        centroid_reference, reference_anchored_alignment, ReferenceAnchored, Scoring,
+    };
+    use reticulation::simulate::{clonal_tree_relaxed_with_deletions, DeletionModel};
+    use reticulation::subset::{find_quartet_certificates, Alignment};
+
+    let length: usize = parse_flag(args, "--length", 2000);
+    let generations: u32 = parse_flag(args, "--generations", 4);
+    let mu: f64 = parse_flag(args, "--mu", 0.004);
+    let spread: f64 = parse_flag(args, "--spread", 1.0);
+    let deletion_rate: f64 = parse_flag(args, "--deletion-rate", 0.3);
+    let mean_deletion: usize = parse_flag(args, "--mean-deletion", 30);
+    let max_gap: f64 = parse_flag(args, "--max-gap-fraction", 0.2);
+    let seeds: u64 = parse_flag(args, "--seeds", 5);
+    let band: usize = parse_flag(args, "--band", 64);
+    let max_band: usize = parse_flag(args, "--max-band", 2048);
+    let max_quadruples: usize = parse_flag(args, "--max-quadruples", 20_000);
+
+    let scoring = Scoring::default();
+
+    let infer = |labels: &[String], raw: &[Vec<u8>]| -> Result<ReferenceAnchored, String> {
+        let reference = centroid_reference(raw);
+        // Certified: the band-edge test is not a proof of optimality, so this
+        // control checks every pair against its unbanded optimum. A control that
+        // measures alignment error must not itself rest on an unchecked band.
+        reference_anchored_alignment(labels, raw, reference, &scoring, band, max_band, true)
+    };
+
+    // --- A1, the identity control: with no deletions the aligner must be the
+    // identity, so every simulated result of Phase 2 is unchanged by routing it
+    // through this module.
+    let mut identity_holds = true;
+    let mut identity_detail = String::new();
+    for seed in 1..=seeds {
+        let pop = clonal_tree_relaxed_with_deletions(
+            length,
+            generations,
+            mu,
+            spread,
+            &DeletionModel {
+                rate: 0.0,
+                mean_length: mean_deletion,
+                max_gap_fraction: max_gap,
+            },
+            seed,
+        );
+        let anchored = infer(&pop.labels, &pop.raw)?;
+        if anchored.rows != pop.truth.sequences {
+            identity_holds = false;
+            identity_detail = format!(
+                "seed {seed}: the inferred alignment of gapless input differs from the input"
+            );
+            break;
+        }
+        // Stronger than equality of rows: the optimal score must equal the
+        // score of the diagonal, which is what makes the identity optimal
+        // rather than merely returned.
+        let reference_row = &pop.raw[anchored.reference_index];
+        for (index, row) in pop.raw.iter().enumerate() {
+            if index == anchored.reference_index {
+                continue;
+            }
+            let diagonal: i64 = reference_row
+                .iter()
+                .zip(row)
+                .map(|(left, right)| {
+                    if left == right {
+                        scoring.match_score as i64
+                    } else {
+                        scoring.mismatch as i64
+                    }
+                })
+                .sum();
+            if anchored.scores[index] != diagonal {
+                identity_holds = false;
+                identity_detail = format!(
+                    "seed {seed}, sequence {index}: optimal score {} is not the diagonal \
+                     score {diagonal}",
+                    anchored.scores[index]
+                );
+                break;
+            }
+        }
+        if !identity_holds {
+            break;
+        }
+    }
+
+    #[derive(serde::Serialize, Clone)]
+    struct AlignErrorSeed {
+        seed: u64,
+        deletion_events: usize,
+        truth_gap_fraction: f64,
+        inferred_gap_fraction: f64,
+        inferred_width: usize,
+        truth_width: usize,
+        insertions_dropped: usize,
+        reference_label: String,
+        column_recovery: f64,
+        mean_p_distance: f64,
+        quadruples: usize,
+        truth_violating: usize,
+        inferred_violating: usize,
+        agree: usize,
+        manufactured_by_alignment: usize,
+        lost_to_alignment: usize,
+        truth_margin: String,
+        inferred_margin: String,
+    }
+
+    let measure_tier = |deletion_rate: f64,
+                        mean_deletion: usize,
+                        max_gap: f64|
+     -> Result<Vec<AlignErrorSeed>, String> {
+    let mut rows: Vec<AlignErrorSeed> = Vec::new();
+    for seed in 1..=seeds {
+        let pop = clonal_tree_relaxed_with_deletions(
+            length,
+            generations,
+            mu,
+            spread,
+            &DeletionModel {
+                rate: deletion_rate,
+                mean_length: mean_deletion,
+                max_gap_fraction: max_gap,
+            },
+            seed,
+        );
+        let truth_aln = Alignment::new(pop.labels.clone(), pop.truth.sequences.clone())?;
+        let anchored = infer(&pop.labels, &pop.raw)?;
+        let inferred_aln = Alignment::new(anchored.labels.clone(), anchored.rows.clone())?;
+
+        // Column recovery: project the truth onto the reference's surviving
+        // columns, which is exactly the frame the inferred alignment uses.
+        let reference_row = &pop.truth.sequences[anchored.reference_index];
+        let truth_columns: Vec<usize> = reference_row
+            .iter()
+            .enumerate()
+            .filter(|&(_, &b)| b != b'-')
+            .map(|(p, _)| p)
+            .collect();
+        let mut compared = 0usize;
+        let mut identical = 0usize;
+        if truth_columns.len() == anchored.width {
+            for (s, row) in anchored.rows.iter().enumerate() {
+                for (c, &column) in truth_columns.iter().enumerate() {
+                    compared += 1;
+                    if row[c] == pop.truth.sequences[s][column] {
+                        identical += 1;
+                    }
+                }
+            }
+        }
+        let column_recovery = if compared == 0 {
+            0.0
+        } else {
+            identical as f64 / compared as f64
+        };
+
+        let (truth_flags, _) = quartet_verdicts(&truth_aln);
+        let (inferred_flags, _) = quartet_verdicts(&inferred_aln);
+        if truth_flags.len() != inferred_flags.len() {
+            return Err(format!(
+                "seed {seed}: {} quadruples in the truth against {} inferred; the \
+                 two alignments must hold the same taxa",
+                truth_flags.len(),
+                inferred_flags.len()
+            ));
+        }
+        let pairs = truth_flags.iter().zip(&inferred_flags);
+        let mut agree = 0usize;
+        let mut manufactured = 0usize;
+        let mut lost = 0usize;
+        for (t, i) in pairs {
+            match (t, i) {
+                (true, true) => agree += 1,
+                (false, true) => manufactured += 1,
+                (true, false) => lost += 1,
+                (false, false) => {}
+            }
+        }
+        let truth_q = find_quartet_certificates(&truth_aln, 1, max_quadruples)?;
+        let inferred_q = find_quartet_certificates(&inferred_aln, 1, max_quadruples)?;
+        let (mean_p, _) = alignment_divergence(&pop.labels, &pop.truth.sequences);
+
+        rows.push(AlignErrorSeed {
+            seed,
+            deletion_events: pop.deletion_events,
+            truth_gap_fraction: gap_fraction(&pop.truth.sequences),
+            inferred_gap_fraction: anchored.gap_fraction(),
+            inferred_width: anchored.width,
+            truth_width: length,
+            insertions_dropped: anchored.insertions_dropped.iter().sum(),
+            reference_label: anchored.reference_label.clone(),
+            column_recovery,
+            mean_p_distance: mean_p,
+            quadruples: truth_flags.len(),
+            truth_violating: truth_flags.iter().filter(|b| **b).count(),
+            inferred_violating: inferred_flags.iter().filter(|b| **b).count(),
+            agree,
+            manufactured_by_alignment: manufactured,
+            lost_to_alignment: lost,
+            truth_margin: margin_exact(truth_q.certificates.first().map(|c| c.margin())),
+            inferred_margin: margin_exact(inferred_q.certificates.first().map(|c| c.margin())),
+        });
+    }
+        Ok(rows)
+    };
+
+    let rows = measure_tier(deletion_rate, mean_deletion, max_gap)?;
+
+    // The admissibility ladder. A3 holding at one deletion load says nothing
+    // about another, and the whole point of the control is to find where the
+    // aligner starts inventing violations — because that boundary is what
+    // decides which real populations may be interpreted at all.
+    #[derive(serde::Serialize)]
+    struct LoadRung {
+        deletion_rate: f64,
+        mean_deletion_length: usize,
+        mean_truth_gap_fraction: f64,
+        /// The same load as the *inferred* alignment shows it. This is the one
+        /// a real dataset lets you see, so it is the one the threshold uses.
+        mean_inferred_gap_fraction: f64,
+        mean_insertions_dropped: f64,
+        /// Insertions dropped per aligned cell. A *rate*, because an absolute
+        /// count is not comparable between a 3 kb and a 12 kb genome, and
+        /// comparing it between them would be the incommensurable comparison
+        /// this project has made three times already.
+        mean_insertion_rate_per_site: f64,
+        worst_column_recovery: f64,
+        quadruples_per_seed: usize,
+        manufactured_total: usize,
+        lost_total: usize,
+        seeds_with_manufactured: usize,
+    }
+    let mut ladder: Vec<LoadRung> = Vec::new();
+    for mean_length in [30usize, 120usize] {
+        for rate in [0.0f64, 0.1, 0.2, 0.4, 0.6, 0.9] {
+            let tier = measure_tier(rate, mean_length, 0.3)?;
+            let count = tier.len().max(1) as f64;
+            ladder.push(LoadRung {
+                deletion_rate: rate,
+                mean_deletion_length: mean_length,
+                mean_truth_gap_fraction: tier.iter().map(|r| r.truth_gap_fraction).sum::<f64>()
+                    / count,
+                mean_inferred_gap_fraction: tier
+                    .iter()
+                    .map(|r| r.inferred_gap_fraction)
+                    .sum::<f64>()
+                    / count,
+                mean_insertions_dropped: tier
+                    .iter()
+                    .map(|r| r.insertions_dropped as f64)
+                    .sum::<f64>()
+                    / count,
+                mean_insertion_rate_per_site: tier
+                    .iter()
+                    .map(|r| {
+                        let cells = (r.inferred_width * (1usize << generations)) as f64;
+                        if cells == 0.0 {
+                            0.0
+                        } else {
+                            r.insertions_dropped as f64 / cells
+                        }
+                    })
+                    .sum::<f64>()
+                    / count,
+                worst_column_recovery: tier
+                    .iter()
+                    .map(|r| r.column_recovery)
+                    .fold(f64::INFINITY, f64::min),
+                quadruples_per_seed: tier.first().map_or(0, |r| r.quadruples),
+                manufactured_total: tier.iter().map(|r| r.manufactured_by_alignment).sum(),
+                lost_total: tier.iter().map(|r| r.lost_to_alignment).sum(),
+                seeds_with_manufactured: tier
+                    .iter()
+                    .filter(|r| r.manufactured_by_alignment > 0)
+                    .count(),
+            });
+        }
+    }
+    // The strictest rung at which nothing was manufactured, read off the
+    // ladder rather than assumed: this is the admissibility threshold
+    // `real-data` applies.
+    let admissible_gap = ladder
+        .iter()
+        .filter(|rung| rung.manufactured_total == 0)
+        .map(|rung| rung.mean_inferred_gap_fraction)
+        .fold(0.0f64, f64::max);
+    let admissible_insertions = ladder
+        .iter()
+        .filter(|rung| rung.manufactured_total == 0)
+        .map(|rung| rung.mean_insertion_rate_per_site)
+        .fold(0.0f64, f64::max);
+    let admissible_recovery = ladder
+        .iter()
+        .filter(|rung| rung.manufactured_total == 0)
+        .map(|rung| rung.worst_column_recovery)
+        .fold(1.0f64, f64::min);
+
+    let worst_recovery = rows
+        .iter()
+        .map(|r| r.column_recovery)
+        .fold(f64::INFINITY, f64::min);
+    let total_manufactured: usize = rows.iter().map(|r| r.manufactured_by_alignment).sum();
+    let total_lost: usize = rows.iter().map(|r| r.lost_to_alignment).sum();
+    let seeds_with_manufactured = rows
+        .iter()
+        .filter(|r| r.manufactured_by_alignment > 0)
+        .count();
+
+    let report = serde_json::json!({
+        "experiment": "does reference-anchored alignment manufacture four-point violations?",
+        "why": "A Lean certificate proves an arithmetic fact about counts taken from the \
+                sequences it embeds. If the alignment placed the wrong residues in the same \
+                column, the counts are right and the data is wrong, and the kernel cannot see \
+                it. Real data adds the aligner to the trust surface; this measures how big \
+                that addition is, on populations with no reticulation in them at all.",
+        "design": {
+            "generator": "clonal_tree_relaxed_with_deletions",
+            "reticulation_in_the_truth": "none",
+            "length": length,
+            "generations": generations,
+            "taxa": 1usize << generations,
+            "mu_per_generation": mu,
+            "relaxed_clock_spread": spread,
+            "deletion_rate_per_lineage_per_generation": deletion_rate,
+            "mean_deletion_length": mean_deletion,
+            "max_gap_fraction_per_lineage": max_gap,
+            "seeds": seeds,
+            "aligner": "reference-anchored affine-gap DP, centroid reference, banded with \
+                        band-edge detection",
+            "scoring": scoring,
+            "comparison": "per-quadruple verdicts, not margins: the two alignments have \
+                           different widths and their margins have different denominators"
+        },
+        "predictions": [
+            {
+                "id": "A1",
+                "claim": "With the deletion rate at zero the inferred alignment is exactly \
+                          the input, so no Phase 2 result changes by passing through the \
+                          aligner.",
+                "criterion": "inferred rows == truth rows at every seed, and the optimal \
+                              score equals the diagonal score",
+                "gated": true,
+                "corrected_after_a_first_run": "A1 failed at 1 of 5 seeds on the first \
+                    implementation, and the cause was not a bug in the DP: with a -10/-1 \
+                    affine gap, a run of three mismatches scores exactly what deleting one \
+                    reference residue and inserting one query residue scores (-12 + 5 against \
+                    -11 + 15 - 11), so the identity was one of two optimal alignments and the \
+                    aligner returned the other. The fix was to state the tie preference — M \
+                    over X over Y, a substitution over a gap pair — which is why the criterion \
+                    now checks the score as well as the rows. Regression test: \
+                    tests/aligner_identity.rs."
+            },
+            {
+                "id": "A2",
+                "claim": "At this deletion load the aligner recovers almost every column.",
+                "criterion": "worst-seed column recovery > 0.99",
+                "gated": false
+            },
+            {
+                "id": "A3",
+                "claim": "Alignment error manufactures no four-point violation on a \
+                          genealogy that is exactly a tree.",
+                "criterion": "manufactured_by_alignment == 0 at every seed",
+                "gated": false
+            }
+        ],
+        "A1_identity_control": {
+            "held": identity_holds,
+            "detail": if identity_holds { "the aligner is the identity on gapless input".to_string() } else { identity_detail.clone() }
+        },
+        "A2_column_recovery": {
+            "worst_seed": worst_recovery,
+            "held": worst_recovery > 0.99
+        },
+        "A3_manufactured_violations": {
+            "total_over_seeds": total_manufactured,
+            "seeds_with_any": seeds_with_manufactured,
+            "seeds": seeds,
+            "held": total_manufactured == 0,
+            "also_lost": total_lost,
+            "reading": "manufactured_by_alignment counts quadruples the inferred alignment \
+                        calls a four-point violation and the true alignment does not. \
+                        lost_to_alignment counts the reverse. Both are alignment error; the \
+                        first is the one that would be reported as reticulation."
+        },
+        "per_seed": rows,
+        "admissibility_ladder": {
+            "why": "A3 holding at one deletion load says nothing about another. This ladder \
+                    raises the load until the aligner starts inventing four-point violations \
+                    on a genealogy that is exactly a tree, which is the boundary that decides \
+                    which real populations may be interpreted.",
+            "rungs": ladder,
+            "largest_inferred_gap_fraction_with_nothing_manufactured": admissible_gap,
+            "largest_insertion_rate_per_site_with_nothing_manufactured": admissible_insertions,
+            "worst_column_recovery_with_nothing_manufactured": admissible_recovery,
+            "threshold_applied_by_real_data": {
+                "inferred_gap_fraction_at_most": admissible_gap,
+                "insertion_rate_per_site_at_most": admissible_insertions,
+                "reading": "A real population whose inferred alignment carries a heavier gap \
+                            load than this is reported BLOCKED rather than interpreted, \
+                            because at that load alignment error alone produces violations in \
+                            this control."
+            }
+        },
+        "gate": "A1 only. A2 and A3 are measurements: a run in which alignment error does \
+                 manufacture certificates is informative and must not be reported as a \
+                 failed run."
+    });
+    println!("{}", serde_json::to_string_pretty(&report).map_err(|e| e.to_string())?);
+    if !identity_holds {
+        eprintln!("FAIL A1: {identity_detail}");
+        return Ok(false);
+    }
+    Ok(true)
+}
+
+/// Tune `mu` so a relaxed-clock clonal population reaches a target divergence.
+///
+/// Bisection on the mean p-distance, which is monotone in `mu` over this range.
+/// The matched null is the whole point: the floor a real margin must clear has
+/// to come from a population at the *same* sequence length and the *same*
+/// divergence, or the comparison measures the floor rather than the signal.
+fn tune_mu_for_divergence(
+    length: usize,
+    generations: u32,
+    spread: f64,
+    target: f64,
+    seed: u64,
+) -> (f64, f64) {
+    use reticulation::simulate::clonal_tree_relaxed;
+    let mut low = 1e-6f64;
+    let mut high = 0.5f64;
+    let mut mid = 0.01f64;
+    let mut achieved = 0.0f64;
+    for _ in 0..40 {
+        mid = 0.5 * (low + high);
+        let pop = clonal_tree_relaxed(length, generations, mid, spread, seed);
+        let (mean, _) = divergence(&pop);
+        achieved = mean;
+        if mean < target {
+            low = mid;
+        } else {
+            high = mid;
+        }
+    }
+    (mid, achieved)
+}
+
+/// The matched null floor: the largest quartet margin a *tree* produces at this
+/// length, divergence and gap load.
+fn matched_floor(
+    length: usize,
+    target_divergence: f64,
+    gap_load: f64,
+    spread: f64,
+    seeds: u64,
+    max_quadruples: usize,
+) -> Result<(Option<reticulation::Ratio>, f64, f64, usize), String> {
+    use reticulation::simulate::{clonal_tree_relaxed, inject_gap_blocks};
+    use reticulation::subset::{find_quartet_certificates, Alignment};
+
+    let generations = 4u32; // 16 leaves, matching the real populations
+    let (mu, achieved) = tune_mu_for_divergence(length, generations, spread, target_divergence, 1);
+    let mut best: Option<reticulation::Ratio> = None;
+    let mut violating_total = 0usize;
+    for seed in 1..=seeds {
+        let mut pop = clonal_tree_relaxed(length, generations, mu, spread, seed);
+        if gap_load > 0.001 {
+            pop = inject_gap_blocks(pop, gap_load, seed ^ 0x5EED);
+        }
+        let aln = Alignment::new(pop.labels.clone(), pop.sequences.clone())?;
+        let search = find_quartet_certificates(&aln, 1, max_quadruples)?;
+        violating_total += search.violating;
+        if let Some(margin) = search.certificates.first().map(|c| c.margin()) {
+            let better = match best {
+                None => true,
+                Some(current) => margin
+                    .checked_cmp(current)
+                    .map(|o| o == std::cmp::Ordering::Greater)
+                    .unwrap_or(false),
+            };
+            if better {
+                best = Some(margin);
+            }
+        }
+    }
+    Ok((best, mu, achieved, violating_total))
+}
+
+/// Run the four-point test on real viral populations.
+///
+/// The populations come from `scripts/reticulata_hf_populations.py`, which
+/// pulls them from the Hugging Face `hiyata/Virus-Host-Genomes` set under
+/// pre-registered filters, and each carries a *literature* expectation about
+/// whether its genealogy is tree-like. The expectation is a prior, not a label
+/// derived from this data, and the test is allowed to contradict it — which is
+/// the only way the exercise means anything.
+///
+/// Every population is run twice, on two different alignment references, and
+/// the report says whether the verdict moved. Every margin is compared against
+/// a floor from a simulated tree at matched length, matched divergence and
+/// matched gap load, because a margin on its own is not a statistic.
+fn run_real_data(args: &[String]) -> Result<bool, String> {
+    use reticulation::align::{centroid_ranking, reference_anchored_alignment, Scoring};
+    use reticulation::subset::{find_complete_triple_certificates, find_quartet_certificates, Alignment};
+
+    let dir: String = parse_flag(
+        args,
+        "--populations",
+        "../../data/reticulata_phase3/populations".to_string(),
+    );
+    let band: usize = parse_flag(args, "--band", 64);
+    let max_band: usize = parse_flag(args, "--max-band", 4096);
+    let seeds: u64 = parse_flag(args, "--seeds", 5);
+    let spread: f64 = parse_flag(args, "--spread", 1.0);
+    let max_quadruples: usize = parse_flag(args, "--max-quadruples", 20_000);
+    // The admissibility threshold is *measured*, not chosen: it is the heaviest
+    // rung of `reticulation align-error`'s ladder at which alignment error
+    // manufactured no four-point violation at any seed. Above it, this command
+    // reports a population BLOCKED instead of interpreting it, because at that
+    // load the aligner alone produces violations on a genealogy that is exactly
+    // a tree. Raising these flags is a deliberate act with a known cost.
+    let max_gap_admissible: f64 = parse_flag(args, "--max-gap-fraction", 0.0039);
+    let max_insertion_rate: f64 = parse_flag(args, "--max-insertion-rate", 0.0008);
+
+    let path = std::path::Path::new(&dir);
+    let mut fastas: Vec<std::path::PathBuf> = std::fs::read_dir(path)
+        .map_err(|e| format!("--populations {dir}: {e}"))?
+        .filter_map(Result::ok)
+        .map(|entry| entry.path())
+        .filter(|p| p.extension().and_then(|s| s.to_str()) == Some("fasta"))
+        .collect();
+    fastas.sort();
+    if fastas.is_empty() {
+        return Err(format!("no .fasta files in {dir}"));
+    }
+
+    // Literature expectations, written by the extraction script.
+    let provenance: serde_json::Value = std::fs::read_to_string(path.join("provenance.json"))
+        .ok()
+        .and_then(|text| serde_json::from_str(&text).ok())
+        .unwrap_or(serde_json::Value::Null);
+    let expectation_for = |stem: &str| -> (String, String) {
+        if let Some(populations) = provenance.get("populations").and_then(|v| v.as_array()) {
+            for entry in populations {
+                let slug = entry.get("slug").and_then(|v| v.as_str()).unwrap_or("");
+                if !slug.is_empty() && stem.starts_with(slug) {
+                    return (
+                        entry
+                            .get("expectation")
+                            .and_then(|v| v.as_str())
+                            .unwrap_or("unknown")
+                            .to_string(),
+                        entry
+                            .get("virus_name")
+                            .and_then(|v| v.as_str())
+                            .unwrap_or(stem)
+                            .to_string(),
+                    );
+                }
+            }
+        }
+        ("unknown".to_string(), stem.to_string())
+    };
+
+    #[derive(serde::Serialize)]
+    struct ReferenceRun {
+        role: String,
+        reference_label: String,
+        width: usize,
+        gap_fraction: f64,
+        insertions_dropped: usize,
+        insertion_rate_per_site: f64,
+        max_band_used: usize,
+        mean_p_distance: f64,
+        max_p_distance: f64,
+        quadruples_examined: usize,
+        quartet_violating: usize,
+        quartet_margin: String,
+        quartet_margin_f64: f64,
+        quartet_labels: Vec<String>,
+        triple_violating: usize,
+        triple_margin: String,
+    }
+
+    #[derive(serde::Serialize)]
+    struct PopulationResult {
+        file: String,
+        virus_name: String,
+        literature_expectation: String,
+        taxa: usize,
+        raw_length_min: usize,
+        raw_length_max: usize,
+        status: String,
+        runs: Vec<ReferenceRun>,
+        references_agree_on_verdict: Option<bool>,
+        matched_floor: Option<String>,
+        matched_floor_f64: Option<f64>,
+        matched_floor_mu: Option<f64>,
+        matched_floor_divergence: Option<f64>,
+        exceeds_matched_floor: Option<bool>,
+        exceeds_twice_matched_floor: Option<bool>,
+    }
+
+    let scoring = Scoring::default();
+    let mut results: Vec<PopulationResult> = Vec::new();
+
+    for fasta in &fastas {
+        let stem = fasta
+            .file_stem()
+            .and_then(|s| s.to_str())
+            .unwrap_or("")
+            .to_string();
+        let (expectation, virus_name) = expectation_for(&stem);
+        let text = std::fs::read_to_string(fasta).map_err(|e| format!("{}: {e}", fasta.display()))?;
+        let records = reticulation::align::read_fasta(&text)?;
+        let labels: Vec<String> = records.iter().map(|r| r.label.clone()).collect();
+        let raw: Vec<Vec<u8>> = records.iter().map(|r| r.sequence.clone()).collect();
+        let lengths: Vec<usize> = raw.iter().map(Vec::len).collect();
+        let mut entry = PopulationResult {
+            file: stem.clone(),
+            virus_name,
+            literature_expectation: expectation,
+            taxa: raw.len(),
+            raw_length_min: lengths.iter().copied().min().unwrap_or(0),
+            raw_length_max: lengths.iter().copied().max().unwrap_or(0),
+            status: "ok".to_string(),
+            runs: Vec::new(),
+            references_agree_on_verdict: None,
+            matched_floor: None,
+            matched_floor_f64: None,
+            matched_floor_mu: None,
+            matched_floor_divergence: None,
+            exceeds_matched_floor: None,
+            exceeds_twice_matched_floor: None,
+        };
+        if raw.len() < 4 {
+            entry.status = format!("BLOCKED: {} sequences, a quartet needs 4", raw.len());
+            results.push(entry);
+            continue;
+        }
+        let ranking = centroid_ranking(&raw);
+        let mut blocked: Option<String> = None;
+        for (role, reference) in [("primary", ranking[0]), ("sensitivity", ranking[1])] {
+            let anchored = match reference_anchored_alignment(
+                &labels, &raw, reference, &scoring, band, max_band, true,
+            ) {
+                Ok(value) => value,
+                Err(error) => {
+                    blocked = Some(format!("BLOCKED at the {role} reference: {error}"));
+                    break;
+                }
+            };
+            let aln = match Alignment::new(anchored.labels.clone(), anchored.rows.clone()) {
+                Ok(value) => value,
+                Err(error) => {
+                    blocked = Some(format!("BLOCKED building the {role} alignment: {error}"));
+                    break;
+                }
+            };
+            let quartets = find_quartet_certificates(&aln, 1, max_quadruples)?;
+            let triples = find_complete_triple_certificates(&aln, 1)?;
+            if !quartets.all_validated || !triples.all_validated {
+                return Err(format!("{stem}: a certificate failed revalidation"));
+            }
+            let (mean_p, max_p) = alignment_divergence(&anchored.labels, &anchored.rows);
+            let top = quartets.certificates.first();
+            entry.runs.push(ReferenceRun {
+                role: role.to_string(),
+                reference_label: anchored.reference_label.clone(),
+                width: anchored.width,
+                gap_fraction: anchored.gap_fraction(),
+                insertions_dropped: anchored.insertions_dropped.iter().sum(),
+                insertion_rate_per_site: anchored.insertions_dropped.iter().sum::<usize>() as f64
+                    / (anchored.width * anchored.rows.len()).max(1) as f64,
+                max_band_used: anchored.bands.iter().copied().max().unwrap_or(0),
+                mean_p_distance: mean_p,
+                max_p_distance: max_p,
+                quadruples_examined: quartets.examined,
+                quartet_violating: quartets.violating,
+                quartet_margin: margin_exact(top.map(|c| c.margin())),
+                quartet_margin_f64: margin_f64(top.map(|c| c.margin())),
+                quartet_labels: top.map_or_else(Vec::new, |c| {
+                    vec![c.a.clone(), c.b.clone(), c.c.clone(), c.e.clone()]
+                }),
+                triple_violating: triples.violating,
+                triple_margin: margin_exact(triples.certificates.first().map(|c| c.margin())),
+            });
+        }
+        if let Some(reason) = blocked {
+            entry.status = reason;
+            results.push(entry);
+            continue;
+        }
+        if entry.runs.len() == 2 {
+            entry.references_agree_on_verdict = Some(
+                (entry.runs[0].quartet_violating > 0) == (entry.runs[1].quartet_violating > 0),
+            );
+        }
+        // The admissibility gate, before any margin is read.
+        let worst_gap = entry
+            .runs
+            .iter()
+            .map(|run| run.gap_fraction)
+            .fold(0.0f64, f64::max);
+        let worst_insertion_rate = entry
+            .runs
+            .iter()
+            .map(|run| {
+                let cells = (run.width * entry.taxa) as f64;
+                if cells == 0.0 {
+                    0.0
+                } else {
+                    run.insertions_dropped as f64 / cells
+                }
+            })
+            .fold(0.0f64, f64::max);
+        if worst_gap > max_gap_admissible || worst_insertion_rate > max_insertion_rate {
+            entry.status = format!(
+                "BLOCKED: the inferred alignment carries a gap fraction of {worst_gap:.4} and \
+                 drops insertions at {worst_insertion_rate:.5} per aligned cell, against the \
+                 measured admissibility threshold of {max_gap_admissible:.4} and \
+                 {max_insertion_rate:.5}. At that load `reticulation align-error` shows \
+                 alignment error alone manufacturing four-point violations on a genealogy \
+                 that is exactly a tree, so a verdict here would not be about this population. \
+                 The counts above are reported, and are not evidence of reticulation."
+            );
+            results.push(entry);
+            continue;
+        }
+        // The matched null, built from the primary run's own numbers.
+        let primary = &entry.runs[0];
+        let (floor, mu, achieved, _) = matched_floor(
+            primary.width,
+            primary.mean_p_distance,
+            primary.gap_fraction,
+            spread,
+            seeds,
+            max_quadruples,
+        )?;
+        let observed = if primary.quartet_margin == "none" {
+            None
+        } else {
+            let parts: Vec<i64> = primary
+                .quartet_margin
+                .split('/')
+                .filter_map(|p| p.parse().ok())
+                .collect();
+            if parts.len() == 2 {
+                Some(reticulation::Ratio {
+                    num: parts[0],
+                    den: parts[1],
+                })
+            } else {
+                None
+            }
+        };
+        entry.matched_floor = Some(margin_exact(floor));
+        entry.matched_floor_f64 = Some(margin_f64(floor));
+        entry.matched_floor_mu = Some(mu);
+        entry.matched_floor_divergence = Some(achieved);
+        entry.exceeds_matched_floor = Some(exceeds_k_times(observed, floor, 1));
+        entry.exceeds_twice_matched_floor = Some(exceeds_k_times(observed, floor, 2));
+        results.push(entry);
+    }
+
+    // Proof-carrying output. A real population that clears both the
+    // admissibility gate and its matched floor gets a Lean file embedding the
+    // four aligned rows, so the kernel recomputes every count itself and the
+    // only thing left trusted is that those rows are what the aligner produced.
+    // The corrupted twin must fail, or the check is checking nothing.
+    #[derive(serde::Serialize)]
+    struct KernelVerdict {
+        population: String,
+        file: String,
+        accepted: bool,
+        seconds: f64,
+        detail: String,
+    }
+    let mut kernel: Vec<KernelVerdict> = Vec::new();
+    let emit_dir: String = parse_flag(args, "--emit-lean", String::new());
+    if !emit_dir.is_empty() {
+        use reticulation::emit_lean;
+        let formal_dir: String =
+            parse_flag(args, "--formal-dir", "../../../../../formal".to_string());
+        let formal = std::path::Path::new(&formal_dir)
+            .canonicalize()
+            .map_err(|e| format!("--formal-dir {formal_dir}: {e}"))?;
+        std::fs::create_dir_all(&emit_dir).map_err(|e| format!("--emit-lean {emit_dir}: {e}"))?;
+        let targets: Vec<String> = results
+            .iter()
+            .filter(|r| r.status == "ok" && r.exceeds_matched_floor == Some(true))
+            .map(|r| r.file.clone())
+            .collect();
+        for stem in targets {
+            let fasta = path.join(format!("{stem}.fasta"));
+            let text =
+                std::fs::read_to_string(&fasta).map_err(|e| format!("{}: {e}", fasta.display()))?;
+            let records = reticulation::align::read_fasta(&text)?;
+            let labels: Vec<String> = records.iter().map(|r| r.label.clone()).collect();
+            let raw: Vec<Vec<u8>> = records.iter().map(|r| r.sequence.clone()).collect();
+            let reference = centroid_ranking(&raw)[0];
+            let anchored = reference_anchored_alignment(
+                &labels, &raw, reference, &scoring, band, max_band, true,
+            )?;
+            let aln = Alignment::new(anchored.labels.clone(), anchored.rows.clone())?;
+            let search = find_quartet_certificates(&aln, 1, max_quadruples)?;
+            let certificate = match search.certificates.first() {
+                Some(value) => value,
+                None => continue,
+            };
+            let [a, b, c, e] = certificate.indices;
+            let enc = |i: usize| emit_lean::encode(&anchored.rows[i]);
+            let source = format!(
+                "{stem}, real sequences from huggingface:hiyata/Virus-Host-Genomes, \
+                 reference-anchored alignment on {} ({} columns)",
+                anchored.reference_label, anchored.width
+            );
+            for (suffix, body) in [
+                (
+                    "",
+                    emit_lean::render_quartet(
+                        certificate,
+                        &enc(a),
+                        &enc(b),
+                        &enc(c),
+                        &enc(e),
+                        &source,
+                    ),
+                ),
+                (
+                    "_bad",
+                    emit_lean::render_quartet(
+                        &emit_lean::corrupt_quartet(certificate),
+                        &enc(a),
+                        &enc(b),
+                        &enc(c),
+                        &enc(e),
+                        &source,
+                    ),
+                ),
+            ] {
+                let out = std::path::Path::new(&emit_dir)
+                    .join(format!("reticulata_real_{stem}{suffix}.lean"));
+                std::fs::write(&out, body).map_err(|e| format!("{}: {e}", out.display()))?;
+                // `kernel_check` runs `lake` from the formal directory, so the
+                // file must be named absolutely. A relative path here made the
+                // first run report every file as rejected for want of a file,
+                // which is also how the rejection control came out vacuously
+                // true: both directions failed for the same irrelevant reason.
+                let out = out
+                    .canonicalize()
+                    .map_err(|e| format!("{}: {e}", out.display()))?;
+                let started = std::time::Instant::now();
+                let (ok, detail) = kernel_check(&formal, &out);
+                kernel.push(KernelVerdict {
+                    population: stem.clone(),
+                    file: out
+                        .file_name()
+                        .and_then(|s| s.to_str())
+                        .unwrap_or("")
+                        .to_string(),
+                    accepted: ok,
+                    seconds: started.elapsed().as_secs_f64(),
+                    detail: if suffix.is_empty() {
+                        if ok {
+                            "accepted, no axioms beyond the whitelist".to_string()
+                        } else {
+                            detail
+                        }
+                    } else if ok {
+                        "FAIL: the kernel accepted a corrupted certificate".to_string()
+                    } else {
+                        "rejected, as a corrupted certificate must be".to_string()
+                    },
+                });
+            }
+        }
+    }
+
+    let usable: Vec<&PopulationResult> = results.iter().filter(|r| r.status == "ok").collect();
+    let agree = usable
+        .iter()
+        .filter(|r| r.references_agree_on_verdict == Some(true))
+        .count();
+    let report = serde_json::json!({
+        "experiment": "the four-point test on real viral populations",
+        "data": {
+            "source": "huggingface:hiyata/Virus-Host-Genomes, via scripts/reticulata_hf_populations.py",
+            "selection": "pre-registered: near-median length, <=0.1% ambiguous, deduplicated, \
+                          then either accession order or greedy 6-mer diversity",
+            "alignment": "reference-anchored affine-gap DP in rust/reticulation/src/align.rs; \
+                          this machine has no mafft, muscle or clustalo",
+            "known_limitation": "insertions relative to the reference are dropped and every \
+                                 pair of non-reference sequences is related through the \
+                                 reference. `reticulation align-error` measures what that costs."
+        },
+        "admissibility": {
+            "max_gap_fraction": max_gap_admissible,
+            "max_insertion_rate_per_site": max_insertion_rate,
+            "provenance": "Both are the heaviest rung of `reticulation align-error`'s \
+                           admissibility ladder at which alignment error manufactured no \
+                           four-point violation at any seed, on simulated populations with no \
+                           reticulation in them at all. A population above either threshold is \
+                           reported BLOCKED with its counts, not interpreted.",
+            "rates_not_counts": "Both thresholds are rates per aligned cell. An absolute \
+                                 insertion count is not comparable between a 3 kb and a 12 kb \
+                                 genome."
+        },
+        "how_to_read_a_margin": "A margin is not a statistic on its own. Each population's \
+                                 margin is compared against a floor from a simulated clonal, \
+                                 relaxed-clock tree at the same alignment width, the same mean \
+                                 p-distance and the same gap load. Comparing margins between \
+                                 populations would compare different denominators and \
+                                 different divergences at once.",
+        "populations": results,
+        "kernel_verdicts": kernel,
+        "summary": {
+            "usable": usable.len(),
+            "blocked": results.len() - usable.len(),
+            "references_agree_on_verdict": format!("{agree}/{}", usable.len()),
+            "exceeding_matched_floor": usable
+                .iter()
+                .filter(|r| r.exceeds_matched_floor == Some(true))
+                .map(|r| r.file.clone())
+                .collect::<Vec<String>>(),
+            "exceeding_twice_matched_floor": usable
+                .iter()
+                .filter(|r| r.exceeds_twice_matched_floor == Some(true))
+                .map(|r| r.file.clone())
+                .collect::<Vec<String>>()
+        }
+    });
+    println!("{}", serde_json::to_string_pretty(&report).map_err(|e| e.to_string())?);
+    if usable.is_empty() {
+        eprintln!("no population could be aligned; nothing was tested");
+        return Ok(false);
+    }
+    Ok(true)
+}
+
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().skip(1).collect();
     let result = match args.first().map(String::as_str) {
         Some("controls") => run_controls(&args),
         Some("poc") => run_poc(&args),
+        Some("experiment") => run_experiment(&args),
+        Some("saturation") => run_saturation(&args),
+        Some("verify-tree") => run_verify_tree(&args),
         Some("fasta") => run_fasta(&args),
+        Some("align-error") => run_align_error(&args),
+        Some("real-data") => run_real_data(&args),
         _ => {
             eprintln!(
                 "usage:\n  reticulation controls [--length N] [--generations G] \
-                 [--mu M] [--seed S]\n  reticulation fasta <FILE> [--model p|jc] \
-                 [--top K] [--scale X]"
+                 [--mu M] [--seed S]\n  reticulation poc [--length N] [--seed S] \
+                 [--formal-dir D] [--out D]\n  reticulation experiment [--seeds K] \
+                 [--spread S] [--gap-fraction F] [--saturated-mu M]\n  \
+                 reticulation saturation [--seeds K] [--low-mu M] [--high-mu M]\n  \
+                 reticulation verify-tree [--length N] [--seed S] [--formal-dir D] \
+                 [--out D]\n  reticulation fasta <FILE> [--model p|jc] \
+                 [--top K] [--scale X]\n  reticulation align-error [--length N] \
+                 [--deletion-rate R] [--seeds K]\n  reticulation real-data \
+                 [--populations DIR] [--band N] [--max-band N] [--seeds K]"
             );
             return ExitCode::from(2);
         }
