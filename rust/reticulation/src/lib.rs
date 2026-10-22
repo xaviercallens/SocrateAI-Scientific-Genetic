@@ -63,6 +63,48 @@
 //! * **Not a kernel matter at all:** whether a violation of ultrametricity
 //!   means recombination. See the limitation below.
 //!
+//! # Which statistic to report, and why it is not the obvious one
+//!
+//! [`exact`] implements the ultrametric (clock-level) test; [`subset`]
+//! implements the four-point (tree-level) test. `reticulation experiment`
+//! compares them on seven simulated populations at five seeds each, and the
+//! result is one-sided enough to change the recommendation.
+//!
+//! On a **clonal tree with a relaxed clock and no reticulation at all** —
+//! divergence-matched to the strict-clock control, so only the clock differs —
+//! the ultrametric margin reaches `106/4000`, larger than every
+//! single-recombinant margin in the positive control, and exceeds twice the
+//! clonal floor at 3 of 5 seeds. The four-point margin on the same data does not
+//! move: 0 of 5 seeds exceed twice the floor, and the worst-seed ratio is 0.14.
+//! Meanwhile the four-point test separates its own positive control by 16.6× at
+//! its weakest seed, against 1.72× for the ultrametric test.
+//!
+//! So: **report the quartet statistic as primary.** Keep the triple statistic —
+//! it is cheaper, and a triple violation with *no* quartet violation is
+//! informative in its own right, being the signature of rate variation on a tree
+//! — but a triple certificate alone is not evidence of reticulation.
+//!
+//! The licence for reading it that way is a theorem, not an assumption:
+//! `ANSE.GeneticaReticulata.fourPoint_of_ultrametric` proves every symmetric
+//! ultrametric satisfies the four-point condition, so the two nulls are nested
+//! and a quartet certificate refutes strictly more than a triple one.
+//!
+//! # Missing data: complete deletion within the subset
+//!
+//! Pairwise deletion gives different pairs different comparable-site counts, and
+//! that alone can break the ultrametric inequality on an exactly clock-like
+//! genealogy — the audit's finding 6. Measured on gap-blocked but strictly clonal
+//! data: pairwise deletion calls **33–52 of 560 triples** violations that
+//! complete deletion within the triple denies, at every seed. With no missing
+//! data the two policies agree on all 560, as they must.
+//!
+//! [`subset::Alignment`] counts only the columns where every member of the
+//! subset carries a base. All distances in a certificate then share one
+//! denominator, so the obligations become comparisons between integers rather
+//! than cross-products — a smaller trust surface *and* the fix, together. The
+//! cost is power: at a 25% gap load roughly 1000–1700 of 4000 columns survive
+//! within a triple.
+//!
 //! # What this does NOT solve
 //!
 //! Real sequence data is never *exactly* ultrametric. Finite sequence length
@@ -81,8 +123,13 @@ pub mod emit_lean;
 pub mod exact;
 pub mod rips;
 pub mod simulate;
+pub mod subset;
 
 pub use certificate::{Certificate, CertificateReport, FourPointDefect};
 pub use distance::{DistanceMatrix, DistanceModel};
 pub use exact::{CountCertificate, ExactDistances, Ratio};
 pub use rips::{CycleRepresentative, RipsPersistence};
+pub use subset::{
+    Alignment, CompleteTripleCertificate, QuadrupleCounts, QuartetCertificate, QuartetSearch,
+    TripleCounts, TripleSearch,
+};

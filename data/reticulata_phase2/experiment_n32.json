@@ -1,0 +1,631 @@
+{
+  "cost_of_complete_deletion": "On D6 the common-column count per triple is far below the alignment length, because 15 of 16 sequences carry a gap block. That lost power is the price of removing the confound, and it is why complete deletion should be the default only when there is missing data to delete.",
+  "criteria_corrected_after_a_first_run": {
+    "corrections": [
+      {
+        "now": "The per-triple VERDICT is compared instead, and the statistic is the number of triples that pairwise deletion calls a violation and complete deletion does not. P5 adds the control that makes it meaningful: with no missing data the two policies must agree exactly.",
+        "was": "P6 compared the largest MARGIN under pairwise deletion with the largest margin under complete deletion.",
+        "wrong_because": "Complete deletion shrinks the denominator -- on D6 it leaves about 1100 of 4000 columns -- so one differing site is worth more and its margins are LARGER, even though it is strictly more conservative about what counts as a violation. The two numbers have different denominators and are no more comparable than the two pairwise distances that finding 6 is about."
+      },
+      {
+        "now": "The gate is the seed-PAIRED strict inequality (P1): the same clonal tree with a recombinant added must give a larger margin than without it. The 2x result is kept as an ungated finding (P1b) rather than dropped, because its failure at 2 of 5 seeds is itself the result.",
+        "was": "The power gate required the positive control's margin to exceed TWICE the clonal floor, the threshold v1.6.0 used.",
+        "wrong_because": "The floor is a maximum over 560 triples, an extreme-value statistic, and this run shows it varying from 18/4000 to 39/4000 across five seeds. A 2x threshold on a ratio whose denominator moves by 2.2x is not a stable criterion, and v1.6.0's reported 3.389x was the best of the five seeds, not a typical value."
+      }
+    ],
+    "why_this_block_exists": "A first run of this experiment used two criteria that were wrong, and both are recorded here rather than quietly replaced, because a criterion changed after seeing data is the easiest way to launder a negative result."
+  },
+  "datasets": {
+    "D1_clonal_strict_clock": {
+      "n_sequences": 32,
+      "per_seed": [
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.006,
+          "complete_triple_margin_exact": "24/4000",
+          "complete_triple_violating": 4748,
+          "deletion_policy_comparison": {
+            "both": 4748,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 212,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 4960
+          },
+          "pairwise_triple_margin": 0.006,
+          "pairwise_triple_margin_exact": "96000/16000000",
+          "quartet_margin": 0.0025,
+          "quartet_margin_exact": "10/4000",
+          "quartet_violating": 27242,
+          "seed": 2026
+        },
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.0075,
+          "complete_triple_margin_exact": "30/4000",
+          "complete_triple_violating": 4740,
+          "deletion_policy_comparison": {
+            "both": 4740,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 220,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 4960
+          },
+          "pairwise_triple_margin": 0.0075,
+          "pairwise_triple_margin_exact": "120000/16000000",
+          "quartet_margin": 0.00225,
+          "quartet_margin_exact": "9/4000",
+          "quartet_violating": 27316,
+          "seed": 2027
+        },
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.00725,
+          "complete_triple_margin_exact": "29/4000",
+          "complete_triple_violating": 4755,
+          "deletion_policy_comparison": {
+            "both": 4755,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 205,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 4960
+          },
+          "pairwise_triple_margin": 0.00725,
+          "pairwise_triple_margin_exact": "116000/16000000",
+          "quartet_margin": 0.0025,
+          "quartet_margin_exact": "10/4000",
+          "quartet_violating": 26941,
+          "seed": 2028
+        }
+      ],
+      "quartets_examined": 35960
+    },
+    "D2_clonal_relaxed_clock": {
+      "n_sequences": 32,
+      "per_seed": [
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.03875,
+          "complete_triple_margin_exact": "155/4000",
+          "complete_triple_violating": 4916,
+          "deletion_policy_comparison": {
+            "both": 4916,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 44,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 4960
+          },
+          "pairwise_triple_margin": 0.03875,
+          "pairwise_triple_margin_exact": "620000/16000000",
+          "quartet_margin": 0.00275,
+          "quartet_margin_exact": "11/4000",
+          "quartet_violating": 22996,
+          "seed": 2026
+        },
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.03925,
+          "complete_triple_margin_exact": "157/4000",
+          "complete_triple_violating": 4893,
+          "deletion_policy_comparison": {
+            "both": 4893,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 67,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 4960
+          },
+          "pairwise_triple_margin": 0.03925,
+          "pairwise_triple_margin_exact": "628000/16000000",
+          "quartet_margin": 0.0045,
+          "quartet_margin_exact": "18/4000",
+          "quartet_violating": 27408,
+          "seed": 2027
+        },
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.02475,
+          "complete_triple_margin_exact": "99/4000",
+          "complete_triple_violating": 4725,
+          "deletion_policy_comparison": {
+            "both": 4725,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 235,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 4960
+          },
+          "pairwise_triple_margin": 0.02475,
+          "pairwise_triple_margin_exact": "396000/16000000",
+          "quartet_margin": 0.002,
+          "quartet_margin_exact": "8/4000",
+          "quartet_violating": 13243,
+          "seed": 2028
+        }
+      ],
+      "quartets_examined": 35960
+    },
+    "D3_strict_clock_one_recombinant": {
+      "n_sequences": 33,
+      "per_seed": [
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.01975,
+          "complete_triple_margin_exact": "79/4000",
+          "complete_triple_violating": 5230,
+          "deletion_policy_comparison": {
+            "both": 5230,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 226,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 5456
+          },
+          "pairwise_triple_margin": 0.01975,
+          "pairwise_triple_margin_exact": "316000/16000000",
+          "quartet_margin": 0.01975,
+          "quartet_margin_exact": "79/4000",
+          "quartet_violating": 31739,
+          "seed": 2026
+        },
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.01925,
+          "complete_triple_margin_exact": "77/4000",
+          "complete_triple_violating": 5221,
+          "deletion_policy_comparison": {
+            "both": 5221,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 235,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 5456
+          },
+          "pairwise_triple_margin": 0.01925,
+          "pairwise_triple_margin_exact": "308000/16000000",
+          "quartet_margin": 0.0175,
+          "quartet_margin_exact": "70/4000",
+          "quartet_violating": 31715,
+          "seed": 2027
+        },
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.01875,
+          "complete_triple_margin_exact": "75/4000",
+          "complete_triple_violating": 5244,
+          "deletion_policy_comparison": {
+            "both": 5244,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 212,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 5456
+          },
+          "pairwise_triple_margin": 0.01875,
+          "pairwise_triple_margin_exact": "300000/16000000",
+          "quartet_margin": 0.01725,
+          "quartet_margin_exact": "69/4000",
+          "quartet_violating": 31359,
+          "seed": 2028
+        }
+      ],
+      "quartets_examined": 40920
+    },
+    "D4_relaxed_clock_one_recombinant": {
+      "n_sequences": 33,
+      "per_seed": [
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.03875,
+          "complete_triple_margin_exact": "155/4000",
+          "complete_triple_violating": 5408,
+          "deletion_policy_comparison": {
+            "both": 5408,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 48,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 5456
+          },
+          "pairwise_triple_margin": 0.03875,
+          "pairwise_triple_margin_exact": "620000/16000000",
+          "quartet_margin": 0.02525,
+          "quartet_margin_exact": "101/4000",
+          "quartet_violating": 27000,
+          "seed": 2026
+        },
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.03925,
+          "complete_triple_margin_exact": "157/4000",
+          "complete_triple_violating": 5387,
+          "deletion_policy_comparison": {
+            "both": 5387,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 69,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 5456
+          },
+          "pairwise_triple_margin": 0.03925,
+          "pairwise_triple_margin_exact": "628000/16000000",
+          "quartet_margin": 0.0105,
+          "quartet_margin_exact": "42/4000",
+          "quartet_violating": 31940,
+          "seed": 2027
+        },
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.02475,
+          "complete_triple_margin_exact": "99/4000",
+          "complete_triple_violating": 5210,
+          "deletion_policy_comparison": {
+            "both": 5210,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 246,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 5456
+          },
+          "pairwise_triple_margin": 0.02475,
+          "pairwise_triple_margin_exact": "396000/16000000",
+          "quartet_margin": 0.014,
+          "quartet_margin_exact": "56/4000",
+          "quartet_violating": 16950,
+          "seed": 2028
+        }
+      ],
+      "quartets_examined": 40920
+    },
+    "D5_strict_clock_reciprocal_mosaics": {
+      "n_sequences": 34,
+      "per_seed": [
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.01975,
+          "complete_triple_margin_exact": "79/4000",
+          "complete_triple_violating": 5749,
+          "deletion_policy_comparison": {
+            "both": 5749,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 235,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 5984
+          },
+          "pairwise_triple_margin": 0.01975,
+          "pairwise_triple_margin_exact": "316000/16000000",
+          "quartet_margin": 0.0395,
+          "quartet_margin_exact": "158/4000",
+          "quartet_violating": 36757,
+          "seed": 2026
+        },
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.01925,
+          "complete_triple_margin_exact": "77/4000",
+          "complete_triple_violating": 5741,
+          "deletion_policy_comparison": {
+            "both": 5741,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 243,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 5984
+          },
+          "pairwise_triple_margin": 0.01925,
+          "pairwise_triple_margin_exact": "308000/16000000",
+          "quartet_margin": 0.0385,
+          "quartet_margin_exact": "154/4000",
+          "quartet_violating": 36668,
+          "seed": 2027
+        },
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.01875,
+          "complete_triple_margin_exact": "75/4000",
+          "complete_triple_violating": 5763,
+          "deletion_policy_comparison": {
+            "both": 5763,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 221,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 5984
+          },
+          "pairwise_triple_margin": 0.01875,
+          "pairwise_triple_margin_exact": "300000/16000000",
+          "quartet_margin": 0.0315,
+          "quartet_margin_exact": "126/4000",
+          "quartet_violating": 36381,
+          "seed": 2028
+        }
+      ],
+      "quartets_examined": 46376
+    },
+    "D6_strict_clock_gap_blocks": {
+      "n_sequences": 32,
+      "per_seed": [
+        {
+          "complete_triple_common_columns": 1027,
+          "complete_triple_margin": 0.013631937682570594,
+          "complete_triple_margin_exact": "14/1027",
+          "complete_triple_violating": 4622,
+          "deletion_policy_comparison": {
+            "both": 4575,
+            "complete_only": 47,
+            "example_pairwise_only": [
+              "clonal_000",
+              "clonal_001",
+              "clonal_006"
+            ],
+            "neither": 10,
+            "pairwise_only": 328,
+            "skipped_no_common_columns": 0,
+            "triples": 4960
+          },
+          "pairwise_triple_margin": 0.0205,
+          "pairwise_triple_margin_exact": "82000/4000000",
+          "quartet_margin": 0.006082725060827251,
+          "quartet_margin_exact": "5/822",
+          "quartet_violating": 17521,
+          "seed": 2026
+        },
+        {
+          "complete_triple_common_columns": 1121,
+          "complete_triple_margin": 0.015165031222123104,
+          "complete_triple_margin_exact": "17/1121",
+          "complete_triple_violating": 4669,
+          "deletion_policy_comparison": {
+            "both": 4627,
+            "complete_only": 42,
+            "example_pairwise_only": [
+              "clonal_000",
+              "clonal_001",
+              "clonal_004"
+            ],
+            "neither": 5,
+            "pairwise_only": 286,
+            "skipped_no_common_columns": 0,
+            "triples": 4960
+          },
+          "pairwise_triple_margin": 0.013,
+          "pairwise_triple_margin_exact": "52000/4000000",
+          "quartet_margin": 0.006756756756756757,
+          "quartet_margin_exact": "5/740",
+          "quartet_violating": 17944,
+          "seed": 2027
+        },
+        {
+          "complete_triple_common_columns": 1052,
+          "complete_triple_margin": 0.011406844106463879,
+          "complete_triple_margin_exact": "12/1052",
+          "complete_triple_violating": 4587,
+          "deletion_policy_comparison": {
+            "both": 4517,
+            "complete_only": 70,
+            "example_pairwise_only": [
+              "clonal_000",
+              "clonal_002",
+              "clonal_004"
+            ],
+            "neither": 7,
+            "pairwise_only": 366,
+            "skipped_no_common_columns": 0,
+            "triples": 4960
+          },
+          "pairwise_triple_margin": 0.012814671814671814,
+          "pairwise_triple_margin_exact": "53104/4144000",
+          "quartet_margin": 0.007957559681697613,
+          "quartet_margin_exact": "3/377",
+          "quartet_violating": 17549,
+          "seed": 2028
+        }
+      ],
+      "quartets_examined": 35960
+    },
+    "D7_strict_clock_saturated": {
+      "n_sequences": 32,
+      "per_seed": [
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.01975,
+          "complete_triple_margin_exact": "79/4000",
+          "complete_triple_violating": 4890,
+          "deletion_policy_comparison": {
+            "both": 4890,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 70,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 4960
+          },
+          "pairwise_triple_margin": 0.01975,
+          "pairwise_triple_margin_exact": "316000/16000000",
+          "quartet_margin": 0.01875,
+          "quartet_margin_exact": "75/4000",
+          "quartet_violating": 35026,
+          "seed": 2026
+        },
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.0205,
+          "complete_triple_margin_exact": "82/4000",
+          "complete_triple_violating": 4886,
+          "deletion_policy_comparison": {
+            "both": 4886,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 74,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 4960
+          },
+          "pairwise_triple_margin": 0.0205,
+          "pairwise_triple_margin_exact": "328000/16000000",
+          "quartet_margin": 0.02275,
+          "quartet_margin_exact": "91/4000",
+          "quartet_violating": 35117,
+          "seed": 2027
+        },
+        {
+          "complete_triple_common_columns": 4000,
+          "complete_triple_margin": 0.019,
+          "complete_triple_margin_exact": "76/4000",
+          "complete_triple_violating": 4867,
+          "deletion_policy_comparison": {
+            "both": 4867,
+            "complete_only": 0,
+            "example_pairwise_only": null,
+            "neither": 93,
+            "pairwise_only": 0,
+            "skipped_no_common_columns": 0,
+            "triples": 4960
+          },
+          "pairwise_triple_margin": 0.019,
+          "pairwise_triple_margin_exact": "304000/16000000",
+          "quartet_margin": 0.0185,
+          "quartet_margin_exact": "74/4000",
+          "quartet_violating": 35088,
+          "seed": 2028
+        }
+      ],
+      "quartets_examined": 35960
+    }
+  },
+  "design": {
+    "margins_are_exact_rationals": true,
+    "null_nesting_theorem": "ANSE.GeneticaReticulata.fourPoint_of_ultrametric -- every symmetric ultrametric satisfies the four-point condition, so a quartet certificate refutes strictly more than a triple one.",
+    "parameters": {
+      "alignment_length": 4000,
+      "gap_block_fraction": 0.25,
+      "generations": 5,
+      "mu_per_generation": 0.004,
+      "relaxed_clock_spread": 1.0,
+      "saturated_mu": 0.04,
+      "seeds": [
+        2026,
+        2027,
+        2028
+      ]
+    },
+    "reference_dataset": "D1_clonal_strict_clock. Every comparison is SEED-PAIRED against D1 at the same seed and decided by an exact integer cross-product.",
+    "why_several_seeds": "A single-seed margin is not a result. Each prediction reports the number of seeds at which it held, not an average of margins."
+  },
+  "experiment": "Does the four-point (tree-level) test separate reticulation from rate variation, where the ultrametric (clock-level) test cannot? And does complete deletion within the subset remove the gap confound of the audit's finding 6?",
+  "preregistered_predictions": [
+    {
+      "claim": "POWER CONTROL, seed-paired. Adding one recombinant to a clonal tree raises the complete-deletion triple margin above the same tree's margin without it.",
+      "criterion": "holds at all seeds",
+      "gated": true,
+      "held": true,
+      "id": "P1",
+      "observed": "3/3"
+    },
+    {
+      "claim": "FINDING. The same comparison at v1.6.0's threshold: D3's margin exceeds 2x D1's.",
+      "criterion": "reported, not gated",
+      "gated": false,
+      "id": "P1b",
+      "observed": "3/3",
+      "reading": "Where this fails, the triple statistic does not clear its own published threshold. The clonal floor is a maximum over triples and varies by more than 2x across seeds, so this threshold cannot be relied on."
+    },
+    {
+      "claim": "A relaxed clock on a purely clonal tree breaks ULTRAMETRICITY: D2's complete-triple margin exceeds 2x D1's at the same seed.",
+      "criterion": "reported, not gated",
+      "divergence_matched": "The relaxed clock's rate multipliers are normalised to mean 1, so D2 has the same expected divergence as D1 and only the clock differs. Without that, a relaxed clock is also a faster clock and the result would confound rate variation with saturation.",
+      "gated": false,
+      "id": "P2",
+      "observed_above_1x_paired": "3/3",
+      "observed_above_2x": "3/3",
+      "reading": "Where this holds, a triple certificate does not distinguish reticulation from rate variation -- risk 2 of docs/GENETICA_RETICULATA.md section 7, realised. Compare D2's per-seed margins against D3's directly: if they overlap, the statistic cannot separate the causes."
+    },
+    {
+      "claim": "THE DISCRIMINATING PREDICTION. The same relaxed-clock data does NOT break the FOUR-POINT condition beyond the floor: D2's quartet margin does not exceed 2x D1's.",
+      "criterion": "violations at <= 1 of 5 seeds",
+      "gated": false,
+      "held": true,
+      "id": "P3",
+      "observed_violations": "0/3",
+      "reading": "A violation count of 0 or 1 means the four-point test is largely immune to the confound that defeats the triple test. A higher count means it is confounded too, and the method has no statistic that separates the two causes -- a negative result about this approach, reported rather than gated away. Read it next to P7: a relaxed clock also redistributes divergence among lineages, so some elevation may be local saturation rather than non-additivity."
+    },
+    {
+      "claim": "POWER CONTROL for the four-point test. Reciprocal mosaics break it: D5's quartet margin exceeds 2x D1's quartet floor at the same seed.",
+      "criterion": "holds at all seeds",
+      "gated": true,
+      "held": true,
+      "id": "P4",
+      "observed_above_1x_paired": "3/3",
+      "observed_above_2x": "3/3",
+      "why_reciprocal": "A single recombinant need not violate the four-point condition; the shape that does is a pair of reciprocal mosaics, each close to both parents. This is the configuration Lean's reciprocal_recombinants_witness proves non-vacuous."
+    },
+    {
+      "claim": "CONTROL FOR THE POLICY COMPARISON. With no missing data, complete deletion within the triple IS pairwise deletion, so the two policies must agree on every one of D1's 560 triples.",
+      "criterion": "holds at all seeds",
+      "gated": true,
+      "held": true,
+      "id": "P5b",
+      "observed": "3/3",
+      "why": "Without this, a non-zero manufactured count on gappy data could be an artefact of the comparison itself."
+    },
+    {
+      "claim": "THE FIX BITES, AND FINDING 6 IS REAL. On gap-blocked but strictly clonal data with no reticulation, pairwise deletion calls triples violations that complete deletion within the same triple does not.",
+      "criterion": "at least one manufactured triple at >= 4 of 5 seeds",
+      "gated": true,
+      "held": true,
+      "id": "P6",
+      "observed": "3/3",
+      "reading": "Every manufactured triple is a kernel-acceptable certificate about a genealogy that is exactly a clock tree. The count is the size of the confound; complete deletion is what removes it."
+    },
+    {
+      "claim": "EXPLORATORY. Saturation alone breaks additivity, so a high-divergence clonal population may lift the quartet margin even with no reticulation and a strict clock.",
+      "criterion": "reported, not gated",
+      "gated": false,
+      "id": "P7",
+      "observed": "3/3",
+      "reading": "A four-point violation at high divergence is a p-distance artefact, not reticulation. If this fires, the method needs a divergence ceiling or a corrected distance, and the limitation must be stated."
+    },
+    {
+      "claim": "SECONDARY. A single recombinant need not violate the four-point condition, so D3's and D4's quartet margins may stay at the floor while their triple margins do not.",
+      "criterion": "reported, not gated",
+      "gated": false,
+      "id": "P8",
+      "observed_D3": "3/3",
+      "observed_D4": "3/3"
+    }
+  ],
+  "separation_display_only": {
+    "note": "Ratios of the positive control's margin to its own floor at the weakest of the five seeds. f64, for reading; every verdict below is an exact integer comparison.",
+    "quartet_test_worst_case_D5_over_D1": 12.6,
+    "relaxed_clock_quartet_worst_case_D2_over_D1": 0.8,
+    "relaxed_clock_triple_worst_case_D2_over_D1": 3.413793103448276,
+    "triple_test_worst_case_D3_over_D1": 2.566666666666667
+  },
+  "verdict": {
+    "complete_deletion_fix_bites_P6": true,
+    "criterion": "The gate is the two power controls and the two policy-comparison controls. P1b, P2, P3, P7 and P8 are findings: the discriminating prediction must be able to come out false without the run reporting failure.",
+    "gated_predictions_pass": true,
+    "policies_agree_without_gaps_P5b": true,
+    "power_quartet_P4": true,
+    "power_triple_P1": true
+  }
+}

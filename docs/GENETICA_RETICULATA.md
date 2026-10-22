@@ -272,8 +272,17 @@ and a false statement about the *genealogy*.
 The kernel cannot help here: it faithfully checks the inequality it is given. The
 honest mitigations are to report the per-pair denominators alongside every
 certificate — which the emitted files do — and to prefer complete-deletion within
-the triple when gap density is non-trivial. Neither is implemented as a default
-yet, and Phase 2 should not run on gappy real data until one of them is.
+the triple when gap density is non-trivial.
+
+> **Resolved in Phase 2 (§10).** Complete deletion within the triple is now
+> implemented in Rust (`subset.rs`), proved in Lean
+> (`complete_triple_refute_from_counts`), and *measured*: on strictly clonal,
+> gap-blocked data, pairwise deletion manufactures **33–52 violating triples out
+> of 560** that complete deletion denies, at all five seeds. The kernel itself
+> witnesses one such triple in
+> `pairwise_deletion_manufactures_what_complete_deletion_denies`. The gap on
+> gappy real data is therefore closed; §10 describes what replaced it, and what
+> it costs.
 
 ### What the auditors tried that did *not* break it
 
@@ -288,3 +297,293 @@ Recorded because a list of findings without this is not an audit result.
   control cannot silently pass.
 - Getting a Rust bug to emit the shadowing text: impossible. The emitter writes a
   fixed preamble and integer literals.
+
+---
+
+## 10. Phase 2 — the tree-level null, and the experiment that nearly sank the method
+
+Phase 1 moved the trust boundary into the kernel. It left two things open, both
+named by Phase 1's own audit rather than discovered later: the ultrametric null
+conflates *tree* with *clock*, and pairwise deletion can manufacture
+certificates. Phase 2 addresses both and then runs the experiment that decides
+whether the first one matters. It does.
+
+### 10.1 What was built
+
+| | |
+| :--- | :--- |
+| **Lean** | `GeneticaReticulataTree.lean`, 16/16 clean, no `sorryAx`, no custom axioms. `IsFourPoint`; `fourPoint_of_ultrametric` (**the nulls are nested — proved, not cited**); `quartet_violation_refutes_ultrametric`; complete-deletion counting (`comparable3`, `diff3xy/yz/xz`) and quadruple counting (`comparable4`, six `diff4*`); the two emitted inference rules; and the finding-6 witness. |
+| **Rust** | `subset.rs`: `Alignment` with subset-complete counting, the complete-deletion triple search, the exhaustive four-point quartet search, and `compare_deletion_policies`. `simulate.rs`: a divergence-matched relaxed clock, reciprocal mosaics, gap blocks. `emit_lean.rs`: two new renderers and two new corruptions. 70 tests. |
+| **CLI** | `reticulation experiment` (the seven-dataset grid), `reticulation saturation` (the length-scaling diagnostic), `reticulation verify-tree` (kernel acceptance and rejection for both new forms). |
+
+### 10.2 The idea: a null that does not assume a clock
+
+`IsUltrametric d` says `d x z ≤ max (d x y) (d y z)` — "clonal genealogy **and**
+strict molecular clock". Real clocks are not strict, so a violation is ambiguous.
+
+The **four-point condition** says the same kind of thing one level up, about
+quadruples and with sums in place of single distances:
+
+```lean
+def IsFourPoint (d : α → α → ℚ) : Prop :=
+  ∀ a b c e, d a b + d c e ≤ max (d a c + d b e) (d a e + d b c)
+```
+
+A weighted tree always leaves the two largest pairing sums equal, **whatever its
+branch lengths**. So the four-point condition encodes *tree* without *clock*. That
+a metric satisfying it on every quadruple is realised by a weighted tree is
+Buneman's theorem — **cited, not proved**, exactly the status "a strict clock
+gives an ultrametric" has for the Phase 1 null.
+
+What *is* proved here is the nesting:
+
+```lean
+theorem fourPoint_of_ultrametric (hsym : ∀ x y, d x y = d y x)
+    (hu : IsUltrametric d) : IsFourPoint d
+```
+
+and therefore its contrapositive, `quartet_violation_refutes_ultrametric`. One
+quartet certificate refutes both nulls. The converse fails, and that asymmetry is
+the whole experiment: **large triple margins with floor-level quartet margins
+means rate variation on a tree, not reticulation.** Without the nesting theorem
+that reading would be an assumption; with it, it is an inference.
+
+The proof is a 256-branch case analysis over the four instances of the strong
+triangle inequality available in a quadruple. Unlovely, but it is a theorem.
+
+### 10.3 Complete deletion makes the certificate smaller, not bigger
+
+Counting only the columns where *every* member of the subset carries a base gives
+all distances in a certificate **one denominator**. The obligations then stop
+being cross-products and become comparisons between integers:
+
+```lean
+theorem complete_triple_forces_violation (n_xy n_yz n_xz D : ℕ) (hD : 0 < D)
+    (far_xy : n_xy < n_xz) (far_yz : n_yz < n_xz) :
+    max (ratioN n_xy D) (ratioN n_yz D) < ratioN n_xz D
+```
+
+Compare Phase 1's `count_certificate_forces_violation`, which needs
+`n_xy * d_xz < n_xz * d_xy` because the three pairs have three denominators. The
+trust surface shrinks and the confound disappears together, which is the kind of
+coincidence that suggests the formulation is right.
+
+### 10.4 The experiment: seven datasets, five seeds, predictions registered first
+
+`reticulation experiment` builds seven populations at 4000 sites and 16–18
+sequences, five seeds each, and decides every comparison by an exact integer
+cross-product against **D1 at the same seed**. Seed-paired, because a margin from
+one seed is not a result — a lesson this project has had to learn more than once.
+
+The adversarial dataset is **D2: a clonal tree with a relaxed clock**. Its rate
+multipliers are normalised to mean 1, so it has the *same expected divergence* as
+D1 and only the clock differs. Without that normalisation a relaxed clock is also
+a faster clock, and a violation could not be attributed to either cause — the
+first version of this experiment made exactly that mistake, and it changed the
+answer.
+
+Largest exact margins, `/4000`, five seeds:
+
+| dataset | reticulation? | clock | complete-deletion **triple** margin | **quartet** margin |
+| :--- | :--: | :--- | :--- | :--- |
+| **D1** clonal | no | strict | 18, 24, 19, 39, 25 | 7, 5, 6, 7, 7 |
+| **D2** clonal | **no** | **relaxed** | **106, 105, 72, 64, 15** | **7, 5, 2, 6, 1** |
+| **D3** one recombinant | yes | strict | 61, 47, 61, 67, 61 | 51, 44, 63, 62, 52 |
+| **D4** one recombinant | yes | relaxed | 106, 106, 72, 64, 31 | 84, 121, 34, 48, 20 |
+| **D5** reciprocal mosaics | yes | strict | 61, 57, 61, 67, 61 | **116, 94, 122, 134, 122** |
+| **D7** clonal, 10× divergence | no | strict | 74, 50, 42, 58, 79 | 46, 54, 59, 46, 46 |
+
+Read the D2 row twice. **On data with no reticulation whatsoever, the ultrametric
+test produces margins up to 106/4000 — larger than every single-recombinant
+margin in D3.** It exceeds twice D1's floor at 3 of 5 seeds. The quartet column on
+the same data is indistinguishable from the floor, and is sometimes *below* it: 0
+of 5 seeds exceed twice the floor.
+
+Worst-seed separation of positive control from its own floor:
+
+| statistic | positive control | weakest seed |
+| :--- | :--- | --: |
+| ultrametric triple | D3, one recombinant | **1.72×** |
+| four-point quartet | D5, reciprocal mosaics | **16.57×** |
+| ultrametric triple | D2, *no reticulation* | 0.60× … up to 5.9× |
+| four-point quartet | D2, *no reticulation* | **0.14×** |
+
+**The conclusion is not subtle.** The clock-level statistic is confounded by rate
+variation badly enough that its certificates cannot be read as evidence of
+reticulation. The tree-level statistic, on the same data, is not moved at all,
+and separates its positive control by an order of magnitude more. Risk 2 of §7 —
+"rate heterogeneity swamps reticulation" — is **realised for the Phase 1 null and
+refuted for the Phase 2 null**. Phase 4 was listed as an improvement; it is a
+prerequisite, and this is the evidence.
+
+### 10.5 Finding 6, measured
+
+D6 is D1 with a contiguous gap block in 15 of 16 sequences, and the statistic is
+the per-triple **verdict**, not the margin:
+
+| seed | violating under both | **pairwise deletion only** | complete deletion only |
+| --: | --: | --: | --: |
+| 2026 | 521 | **33** | 6 |
+| 2027 | 519 | **36** | 4 |
+| 2028 | 501 | **52** | 7 |
+| 2029 | 500 | **50** | 9 |
+| 2030 | 499 | **49** | 11 |
+
+Each number in the middle column is a triple that pairwise deletion calls a
+violation — a certificate the kernel would accept — on a genealogy that is
+*exactly* a clock-like tree. 6–9% of all triples. The control that gives this
+meaning: on D1, which has no missing data, the two policies agree on **all 560
+triples at all five seeds**, as they must, since without gaps they are the same
+policy.
+
+The price is stated too: complete deletion leaves roughly 1000–1700 of 4000
+columns common to a triple at this gap load. That is a real loss of power, and it
+is why complete deletion should be the default only when there is missing data to
+delete.
+
+### 10.6 Two of my own criteria were wrong, and both corrections are recorded
+
+Not footnotes — the same error class in three guises, and worth naming because it
+is the error this project keeps making.
+
+1. **Comparing margins across different denominators.** The first version of the
+   finding-6 test compared the largest *margin* under each deletion policy.
+   Complete deletion shrinks the denominator, so one differing site is worth
+   more, and its margins come out **larger** even where it is strictly more
+   conservative. The two numbers are no more commensurable than the two pairwise
+   distances finding 6 is about. Replaced by the per-triple verdict comparison.
+
+2. **A threshold calibrated on one seed.** The power gate required the positive
+   control to exceed **twice** the clonal floor — v1.6.0's criterion. But the
+   floor is a maximum over 560 triples, an extreme-value statistic, and it varies
+   from 18/4000 to 39/4000 across five seeds. v1.6.0's headline **3.389× was the
+   best of five seeds**; the same comparison holds at only 3 of 5. The gate is now
+   the seed-paired strict inequality, and the 2× result is kept as an ungated
+   finding rather than dropped, because its failure *is* the result.
+
+3. **Comparing a margin against a floor from a different divergence.** D7's
+   quartet margin exceeds twice D1's at all five seeds, which looked like
+   saturation breaking additivity. It is not. `reticulation saturation`
+   quadruples the alignment length and watches the margin: sampling noise scales
+   as `L^(-1/2)` and a deterministic bias does not shrink at all.
+
+   | divergence | margin at L=1000 | 4000 | 16000 | ratio per 4× L |
+   | :--- | --: | --: | --: | :--- |
+   | mean 0.026 | 0.00380 | 0.00160 | 0.00071 | 0.42, 0.45 |
+   | mean 0.223 | 0.02620 | 0.01255 | 0.00665 | **0.48, 0.53** |
+
+   Both shrink like `L^(-1/2)`. There is **no saturation bias** at ten times the
+   divergence — the quartet noise *floor* simply grows with divergence, so D7 was
+   being compared against a floor from a population ten times less divergent.
+   The practical consequence is the opposite of a divergence ceiling: high
+   divergence is usable, provided the null is calibrated at **matched divergence
+   and matched length**. The divergence sweep in that command's output gives the
+   floor as a function of mean p-distance from 0.006 to 0.33.
+
+   This matters for Phase 2's target data. Had the bias been real there would
+   have been no fix available: a Jukes–Cantor-corrected distance is a logarithm,
+   hence irrational, and the exact-rational certificate cannot represent it.
+
+### 10.7 What is still not established
+
+- **Buneman's theorem is cited.** We prove that a quartet certificate refutes
+  `IsFourPoint` and that `IsFourPoint` is implied by `IsUltrametric`. That
+  `IsFourPoint` on every quadruple implies a weighted tree realises the metric is
+  not proved here. The honest chain is: certificate ⟹ not four-point ⟹ (Buneman)
+  not tree-realisable.
+- **Four-point certificates still exist under the null**, by sampling noise, as
+  §10.4's D1 column shows. The margin's magnitude still carries the inference and
+  the calibration is still simulation-based. Phase 3 is unaffected by this work.
+- **No real data yet.** The gate that blocked it (finding 6) is closed, but this
+  machine has no multiple-sequence aligner and no aligned homologous population
+  with documented recombination. The genomic-benchmark sets cached locally are
+  unaligned, non-homologous promoter and enhancer sequences; running a
+  phylogenetic test on them would be precisely the category error Phase 1's audit
+  punished. Phase 2 on real data needs an alignment first, and that is a separate
+  step with its own failure modes.
+
+### 10.8 Both new forms, kernel-checked in both directions
+
+`reticulation verify-tree` emits four files from the D5 positive control at seed
+2026 and runs the project's Lean toolchain on each. The kernel computes every
+count from the embedded sequences; nothing is handed to it but the sequences and
+the claimed counts.
+
+| file | what it asserts | kernel | time |
+| :--- | :--- | :--: | --: |
+| `reticulata_complete_triple.lean` | `complete_triple_refute_from_counts`, 69 / 70 / 131 differing over **4000 columns common to all three** | **accepted** | 42.4 s |
+| `reticulata_quartet.lean` | `quartet_refute_from_counts`, pairing sums **256** vs 116 and 140 over 4000 common columns | **accepted** | 71.1 s |
+| `..._complete_triple_bad.lean` | far and near numerators swapped | **rejected**, `unsolved goals` | — |
+| `..._quartet_bad.lean` | dominant pairing exchanged with a dominated one | **rejected**, `unsolved goals` | — |
+
+Two details worth keeping:
+
+- The complete-deletion triple reports **exactly** Phase 1's counts, 69/70/131
+  over 4000. It must: D5 has no missing data, so complete deletion within the
+  triple *is* pairwise deletion there. The agreement is a cross-check of the new
+  counting path against the old one, not a coincidence.
+- The quartet certificate's dominant pairing is `clonal_003` against
+  `clonal_013` — **the two true parents** — with both planted mosaics in the
+  non-dominant pair. The method did not merely fire; it named the right four
+  sequences and put them on the right sides. The sums are symmetric
+  (128 + 128 against 58 + 58 and 70 + 70), which is the reciprocal-mosaic
+  signature of `reciprocal_recombinants_witness` at 4000 sites instead of 4.
+
+Both corruptions are invalid in Rust before they are emitted, and invalid by
+construction rather than by luck: swapping the far and near numerators inverts a
+strict inequality, and exchanging the dominant pairing makes the new first
+conjunct of `fourPointViolates` the old second-largest sum compared against the
+old largest.
+
+### 10.9 Where this leaves the plan
+
+| phase | status after this work |
+| :--- | :--- |
+| **0, 1** | complete, and Phase 1's audit findings all closed or documented |
+| **2** (real data) | **unblocked** — finding 6 is closed and measured. Still needs an aligned homologous population; no aligner on this machine. |
+| **3** (the margin's null) | unchanged, and now clearly the critical path: §10.4's D1 and §10.6's length scaling are the first two data points of exactly the calibration Phase 3 is supposed to provide. |
+| **4** (tree-level no-go) | **promoted from improvement to prerequisite, and half-done.** The nesting is proved and the quartet certificate works; Buneman's direction remains cited. |
+| **5, 6** | unchanged |
+
+The recommendation that follows from §10.4 is blunt: **report the quartet
+statistic, not the triple statistic, as the method's primary evidence.** Keep the
+triple certificate — it is cheaper, it is what the nesting theorem is stated in
+terms of, and a triple violation with no quartet violation is itself an
+informative signal about rate variation. But a triple certificate alone should
+not be published as evidence of reticulation, and v1.6.0's headline overstated
+what a 3.389× margin ratio means.
+
+### 10.10 Scale check at 32 taxa, where the result gets worse for the triple test
+
+§10.4 used 16 leaves. Doubling to 32 (`--generations 5`, three seeds) means 4960
+triples and **35 960–46 376 quadruples per dataset, searched exhaustively** — the
+quartet search refuses to sample, so the ceiling has to be raised deliberately
+rather than quietly. Largest exact margins, `/4000`:
+
+| dataset | reticulation? | clock | **triple** margin | **quartet** margin |
+| :--- | :--: | :--- | :--- | :--- |
+| **D1** clonal | no | strict | 24, 30, 29 | 10, 9, 10 |
+| **D2** clonal | **no** | **relaxed** | **155, 157, 99** | **11, 18, 8** |
+| **D3** one recombinant | yes | strict | 79, 77, 75 | 79, 70, 69 |
+| **D5** reciprocal mosaics | yes | strict | 79, 77, 75 | 158, 154, 126 |
+
+The D2 and D3 triple margins no longer merely overlap. **At every seed, the
+clonal population with a relaxed clock has a larger ultrametric margin than the
+population containing an actual recombinant** — `min(D2) = 99 > 79 = max(D3)`. A
+larger triple margin is, on this data, weak evidence *against* reticulation. The
+statistic is not conservative, not noisy, but ordered the wrong way round.
+
+The quartet column on the same populations separates with no overlap at all:
+`{8, 11, 18}` with no reticulation against `{69, 70, 79}` for one recombinant and
+`{126, 154, 158}` for reciprocal mosaics.
+
+Adding taxa makes the confound worse for the triple test, which is what the
+mechanism predicts: more leaves means more chances for a pair of lineages with
+extreme rates, and the statistic is a maximum over triples. The four-point floor
+grows far more slowly (9–10 against 5–7 at 16 taxa) because a tree metric
+constrains quadruples however the rates vary.
+
+The gap-manufacturing rate holds at scale too: 286–366 manufactured triples out
+of 4960, the same 6–7% as at 16 taxa, with zero disagreement on gapless data.
+
+Raw output: [`data/reticulata_phase2/experiment_n32.json`](../data/reticulata_phase2/experiment_n32.json).

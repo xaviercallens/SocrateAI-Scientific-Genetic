@@ -160,6 +160,149 @@ pub fn with_recombination(
     (population, label)
 }
 
+/// **The adversarial control.** Clonal descent under a *relaxed* clock.
+///
+/// Every lineage independently rescales its substitution rate at each
+/// generation, by `exp(spread * u)` with `u` uniform on `[-1, 1]`. The genealogy
+/// is still exactly a tree and there is no reticulation whatsoever — only the
+/// clock is broken.
+///
+/// This is the dataset that decides whether the ultrametric certificate measures
+/// anything biological. `IsUltrametric` encodes "tree AND strict clock", so a
+/// relaxed clock must violate it; if the resulting margins are comparable to a
+/// recombinant's, then a triple certificate does not distinguish reticulation
+/// from rate variation and the four-point test has to carry the method alone.
+/// Risk 2 of `docs/GENETICA_RETICULATA.md` §7, made into an experiment.
+///
+/// Additivity on the tree is preserved, so the four-point condition should
+/// survive. That contrast is the prediction being tested.
+///
+/// # The multipliers are normalised, deliberately
+///
+/// `exp(spread * u)` has mean `sinh(spread) / spread > 1`, so an unnormalised
+/// relaxed clock is also a *faster* clock: the population diverges further and
+/// p-distances begin to saturate. Saturation breaks additivity on its own, so an
+/// unnormalised control would confound rate variation with saturation and a
+/// four-point violation could not be attributed to either. The multipliers are
+/// therefore divided by their mean, which leaves the expected branch rate — and
+/// hence the expected divergence — equal to the strict-clock case while the
+/// realised rates vary widely. [`clonal_tree`] at a high `mu` is the separate
+/// probe for saturation.
+pub fn clonal_tree_relaxed(
+    length: usize,
+    generations: u32,
+    mu_per_generation: f64,
+    spread: f64,
+    seed: u64,
+) -> Population {
+    let mut rng = SplitMix64::new(seed);
+    let founder: Vec<u8> = (0..length).map(|_| BASES[rng.below(4)]).collect();
+
+    // E[exp(spread * u)] for u uniform on [-1, 1]; 1 in the limit spread -> 0.
+    let mean_multiplier = if spread.abs() < 1e-12 {
+        1.0
+    } else {
+        spread.sinh() / spread
+    };
+
+    // Each lineage carries its own rate multiplier, inherited and rescaled.
+    let mut current = vec![(founder, 1.0f64)];
+    for _ in 0..generations {
+        let mut next = Vec::with_capacity(current.len() * 2);
+        for (parent, rate) in &current {
+            for _ in 0..2 {
+                let u = 2.0 * rng.next_f64() - 1.0;
+                let child_rate = rate * (spread * u).exp() / mean_multiplier;
+                // Clamp to a probability: a rate above 1 is not a rate.
+                let mu = (mu_per_generation * child_rate).clamp(0.0, 1.0);
+                next.push((mutate(parent, mu, &mut rng), child_rate));
+            }
+        }
+        current = next;
+    }
+    let labels = (0..current.len())
+        .map(|i| format!("relaxed_{i:03}"))
+        .collect();
+    Population {
+        labels,
+        sequences: current.into_iter().map(|(s, _)| s).collect(),
+    }
+}
+
+/// **The quartet-shaped positive control.** Two reciprocal mosaics of one pair.
+///
+/// A single recombinant breaks the ultrametric inequality on triples. The
+/// four-point condition is about quadruples, and the shape that violates it most
+/// cleanly is a pair of *reciprocal* mosaics: each is close to both parents, so
+/// the two crossing pairings are cheap while the parents stay far apart. This is
+/// the configuration `reciprocal_recombinants_witness` proves non-vacuous in
+/// Lean.
+///
+/// Returns the population with both mosaics appended, and their labels.
+pub fn with_reciprocal_recombinants(
+    mut population: Population,
+    breakpoint: f64,
+    seed: u64,
+) -> (Population, [String; 2]) {
+    let n = population.sequences.len();
+    assert!(n >= 2, "need two parents");
+    let mut rng = SplitMix64::new(seed);
+    let left = rng.below(n / 2);
+    let right = n / 2 + rng.below(n - n / 2);
+
+    let length = population.sequences[left].len();
+    let cut = (breakpoint.clamp(0.05, 0.95) * length as f64) as usize;
+
+    let mut first = Vec::with_capacity(length);
+    first.extend_from_slice(&population.sequences[left][..cut]);
+    first.extend_from_slice(&population.sequences[right][cut..]);
+    let mut second = Vec::with_capacity(length);
+    second.extend_from_slice(&population.sequences[right][..cut]);
+    second.extend_from_slice(&population.sequences[left][cut..]);
+
+    let labels = [
+        format!(
+            "mosaic_{}_then_{}",
+            population.labels[left], population.labels[right]
+        ),
+        format!(
+            "mosaic_{}_then_{}",
+            population.labels[right], population.labels[left]
+        ),
+    ];
+    population.labels.push(labels[0].clone());
+    population.sequences.push(first);
+    population.labels.push(labels[1].clone());
+    population.sequences.push(second);
+    (population, labels)
+}
+
+/// Replace a contiguous block of each sequence with gaps.
+///
+/// Contiguous missing blocks are the realistic pattern — partial genes,
+/// truncated reads, unsequenced termini — and they are exactly the pattern that
+/// gives different pairs different comparable-site counts, which is the confound
+/// of the audit's finding 6. One sequence is left intact so that every triple
+/// retains some common coverage.
+///
+/// `fraction` is the share of each sequence to blank; the total gap load must
+/// stay below half or [`crate::exact::validate_alphabet`] refuses the input.
+pub fn inject_gap_blocks(mut population: Population, fraction: f64, seed: u64) -> Population {
+    let mut rng = SplitMix64::new(seed);
+    let length = population.sequences[0].len();
+    let block = ((fraction.clamp(0.0, 0.9) * length as f64) as usize).min(length);
+    if block == 0 {
+        return population;
+    }
+    for seq in population.sequences.iter_mut().skip(1) {
+        let start = rng.below(length - block + 1);
+        for b in seq[start..start + block].iter_mut() {
+            *b = b'-';
+        }
+    }
+    population
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -242,6 +385,139 @@ mod tests {
         assert!(
             names.iter().any(|y| *y == label.as_str()),
             "the recombinant {label} should be a midpoint; midpoints were {names:?}"
+        );
+    }
+
+    /// Largest-to-smallest ratio among pairs separated by the root.
+    ///
+    /// Not the ratio over *all* pairs: on a balanced tree even a perfect clock
+    /// makes sisters closer than cousins, so that ratio is large by design and
+    /// says nothing about the clock. Pairs in opposite halves all cross the same
+    /// number of branches, so under a strict clock their distances agree up to
+    /// multinomial noise — and under a relaxed clock they do not. That is what
+    /// "the clock is relaxed" means operationally.
+    fn cross_root_spread(pop: &Population) -> f64 {
+        let dm = pop.distances(DistanceModel::PDistance).unwrap();
+        let half = dm.len() / 2;
+        let mut lo = f64::INFINITY;
+        let mut hi = 0.0f64;
+        for i in 0..half {
+            for j in half..dm.len() {
+                lo = lo.min(dm.get(i, j));
+                hi = hi.max(dm.get(i, j));
+            }
+        }
+        hi / lo
+    }
+
+    #[test]
+    fn the_relaxed_clock_really_relaxes_the_clock() {
+        // The adversarial control has to be adversarial: if the rate spread did
+        // not change the realised distances, the experiment that uses it would
+        // be measuring nothing.
+        let strict = cross_root_spread(&clonal_tree(4000, 4, 0.004, 2026));
+        let relaxed = cross_root_spread(&clonal_tree_relaxed(4000, 4, 0.004, 1.0, 2026));
+        assert!(
+            relaxed > 2.0 * strict,
+            "relaxed cross-root spread {relaxed} should dwarf strict {strict}"
+        );
+        // A spread of zero must put the clock back, so the parameter is the only
+        // thing doing the work.
+        let flat = cross_root_spread(&clonal_tree_relaxed(4000, 4, 0.004, 0.0, 2026));
+        assert!(
+            flat < 1.5,
+            "with zero spread the cross-root distances should agree, got {flat}"
+        );
+        assert!(
+            strict < 1.5,
+            "the strict-clock baseline should itself be tight, got {strict}"
+        );
+    }
+
+    #[test]
+    fn the_relaxed_clock_is_divergence_matched_to_the_strict_one() {
+        // Without normalising the multipliers, a relaxed clock is also a faster
+        // clock, and a four-point violation could be attributed to saturation
+        // rather than to rate variation. The control has to vary the rates
+        // WITHOUT varying the expected divergence, so this is load-bearing.
+        let mean = |pop: &Population| {
+            let dm = pop.distances(DistanceModel::PDistance).unwrap();
+            let mut s = 0.0;
+            let mut n = 0.0;
+            for i in 0..dm.len() {
+                for j in (i + 1)..dm.len() {
+                    s += dm.get(i, j);
+                    n += 1.0;
+                }
+            }
+            s / n
+        };
+        // Average over seeds: a single pair of populations is one draw, and the
+        // claim is about the expectation.
+        let (mut strict, mut relaxed) = (0.0, 0.0);
+        for seed in 0..8u64 {
+            strict += mean(&clonal_tree(4000, 4, 0.004, 1000 + seed));
+            relaxed += mean(&clonal_tree_relaxed(4000, 4, 0.004, 1.0, 1000 + seed));
+        }
+        let ratio = relaxed / strict;
+        assert!(
+            (ratio - 1.0).abs() < 0.10,
+            "mean divergence should match within 10%, got ratio {ratio}"
+        );
+    }
+
+    #[test]
+    fn reciprocal_mosaics_are_each_close_to_both_parents() {
+        let pop = clonal_tree(4000, 4, 0.004, 2026);
+        let n_before = pop.sequences.len();
+        let (pop, mosaics) = with_reciprocal_recombinants(pop, 0.5, 99);
+        assert_eq!(pop.sequences.len(), n_before + 2);
+        let dm = pop.distances(DistanceModel::PDistance).unwrap();
+        let idx = |name: &str| pop.labels.iter().position(|l| l == name).unwrap();
+        // Recover the parents from the generated labels.
+        let parts: Vec<&str> = mosaics[0]
+            .strip_prefix("mosaic_")
+            .unwrap()
+            .split("_then_")
+            .collect();
+        let (p, q) = (idx(parts[0]), idx(parts[1]));
+        let parental = dm.get(p, q);
+        for m in &mosaics {
+            let mi = idx(m);
+            assert!(
+                dm.get(mi, p) < parental && dm.get(mi, q) < parental,
+                "{m} must sit inside the parental distance {parental}"
+            );
+        }
+        // The two mosaics are reciprocal, so they are about as far apart as the
+        // parents: that is what makes the parent pairing dominate.
+        assert!(dm.get(idx(&mosaics[0]), idx(&mosaics[1])) > 0.5 * parental);
+    }
+
+    #[test]
+    fn gap_blocks_give_pairs_different_comparable_counts() {
+        let pop = clonal_tree(400, 3, 0.01, 5);
+        let intact = pop.sequences[0].clone();
+        let gapped = inject_gap_blocks(pop, 0.25, 11);
+        assert_eq!(
+            gapped.sequences[0], intact,
+            "one sequence is left intact so triples keep common coverage"
+        );
+        let dash = |s: &Vec<u8>| s.iter().filter(|b| **b == b'-').count();
+        assert_eq!(dash(&gapped.sequences[1]), 100, "25% of 400 sites");
+        // The confound the gaps exist to create: per-pair denominators differ.
+        let d = crate::exact::ExactDistances::from_alignment(
+            gapped.labels.clone(),
+            &gapped.sequences,
+        )
+        .unwrap();
+        let dens: std::collections::BTreeSet<i64> = (0..d.len())
+            .flat_map(|i| ((i + 1)..d.len()).map(move |j| (i, j)))
+            .map(|(i, j)| d.ratio(i, j).den)
+            .collect();
+        assert!(
+            dens.len() > 1,
+            "gap blocks must produce differing denominators, got {dens:?}"
         );
     }
 }
