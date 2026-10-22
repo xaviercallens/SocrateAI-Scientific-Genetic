@@ -240,5 +240,86 @@
   "fda_threshold": 10.0,
   "note": "the threshold crossing is established by measurement, not by the retracted stage-removal model",
   "retracted_tmb_prediction": 1388.888888888889
+ },
+ "sec11_interaction": {
+  "lambda_required": 52.27272727272727,
+  "lean_module": "ANSE.InteractingStagesAndTransport",
+  "note": "the independent class is the Lambda = 1 slice; the measured ratio forces Lambda >= rho, which prices the escape route rather than closing it",
+  "rho_observed": 52.27272727272727,
+  "theorems": [
+   "PSR_2I_interacting_ceiling",
+   "PSR_3I_excess_forces_interaction",
+   "psr2I_recovers_psr2",
+   "p301r_forces_interaction_at_least_fifty_two"
+  ]
+ },
+ "sec11_orthologue": {
+  "global_identity": [
+   44.24,
+   44.78,
+   43.1,
+   43.67
+  ],
+  "human_286_maps_to": [
+   301,
+   301,
+   301,
+   301
+  ],
+  "invariant_across_schemes": true,
+  "local_identity_real": [
+   78.05,
+   78.05,
+   78.05,
+   78.05
+  ],
+  "local_identity_shuffled": [
+   18.75,
+   21.62,
+   21.62,
+   26.83
+  ],
+  "motif_human": "TKLPLKFPDAETDQI",
+  "motif_identical_positions": 11,
+  "motif_yeast": "TKPPLKFPDSAVDQI"
+ },
+ "sec11_tda_null": {
+  "controls": {
+   "negative_p_two_sided": 0.3880597014925373,
+   "negative_passes": true,
+   "negative_z": 0.8956063539722519,
+   "p_two_sided_floor": 0.009950248756218905,
+   "positive_motif": "AAAAACCCCCCGGGGGGTTTTAAAAACCCCCCGGGGGGTT",
+   "positive_p_two_sided": 0.009950248756218905,
+   "positive_passes": true,
+   "positive_threshold_used": 0.05,
+   "positive_z": -10.171035556956474
+  },
+  "genes_tested": [
+   "MSH6",
+   "POLD1",
+   "POLE"
+  ],
+  "pole": {
+   "codon": {
+    "null_mean": 5.779854204140545,
+    "observed": 5.292853185195588,
+    "p_two_sided": 0.42786069651741293,
+    "z": -0.9248473664501572
+   },
+   "dinuc": {
+    "null_mean": 5.548999242975851,
+    "observed": 5.292853185195588,
+    "p_two_sided": 0.6268656716417911,
+    "z": -0.502787689120859
+   },
+   "mono": {
+    "null_mean": 6.218203281514853,
+    "observed": 5.292853185195588,
+    "p_two_sided": 0.09950248756218906,
+    "z": -1.6367009068866627
+   }
+  },
+  "shuffles": 200
  }
 }

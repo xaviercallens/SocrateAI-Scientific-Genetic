@@ -277,5 +277,12 @@ production is ordered the same way in vivo as in vitro. No measurement reported
 here distinguishes any of them, and the hypomorphic experiment of
 Exercise~5.4 has not been done. A measurement of error production per replicated
 genome, rather than per nucleotide incorporated, would settle the transport
-question and has not been made.
+question and has not been made. \\
+\textbf{Formalised in this edition:} the transport gap is no longer only a
+remark. \lean{per_nucleotide_does_not_transport} exhibits error rates and
+synthesis amounts with $e_{\mathrm{mut}} \le e_{\mathrm{null}}$ and yet a
+strictly greater delivered load, so the failure is a theorem rather than a
+worry; \lean{transport_needs_synthesis_bound} names the exact missing
+hypothesis. See \S\ref{sub:interact} and
+\file{formal/ANSE/InteractingStagesAndTransport.lean}.
 \end{ledger}

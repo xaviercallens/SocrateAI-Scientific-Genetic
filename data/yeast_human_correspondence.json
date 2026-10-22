@@ -1,0 +1,171 @@
+{
+ "alignments": [
+  {
+   "aligned_yeast_residue": "P",
+   "gap_extend": 1.0,
+   "gap_open": 11.0,
+   "human_286_aligns_to_yeast": 301,
+   "local_percent_identity": 78.05,
+   "local_window_pairs": 41,
+   "matches_P301": true,
+   "percent_identity": 44.24,
+   "scheme": "identity"
+  },
+  {
+   "aligned_yeast_residue": "P",
+   "gap_extend": 2.0,
+   "gap_open": 8.0,
+   "human_286_aligns_to_yeast": 301,
+   "local_percent_identity": 78.05,
+   "local_window_pairs": 41,
+   "matches_P301": true,
+   "percent_identity": 44.78,
+   "scheme": "identity"
+  },
+  {
+   "aligned_yeast_residue": "P",
+   "gap_extend": 1.0,
+   "gap_open": 11.0,
+   "human_286_aligns_to_yeast": 301,
+   "local_percent_identity": 78.05,
+   "local_window_pairs": 41,
+   "matches_P301": true,
+   "percent_identity": 43.1,
+   "scheme": "class"
+  },
+  {
+   "aligned_yeast_residue": "P",
+   "gap_extend": 2.0,
+   "gap_open": 8.0,
+   "human_286_aligns_to_yeast": 301,
+   "local_percent_identity": 78.05,
+   "local_window_pairs": 41,
+   "matches_P301": true,
+   "percent_identity": 43.67,
+   "scheme": "class"
+  }
+ ],
+ "context": {
+  "human_279_293": "TKLPLKFPDAETDQI",
+  "note": "the ExoI region; human numbering 279-293, yeast 294-308",
+  "yeast_294_308": "TKPPLKFPDSAVDQI"
+ },
+ "controls": {
+  "local_conservation_margin": {
+   "best_shuffled_local_identity": 26.83,
+   "criterion": "real local identity > 2x shuffled, under every scheme",
+   "note": "the aligned position alone is weak evidence: the shuffled control lands on 302, adjacent to 301, because global alignment of similar-length sequences follows the diagonal",
+   "ratio": 2.91,
+   "worst_real_local_identity": 78.05
+  },
+  "negative_shuffled_yeast": [
+   {
+    "gap_open": 11.0,
+    "local_percent_identity": 18.75,
+    "local_window_pairs": 32,
+    "percent_identity": 25.41,
+    "scheme": "identity",
+    "shuffled_maps_286_to": null
+   },
+   {
+    "gap_open": 8.0,
+    "local_percent_identity": 21.62,
+    "local_window_pairs": 37,
+    "percent_identity": 23.32,
+    "scheme": "identity",
+    "shuffled_maps_286_to": 302
+   },
+   {
+    "gap_open": 11.0,
+    "local_percent_identity": 21.62,
+    "local_window_pairs": 37,
+    "percent_identity": 22.72,
+    "scheme": "class",
+    "shuffled_maps_286_to": 302
+   },
+   {
+    "gap_open": 8.0,
+    "local_percent_identity": 26.83,
+    "local_window_pairs": 41,
+    "percent_identity": 21.5,
+    "scheme": "class",
+    "shuffled_maps_286_to": 302
+   }
+  ],
+  "positive_self_alignment": [
+   {
+    "gap_open": 11.0,
+    "scheme": "identity",
+    "self_maps_286_to": 286
+   },
+   {
+    "gap_open": 8.0,
+    "scheme": "identity",
+    "self_maps_286_to": 286
+   },
+   {
+    "gap_open": 11.0,
+    "scheme": "class",
+    "self_maps_286_to": 286
+   },
+   {
+    "gap_open": 8.0,
+    "scheme": "class",
+    "self_maps_286_to": 286
+   }
+  ],
+  "verdict": {
+   "negative_passes": true,
+   "positive_passes": true
+  }
+ },
+ "description": "Verification that yeast POL2 P301 is the orthologous position of human POLE P286. Closes the gap recorded in the Section 7 ledger of the textbook.",
+ "invariant_across_schemes": true,
+ "method": {
+  "alignment": "Gotoh global alignment, affine gaps, full length",
+  "schemes": [
+   {
+    "gap_extend": 1.0,
+    "gap_open": 11.0,
+    "scheme": "identity"
+   },
+   {
+    "gap_extend": 2.0,
+    "gap_open": 8.0,
+    "scheme": "identity"
+   },
+   {
+    "gap_extend": 1.0,
+    "gap_open": 11.0,
+    "scheme": "class"
+   },
+   {
+    "gap_extend": 2.0,
+    "gap_open": 8.0,
+    "scheme": "class"
+   }
+  ],
+  "scoring": "no verified substitution matrix available on this host; the correspondence is required to be invariant across the schemes and gap costs listed"
+ },
+ "residue_identity_check": {
+  "both_proline": true,
+  "human_286": "P",
+  "yeast_301": "P"
+ },
+ "sequences": {
+  "human": {
+   "accession": "Q07864",
+   "length_aa": 2286,
+   "retrieved_utc": "2026-10-22T06:13:50.584548+00:00",
+   "source_url": "https://rest.uniprot.org/uniprotkb/Q07864.json?fields=accession,id,protein_name,sequence,length",
+   "uniprot_id": "DPOE1_HUMAN"
+  },
+  "yeast": {
+   "accession": "P21951",
+   "length_aa": 2222,
+   "retrieved_utc": "2026-10-22T06:13:50.694858+00:00",
+   "source_url": "https://rest.uniprot.org/uniprotkb/P21951.json?fields=accession,id,protein_name,sequence,length",
+   "uniprot_id": "DPOE_YEAST"
+  }
+ }
+}

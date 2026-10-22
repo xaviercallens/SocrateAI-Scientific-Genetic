@@ -234,3 +234,95 @@ Claims that would not: the live database records of Section~\ref{sec:variants},
 the topology of Section~\ref{sec:dnatop}, the clinical decision rule. The
 distinguishing feature is whether the claim takes the mechanism as an input or
 measures its consequence directly.
+
+\subsection*{Section 11}
+
+\paragraph{11.1}
+Nesting means each null preserves everything the previous one preserved, plus
+one more level of structure. A signal that survives \textbf{mono} but dies
+against \textbf{dinuc} is therefore \emph{located}: it is dinucleotide
+composition and nothing above it. Three unrelated nulls would each reject or
+fail to reject, with no way to attribute the difference, because they would
+differ in several respects at once. Nesting converts a set of yes/no answers
+into a decomposition.
+
+A trinucleotide-preserving null would separate codon-level composition from
+codon \emph{order}: the \textbf{codon} null already preserves usage, so a
+trinucleotide null that ignores frame would isolate overlapping-triplet
+statistics, such as the depletion of \texttt{CpG}-containing triplets, from the
+reading frame itself.
+
+\paragraph{11.2}
+The two-sided $p$ of $0.099$ counts null draws at least as extreme as the
+observation \emph{in either direction}. A one-sided $p$ of $0.95$ for ``greater''
+is the same data read as though we had predicted the direction in advance. We
+had not: Section~\ref{sec:tda} expected, if anything, extra structure, so the
+observed deficit was a surprise. Choosing the tail after seeing which way the
+data fell means the rejection region was not fixed before the experiment, and
+the nominal error rate no longer describes the procedure actually followed.
+
+Pre-registering it here is easy, because the scientific question has a
+direction: the hypothesis under test was that the real sequence carries
+\emph{more} topological structure than composition explains, so the
+pre-registered test is one-sided ``greater'', and it fails resoundingly
+($p \approx 0.95$). Reporting the two-sided value is the more conservative
+choice and is what the section does.
+
+\paragraph{11.3}
+A within-domain shuffle preserves the position of the domain in the sequence and
+the amino-acid composition inside it, while destroying local motif order; it
+therefore tests whether the \emph{motif} carries the alignment, with the
+diagonal prior left intact. Reversing the yeast sequence preserves composition
+and all dinucleotide-like local statistics read backwards, while breaking the
+positional correspondence entirely; it therefore removes the diagonal prior but
+also destroys homology, so a failure to align tells you less. The complementary
+pair is informative: the within-domain shuffle isolates the motif, the reversal
+isolates the diagonal.
+
+\paragraph{11.4}
+Theorem~\ref{thm:psr2} gives $\errate(\kept) \le \inserr$ for the independent
+model. Multiplying both sides by $\Lambda \ge 0$ gives
+$\errate(\kept)\Lambda \le \inserr\Lambda$, and the left side is
+$\errate_\Lambda(\kept)$ by \eqref{eq:interact}. So PSR$_2$I is a one-line
+corollary.
+
+The Lean module proves it independently so that each statement can be cited
+alone, and --- more importantly --- so that the hypothesis list of PSR$_2$I is
+visible in its own right. Derived as a corollary, it would inherit whatever
+PSR$_2$ assumes without restating it, and the point of the exercise is that
+$\Lambda \ge 0$ is the only new hypothesis.
+
+\paragraph{11.5}
+The delivered load inverts when
+$e_{\mathrm{mut}} s_{\mathrm{mut}} > e_{\mathrm{null}} s_{\mathrm{null}}$, i.e.\
+when
+\[
+  \frac{s_{\mathrm{mut}}}{s_{\mathrm{null}}}
+  \;>\; \frac{e_{\mathrm{null}}}{e_{\mathrm{mut}}}
+  \;=\; \frac{155}{59} \;\approx\; 2.63 .
+\]
+So the variant would need to synthesise more than about $2.6$ times as much of
+the genome as the exonuclease-null enzyme for the in vitro accuracy advantage to
+be cancelled --- and more than $52 \times 2.63 \approx 137$ times as much to
+account for the full in vivo ratio without any change in repair. The first
+figure is not obviously absurd for a hyperactive enzyme; the second is.
+
+The measurement is of replication-fork usage: what fraction of the genome is
+copied by Pol~$\varepsilon$ rather than handed to Pol~$\delta$ or a translesion
+polymerase, in each strain. Strand-specific sequencing of ribonucleotide-marked
+or mutation-marked tracts would give it.
+
+\paragraph{11.6}
+A question where topology carries the argument needs the \emph{shape} of a data
+set to be the object of interest, with no low-dimensional parameterisation
+available --- for example whether a conformational ensemble from molecular
+dynamics has two basins or one, where the answer is a Betti number and no
+inequality about rates is relevant. A no-go theorem is useless there because
+there is no parameterised model class to bound; the hypothesis is not ``this
+mechanism'' but ``this geometry''.
+
+The structural feature that decides it: no-go theorems apply when the hypothesis
+space is a family of models closed under parameter choice, so a bound uniform
+over the family can be proved. Topology applies when the hypothesis concerns an
+invariant of an object, and the object is given as a point cloud rather than as
+a model.
