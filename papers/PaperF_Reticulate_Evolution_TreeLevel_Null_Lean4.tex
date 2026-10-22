@@ -1,0 +1,794 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{cmap}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage[margin=1.0in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{booktabs,array,tabularx}
+\usepackage[svgnames]{xcolor}
+\usepackage{listings}
+\usepackage[obeyspaces,spaces]{url}
+\usepackage[colorlinks=true,linkcolor=DarkBlue,citecolor=DarkBlue,urlcolor=DarkBlue]{hyperref}
+
+\urlstyle{tt}
+\def\UrlFont{\ttfamily\upshape}
+\renewcommand{\arraystretch}{1.3}
+\setlength{\tabcolsep}{5pt}
+
+\sloppy
+\setlength{\emergencystretch}{4em}
+\hfuzz=4.0pt
+\vfuzz=4.0pt
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{model}[theorem]{Modelling assumption}
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}[section]
+
+\lstdefinestyle{lean}{
+  basicstyle=\ttfamily\footnotesize, breaklines=true, frame=single,
+  framesep=4pt, xleftmargin=4pt,
+  literate={≤}{{$\leq$}}1 {∀}{{$\forall$}}1 {→}{{$\to$}}1 {↔}{{$\leftrightarrow$}}1
+           {ℚ}{{$\mathbb{Q}$}}1 {α}{{$\alpha$}}1 {¬}{{$\neg$}}1 {·}{{$\cdot$}}1,
+}
+\lstset{style=lean}
+
+\title{\textbf{Proof-Carrying Detection of Reticulate Evolution:\\
+a Tree-Level Null, the Measured Cost of the Alignment Step,\\
+and the Gromov Hinge of Buneman's Converse}}
+\author{Xavier Callens\\
+\small SocrateAI Scientific Research \& Formal Verification Laboratory\\
+\small Formal artifacts: \texttt{ANSE.GeneticaReticulata},
+\texttt{ANSE.GeneticaReticulataTree} (Lean 4)}
+\date{Edition 1, 22 October 2026. \textbf{Not peer reviewed.}}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+Tests for recombination are normally calibrated against a permutation ensemble.
+We develop one calibrated against a \emph{theorem}, report the two ways our own
+first version of it was wrong, and give the measurement that we believe is new.
+
+A strict molecular clock on a clonal genealogy makes expected $p$-distances
+ultrametric, and an ultrametric admits no unfilled Vietoris--Rips cycle at any
+scale; three sequences violating the strong triangle inequality are therefore a
+\emph{certificate}, not a surprise relative to shuffles. We formalise the
+inference rule in Lean~4 and emit certificates that embed the aligned rows, so
+the kernel recomputes every count by \texttt{rfl} rather than trusting a search.
+
+The statistic this licenses is nonetheless the wrong one, and a control we had
+not run says so. On a clonal tree with a \textbf{relaxed clock and no
+reticulation whatever}, divergence-matched so that only the clock differs, the
+ultrametric margin exceeds every single-recombinant margin in the positive
+control; at 32 leaves $\min(\text{no reticulation}) = 99/4000 > 79/4000 =
+\max(\text{one recombinant})$ at every seed. The four-point condition encodes
+\emph{tree} without \emph{clock}, we prove in Lean that every symmetric
+ultrametric satisfies it, and the quartet margin on the same data does not move.
+So the quartet statistic must carry the method, and the licence for reading the
+gap between the two conditions is a theorem rather than a convention.
+
+Running this on real data required writing the alignment step, which puts an
+aligner on the trust surface that no downstream proof covers. We measure it
+instead of caveating it: on simulated populations with no reticulation and a
+known true alignment, reference-anchored alignment manufactures $0$ of $9100$
+four-point violations at a $0.4\%$ gap load and $1600$ of $9100$ at $8.2\%$. We
+find no published benchmark that varies alignment quality as an independent
+variable, so we believe this is the first direct measurement of a mechanism the
+field already asserts. Read as an admissibility threshold it refuses $7$ of $10$
+real viral populations drawn from a public corpus; the $3$ that pass agree with a
+literature prior fixed in advance, and the two certificates clearing their matched
+floor are accepted by the kernel with both corrupted twins rejected.
+
+Two corrections to our own apparatus are reported as results. The band-edge test
+by which we had certified the aligner is not a soundness certificate, and it had
+really failed: a pair scoring $16555$ against an unbanded optimum of $17275$ with
+the band edge never touched. Certifying every alignment against the unbanded
+optimum dropped the figure above from $4876$ to $1600$ --- two thirds of our
+headline was an uncertified step inside the measuring apparatus. Separately, the
+statistic we report is a maximum over subsets where the established treelikeness
+tests are averages; run seed-paired against the hard null, the maximum separates
+$16.57\times$ against $5.07\times$ for mean $\delta_q$ and $1.22\times$ for the
+proportion of violating quadruples.
+
+Finally we prove the hinge of Buneman's converse, which this programme had only
+cited: a symmetric dissimilarity satisfies the four-point condition if and only
+if its Gromov product satisfies the max inequality at every root. We find no
+formalisation of tree metrics, splits or Buneman's theorem in Lean, Isabelle or
+Coq, so we believe this is first of its kind. All Lean declarations compile with
+zero \texttt{sorry} and no axioms beyond
+$\{\texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}\}$.
+\end{abstract}
+
+\tableofcontents
+
+\section{Introduction}
+
+A test for recombination has to answer the question: compared with what? The
+standard answer is an ensemble --- shuffle the columns of the alignment, recompute
+the statistic, and read off a $p$-value. It is a serviceable answer with two
+costs. The first is a resolution floor: with $N$ shuffles no $p$-value below
+$1/(N+1)$ is attainable, so the apparatus has an opinion about what counts as
+significant before the data arrives. The second is sharper and less often
+stated. The manual of the field's dominant tool observes that misalignment
+produces false recombination signals which \emph{``will be detected as
+recombination events with significant p-values''} while \emph{``these false
+positive signals will likely be undetectable in the shuffled
+alignments''}~\cite{rdp5}. Column shuffling destroys the spatial clustering of
+misalignment along with the signal, so an entire class of artefact survives the
+real analysis and vanishes from the null. A permutation null cannot see it.
+
+This paper develops the alternative: a null that is a theorem, so that a
+violation is a witness rather than a tail probability.
+
+\begin{model}[What the clock-level null assumes]\label{mod:clock}
+Write $d(x,y)$ for the $p$-distance between two aligned sequences --- differing
+columns over columns comparable in both. Expected $p$-distances satisfy
+\begin{equation}\label{eq:ultra}
+  d(x,z) \;\le\; \max\!\big(d(x,y),\, d(y,z)\big) \qquad \text{for all } x,y,z
+\end{equation}
+exactly when descent is \textbf{clonal} \emph{and} the molecular clock is
+\textbf{strict}. Two assumptions, one inequality.
+\end{model}
+
+If \eqref{eq:ultra} holds then $d(\cdot,\cdot) \le \epsilon$ is transitive, so
+every connected component of the Vietoris--Rips complex at scale $\epsilon$ is a
+clique and no unfilled cycle exists at any scale. Three sequences with
+$\max(d(x,y), d(y,z)) < d(x,z)$ therefore contradict a universally quantified
+statement. Nothing is calibrated.
+
+Section~\ref{sec:nulls} states the two nulls and proves they nest.
+Section~\ref{sec:refute} refutes the clock-level statistic with a control that
+contains no reticulation. Section~\ref{sec:deletion} deals with missing data.
+Section~\ref{sec:aligner} is the paper's main empirical contribution: the
+alignment step is on the trust surface, and this is how large it is.
+Section~\ref{sec:band} reports the proxy inside our own apparatus that failed and
+what it had inflated. Section~\ref{sec:maxmean} prices the maximum against the
+average. Section~\ref{sec:real} runs the test on real viral populations.
+Section~\ref{sec:gromov} proves the hinge of Buneman's converse.
+Section~\ref{sec:limits} says what would make all of it wrong.
+
+\paragraph{What is and is not claimed.} We claim: the nesting theorem and the
+Gromov equivalence, both machine-checked; the refutation of the clock-level
+statistic on simulated data; the measurement of alignment-manufactured
+violations; and three real-data verdicts that agree with priors fixed in advance.
+We do not claim a validated method. Three admissible populations is not a
+validation, no head-to-head against the established tests has been run, and
+Buneman's converse remains cited for its second half. This paper has not been
+peer reviewed.
+
+\section{Two nulls, and the fact that they nest}\label{sec:nulls}
+
+\begin{definition}[Four-point condition]\label{def:fp}
+A symmetric $d$ satisfies the \emph{four-point condition} when for all
+$a,b,c,e$, not necessarily distinct,
+\begin{equation}\label{eq:fp}
+  d(a,b) + d(c,e) \;\le\;
+  \max\!\big(d(a,c)+d(b,e),\; d(a,e)+d(b,c)\big).
+\end{equation}
+\end{definition}
+
+A quadruple admits three pairings; \eqref{eq:fp} says no pairing's distance sum
+strictly exceeds both others. This is a statement about tree structure with no
+constraint on rates: branch lengths are free.
+
+\begin{theorem}[Tree-Metric Theorem; Buneman. \emph{Cited, not proved here}]\label{thm:buneman}
+Let $\delta$ be a nonnegative dissimilarity map on a finite set --- zero on the
+diagonal, symmetric, non-negative. Then $\delta$ is a tree metric if and only if
+it satisfies \eqref{eq:fp}~\cite{buneman,semplesteel}.
+\end{theorem}
+
+The hypotheses are weaker than ``metric'', and the distinction matters enough to
+state: setting $y = z$ in \eqref{eq:fp} yields the triangle inequality, so the
+triangle inequality is a \emph{consequence} of the condition and requiring it as
+a hypothesis would state something strictly weaker than the theorem. An earlier
+draft of our own documentation made that error.
+
+\begin{theorem}[The nulls nest]\label{thm:nest}
+Every symmetric ultrametric satisfies the four-point condition.
+\end{theorem}
+
+\begin{proof}
+Fix $a,b,c,e$. Four applications of \eqref{eq:ultra}, with symmetry to order each
+application, give $d(a,b) \le \max(d(a,c), d(b,c))$,
+$d(a,b) \le \max(d(a,e), d(b,e))$, $d(c,e) \le \max(d(a,c), d(a,e))$ and
+$d(c,e) \le \max(d(b,c), d(b,e))$. Each is a disjunction, giving $2^4$ cases;
+splitting further on the order of the four bounding quantities, every branch
+bounds $d(a,b)+d(c,e)$ by one of the two right-hand sums of \eqref{eq:fp} by a
+linear arithmetic step. The case analysis is mechanical and is discharged by the
+kernel (Listing~\ref{lst:nest}).
+\end{proof}
+
+\begin{corollary}[What a quartet violation buys]\label{cor:q}
+If $d$ is symmetric and fails \eqref{eq:fp} then $d$ is not ultrametric either.
+\end{corollary}
+
+Corollary~\ref{cor:q} is the licence for the reading that organises
+Section~\ref{sec:refute}: large triple margins together with floor-level quartet
+margins indicate rate variation on a tree, because the nesting leaves that the
+only region available.
+
+\begin{lstlisting}[caption={\texttt{formal/ANSE/GeneticaReticulataTree.lean}. The
+\texttt{rcases} chain is the $2^4$ case split, with four further splits on the
+order of the bounding quantities.},label={lst:nest}]
+def IsFourPoint (d : α → α → ℚ) : Prop :=
+  ∀ a b c e, d a b + d c e ≤ max (d a c + d b e) (d a e + d b c)
+
+theorem fourPoint_of_ultrametric {d : α → α → ℚ}
+    (hsym : ∀ x y, d x y = d y x) (hu : IsUltrametric d) : IsFourPoint d
+\end{lstlisting}
+
+The module carries 18 declarations through an axiom gate that compiles each and
+runs \texttt{\#print axioms}: zero \texttt{sorry}, and no axioms beyond
+$\{\texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}\}$. Checking
+compilation alone is insufficient --- both \texttt{sorry} and a locally declared
+axiom exit zero --- which is why the gate inspects the axiom list.
+
+\section{The clock-level statistic is refuted by a control with no reticulation}
+\label{sec:refute}
+
+Condition \eqref{eq:ultra} needs three sequences rather than four, so it is
+cheaper, and our first version reported it. It separated a simulated clonal
+population from a simulated recombinant cleanly. The separation was real and the
+inference from it was wrong, for the reason
+Modelling~assumption~\ref{mod:clock} warns of: a violation tells you one of two
+assumptions failed, not which.
+
+The decisive control is a \textbf{divergence-matched relaxed clock}: clonal
+descent on a balanced tree, no reticulation whatever, with each lineage's
+substitution rate multiplied by $e^{su}$ for $u$ uniform on $[-1,1]$. The
+matching is not optional. Since $\mathbb{E}[e^{su}] = \sinh(s)/s > 1$, an
+unnormalised relaxed clock is also a \emph{faster} clock, and a violation could
+then be attributed to saturation rather than to rate variation; dividing by that
+mean leaves expected divergence equal to the strict-clock case while realised
+rates vary widely. In our first run the normalisation changed the answer, taking
+the relaxed-clock quartet violation count from $2/5$ seeds to $0/5$.
+
+\begin{table}[t]
+\centering\small
+\caption{Thirty-two leaves, $4000$ nt, three seeds, exhaustive over all
+$35\,960$ quadruples per dataset. Margins are exact rationals with denominator
+$4000$; numerators given seed by seed.}
+\label{tab:refute}
+\begin{tabular}{@{}lccll@{}}
+\toprule
+simulated population & reticulation? & clock & triple margin & quartet margin \\
+\midrule
+clonal                     & no  & strict  & $24, 30, 29$   & $10, 9, 10$ \\
+clonal                     & \textbf{no}  & \textbf{relaxed} & $\mathbf{155, 157, 99}$ & $11, 18, 8$ \\
+one recombinant            & yes & strict  & $79, 77, 75$   & $79, 70, 69$ \\
+two reciprocal mosaics     & yes & strict  & $79, 77, 75$   & $\mathbf{158, 154, 126}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Read rows two and three of Table~\ref{tab:refute} together. The smallest triple
+margin produced by a population with \emph{no reticulation in it at all} is
+$99/4000$; the largest produced by a population containing a real recombinant is
+$79/4000$. The ordering is inverted at every seed. On this data a larger triple
+margin is weak evidence \emph{against} reticulation. The quartet column does not
+move: the relaxed clock stays at the strict clock's level while the
+reciprocal-mosaic positive control separates from it by a factor of $12.6$ at its
+weakest seed, with no overlap. At sixteen leaves the same experiment gives a
+relaxed-clock triple margin reaching $106/4000$ --- above every
+single-recombinant margin --- exceeding twice the clonal floor at $3$ of $5$
+seeds, while the quartet statistic does so at $0$ of $5$.
+
+Adding taxa makes the triple statistic worse, as the mechanism predicts: it is a
+maximum over triples, so more leaves give more chances at an extreme pair of
+rates.
+
+\begin{remark}
+This confound is not peculiar to our statistic. Frankel and An\'e report that
+rate variation across lineages produces a marked increase in the false discovery
+of reticulation for three summary tests of introgression, with the $D_3$
+statistic reaching about $80\%$ type-I error, and read this as $D_3$ responding
+more strongly to a departure from the clock than to reticulation
+itself~\cite{frankelane}. A null that assumes a clock is vulnerable wherever it
+is used. The established test whose null assumes no clock, Bruen, Philippe and
+Bryant's $\Phi_w$, reports $5.7\%$ false positives on a non-recombinant control
+where NSS reports $37.5\%$~\cite{bruen}.
+\end{remark}
+
+\paragraph{Recommendation.} Report the quartet statistic as primary. Keep the
+triple statistic --- it is cheaper, and a triple violation with \emph{no} quartet
+violation is itself informative, being the signature of rate variation on a tree
+--- but a triple certificate alone is not evidence of reticulation.
+
+\section{Missing data: complete deletion within the subset}\label{sec:deletion}
+
+Pairwise deletion computes each pair's distance over the columns comparable in
+that pair, giving different pairs different denominators, and that alone can
+break \eqref{eq:ultra} on a genealogy that is exactly a clock tree. The fix is
+\emph{complete deletion within the subset}: count only columns at which every
+member of the triple or quadruple carries a definite base. All distances in a
+certificate then share one denominator, so the obligations become comparisons
+between integers with no cross-multiplication --- a smaller trust surface and the
+repair at once. The cost is power: at a $25\%$ gap load roughly $1000$ to $1700$
+of $4000$ columns survive within a triple.
+
+Measured on gap-blocked but strictly clonal, strictly clock-like populations:
+pairwise deletion calls $33$ to $52$ of the $560$ triples violations that
+complete deletion within the triple denies, at every one of five seeds; at
+thirty-two leaves, $286$ to $366$ of $4960$. With no missing data the two
+policies agree on all $560$, as they must.
+
+\begin{remark}[Margins under the two policies are not comparable]
+Complete deletion shrinks the denominator, so one differing site is worth more
+and its margins come out \emph{larger} although the policy is strictly more
+conservative. A criterion comparing the two sets of margins was written into our
+first run and withdrawn. Compare per-subset \emph{verdicts}, not magnitudes.
+\end{remark}
+
+\section{The alignment step is on the trust surface}\label{sec:aligner}
+
+A certificate is machine-checked, which invites the claim that the conclusion
+does not depend on the pipeline. The precise statement is narrower. The kernel is
+handed the sequences and recomputes every count from them, so a false
+inequality, a wrong count, a transposed pair or a miscomputed margin is excluded.
+What remains trusted is that the embedded rows are the data they are claimed to
+be --- and on real data those rows come out of an \textbf{aligner}. If the
+alignment places non-homologous residues in the same column, the counts are
+computed faithfully from the wrong data and the kernel accepts them. Proof moves
+the trust boundary; it does not close it.
+
+That cannot be proved away, so we measure it. We simulate clonal, relaxed-clock
+descent with deletion events in a fixed coordinate frame, so the frame \emph{is}
+the true alignment and \textbf{there is no reticulation in the population at
+all}; strip the gaps; hand the ragged sequences to the aligner; realign; and
+compare per-quadruple \emph{verdicts}, not margins, since the two alignments
+have different widths. Any quadruple the inferred alignment calls a violation
+and the true alignment does not was manufactured by the aligner.
+
+The aligner is reference-anchored: each sequence is aligned to a centroid
+reference by affine-gap global dynamic programming and projected onto the
+reference's coordinates. This is the construction viral genomic surveillance
+uses, and the final step of MUSCLE5's \texttt{Super5} mode. Its one structural
+advantage is that without a guide tree there is no error-propagation failure
+mode; its costs are that insertions relative to the reference are dropped and
+that every pair of non-reference sequences is related through the reference.
+
+\begin{table}[t]
+\centering\small
+\caption{The admissibility ladder. Sixteen taxa, $4000$ nt, five seeds, $1820$
+quadruples per seed ($9100$ per rung). Every alignment certified optimal
+(Section~\ref{sec:band}).}
+\label{tab:ladder}
+\begin{tabular}{@{}cccrc@{}}
+\toprule
+mean deletion & inferred gap & worst column & quadruples & seeds \\
+length (nt) & fraction & recovery & manufactured & with any \\
+\midrule
+ 30 & $0.00000$ & $1.00000$ & $0$    & $0/5$ \\
+ 30 & $0.00398$ & $0.99997$ & $0$    & $0/5$ \\
+ 30 & $0.00549$ & $0.99880$ & $251$  & $2/5$ \\
+ 30 & $0.00870$ & $0.99712$ & $108$  & $1/5$ \\
+ 30 & $0.01507$ & $0.99906$ & $110$  & $3/5$ \\
+ 30 & $0.02012$ & $0.99831$ & $149$  & $3/5$ \\
+120 & $0.00000$ & $1.00000$ & $0$    & $0/5$ \\
+120 & $0.01322$ & $0.99901$ & $57$   & $2/5$ \\
+120 & $0.01627$ & $0.99901$ & $54$   & $2/5$ \\
+120 & $0.03731$ & $0.99467$ & $324$  & $3/5$ \\
+120 & $0.05254$ & $0.97501$ & $253$  & $3/5$ \\
+120 & $0.08233$ & $0.96032$ & $\mathbf{1600}$ & $5/5$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+At the heaviest rung the aligner invents $1600$ of the $9100$ quadruple verdicts
+on a genealogy that is exactly a tree. \textbf{Past a threshold, alignment error
+is not a correction to this test; it is the result.} The curve is not monotone,
+which is what a maximum over $1820$ quadruples at five seeds looks like, and is
+one reason to gate on \emph{whether} anything was manufactured rather than on how
+much.
+
+So the admissibility threshold is read off the ladder rather than chosen: a gap
+fraction of $0.00398$ and $8.06 \times 10^{-4}$ dropped insertions per aligned
+cell, the heaviest rung at which nothing was manufactured at any seed. Both are
+\emph{rates}; an absolute insertion count is not comparable between a $3$~kb and
+a $12$~kb genome.
+
+\paragraph{Why we believe this measurement is new.} That misalignment
+manufactures recombination signal is not a novel claim and not a contested one.
+It is stated outright in the RDP5 manual --- \emph{``misalignment of sequences is
+a major cause of false recombination signals''} and \emph{``all recombination
+signal detection methods are extremely sensitive to misalignment and will
+usually identify misaligned regions of sequence as having a recombinant
+origin''} --- and misalignment artefact is a named output category in that
+program~\cite{rdp5}. What we did not find is the quantification. Across the
+recombination benchmarking literature we examined, every study varies divergence,
+rate heterogeneity, topology, selection or sequence count while holding the
+alignment fixed; the most recent full benchmark we reached does not discuss gaps
+at all~\cite{jaya}. A measurement of the form ``alignment error alone
+manufactures $N$ of $M$ apparent signals on data containing no reticulation''
+appears therefore to be the first direct measurement of a mechanism the field
+already accepts. That is confirmatory-but-novel, and we state it that way rather
+than as a discovery. The nearest quantified precedent we found is in an adjacent
+task: aligner choice driving a reported $48$--$82\%$ of false positives in
+\emph{Drosophila} positive-selection scans.
+
+\paragraph{An honest limitation of the simulation.} The deletion rate and mean
+deletion length are \emph{chosen}, not calibrated: we found no published viral
+indel length distribution and no clean per-site viral indel rate. The ladder
+therefore varies a load; it does not match one to biology.
+
+\section{Certifying the band: a proxy inside our own apparatus}\label{sec:band}
+
+The dynamic programme is banded, because $12$~kb against $12$~kb is
+$1.4 \times 10^8$ cells and the optimal path of two homologues does not wander
+far from the diagonal. A band is a cap on how much indel a pair may be assigned,
+so it is a place where an aligner can silently return a sub-optimal path. Our
+first implementation detected when the optimal traceback \emph{touched} a band
+edge, widened the band until it did not, and documented this as a guarantee that
+no constrained path was ever returned without saying so.
+
+That documentation was wrong. Gibrat measures both failure directions on real
+data: $2.2\%$ of alignments are optimal yet reach the band edge, and $0.5\%$ are
+sub-optimal without ever reaching it~\cite{gibrat}. Not touching the edge is
+evidence of optimality, not proof of it.
+
+The repair needs no theorem. Computing the unbanded optimum by full Gotoh
+dynamic programming in $O(nm)$ time and $O(m)$ memory --- no band, no heuristic,
+no traceback --- and refusing any banded path that does not attain it gives a
+certificate for one extra pass per pair, which at fifteen pairs per population is
+affordable. We also note, and do not use, a cheaper sufficient test: Gibrat gives
+an upper bound on the score of any path leaving the band, so attaining that bound
+certifies optimality in constant time. His derivation is for a band about the main
+diagonal while ours is about the proportional diagonal, so the bound does not
+transfer unexamined, and recomputation needs no derivation to be trusted.
+
+\paragraph{The proxy had really failed.} The first certified run exited non-zero
+immediately, on a pair scoring $16555$ against an unbanded optimum of $17275$ ---
+a deficit of $720$ points, with the traceback never touching an edge, so
+edge-driven widening never fired. The widening loop is now driven by the
+\emph{score}: widen on either signal, and return only a path that attains the
+optimum, or an error.
+
+\paragraph{What it had inflated.} With every alignment proved optimal,
+Table~\ref{tab:ladder}'s heaviest rung manufactures $1600$ rather than $4876$,
+and worst column recovery is $0.960$ rather than $0.868$. Roughly two thirds of
+what we had reported as reference-anchored alignment error was our own unchecked
+heuristic. The qualitative conclusion is unchanged and the thresholds do not
+move, so no verdict in Section~\ref{sec:real} changes; but the magnitude was
+overstated threefold, in the direction that makes a finding look more impressive.
+We record this because it generalises: \textbf{an uncertified step inside a
+measuring apparatus inflates the thing being measured}, and it will tend to
+inflate it favourably, which is the direction least likely to prompt a second
+look.
+
+\begin{remark}[A textbook algorithm that is wrong in print]
+While checking the above we found that Gotoh's \emph{published} initialisation is
+incorrect --- it omits one of two gap-opens and can return a score that is not
+the cost of any alignment --- and that the error is reproduced in standard
+textbooks and in five of ten inspected implementations~\cite{flouri}. Ours turns
+out to be the corrected form, but nothing in our codebase established that until
+the dynamic programme was tested against exhaustive enumeration of every
+alignment of short sequences rather than against another dynamic programme.
+\end{remark}
+
+\begin{remark}[A tie-break that is a free parameter]
+The control that the aligner is the identity on gapless input failed at one seed
+of five on our first implementation, and not because of a bug. With an affine gap
+of $-10$ to open and $-1$ per residue, three consecutive mismatches score
+$3 \times (-4) + 5 = -7$, and deleting one reference residue, aligning the rest,
+then inserting one query residue scores $-11 + 15 - 11 = -7$. The identity was
+one of two optimal alignments and the implementation returned the other. The
+repair was to \emph{state} the preference. An aligner has free parameters that no
+amount of downstream proof constrains.
+\end{remark}
+
+\section{A maximum, where the established tests are averages}\label{sec:maxmean}
+
+Our certificate is a maximum over quadruples: the single most-violating
+quadruple, exhibited as a witness the kernel can check. That is what makes a
+certificate possible, and it is also an extreme-value statistic whose null level
+grows with the number of subsets examined. Our own grid shows it --- the quartet
+floor moves from $5$--$7$ at sixteen taxa to $9$--$10$ at thirty-two --- so
+margins are not comparable across populations of different size.
+
+The treelikeness literature took the other branch: its statistics are averages
+over quadruples, among them $\delta_q = (m_1-m_2)/(m_1-m_3)$ for sorted pairing
+sums $m_1 \ge m_2 \ge m_3$~\cite{deltaplots}. We therefore ran the comparison.
+
+\begin{table}[h]
+\centering\small
+\caption{Seed-paired against the hard null (clonal, relaxed clock, no
+reticulation). Separation is the weakest seed's ratio of the reciprocal-mosaic
+control to that null.}
+\label{tab:maxmean}
+\begin{tabular}{@{}llcr@{}}
+\toprule
+statistic & what it is & beats the null & worst-seed separation \\
+\midrule
+quartet max margin & exact, with a witness & $5/5$ & $\mathbf{16.57\times}$ \\
+mean $\delta_q$ & the averaged statistic & $5/5$ & $5.07\times$ \\
+proportion violating & share of quadruples & $5/5$ & $1.22\times$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+All three rank both reticulate populations above the relaxed-clock null at every
+seed, so none of them inherits the confound that destroyed the triple statistic.
+At fixed taxon count the maximum separates more than three times as widely as the
+mean, and the proportion-based variant barely separates at all. We note that this
+reproduces, independently, a published finding that the proportion-of-resolved-%
+quadruples variant fails as a test while the averaged variants hold a correct
+false-positive rate.
+
+What the comparison does \emph{not} settle is the maximum's actual weakness,
+which is incomparability across taxon counts rather than poor separation within
+one; our grid is all at one size. Both statistics are therefore reported, and
+only the maximum is exact and kernel-checkable, because a mean has no witness to
+exhibit. That is the trade, and it is now priced rather than assumed.
+
+\section{Real populations}\label{sec:real}
+
+Five viral taxa were drawn from a public corpus of $58\,046$ viral genomes with
+taxonomy~\cite{vhg} under filters fixed in advance: within $2\%$ of the taxon's
+median length, at most $0.1\%$ ambiguous residues, exact duplicates removed,
+sixteen sequences per population, selected either in accession order or by greedy
+$6$-mer diversity. Each taxon carries a \emph{literature} expectation about
+whether its genealogy is tree-like, written before any margin was computed, and
+the test is free to contradict it. Ten populations result.
+
+Seven fail the admissibility gate of Section~\ref{sec:aligner} and are reported
+blocked with their counts rather than interpreted. This is expensive on purpose:
+one discarded population has a margin of $30/1784$ and another $13/5082$. Note
+also which selection strategy survives --- diversity maximisation is exactly what
+breaks reference-anchored alignment. Each of the three that pass is aligned twice,
+on the two most central sequences, and each margin is compared against a floor
+from a simulated clonal relaxed-clock tree at \emph{matched} alignment width,
+\emph{matched} mean $p$-distance (tuned by bisection) and \emph{matched} gap
+load, because a margin alone is not a statistic and a floor from the wrong
+divergence measures the floor.
+
+\begin{table}[h]
+\centering\small
+\caption{The three admissible populations. References agree on the verdict in all
+three.}
+\label{tab:real}
+\begin{tabular}{@{}llrrl@{}}
+\toprule
+population & expectation & margin & matched floor & verdict \\
+\midrule
+Hepatitis B, accession order & reticulate & $9/3182$ & $2/3182$ & above $2\times$ \\
+Coxsackievirus A6, diversity & reticulate & $329/7312$ & $268/7390$ & above $1\times$ only \\
+JC polyomavirus, accession order & tree-like & $4/5108$ & $24/5121$ & \textbf{below} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Three populations, three agreements with the prior. The JC polyomavirus row is
+the one that could most easily have embarrassed the method and did not: its
+margin is a sixth of the floor a tree produces at matched width and divergence.
+Both populations clearing their floor carry a Lean file embedding the four
+aligned rows, so the kernel recomputes the six pair counts and the common column
+count itself: accepted at $3182$ columns in $52.7$~s and at $7434$ columns in
+$117.6$~s, with both corrupted twins rejected.
+
+Two cautions belong beside Table~\ref{tab:real} rather than in a footnote. Three
+is not a validation. And the Coxsackievirus row is weak and at high divergence
+(mean $p = 0.11$): it clears $1\times$ and not $2\times$, and the noise floor
+itself grows with divergence, so it should be read as not inconsistent with the
+prior rather than as a detection. A further caution concerns the prior itself:
+one of our two negative-control families, the papillomaviruses, has documented
+within-type recombination~\cite{murahwa}, so that prior is the weakest in the set
+and we mark it as such. A clonal bacterial lineage would be the stronger negative
+control.
+
+\section{The Gromov hinge of Buneman's converse}\label{sec:gromov}
+
+Theorem~\ref{thm:buneman} is cited above and not proved. The constructive proof
+in the literature does not attack the tree directly: it factors through the
+\emph{Gromov product} at a chosen root, reducing the four-point condition on $d$
+to an ultrametric-style condition on a derived function, and only then builds an
+equidistant tree by a cherry-picking recursion. The reduction is the hinge, and
+unlike the tree construction it is pure algebra.
+
+\begin{definition}
+At a root $r$, write
+$g_r(x,y) = \tfrac{1}{2}\big(d(x,y) - d(r,x) - d(r,y)\big)$. This is a
+dissimilarity, not a metric: it takes negative values. Say $f$ satisfies the
+\emph{strong triangle inequality} when $f(x,z) \le \max(f(x,y), f(y,z))$ for all
+$x,y,z$ --- inequality \eqref{eq:ultra} with no positivity required.
+\end{definition}
+
+\begin{theorem}[The hinge; proved, not cited]\label{thm:gromov}
+A symmetric $d$ satisfies the four-point condition if and only if $g_r$ satisfies
+the strong triangle inequality for every root $r$.
+\end{theorem}
+
+\begin{proof}
+Expanding $g_r(x,z) \le g_r(x,y)$ gives
+$d(x,z) + d(r,y) \le d(x,y) + d(r,z)$, and $g_r(x,z) \le g_r(y,z)$ gives
+$d(x,z) + d(r,y) \le d(y,z) + d(r,x)$. So the right-hand side of the theorem says
+exactly
+\[
+  d(x,z) + d(r,y) \;\le\;
+  \max\!\big(d(x,y)+d(r,z),\; d(y,z)+d(r,x)\big)
+\]
+for all $r,x,y,z$, which is \eqref{eq:fp} instantiated at
+$(a,b,c,e) = (x,z,r,y)$ together with the symmetry of $d$. Reading the
+implication backwards requires the root $c$ with the remaining three in the order
+$(a,e,b)$.
+\end{proof}
+
+\begin{lstlisting}[caption={The Lean statement. \texttt{\#print axioms} gives
+\texttt{[propext, Classical.choice, Quot.sound]}.},label={lst:gromov}]
+theorem fourPoint_iff_gromov_strongTriangle {d : α → α → ℚ}
+    (hsym : ∀ x y, d x y = d y x) :
+    IsFourPoint d ↔ ∀ r, StrongTriangle (gromov d r)
+\end{lstlisting}
+
+Two details are worth recording. The condition is named \texttt{StrongTriangle}
+and not \texttt{IsUltrametric}, because the Gromov product takes negative values
+and calling it an ultrametric would import a positivity hypothesis it does not
+satisfy; the literature's phrase ``the Gromov product is an ultrametric'' means
+only the max inequality. And the kernel earned its place: our first attempt
+instantiated the reverse direction at the wrong permutation, \texttt{linarith}
+failed on two goals, and the axiom gate reported \texttt{sorryAx} rather than
+letting a plausible-looking proof through.
+
+What remains cited is the tree construction --- the equidistant cherry-picking
+recursion and the re-rooting that returns a tree metric. The chain this paper can
+claim is therefore: certificate $\Rightarrow$ not four-point $\Rightarrow$
+(proved) some root's Gromov product fails the strong triangle inequality
+$\Rightarrow$ (cited) not realised by a weighted tree. We searched Mathlib, the
+Isabelle Archive of Formal Proofs and the Coq ecosystem and found ultrametric
+spaces but no tree metrics, no splits and no four-point condition, so completing
+the construction appears to be first of its kind. That search was across indexes
+rather than exhaustive.
+
+\section{Limitations, and what would make this wrong}\label{sec:limits}
+
+\begin{itemize}
+\item \textbf{Buneman's converse is half-cited.} Theorem~\ref{thm:gromov} closes
+the first step; the construction is not formalised. So ``satisfies \eqref{eq:fp}
+everywhere'' is not yet formally ``is a tree'' in this development.
+\item \textbf{A certificate does not identify an event.} Satisfying \eqref{eq:fp}
+does not certify the \emph{absence} of reticulation, and a violation does not
+pin down which tree the data departs from; there exist networks whose distances
+are representable by a tree other than their own underlying
+tree~\cite{francissteel}. The honest report is \emph{that} the data are not
+tree-like and \emph{where}, not an event history.
+\item \textbf{The margin's null distribution is not derived.} Finite sequences
+are never exactly ultrametric, so certificates exist under the null with small
+margins; we calibrate by matched mechanistic simulation rather than by a
+distribution. We found no analytic sampling distribution of the four-point margin
+in the literature either, only high-probability sequence-length bounds and
+parametric bootstrap, so this is the field's position and not only ours.
+\item \textbf{Three admissible real populations.} Too few to call the method
+validated, and the aligner that made them admissible is reference-anchored.
+\item \textbf{No head-to-head.} The comparison against $\Phi_w$ and the
+quartet-averaged treelikeness tests on the same alignments has not been run.
+Until it has, this method's standing relative to the incumbents is unestablished.
+\item \textbf{The statistic is an extreme value.} Section~\ref{sec:maxmean}
+prices this at fixed taxon count only.
+\end{itemize}
+
+What would make the programme wrong, rather than merely incomplete: if
+violations of \eqref{eq:fp} at the scale we report turned out to be dominated by
+some departure from tree-likeness other than reticulation --- population
+structure, recurrent mutation, or selection acting locally --- then the
+certificates would remain valid and the biological reading of them would not. We
+have controlled for rate variation and for missing data, and measured the
+alignment contribution. We have not controlled for the rest.
+
+\section{Reproducibility}\label{sec:repro}
+
+Every number in this paper is produced by a named command in the repository
+\texttt{SocrateAI-Scientific-Genetic} at release \texttt{v1.8.0}, and the raw
+output is deposited with it.
+
+\begin{center}\small
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+command & what it produces \\
+\midrule
+\texttt{reticulation experiment} & Table~\ref{tab:refute},
+Section~\ref{sec:deletion}, Table~\ref{tab:maxmean} \\
+\texttt{reticulation align-error} & Table~\ref{tab:ladder} and the admissibility
+threshold it measures \\
+\texttt{reticulation real-data} & Table~\ref{tab:real} and the kernel verdicts \\
+\texttt{reticulation saturation} & the length-scaling diagnostic behind the
+divergence caution \\
+\texttt{scripts/reticulata\_hf\_populations.py} & the ten populations, with a
+SHA-256 of the source file \\
+\texttt{lake build ANSE.GeneticaReticulataTree} & the theorems, with
+\texttt{\#print axioms} on each \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+All are deterministic given their seeds. The population extraction is
+deterministic given the source corpus, whose digest, filters and every selected
+accession are recorded in \texttt{provenance.json}. Verification at the release:
+$88$ library and $2$ integration tests in Rust; Lean $18/18$ and $14/14$
+declarations with zero \texttt{sorry} and no unwhitelisted axioms; $33$ Python
+tests; an anti-stub audit over $227$ files.
+
+\paragraph{Status of this manuscript.} Not peer reviewed. The repository
+previously described work as ``5-round Opus peer reviewed'' on the basis of a
+function that made no model call; that description was withdrawn, and no
+equivalent claim is made here. Reported results are the output of the commands
+above, including the three places where that output contradicted what we had
+written.
+
+\begin{thebibliography}{99}
+
+\bibitem{buneman} Buneman P (1971/1974). The recovery of trees from measures of
+dissimilarity. In \emph{Mathematics in the Archaeological and Historical
+Sciences}, Edinburgh University Press, 387--395; and: A note on the metric
+properties of trees. \emph{J. Combinatorial Theory B} \textbf{17}:48--50.
+[Attribution is contested between these two in the secondary literature; neither
+was retrievable as a primary record here, and no DOI is asserted.]
+
+\bibitem{semplesteel} Semple C, Steel M (2003). \emph{Phylogenetics}. Oxford
+Lecture Series in Mathematics and its Applications 24, Oxford University Press.
+[The statement of Theorem~\ref{thm:buneman} used here was taken from S.~Roch's
+MATH~833 notes, which follow this book's Chapter~7; we do not assert a theorem
+number.]
+
+\bibitem{francissteel} Francis AR, Steel M (2014). Tree-like reticulation
+networks --- when do tree-like distances also support reticulate evolution?
+\emph{arXiv:1405.2965}.
+
+\bibitem{gibrat} Gibrat J-F (2018). A short note on dynamic programming in a
+band. \emph{BMC Bioinformatics} \textbf{19}:226.
+\href{https://doi.org/10.1186/s12859-018-2228-9}{doi:10.1186/s12859-018-2228-9}
+
+\bibitem{flouri} Flouri T, Kobert K, Rognes T, Stamatakis A. Are all global
+alignment algorithms and implementations correct? \emph{bioRxiv} preprint.
+\href{https://doi.org/10.1101/031500}{doi:10.1101/031500}
+
+\bibitem{bruen} Bruen TC, Philippe H, Bryant D (2006). A simple and robust
+statistical test for detecting the presence of recombination. \emph{Genetics}
+\textbf{172}(4):2665--2681.
+\href{https://doi.org/10.1534/genetics.105.048975}{doi:10.1534/genetics.105.048975}
+
+\bibitem{deltaplots} Holland BR, Huber KT, Dress A, Moulton V (2002). $\delta$
+plots: a tool for analyzing phylogenetic distance data. \emph{Mol. Biol. Evol.}
+\textbf{19}(12):2051--2059.
+\href{https://doi.org/10.1093/oxfordjournals.molbev.a004030}{doi:10.1093/oxfordjournals.molbev.a004030}
+
+\bibitem{frankelane} Frankel LE, An\'e C (2023). Summary tests of introgression
+are highly sensitive to rate variation across lineages. \emph{Systematic Biology}
+\textbf{72}(6):1357--1369.
+\href{https://doi.org/10.1093/sysbio/syad056}{doi:10.1093/sysbio/syad056}
+
+\bibitem{murahwa} Murahwa AT, \emph{et al.}\ (2020). Recombination between
+high-risk human papillomaviruses and non-human primate papillomaviruses.
+\emph{J. Mol. Evol.} \textbf{88}:453--462.
+\href{https://doi.org/10.1007/s00239-020-09946-0}{doi:10.1007/s00239-020-09946-0}
+
+\bibitem{rdp5} Martin DP, \emph{et al.} \emph{RDP5 Instruction Manual}.
+\url{https://web.cbio.uct.ac.za/~darren/RDP5Manual.pdf} [Quotations are verbatim
+from §3.1.2, §3.1.3, §10.2 and §12.1 of the manual as retrieved.]
+
+\bibitem{jaya} Jaya FR, Brito BP, Darling AE (2023). Evaluation of
+recombination detection methods for viral sequencing. \emph{Virus Evolution}
+\textbf{9}(2):vead066.
+\href{https://doi.org/10.1093/ve/vead066}{doi:10.1093/ve/vead066}
+[Cited here for the fact that the benchmark does not vary alignment quality.]
+
+\bibitem{vhg} hiyata (2025). \emph{Virus-Host-Genomes}. Hugging Face dataset,
+$58\,046$ viral genomes with taxonomy, MIT licence.
+\url{https://huggingface.co/datasets/hiyata/Virus-Host-Genomes}
+
+\bibitem{chan} Chan JM, Carlsson G, Rabadan R (2013). Topology of viral
+evolution. \emph{PNAS} \textbf{110}(46):18566--18571.
+\href{https://doi.org/10.1073/pnas.1313480110}{doi:10.1073/pnas.1313480110}
+[The construction this work follows: persistence on a population under a
+genetic-distance metric.]
+
+\end{thebibliography}
+
+\end{document}
