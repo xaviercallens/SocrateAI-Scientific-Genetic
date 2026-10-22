@@ -37,10 +37,33 @@
 //! against a 12 kb genome is 1.4e8 cells and the optimal path of two homologues
 //! does not wander far from the diagonal. A band is a cap on how much indel a
 //! pair may be assigned, so the band is a place where an aligner can quietly
-//! return the wrong answer. [`align_pair`] therefore detects when the optimal
-//! traceback *touches* a band edge and widens the band until it does not, up to
-//! a ceiling; at the ceiling it returns an error. It never returns a path that
-//! was constrained by the band without saying so.
+//! return the wrong answer. [`align_pair`] detects when the traceback *touches*
+//! a band edge and widens the band until it does not, up to a ceiling.
+//!
+//! **That test is a heuristic, not a certificate, and an earlier version of this
+//! module claimed otherwise.** Gibrat (BMC Bioinformatics 19:226, 2018) measured
+//! both failure directions on real data: 2.2% of alignments were optimal yet
+//! reached the band edge, and 0.5% were sub-optimal without ever reaching it.
+//! Not touching the edge is therefore evidence, not proof.
+//!
+//! [`align_pair_certified`] gives the proof instead, by the only means that
+//! needs no theorem: it computes the unbanded optimum with
+//! [`optimal_global_score`] — full `O(nm)` time in `O(m)` memory, no band, no
+//! heuristic — and refuses to return a banded path that does not attain it. At
+//! this scale that is affordable (15 pairs per population, ~1.4e8 cells each),
+//! and it is what [`reference_anchored_alignment`] uses when asked to certify.
+//! A `PairAlignment` says which of the two it is in
+//! [`PairAlignment::certified_optimal`], and nothing in this crate reports an
+//! alignment as optimal on the strength of the band-edge test alone.
+//!
+//! A cheaper certificate exists and is not used here. Gibrat gives an upper
+//! bound `best_out` on the score of any path that leaves the band, so
+//! `s_band >= best_out` certifies optimality in `O(1)` after the banded pass —
+//! but his derivation is for a band about the main diagonal, while this module
+//! bands about the *proportional* diagonal to absorb length differences, so the
+//! bound does not transfer unexamined. Recomputing the optimum is slower and
+//! needs no derivation to be trusted, which at 15 pairs per population is the
+//! right trade. The bound is worth revisiting if this ever has to scale.
 
 use serde::{Deserialize, Serialize};
 
@@ -100,6 +123,10 @@ pub struct PairAlignment {
     pub insertions: usize,
     /// Reference positions with no query residue.
     pub deletions: usize,
+    /// True only when this score was checked against the unbanded optimum by
+    /// [`align_pair_certified`]. False means the band-edge test passed and
+    /// nothing stronger was done — which is evidence of optimality, not proof.
+    pub certified_optimal: bool,
 }
 
 const NEG: i64 = i64::MIN / 4;
@@ -425,7 +452,126 @@ fn align_banded(
         band,
         insertions,
         deletions,
+        certified_optimal: false,
     }))
+}
+
+/// Add `delta` to a score, keeping the sentinel absorbing.
+fn offset(value: i64, delta: i64) -> i64 {
+    if value > NEG { value + delta } else { NEG }
+}
+
+/// The exact optimal global alignment score, with no band at all.
+///
+/// Full Gotoh in `O(n*m)` time and `O(m)` memory: three score rows, no
+/// traceback, so nothing is approximated and nothing is stored. This is the
+/// reference against which [`align_pair_certified`] checks a banded path, and
+/// it exists because the band-edge test cannot do that job (see the module
+/// documentation).
+///
+/// The boundary initialisation is the corrected one. Flouri et al.
+/// (`doi:10.1101/031500`) show that Gotoh's published initialisation is wrong —
+/// it omits one of two gap-opens and can return a score that is not the cost of
+/// any alignment — and that the error is reproduced in standard textbooks and in
+/// several widely used implementations. The fix is that the two gap layers are
+/// unreachable on the opposite boundary, so they are left at the sentinel rather
+/// than given a finite value. `brute_force_agrees_with_the_dp_on_small_inputs`
+/// is the regression test, and it checks against exhaustive enumeration rather
+/// than against another DP.
+pub fn optimal_global_score(reference: &[u8], query: &[u8], scoring: &Scoring) -> i64 {
+    let n = reference.len();
+    let m = query.len();
+    let open_extend = (scoring.gap_open + scoring.gap_extend) as i64;
+    let extend = scoring.gap_extend as i64;
+
+    let mut m_prev = vec![NEG; m + 1];
+    let mut x_prev = vec![NEG; m + 1];
+    let mut y_prev = vec![NEG; m + 1];
+    let mut m_cur = vec![NEG; m + 1];
+    let mut x_cur = vec![NEG; m + 1];
+    let mut y_cur = vec![NEG; m + 1];
+
+    m_prev[0] = 0;
+    for (j, value) in y_prev.iter_mut().enumerate().skip(1) {
+        *value = open_extend + extend * (j as i64 - 1);
+    }
+
+    for i in 1..=n {
+        m_cur[0] = NEG;
+        x_cur[0] = open_extend + extend * (i as i64 - 1);
+        y_cur[0] = NEG;
+        for j in 1..=m {
+            let best = m_prev[j - 1].max(x_prev[j - 1]).max(y_prev[j - 1]);
+            m_cur[j] = offset(best, substitution(reference[i - 1], query[j - 1], scoring));
+            x_cur[j] = offset(m_prev[j], open_extend).max(offset(x_prev[j], extend));
+            y_cur[j] = offset(m_cur[j - 1], open_extend).max(offset(y_cur[j - 1], extend));
+        }
+        std::mem::swap(&mut m_prev, &mut m_cur);
+        std::mem::swap(&mut x_prev, &mut x_cur);
+        std::mem::swap(&mut y_prev, &mut y_cur);
+    }
+    m_prev[m].max(x_prev[m]).max(y_prev[m])
+}
+
+/// Align and return a path **proved** optimal, widening the band until it is.
+///
+/// The band is driven by the *score*, not by the band-edge test. That matters,
+/// and not hypothetically: on this crate's own simulated data a band of
+/// half-width 64 returned a path scoring 16555 where the unbanded optimum is
+/// 17275, and the traceback never touched an edge, so edge-driven widening
+/// never fired. Widening on either signal — edge touched, or score short of the
+/// optimum — is what makes the returned path optimal rather than plausible.
+///
+/// # Errors
+///
+/// Empty input, or a band at `max_band` whose path still falls short of the
+/// unbanded optimum. The caller gets an error rather than a sub-optimal
+/// alignment presented as an optimal one.
+pub fn align_pair_certified(
+    reference: &[u8],
+    query: &[u8],
+    scoring: &Scoring,
+    band: usize,
+    max_band: usize,
+) -> Result<PairAlignment, String> {
+    if reference.is_empty() || query.is_empty() {
+        return Err("cannot align an empty sequence".to_string());
+    }
+    let optimum = optimal_global_score(reference, query, scoring);
+    let mut width = band.max(1);
+    let mut last_score: Option<i64> = None;
+    loop {
+        if let BandedOutcome::Clear(mut alignment) =
+            align_banded(reference, query, scoring, width)?
+        {
+            if alignment.score == optimum {
+                alignment.certified_optimal = true;
+                return Ok(alignment);
+            }
+            if alignment.score > optimum {
+                return Err(format!(
+                    "a banded path scores {} above the unbanded optimum of {optimum}, \
+                     which is impossible: one of the two dynamic programmes in this \
+                     module is wrong. This is a bug report about this crate, not a \
+                     result about the data.",
+                    alignment.score
+                ));
+            }
+            last_score = Some(alignment.score);
+        }
+        if width >= max_band {
+            return Err(format!(
+                "at a band half-width of {width} the best path found scores {} against \
+                 an unbanded optimum of {optimum}. Raise the ceiling deliberately, or \
+                 treat this pair as not alignable as near-colinear homologues under \
+                 this scoring; a sub-optimal path will not be returned as if it were \
+                 optimal.",
+                last_score.map_or_else(|| "nothing (the band never cleared)".to_string(), |s| s
+                    .to_string())
+            ));
+        }
+        width = (width * 2).min(max_band);
+    }
 }
 
 /// Project a pairwise alignment onto the reference's coordinates.
@@ -473,6 +619,9 @@ pub struct ReferenceAnchored {
     pub scores: Vec<i64>,
     /// Per-query band half-width that cleared the band-edge check.
     pub bands: Vec<usize>,
+    /// True only when every pairwise alignment was checked against its unbanded
+    /// optimum. False means the band-edge test is all that was done.
+    pub certified_optimal: bool,
 }
 
 impl ReferenceAnchored {
@@ -556,10 +705,16 @@ pub fn centroid_ranking(sequences: &[Vec<u8>]) -> Vec<usize> {
 
 /// Build a reference-anchored multiple alignment.
 ///
+/// With `certify` set, every pairwise alignment is checked against its unbanded
+/// optimum by [`align_pair_certified`], which costs a second full `O(nm)` pass
+/// per pair and is the only form in which this function's output may be
+/// described as optimal.
+///
 /// # Errors
 ///
-/// Fewer than three sequences, an out-of-range `reference_index`, or any
-/// pairwise alignment that cannot clear the band-edge check.
+/// Fewer than three sequences, an out-of-range `reference_index`, any pairwise
+/// alignment that cannot clear the band-edge check, or — under `certify` — any
+/// pair whose banded score falls short of its unbanded optimum.
 pub fn reference_anchored_alignment(
     labels: &[String],
     sequences: &[Vec<u8>],
@@ -567,6 +722,7 @@ pub fn reference_anchored_alignment(
     scoring: &Scoring,
     band: usize,
     max_band: usize,
+    certify: bool,
 ) -> Result<ReferenceAnchored, String> {
     if sequences.len() < 3 {
         return Err(format!(
@@ -608,7 +764,12 @@ pub fn reference_anchored_alignment(
             bands.push(0);
             continue;
         }
-        let pair = align_pair(reference, sequence, scoring, band, max_band).map_err(|error| {
+        let pair = if certify {
+            align_pair_certified(reference, sequence, scoring, band, max_band)
+        } else {
+            align_pair(reference, sequence, scoring, band, max_band)
+        }
+        .map_err(|error| {
             format!(
                 "aligning '{}' to reference '{}': {error}",
                 labels[index], labels[reference_index]
@@ -630,6 +791,7 @@ pub fn reference_anchored_alignment(
         deletions,
         scores,
         bands,
+        certified_optimal: certify,
     })
 }
 
@@ -799,7 +961,7 @@ mod tests {
         }
         let labels: Vec<String> = (0..sequences.len()).map(|i| format!("s{i}")).collect();
         let anchored =
-            reference_anchored_alignment(&labels, &sequences, 0, &Scoring::default(), 16, 256)
+            reference_anchored_alignment(&labels, &sequences, 0, &Scoring::default(), 16, 256, true)
                 .expect("alignable");
         assert_eq!(anchored.width, 240);
         assert_eq!(anchored.rows, sequences, "the aligner must be the identity");
@@ -841,7 +1003,7 @@ mod tests {
         c[100] = b'A';
         let labels = vec!["a".to_string(), "b".to_string(), "c".to_string()];
         let anchored =
-            reference_anchored_alignment(&labels, &[a.clone(), b, c], 0, &Scoring::default(), 32, 512)
+            reference_anchored_alignment(&labels, &[a.clone(), b, c], 0, &Scoring::default(), 32, 512, true)
                 .expect("alignable");
         assert_eq!(anchored.width, a.len());
         assert_eq!(anchored.rows[0], a);
@@ -851,6 +1013,109 @@ mod tests {
             "the 10 bp deletion must show as gaps"
         );
         assert!(anchored.rows.iter().all(|row| row.len() == a.len()));
+    }
+
+    /// Exhaustive enumeration of every alignment of two short sequences.
+    ///
+    /// The oracle for the DP, deliberately written in a different style: it
+    /// recurses over the three moves and charges a gap-open whenever the
+    /// previous move was not the same kind of gap. Exponential, hence the length
+    /// limit, but it depends on no recurrence and no initialisation, so it
+    /// catches the class of bug Flouri et al. document — a boundary that lets a
+    /// path open one gap while paying for none.
+    fn brute_force_affine(reference: &[u8], query: &[u8], scoring: &Scoring) -> i64 {
+        fn go(r: &[u8], q: &[u8], i: usize, j: usize, last: u8, s: &Scoring) -> i64 {
+            if i == r.len() && j == q.len() {
+                return 0;
+            }
+            let open_extend = (s.gap_open + s.gap_extend) as i64;
+            let extend = s.gap_extend as i64;
+            let mut best = i64::MIN / 4;
+            if i < r.len() && j < q.len() {
+                let sub = if r[i] == q[j] {
+                    s.match_score as i64
+                } else {
+                    s.mismatch as i64
+                };
+                best = best.max(sub + go(r, q, i + 1, j + 1, 0, s));
+            }
+            if i < r.len() {
+                let cost = if last == 1 { extend } else { open_extend };
+                best = best.max(cost + go(r, q, i + 1, j, 1, s));
+            }
+            if j < q.len() {
+                let cost = if last == 2 { extend } else { open_extend };
+                best = best.max(cost + go(r, q, i, j + 1, 2, s));
+            }
+            best
+        }
+        go(reference, query, 0, 0, 0, scoring)
+    }
+
+    #[test]
+    fn brute_force_agrees_with_the_dp_on_small_inputs() {
+        let scoring = Scoring::default();
+        let cases: [(&str, &str); 8] = [
+            ("A", "A"),
+            ("A", "T"),
+            ("AC", "CA"),
+            ("ACGT", "ACGT"),
+            ("ACGT", "AGT"),
+            ("AGT", "ACGT"),
+            ("ACGTA", "TGCAT"),
+            ("ACGTAC", "A"),
+        ];
+        for (left, right) in cases {
+            let r = seq(left);
+            let q = seq(right);
+            let expected = brute_force_affine(&r, &q, &scoring);
+            assert_eq!(
+                optimal_global_score(&r, &q, &scoring),
+                expected,
+                "unbanded DP disagrees with enumeration on {left}/{right}"
+            );
+            let banded = align_pair(&r, &q, &scoring, 8, 64)
+                .expect("short sequences are alignable")
+                .score;
+            assert_eq!(
+                banded, expected,
+                "banded DP disagrees with enumeration on {left}/{right}"
+            );
+        }
+    }
+
+    #[test]
+    fn certification_attains_the_unbanded_optimum_and_a_short_band_is_refused() {
+        let reference: Vec<u8> = "ACGTTGCAGGTTACGT".bytes().cycle().take(600).collect();
+        let mut query = reference.clone();
+        query.drain(120..300); // a 180 bp deletion at one end of the sequence
+        let scoring = Scoring::default();
+
+        let certified = align_pair_certified(&reference, &query, &scoring, 16, 1024)
+            .expect("certification widens the band until the optimum is attained");
+        assert!(certified.certified_optimal, "the flag must be set");
+        assert!(
+            certified.band > 16,
+            "the band had to widen past its start, got {}",
+            certified.band
+        );
+        // A ceiling below what the pair needs is an error, never a quiet
+        // sub-optimal answer.
+        let capped = align_pair_certified(&reference, &query, &scoring, 2, 4);
+        assert!(capped.is_err(), "a 4-wide ceiling cannot reach the optimum");
+        assert!(capped.unwrap_err().contains("unbanded optimum"));
+        assert_eq!(
+            certified.score,
+            optimal_global_score(&reference, &query, &scoring),
+            "a certified score is the unbanded optimum by definition"
+        );
+
+        // align_pair alone does not claim certification.
+        let uncertified = align_pair(&reference, &query, &scoring, 16, 1024).expect("alignable");
+        assert!(
+            !uncertified.certified_optimal,
+            "align_pair must not claim what it has not checked"
+        );
     }
 
     #[test]
@@ -864,6 +1129,7 @@ mod tests {
             &Scoring::default(),
             8,
             64,
+            true,
         );
         assert!(two.is_err(), "two sequences are not a population");
         let labels3 = vec!["a".to_string(), "b".to_string(), "c".to_string()];
@@ -874,6 +1140,7 @@ mod tests {
             &Scoring::default(),
             8,
             64,
+            true,
         );
         assert!(bad.is_err(), "reference index 9 is out of range");
         assert!(bad.unwrap_err().contains("out of range"));

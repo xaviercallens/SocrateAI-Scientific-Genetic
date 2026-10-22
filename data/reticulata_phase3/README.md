@@ -50,8 +50,10 @@ the parquet, whose SHA-256 is recorded in `populations/provenance.json`.
 `align_error.json`'s ladder is the reason, and it is the most important number
 Phase 3 produced. On populations with **no reticulation in them at all**,
 reference-anchored alignment starts calling quadruples four-point violations as
-soon as the indel load rises: at the heaviest rung, 4876 of 9100 quadruples over
-five seeds. A margin computed on such an alignment is a statement about the
+soon as the indel load rises: at the heaviest rung, 1600 of 9100 quadruples over
+five seeds. (Before the band was certified against the unbanded optimum the same
+rung reported 4876 — two thirds of it the band's own sub-optimal paths rather
+than alignment error.) A margin computed on such an alignment is a statement about the
 aligner.
 
 So `real-data` applies a threshold taken from the ladder — the heaviest rung at

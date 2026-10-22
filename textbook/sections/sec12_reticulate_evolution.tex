@@ -80,10 +80,27 @@ $a,b,c,e$
 A quadruple admits three ways of pairing its members. Condition
 \eqref{eq:fourpoint} says no pairing's distance sum strictly exceeds both
 others. That is a statement about \emph{tree structure} with no constraint on
-rates at all: branch lengths are free. By Buneman's theorem a metric satisfying
-\eqref{eq:fourpoint} on every quadruple is realised by a weighted tree. We cite
-that converse; we do not prove it, and the book says so rather than implying
-otherwise.
+rates at all: branch lengths are free.
+
+\begin{theorem}[Tree-Metric Theorem; Buneman. Cited, not proved here]\label{thm:buneman}
+Let $\delta$ be a \emph{nonnegative dissimilarity map} on a finite set --- zero
+on the diagonal, symmetric, non-negative. Then $\delta$ is a tree metric if and
+only if it satisfies \eqref{eq:fourpoint}.
+\end{theorem}
+
+Note what Theorem~\ref{thm:buneman} does \emph{not} assume. It is tempting to
+write ``a metric satisfying the four-point condition'', and an earlier draft of
+this section did; but the triangle inequality is a \emph{consequence} of
+\eqref{eq:fourpoint} --- set $y = z$ and read it off --- so requiring it as a
+hypothesis would state something strictly weaker than the theorem. The
+uniqueness is up to canonical isomorphism once zero-weight interior edges are
+contracted.
+
+Two further limits belong here rather than in a footnote. The condition is
+necessary but \emph{not} sufficient for a tree whose internal vertices are also
+labelled, and --- the one that bounds what this section's certificates can mean
+--- satisfying \eqref{eq:fourpoint} does not certify the \emph{absence} of
+reticulation, nor does a violation pin down which tree the data departs from.
 
 Now the result that organises everything else.
 
@@ -154,7 +171,41 @@ theorem quartet_violation_refutes_ultrametric {d : α → α → ℚ}
   fun hu => h (fourPoint_of_ultrametric hsym hu)
 \end{lstlisting}
 
-The module carries sixteen theorems through the axiom gate of
+One further theorem in that module is the hinge of Buneman's converse, and it
+is worth seeing because it says the two nulls of this section are the same
+condition viewed from two places. Define the \emph{Gromov product} at a root
+$r$, as a dissimilarity,
+\[
+  g_r(x,y) \;=\; \tfrac{1}{2}\big(d(x,y) - d(r,x) - d(r,y)\big),
+\]
+which may be negative, and say $f$ satisfies the \emph{strong triangle
+inequality} when $f(x,z) \le \max(f(x,y), f(y,z))$ for all $x,y,z$ --- the
+ultrametric inequality of Definition~\ref{def:ultrametric} with no positivity
+required.
+
+\begin{theorem}[The hinge; proved, not cited]\label{thm:gromov}
+A symmetric $d$ satisfies the four-point condition if and only if $g_r$
+satisfies the strong triangle inequality for every root $r$.
+\end{theorem}
+
+\begin{proof}
+Relabelling and symmetry. Expanding $g_r(x,z) \le g_r(x,y)$ gives
+$d(x,z) + d(r,y) \le d(x,y) + d(r,z)$, and $g_r(x,z) \le g_r(y,z)$ gives
+$d(x,z) + d(r,y) \le d(y,z) + d(r,x)$; so the right-hand side of
+Theorem~\ref{thm:gromov} says exactly
+$d(x,z) + d(r,y) \le \max\big(d(x,y)+d(r,z),\, d(y,z)+d(r,x)\big)$, which is
+\eqref{eq:fourpoint} at $(a,b,c,e) = (x,z,r,y)$. Reading it backwards needs the
+root $c$ and the remaining three in the order $(a,e,b)$ --- getting that
+permutation wrong is how the first attempt failed, and the kernel said so.
+\end{proof}
+
+The constructive proof of Buneman's theorem continues from here by showing an
+ultrametric is realised by an equidistant tree and then re-rooting. That part is
+still cited. So the chain this section can claim is: certificate $\Rightarrow$
+not four-point $\Rightarrow$ (proved) some root's Gromov product fails the strong
+triangle inequality $\Rightarrow$ (cited) not realised by a weighted tree.
+
+The module carries eighteen theorems through the axiom gate of
 \S\ref{sec:proof-and-cell}: zero \texttt{sorry}, and no axioms beyond
 $\{\texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}\}$. It also
 carries the controls, which matter more than the theorems. One witness shows the
@@ -274,6 +325,17 @@ an \textbf{aligner}. If the alignment puts non-homologous residues in the same
 column, the counts are computed faithfully from the wrong data and the kernel
 accepts them.
 
+A second, subtler version of the same problem sits inside the aligner. Its
+dynamic programme is \emph{banded}, and the natural test --- did the optimal
+traceback touch a band edge? --- is evidence of optimality but not proof: Gibrat
+(2018) measured $2.2\%$ of alignments optimal yet touching the edge and $0.5\%$
+sub-optimal without touching it. The repair is to compute the unbanded optimum
+in linear memory and refuse any banded path that falls short of it, which at this
+scale costs one extra pass per pair. Every number in this section comes from
+alignments certified that way. The general lesson is the one the book keeps
+returning to: a cheap test that usually agrees with the truth is not a
+certificate, and calling it one is how a pipeline acquires an unexamined step.
+
 That cannot be proved away, so it is measured. Simulate clonal, relaxed-clock
 descent with deletion events in a fixed coordinate frame; the frame \emph{is}
 the true alignment. Strip the gaps, hand the ragged sequences to the aligner,
@@ -294,18 +356,27 @@ length (nt) & fraction & recovery & manufactured & any \\
  30 & $0.0000$ & $1.0000$ & $0$    & $0/5$ \\
  30 & $0.0040$ & $1.0000$ & $0$    & $0/5$ \\
  30 & $0.0055$ & $0.9988$ & $251$  & $2/5$ \\
- 30 & $0.0149$ & $0.9928$ & $217$  & $3/5$ \\
- 30 & $0.0237$ & $0.9753$ & $1537$ & $4/5$ \\
+ 30 & $0.0151$ & $0.9991$ & $110$  & $3/5$ \\
+ 30 & $0.0201$ & $0.9983$ & $149$  & $3/5$ \\
 120 & $0.0132$ & $0.9990$ & $57$   & $2/5$ \\
-120 & $0.0474$ & $0.8939$ & $2613$ & $5/5$ \\
-120 & $0.0941$ & $0.8681$ & $4876$ & $5/5$ \\
+120 & $0.0373$ & $0.9947$ & $324$  & $3/5$ \\
+120 & $0.0823$ & $0.9603$ & $1600$ & $5/5$ \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-At the heaviest rung the aligner manufactures $4876$ of the $9100$ quadruple
+At the heaviest rung the aligner manufactures $1600$ of the $9100$ quadruple
 verdicts. Alignment error is not a rounding error in this test; past a
 threshold it \emph{is} the result.
+
+An earlier run of this same ladder reported $4876$ at that rung, with column
+recovery falling to $0.868$. The difference was not biology and not the
+aligner's design: it was the band, returning sub-optimal paths that the
+band-edge test did not flag. Roughly two thirds of what looked like alignment
+error was our own unchecked heuristic. The numbers above are from alignments
+certified against the unbanded optimum, and the lesson is worth more than the
+table: \emph{an uncertified step inside a measurement apparatus inflates the
+thing being measured.}
 
 The threshold is therefore read off the ladder rather than chosen: a gap
 fraction of $0.0040$ and an insertion load of $8.1\times10^{-4}$ dropped
@@ -346,11 +417,18 @@ taxon & expectation & why \\
 Hepatitis B virus & reticulate & inter-genotype recombinants are recognised taxonomic entities \\
 Coxsackievirus A6 & reticulate & lineages are named by recombinant form \\
 Lyssavirus rabies & tree-like & non-segmented negative-strand RNA; recombination reported only exceptionally \\
-Papillomavirus 52 & tree-like & co-divergence with the host; within-type recombination considered rare \\
+Papillomavirus 52 & tree-like$^\dagger$ & co-divergence with the host; within-type recombination rare but \emph{documented} --- the weakest prior in this table \\
 JC polyomavirus & tree-like & genotypes track human migration and are analysed as a tree \\
 \bottomrule
 \end{tabular}
 \end{center}
+
+\noindent$^\dagger$ This prior is weaker than the others and is marked as such.
+Within-type papillomavirus recombination is reported in the literature, only
+rarely; a stronger real negative control would be a clonal bacterial lineage such
+as \emph{M.\ tuberculosis}, where the one positive claim has been attributed to
+methodological artefact. No verdict below depends on it: both HPV52 populations
+were refused by the admissibility gate.
 
 Seven of the ten populations fail the admissibility gate of
 Numerics~12.3 and are reported BLOCKED with their counts rather than
@@ -482,18 +560,45 @@ divergences; that a quartet violation in a real population is caused by
 reticulation rather than by some other departure from tree-likeness; and that
 the embedded rows of a certificate are what the aligner produced. The last is
 checkable by diffing against the FASTA, and is the item real data added. \\
-\textbf{Proved:} the nesting theorem \eqref{thm:nesting} and its corollary; that
-a certificate refutes ultrametricity; non-vacuity, the tree control, the
-impossibility of a forged certificate, and the pairwise-versus-complete deletion
-witness. Sixteen theorems, zero \texttt{sorry}, no axioms outside the
-whitelist. \\
-\textbf{Open:} Buneman's converse is cited, not proved, so ``satisfies
-\eqref{eq:fourpoint} everywhere'' is not yet formally ``is a tree'' in these
-pages. The sampling distribution of the margin under the tree null is not
+\textbf{Proved:} the nesting theorem \eqref{thm:nesting} and its corollary; the
+Gromov-product equivalence \eqref{thm:gromov}, which is the first step of
+Buneman's converse; that a certificate refutes ultrametricity; non-vacuity, the
+tree control, the impossibility of a forged certificate, and the
+pairwise-versus-complete deletion witness. Eighteen theorems, zero
+\texttt{sorry}, no axioms outside the whitelist. \\
+\textbf{Open:} Buneman's converse (Theorem~\ref{thm:buneman}) is still cited for
+its second half --- the equidistant-tree construction and the re-rooting --- so
+``satisfies \eqref{eq:fourpoint} everywhere'' is not yet formally ``is a tree''
+in these pages. Theorem~\ref{thm:gromov} closes the first half. Nothing on tree
+metrics, splits or Buneman's theorem appears to be formalised in any proof
+assistant, so finishing it would be first of its kind.
+The deletion simulator's indel rate and mean length of Numerics~12.3 are
+\emph{chosen}, not calibrated: no published viral indel length distribution or
+per-site viral indel rate could be found, so the ladder's $x$-axis is a
+load that was varied, not a load matched to biology.
+The statistic reported throughout is a \emph{maximum} over subsets, which is an
+extreme-value statistic whose floor grows with taxon count --- the quartet floor
+moves from 5--7 to 9--10 between 16 and 32 taxa --- so margins are not comparable
+across populations of different size. The established treelikeness statistics
+avoid this by averaging instead. The head-to-head has now been run, seed-paired
+against the relaxed-clock null, and it does not favour the averages: the maximum
+separates the reciprocal-mosaic control from that null by $16.6\times$ at its
+weakest seed, the mean $\delta_q$ by $5.1\times$, and the proportion of violating
+quadruples by $1.2\times$ --- the last being the variant the literature
+independently reports as failing as a test. All three rank reticulation above the
+null at every seed, so none of them inherits the confound that destroyed the
+triple statistic. What the comparison does \emph{not} settle is the maximum's
+actual weakness, which is incomparability across taxon counts rather than poor
+separation within one. Both statistics are therefore reported, and only the
+maximum is exact and kernel-checkable --- a mean has no witness to exhibit. The sampling distribution of the margin under the tree null is not
 derived, only simulated at matched parameters. Three admissible populations is
 too few to call the method validated on real data, and the aligner that made
-them admissible is reference-anchored, which no published alignment of a
-recombinant virus family would use. \\
+them admissible is reference-anchored, which drops insertions and relates every
+pair through one reference. No head-to-head against the established tests
+---$\Phi_w$, which shares this section's no-clock null and reports a $5.7\%$
+false-positive rate where NSS reports $37.5\%$, or the quartet-averaged
+treelikeness tests --- has been run, and until it has, the case made here is for
+the \emph{discipline} rather than for the statistic. \\
 \textbf{Closed in this edition:} \S\ref{sec:tda}'s negative result is given a
 positive successor whose null is a theorem; the audit finding that pairwise
 deletion can manufacture certificates on gappy data is repaired and quantified;

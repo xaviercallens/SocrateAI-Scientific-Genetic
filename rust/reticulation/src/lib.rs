@@ -109,8 +109,21 @@
 //!
 //! The test consumes an alignment, and this machine has no `mafft`, no `muscle`
 //! and no `clustalo`. [`align`] therefore implements the step: affine-gap global
-//! DP, banded with band-edge detection, projected onto a centroid reference's
-//! coordinates — the construction viral surveillance pipelines use.
+//! DP, projected onto a centroid reference's coordinates — the construction
+//! viral surveillance pipelines use, and the one MUSCLE5's Super5 mode also ends
+//! with. Its one structural advantage over a progressive aligner is that there
+//! is no guide tree, hence no error-propagation failure mode; its costs are that
+//! insertions relative to the reference are dropped and that every pair of
+//! non-reference sequences is related through the reference.
+//!
+//! The DP is banded, and a band is a place where an aligner can silently return
+//! a sub-optimal path. The band-edge test is **not** a certificate of optimality
+//! — Gibrat 2018 measured 2.2% of alignments optimal yet touching the edge and
+//! 0.5% sub-optimal without touching it — so
+//! [`align::align_pair_certified`] checks each banded score against the
+//! unbanded optimum computed in linear memory, and both the alignment-error
+//! control and the real-data run use that form. Nothing here reports an
+//! alignment as optimal on the band-edge test alone.
 //!
 //! That adds exactly one item to what a certificate leaves trusted: the kernel
 //! recomputes every count from the rows the file embeds, but on real data those
@@ -122,8 +135,12 @@
 //! frame *is* the true alignment, and there is **no reticulation in it at all** —
 //! is stripped of gaps, realigned, and compared verdict by verdict. At a light
 //! indel load nothing is manufactured. At the heaviest rung of the ladder the
-//! aligner invents **4876 of 9100 quadruple verdicts**. Past a threshold,
+//! aligner invents **1600 of 9100 quadruple verdicts**. Past a threshold,
 //! alignment error is not a correction to this test; it is the result.
+//!
+//! That figure was 4876 before every alignment was certified optimal: two
+//! thirds of the apparent alignment error was the band quietly returning
+//! sub-optimal paths, which is why [`align::align_pair_certified`] exists.
 //!
 //! So `reticulation real-data` applies the heaviest rung at which nothing was
 //! manufactured — a gap fraction of `0.0040` and `8.1e-4` dropped insertions per
@@ -159,15 +176,15 @@ pub mod simulate;
 pub mod subset;
 
 pub use align::{
-    centroid_ranking,
-    align_pair, centroid_reference, project_to_reference, read_fasta, reference_anchored_alignment,
-    FastaRecord, PairAlignment, ReferenceAnchored, Scoring,
+    align_pair, align_pair_certified, centroid_ranking, centroid_reference, optimal_global_score,
+    project_to_reference, read_fasta, reference_anchored_alignment, FastaRecord, PairAlignment,
+    ReferenceAnchored, Scoring,
 };
 pub use certificate::{Certificate, CertificateReport, FourPointDefect};
 pub use distance::{DistanceMatrix, DistanceModel};
 pub use exact::{CountCertificate, ExactDistances, Ratio};
 pub use rips::{CycleRepresentative, RipsPersistence};
 pub use subset::{
-    Alignment, CompleteTripleCertificate, QuadrupleCounts, QuartetCertificate, QuartetSearch,
-    TripleCounts, TripleSearch,
+    quartet_distribution, Alignment, CompleteTripleCertificate, QuadrupleCounts,
+    QuartetCertificate, QuartetDistribution, QuartetSearch, TripleCounts, TripleSearch,
 };

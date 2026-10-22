@@ -510,6 +510,8 @@ struct SeedResult {
     /// Per-triple comparison of the two deletion policies — the statistic that
     /// actually measures the gap confound.
     policy: reticulation::subset::PolicyComparison,
+    /// The averaged quartet statistics, for the max-versus-mean comparison.
+    distribution: reticulation::subset::QuartetDistribution,
 }
 
 /// Exact comparison `a > k * b`, by integer cross-product.
@@ -544,7 +546,7 @@ fn measure(pop: &reticulation::simulate::Population, max_quadruples: usize) -> R
     use reticulation::exact::{find_count_certificates, ExactDistances};
     use reticulation::subset::{
         compare_deletion_policies, find_complete_triple_certificates, find_quartet_certificates,
-        Alignment,
+        quartet_distribution, Alignment,
     };
 
     let aln = Alignment::new(pop.labels.clone(), pop.sequences.clone())?;
@@ -573,6 +575,7 @@ fn measure(pop: &reticulation::simulate::Population, max_quadruples: usize) -> R
             den: c.margin_den,
         }),
         policy,
+        distribution: quartet_distribution(&aln, max_quadruples)?,
     })
 }
 
@@ -723,6 +726,77 @@ fn run_experiment(args: &[String]) -> Result<bool, String> {
             .fold(f64::INFINITY, f64::min)
     };
 
+    // --- the max-versus-mean head-to-head -------------------------------------
+    // The certificate's statistic is a MAXIMUM over quadruples. The published
+    // treelikeness tests are AVERAGES, and in the one comparison of
+    // treelikeness statistics used as tests, the averaged variants held a
+    // correct false-positive rate while the mode-based and
+    // proportion-of-resolved-quartets variants failed. That comparison has not
+    // been run against a certificate-style maximum, so it is run here, on the
+    // dataset the whole experiment turns on: D2, clonal with a relaxed clock
+    // and no reticulation, the null that defeated the triple statistic.
+    //
+    // Every comparison is SEED-PAIRED. The question is not which statistic is
+    // larger but at how many seeds each one ranks a reticulate population above
+    // the hard null, which is the only form in which an extreme-value statistic
+    // and an average are commensurable at all.
+    let seed_paired_above = |name: &str, pick: &dyn Fn(&SeedResult) -> f64| -> Vec<bool> {
+        get(name)
+            .iter()
+            .zip(get("D2_clonal_relaxed_clock").iter())
+            .map(|(positive, null)| pick(positive) > pick(null))
+            .collect()
+    };
+    let mean_delta = |r: &SeedResult| r.distribution.mean_delta_q;
+    let proportion = |r: &SeedResult| r.distribution.proportion_violating;
+    let max_margin = |r: &SeedResult| margin_f64(r.quartet_margin);
+    let statistic_rows: Vec<serde_json::Value> = [
+        (
+            "quartet_max_margin",
+            "maximum over quadruples -- the certificate's own statistic, the only              one with a single exhibitable witness, and the only one decided by              exact integer arithmetic",
+            &max_margin as &dyn Fn(&SeedResult) -> f64,
+        ),
+        (
+            "mean_delta_q",
+            "mean of (m1-m2)/(m1-m3) over quadruples -- the averaged statistic the              literature reports as holding a correct false-positive rate",
+            &mean_delta,
+        ),
+        (
+            "proportion_violating",
+            "share of quadruples with a strictly dominant pairing -- the variant              the literature reports as FAILING as a test, included because its              failure is informative",
+            &proportion,
+        ),
+    ]
+    .iter()
+    .map(|(name, what, pick)| {
+        serde_json::json!({
+            "statistic": name,
+            "what_it_is": what,
+            "beats_relaxed_clock_null_at": {
+                "D3_one_recombinant": frac(&seed_paired_above("D3_strict_clock_one_recombinant", *pick)),
+                "D5_reciprocal_mosaics": frac(&seed_paired_above("D5_strict_clock_reciprocal_mosaics", *pick)),
+            },
+            "value_on_the_relaxed_clock_null_per_seed": get("D2_clonal_relaxed_clock")
+                .iter().map(*pick).collect::<Vec<f64>>(),
+            "value_on_reciprocal_mosaics_per_seed": get("D5_strict_clock_reciprocal_mosaics")
+                .iter().map(*pick).collect::<Vec<f64>>(),
+            // The weakest seed's ratio of the positive control to the hard null.
+            // Display only, like every other ratio in this report, but it is the
+            // number that decides which statistic separates better at FIXED
+            // taxon count -- which is the only comparison the two share.
+            "worst_seed_separation_over_relaxed_clock_null":
+                get("D5_strict_clock_reciprocal_mosaics")
+                    .iter()
+                    .zip(get("D2_clonal_relaxed_clock").iter())
+                    .map(|(positive, null)| {
+                        let (a, b) = (pick(positive), pick(null));
+                        if b > 0.0 { a / b } else { f64::INFINITY }
+                    })
+                    .fold(f64::INFINITY, f64::min),
+        })
+    })
+    .collect();
+
     let dataset_json: serde_json::Value = results
         .iter()
         .map(|(name, rows)| {
@@ -743,6 +817,11 @@ fn run_experiment(args: &[String]) -> Result<bool, String> {
                         "pairwise_triple_margin_exact": margin_exact(r.pairwise_triple_margin),
                         "pairwise_triple_margin": margin_f64(r.pairwise_triple_margin),
                         "deletion_policy_comparison": r.policy,
+                        "mean_delta_q": r.distribution.mean_delta_q,
+                        "max_delta_q": r.distribution.max_delta_q,
+                        "proportion_violating": r.distribution.proportion_violating,
+                        "q_residual": r.distribution.q_residual,
+                        "mean_p_distance": r.distribution.mean_p_distance,
                     })).collect::<Vec<_>>(),
                 }),
             )
@@ -957,6 +1036,14 @@ fn run_experiment(args: &[String]) -> Result<bool, String> {
                 "observed_D3": frac(&p8), "observed_D4": frac(&p8b),
             },
         ],
+        "max_versus_mean": {
+            "why": "The certificate's statistic is a maximum over quadruples, which                     is an extreme-value statistic: its null level grows with the                     number of subsets examined, and this grid shows it -- the                     quartet floor moves from 5-7 at 16 taxa to 9-10 at 32. So                     margins are not comparable across population sizes, which is                     the same incommensurability that has already cost this project                     three criteria. The averaged statistics do not have that                     defect and cannot be certified, because a mean has no witness                     to exhibit. This block measures the price.",
+            "these_are_floating_point": "mean_delta_q, proportion_violating and                     q_residual are f64 summaries and are NOT certificates. Only the                     max-margin row is decided by exact integer arithmetic and                     checkable by the Lean kernel. Nothing here changes that                     division.",
+            "reference_null": "D2_clonal_relaxed_clock -- clonal descent, no                     reticulation whatever, divergence-matched relaxed clock. The                     hard null, not the easy one.",
+            "statistics": statistic_rows,
+            "what_this_run_found": "All three statistics rank both reticulate                     populations above the relaxed-clock null at every seed, so                     none of them is confounded by rate variation the way the                     TRIPLE statistic is. They differ in how widely they separate,                     and the ordering is not the one the literature's results would                     suggest: read                     `worst_seed_separation_over_relaxed_clock_null` on each row.                     `proportion_violating` separating barely at all is consistent                     with the published finding that this variant fails as a test.",
+            "what_it_does_not_settle": "Separation at a FIXED taxon count is not                     the max statistic's weakness. Its weakness is that its null                     level grows with the number of subsets, so margins cannot be                     compared across populations of different size, and this grid                     is all at one size. A verdict on max-versus-mean needs the                     comparison repeated across taxon counts, and the averaged                     statistics calibrated by parametric bootstrap rather than                     against a shuffled null -- which misalignment artefacts are                     reported to be invisible to.",
+        },
         "datasets": dataset_json,
         "verdict": {
             "gated_predictions_pass": gate,
@@ -1453,7 +1540,10 @@ fn run_align_error(args: &[String]) -> Result<bool, String> {
 
     let infer = |labels: &[String], raw: &[Vec<u8>]| -> Result<ReferenceAnchored, String> {
         let reference = centroid_reference(raw);
-        reference_anchored_alignment(labels, raw, reference, &scoring, band, max_band)
+        // Certified: the band-edge test is not a proof of optimality, so this
+        // control checks every pair against its unbanded optimum. A control that
+        // measures alignment error must not itself rest on an unchecked band.
+        reference_anchored_alignment(labels, raw, reference, &scoring, band, max_band, true)
     };
 
     // --- A1, the identity control: with no deletions the aligner must be the
@@ -2076,7 +2166,7 @@ fn run_real_data(args: &[String]) -> Result<bool, String> {
         let mut blocked: Option<String> = None;
         for (role, reference) in [("primary", ranking[0]), ("sensitivity", ranking[1])] {
             let anchored = match reference_anchored_alignment(
-                &labels, &raw, reference, &scoring, band, max_band,
+                &labels, &raw, reference, &scoring, band, max_band, true,
             ) {
                 Ok(value) => value,
                 Err(error) => {
@@ -2234,7 +2324,7 @@ fn run_real_data(args: &[String]) -> Result<bool, String> {
             let raw: Vec<Vec<u8>> = records.iter().map(|r| r.sequence.clone()).collect();
             let reference = centroid_ranking(&raw)[0];
             let anchored = reference_anchored_alignment(
-                &labels, &raw, reference, &scoring, band, max_band,
+                &labels, &raw, reference, &scoring, band, max_band, true,
             )?;
             let aln = Alignment::new(anchored.labels.clone(), anchored.rows.clone())?;
             let search = find_quartet_certificates(&aln, 1, max_quadruples)?;

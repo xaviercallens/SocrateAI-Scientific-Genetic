@@ -394,6 +394,169 @@ impl QuartetCertificate {
     }
 }
 
+/// Summaries of the *whole* quartet distribution, not only its maximum.
+///
+/// # Why this exists
+///
+/// The certificate this module is built around is a maximum over quadruples:
+/// the single most-violating quadruple, exhibited as a witness the Lean kernel
+/// can check. That is what makes a certificate possible, and it is also an
+/// extreme-value statistic, whose null level grows with the number of subsets
+/// examined. The Phase 2 grid shows it: the quartet floor moves from 5–7 to
+/// 9–10 between 16 and 32 taxa. So margins are not comparable across
+/// populations of different size, which is the incommensurability trap this
+/// project keeps rediscovering — here latent in the primary statistic itself.
+///
+/// The treelikeness literature took the other branch. Its statistics are
+/// *averages* over quadruples, and in the one published comparison of
+/// treelikeness statistics used as hypothesis tests, the averaged variants
+/// (mean δq, tree proportion) held a correct false-positive rate while the
+/// mode-based and proportion-of-resolved-quartets variants failed as tests.
+/// This structure computes the averaged summaries so the two can be compared on
+/// the same data, which is a comparison nobody appears to have run.
+///
+/// # What these numbers are not
+///
+/// They are **floating point, and they are not certificates**. Every verdict in
+/// [`CompleteTripleCertificate`] and [`QuartetCertificate`] is decided by
+/// integer comparison and checkable by the kernel; nothing here is. A mean over
+/// quadruples has no single witness to exhibit, which is exactly the trade: the
+/// averaged statistic is better behaved as a test and cannot be certified, and
+/// the maximum can be certified and is worse behaved. Reporting both is the
+/// only honest option until the trade has been measured.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct QuartetDistribution {
+    /// Quadruples examined.
+    pub examined: usize,
+    /// Quadruples skipped for having no column comparable in all four.
+    pub skipped_no_common_columns: usize,
+    /// Quadruples whose dominant pairing strictly exceeds both others.
+    pub violating: usize,
+    /// `violating / examined`. The statistic reported to *fail* as a test in the
+    /// published comparison, included because it is cheap and because its
+    /// failure is itself informative.
+    pub proportion_violating: f64,
+    /// Mean of `δq = (m1 − m2) / (m1 − m3)` over the examined quadruples, where
+    /// `m1 ≥ m2 ≥ m3` are the three pairing sums. Scale-invariant, zero exactly
+    /// when the quadruple is additive. The averaged statistic.
+    pub mean_delta_q: f64,
+    /// The largest δq seen. Comparable to the certificate's own statistic in
+    /// being a maximum, but normalised differently.
+    pub max_delta_q: f64,
+    /// Mean of `((m1 − m2) / D)²` over quadruples, divided by the squared mean
+    /// pairwise p-distance: the Q-residual. Scale-*dependent* before that
+    /// division, which is why the division is part of the definition.
+    pub q_residual: f64,
+    /// Mean pairwise p-distance under pairwise deletion, the Q-residual's
+    /// normaliser, reported so the division can be checked.
+    pub mean_p_distance: f64,
+}
+
+/// Compute the averaged quartet statistics alongside the certificate's maximum.
+///
+/// Exhaustive over quadruples, with the same refusal-to-sample ceiling as
+/// [`find_quartet_certificates`]: a subsampled combination set would change what
+/// was examined without saying so.
+///
+/// # Errors
+///
+/// Fewer than four sequences, a quadruple count above `max_quadruples`, or a
+/// malformed alignment.
+pub fn quartet_distribution(
+    aln: &Alignment,
+    max_quadruples: usize,
+) -> Result<QuartetDistribution, String> {
+    let n = aln.len();
+    if n < 4 {
+        return Err(format!(
+            "need at least 4 sequences for a four-point test, got {n}"
+        ));
+    }
+    let total = n * (n - 1) * (n - 2) * (n - 3) / 24;
+    if total > max_quadruples {
+        return Err(format!(
+            "{n} sequences give {total} quadruples, above the ceiling of              {max_quadruples}. Raise it deliberately: this search is exhaustive              and will not sample."
+        ));
+    }
+
+    // The Q-residual's normaliser, under pairwise deletion over the whole
+    // alignment rather than per quadruple, following the published definition.
+    let distances =
+        crate::exact::ExactDistances::from_alignment(aln.labels.clone(), &aln.sequences)?;
+    let mut distance_sum = 0.0f64;
+    let mut pairs = 0.0f64;
+    for i in 0..n {
+        for j in (i + 1)..n {
+            distance_sum += distances.ratio(i, j).to_f64();
+            pairs += 1.0;
+        }
+    }
+    let mean_p_distance = if pairs > 0.0 {
+        distance_sum / pairs
+    } else {
+        0.0
+    };
+
+    let mut examined = 0usize;
+    let mut skipped = 0usize;
+    let mut violating = 0usize;
+    let mut delta_sum = 0.0f64;
+    let mut delta_max = 0.0f64;
+    let mut squared_sum = 0.0f64;
+
+    for i in 0..n {
+        for j in (i + 1)..n {
+            for k in (j + 1)..n {
+                for l in (k + 1)..n {
+                    let counts = aln.quadruple_counts(i, j, k, l);
+                    if counts.common == 0 {
+                        skipped += 1;
+                        continue;
+                    }
+                    examined += 1;
+                    let mut sums = counts.pairing_sums();
+                    sums.sort_unstable_by(|a, b| b.cmp(a));
+                    let (m1, m2, m3) = (sums[0], sums[1], sums[2]);
+                    if m1 > m2 {
+                        violating += 1;
+                    }
+                    // δq is 0 on an additive quadruple, where m1 == m2; the
+                    // denominator vanishes only when all three tie, and then
+                    // the quadruple is additive too.
+                    let delta = if m1 > m3 {
+                        (m1 - m2) as f64 / (m1 - m3) as f64
+                    } else {
+                        0.0
+                    };
+                    delta_sum += delta;
+                    if delta > delta_max {
+                        delta_max = delta;
+                    }
+                    let gap = (m1 - m2) as f64 / counts.common as f64;
+                    squared_sum += gap * gap;
+                }
+            }
+        }
+    }
+
+    let denominator = examined.max(1) as f64;
+    let q_residual = if mean_p_distance > 0.0 {
+        (squared_sum / denominator) / (mean_p_distance * mean_p_distance)
+    } else {
+        0.0
+    };
+    Ok(QuartetDistribution {
+        examined,
+        skipped_no_common_columns: skipped,
+        violating,
+        proportion_violating: violating as f64 / denominator,
+        mean_delta_q: delta_sum / denominator,
+        max_delta_q: delta_max,
+        q_residual,
+        mean_p_distance,
+    })
+}
+
 /// Rank certificates by exact margin, descending, and keep the top `k`.
 fn rank_by_margin<T, F: Fn(&T) -> Ratio>(mut v: Vec<T>, margin: F, top_k: usize) -> Vec<T> {
     v.sort_by(|p, q| {
@@ -873,6 +1036,61 @@ mod tests {
         let s = find_quartet_certificates(&a, 5, 1000).unwrap();
         assert_eq!(s.violating, 0);
         assert!(s.certificates.is_empty());
+    }
+
+    #[test]
+    fn an_additive_population_has_zero_mean_delta_q() {
+        // Four identical sequences: every pairing sum is 0, so every quadruple
+        // ties and is additive. The averaged statistic must be exactly zero,
+        // and no quadruple may be called violating.
+        let s: Vec<u8> = "ACGTTGCAACGTTGCA".bytes().collect();
+        let labels: Vec<String> = (0..4).map(|i| format!("s{i}")).collect();
+        let aln = Alignment::new(labels, vec![s.clone(), s.clone(), s.clone(), s]).unwrap();
+        let d = quartet_distribution(&aln, 100).expect("four sequences give one quadruple");
+        assert_eq!(d.examined, 1);
+        assert_eq!(d.violating, 0, "an additive quadruple is not a violation");
+        assert_eq!(d.mean_delta_q, 0.0);
+        assert_eq!(d.max_delta_q, 0.0);
+        assert_eq!(d.proportion_violating, 0.0);
+    }
+
+    #[test]
+    fn the_averaged_statistics_separate_mosaics_from_a_clonal_tree() {
+        // The head-to-head the certificate's maximum is usually reported on,
+        // run on the averaged statistics instead: both must rank the
+        // reciprocal-mosaic positive control above the clonal null.
+        use crate::simulate::{clonal_tree, with_reciprocal_recombinants};
+        let clonal = clonal_tree(2000, 3, 0.004, 7);
+        let (mosaic, _) = with_reciprocal_recombinants(clonal_tree(2000, 3, 0.004, 7), 0.5, 99);
+
+        let null = Alignment::new(clonal.labels.clone(), clonal.sequences.clone()).unwrap();
+        let positive = Alignment::new(mosaic.labels.clone(), mosaic.sequences.clone()).unwrap();
+        let a = quartet_distribution(&null, 20_000).expect("searchable");
+        let b = quartet_distribution(&positive, 20_000).expect("searchable");
+
+        assert!(
+            b.mean_delta_q > a.mean_delta_q,
+            "mean delta_q must be larger with reticulation: {} against {}",
+            b.mean_delta_q,
+            a.mean_delta_q
+        );
+        assert!(
+            b.max_delta_q > a.max_delta_q,
+            "max delta_q must be larger with reticulation: {} against {}",
+            b.max_delta_q,
+            a.max_delta_q
+        );
+        // Sanity on the ranges, which are definitional rather than empirical.
+        for d in [&a, &b] {
+            assert!(
+                (0.0..=1.0).contains(&d.mean_delta_q),
+                "delta_q is a ratio in [0,1], got {}",
+                d.mean_delta_q
+            );
+            assert!(d.max_delta_q >= d.mean_delta_q, "a max is at least a mean");
+            assert!(d.q_residual >= 0.0, "a mean of squares is non-negative");
+            assert!(d.mean_p_distance > 0.0, "these populations are not identical");
+        }
     }
 
     #[test]

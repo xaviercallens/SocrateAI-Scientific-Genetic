@@ -443,6 +443,100 @@ theorem a_gap_anywhere_shrinks_the_common_denominator :
     ∧ diff4ab [0, 0, 0, 0] [1, 1, 1, 1] [1, 1, 0, 4] [0, 0, 1, 1] = 3 := by
   constructor <;> rfl
 
+/-!
+### The Gromov product: the hinge of Buneman's converse
+
+Buneman's theorem is cited in this file, not proved. The constructive proof in
+the literature does not attack the tree directly; it factors through the
+**Gromov product** at a chosen root, reducing the four-point condition on `d` to
+the ultrametric condition on a derived function, and only then builds an
+equidistant tree by cherry-picking. The reduction is the hinge, and unlike the
+tree construction it is pure algebra, so it can be proved here with no appeal to
+anything.
+
+Define, at a root `r`,
+`gromov d r x y = (d x y - d r x - d r y) / 2`.
+This is the negated Gromov product, a dissimilarity rather than a similarity,
+and it is *not* a metric: it takes negative values. What matters is only whether
+it satisfies the strong (max) triangle inequality, so that condition is named
+separately rather than reusing `IsUltrametric`, which would wrongly suggest
+non-negativity.
+
+`fourPoint_iff_gromov_strongTriangle` is the equivalence. Both directions are
+relabelling plus symmetry — set `(a,b,c,e) := (x,z,r,y)` and read it off — and
+the kernel is a better judge of the sign conventions than prose is, which is the
+reason to state it here rather than cite it.
+
+What this does and does not buy. It does *not* prove Buneman's theorem: the
+equidistant-tree construction, and the re-rooting that turns it back into a tree
+metric, are still ahead. It does replace the first step of that proof with a
+machine-checked one, and it connects this development to the ultrametric notion
+the rest of the file is built on — the two nulls of §10.2 turn out to be the
+same condition seen from two places, which is a sharper statement of the nesting
+than `fourPoint_of_ultrametric` alone.
+-/
+
+/-- The negated Gromov product at a root. Not a metric: it may be negative. -/
+noncomputable def gromov (d : α → α → ℚ) (r x y : α) : ℚ :=
+  (d x y - d r x - d r y) / 2
+
+/-- The strong (max) triangle inequality, with no positivity assumed.
+
+Stated separately from `IsUltrametric` on purpose: `gromov` takes negative
+values, so calling it an ultrametric would import a hypothesis it does not
+satisfy. The literature's "the Gromov product is an ultrametric" means exactly
+this inequality. -/
+def StrongTriangle (f : α → α → ℚ) : Prop :=
+  ∀ x y z, f x z ≤ max (f x y) (f y z)
+
+/-- **The hinge of Buneman's converse.** A symmetric `d` satisfies the four-point
+condition exactly when its Gromov product at every root satisfies the strong
+triangle inequality.
+
+The tree construction that follows from the right-hand side is still cited; this
+equivalence is not. -/
+theorem fourPoint_iff_gromov_strongTriangle {d : α → α → ℚ}
+    (hsym : ∀ x y, d x y = d y x) :
+    IsFourPoint d ↔ ∀ r, StrongTriangle (gromov d r) := by
+  constructor
+  · intro h r x y z
+    -- Instantiate the four-point condition at (x, z, r, y).
+    have key := h x z r y
+    unfold gromov
+    rw [le_max_iff]
+    rw [le_max_iff] at key
+    rcases key with key | key
+    · right
+      rw [hsym x r] at key
+      rw [hsym z y] at key
+      linarith
+    · left
+      rw [hsym z r] at key
+      linarith
+  · intro h a b c e
+    -- Read the four-point condition back off the root c, with the remaining
+    -- three in the order (a, e, b): the Gromov product at c of the pair (a, b)
+    -- is what carries `d a b + d c e`.
+    have key := h c a e b
+    unfold gromov at key
+    rw [le_max_iff] at key
+    rw [le_max_iff]
+    rcases key with key | key
+    · right
+      rw [hsym c b] at key
+      linarith
+    · left
+      rw [hsym e b] at key
+      rw [hsym c a] at key
+      linarith
+
+/-- The direction the certificate uses: a quartet violation gives a root at which
+the Gromov product fails the strong triangle inequality. -/
+theorem gromov_strongTriangle_fails_of_quartet_violation {d : α → α → ℚ}
+    (hsym : ∀ x y, d x y = d y x) (h : ¬ IsFourPoint d) :
+    ¬ (∀ r, StrongTriangle (gromov d r)) :=
+  fun hg => h ((fourPoint_iff_gromov_strongTriangle hsym).mpr hg)
+
 end ANSE.GeneticaReticulata
 
 #print axioms ANSE.GeneticaReticulata.fourPoint_of_ultrametric
@@ -461,3 +555,5 @@ end ANSE.GeneticaReticulata
 #print axioms ANSE.GeneticaReticulata.tree_quartet_admits_no_certificate
 #print axioms ANSE.GeneticaReticulata.forged_quartet_is_impossible
 #print axioms ANSE.GeneticaReticulata.a_gap_anywhere_shrinks_the_common_denominator
+#print axioms ANSE.GeneticaReticulata.fourPoint_iff_gromov_strongTriangle
+#print axioms ANSE.GeneticaReticulata.gromov_strongTriangle_fails_of_quartet_violation

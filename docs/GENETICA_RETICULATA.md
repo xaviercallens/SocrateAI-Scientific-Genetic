@@ -603,7 +603,7 @@ reference-anchored alignment manufactures on a genealogy that is exactly a tree.
 
 | piece | where | size |
 | :--- | :--- | :--- |
-| Reference-anchored alignment: affine-gap global DP (Needleman–Wunsch–Gotoh), banded with band-edge detection, centroid reference selection, FASTA | `rust/reticulation/src/align.rs` | 11 unit tests |
+| Reference-anchored alignment: affine-gap global DP (Needleman–Wunsch–Gotoh), banded, plus the **unbanded optimum** every banded path is certified against (§11.4), centroid reference selection, FASTA | `rust/reticulation/src/align.rs` | 14 unit tests |
 | The identity regression test for the gap-pair tie | `rust/reticulation/tests/aligner_identity.rs` | 2 tests |
 | Clonal, relaxed-clock descent **with deletion events and its own true alignment** | `simulate::clonal_tree_relaxed_with_deletions` | 2 tests |
 | `reticulation align-error` — the aligner's control and the admissibility ladder | `src/main.rs` | — |
@@ -623,7 +623,7 @@ be wrong in a visible way.
 | Hepatitis B virus | 3 182 nt | 862 | **reticulate** | inter-genotype recombinants are recognised taxonomic entities |
 | Coxsackievirus A6 | 7 434 nt | 559 | **reticulate** | enterovirus A lineages are named by recombinant form |
 | Lyssavirus rabies | 11 924 nt | 326 | tree-like | non-segmented negative-strand RNA; recombination reported only exceptionally |
-| Human papillomavirus 52 | 7 937 nt | 161 | tree-like | co-divergence with the host; within-type recombination considered rare |
+| Human papillomavirus 52 | 7 937 nt | 161 | tree-like (weak) | co-divergence with the host; within-type recombination is rare but **documented** — a literature audit after the run flagged this as the weakest prior in the table. A clonal bacterial lineage such as *M. tuberculosis* would be the stronger negative control. No verdict depends on it: both HPV52 populations were refused by the gate. |
 | JC polyomavirus | 5 121 nt | 89 | tree-like | genotypes track human migration and are analysed as a tree |
 
 Filters, fixed before any margin was computed: within 2% of the taxon's median
@@ -655,24 +655,36 @@ magnitudes across denominators does.
 
 | mean deletion length | inferred gap fraction | worst column recovery | quadruples manufactured | seeds with any |
 | --: | --: | --: | --: | :--: |
-| 30 | 0.0000 | 1.00000 | 0 | 0/5 |
-| 30 | 0.0040 | 0.99997 | 0 | 0/5 |
-| 30 | 0.0055 | 0.99880 | 251 | 2/5 |
-| 30 | 0.0087 | 0.99712 | 108 | 1/5 |
-| 30 | 0.0149 | 0.99277 | 217 | 3/5 |
-| 30 | 0.0237 | 0.97533 | 1537 | 4/5 |
-| 120 | 0.0132 | 0.99901 | 57 | 2/5 |
-| 120 | 0.0206 | 0.93898 | 287 | 2/5 |
-| 120 | 0.0474 | 0.89393 | 2613 | 5/5 |
-| 120 | 0.0589 | 0.86360 | 2573 | 4/5 |
-| 120 | 0.0941 | 0.86812 | **4876** | 5/5 |
+| 30 | 0.00000 | 1.00000 | 0 | 0/5 |
+| 30 | 0.00398 | 0.99997 | 0 | 0/5 |
+| 30 | 0.00549 | 0.99880 | 251 | 2/5 |
+| 30 | 0.00870 | 0.99712 | 108 | 1/5 |
+| 30 | 0.01507 | 0.99906 | 110 | 3/5 |
+| 30 | 0.02012 | 0.99831 | 149 | 3/5 |
+| 120 | 0.00000 | 1.00000 | 0 | 0/5 |
+| 120 | 0.01322 | 0.99901 | 57 | 2/5 |
+| 120 | 0.01627 | 0.99901 | 54 | 2/5 |
+| 120 | 0.03731 | 0.99467 | 324 | 3/5 |
+| 120 | 0.05254 | 0.97501 | 253 | 3/5 |
+| 120 | 0.08233 | 0.96032 | **1600** | 5/5 |
 
-At the heaviest rung the aligner invents 4876 of 9100 quadruple verdicts. **Past
+At the heaviest rung the aligner invents 1600 of 9100 quadruple verdicts. **Past
 a threshold, alignment error is not a correction to this test; it is the
-result.** The curve is not monotone (0.0087 manufactures fewer than 0.0055),
+result.** The curve is not monotone (0.00870 manufactures fewer than 0.00549),
 which is what an extreme-value statistic over 1820 quadruples at five seeds
 looks like — one more reason to gate on *whether anything was manufactured*
 rather than on how much.
+
+**These are the certified numbers, and they are much smaller than the first
+run's.** Before §11.4's certificate was in place the same ladder reported 4876
+manufactured at the heaviest rung with column recovery down to 0.8681. Roughly
+two thirds of that was not reference-anchored alignment error at all: it was the
+band silently returning sub-optimal paths. With every alignment proved optimal,
+column recovery never falls below 0.960 and the worst rung manufactures 1600.
+The qualitative conclusion is unchanged — above a threshold the aligner invents
+violations — but its magnitude was overstated threefold, and the overstatement
+came from our own unchecked heuristic rather than from the method being
+measured.
 
 So the threshold is read off the ladder instead of chosen: **gap fraction
 ≤ 0.00398 and insertions dropped ≤ 8.06 × 10⁻⁴ per aligned cell**, the heaviest
@@ -687,9 +699,70 @@ the gate and holds. **A2** (worst-seed column recovery > 0.99) holds at 0.99726.
 **A3** (nothing manufactured) holds at the registered load and *fails* higher up
 the ladder — which is the finding, not a failed run.
 
+The thresholds themselves did **not** move under certification: the first rung
+that manufactures anything is the same one, so the gate of §11.6 and its seven
+refusals stand on the certified run as they did on the uncertified one.
+
 Raw output: [`data/reticulata_phase3/align_error.json`](../data/reticulata_phase3/align_error.json).
 
-### 11.4 A tie-break that was nearly a result
+### 11.4 The band-edge test is not a certificate, and an audit of the literature caught it
+
+The aligner's dynamic programme is banded, and §11.1 originally claimed it
+"never returns a path the band constrained without saying so" on the strength of
+a band-edge test. **That claim was wrong.** Gibrat (BMC Bioinformatics 19:226,
+2018) measured both failure directions on real data: **2.2% of alignments were
+optimal yet reached the band edge, and 0.5% were sub-optimal without ever
+reaching it.** Not touching the edge is evidence of optimality, not proof of it.
+
+The repair needs no theorem. `optimal_global_score` computes the unbanded
+optimum by full Gotoh in `O(nm)` time and `O(m)` memory — no band, no heuristic,
+no traceback — and `align_pair_certified` widens the band until the banded path
+attains it, refusing to return one that does not. At this scale that is
+affordable (15 pairs per population, one extra `O(nm)` pass each), and both
+`align-error` and `real-data` now use the certified form, so every number in
+§11.3 and §11.6 rests on an alignment proved optimal rather than one that passed
+a proxy.
+
+**And the proxy had in fact failed, on our own data.** The first certified run
+exited non-zero immediately:
+
+```
+error: aligning 'indel_000' to reference 'indel_012': the banded path scores
+16555 against an unbanded optimum of 17275: the band of half-width 64 changed
+the answer, and the band-edge test did not notice.
+```
+
+A deficit of 720 score points, with the traceback never touching an edge — so
+edge-driven widening never fired, and the pre-certification numbers in this
+section were computed partly on alignments the band had quietly degraded. This is
+Gibrat's 0.5% class, observed here rather than cited. The widening loop is now
+driven by the **score** rather than by the edge test: widen on either signal,
+and return only a path that attains the optimum or an error. The band-edge test
+survives as a cheap early trigger, with no soundness role.
+
+Two related findings from the same audit, acted on:
+
+- **Gotoh's published initialisation is buggy** (Flouri et al.,
+  `doi:10.1101/031500`): it omits one of two gap-opens and can return a score
+  that is not the cost of any alignment, and the error is reproduced in standard
+  textbooks and in several widely used implementations. Our initialisation turns
+  out to be the corrected one, but that was luck until it was checked. It is now
+  checked against *exhaustive enumeration* of every alignment of short
+  sequences — `brute_force_agrees_with_the_dp_on_small_inputs` — rather than
+  against another DP.
+- **The centre-star 2-approximation does not apply here.** Gusfield's `2 − 2/k`
+  bound requires a *metric* cost; with affine gaps it is void. The general ratio
+  is `2 − l/k` (Bafna–Lawler–Pevzner 1997), and the citation for NP-hardness
+  under fixed metrics is Elias 2006, not Wang & Jiang 1994, whose scheme is
+  explicitly non-metric. Nothing in this repo claimed the bound, and nothing
+  should.
+
+Also recorded as an honest limitation rather than repaired: **the deletion
+simulator's indel rate and mean length are chosen, not calibrated.** No
+published viral indel length distribution or per-site viral indel rate could be
+found, so the ladder varies a load rather than matching one to biology.
+
+### 11.5 A tie-break that was nearly a result
 
 A1 failed at 1 of 5 seeds on the first implementation, and the cause was not a
 bug in the DP. With the affine gap at `-10` to open and `-1` per residue, three
@@ -705,7 +778,7 @@ lesson generalises past this crate: an aligner has free parameters that no amoun
 of downstream proof constrains, and a tie-break is one of them. Regression test:
 `rust/reticulation/tests/aligner_identity.rs`.
 
-### 11.5 The real-data result
+### 11.6 The real-data result
 
 Every population is aligned twice, on the two most central sequences by 6-mer
 distance, and the report says whether the verdict moved. Every margin is compared
@@ -761,32 +834,144 @@ aligned rows, checked in both directions by the project's toolchain:
 
 | file | columns | kernel | time |
 | :--- | --: | :--: | --: |
-| `reticulata_real_hepatitis_b_accession.lean` | 3 182 | **accepted**, no axioms beyond the whitelist | 67.8 s |
-| `reticulata_real_hepatitis_b_accession_bad.lean` | 3 182 | **rejected** | 70.6 s |
-| `reticulata_real_coxsackievirus_a6_spread.lean` | 7 434 | **accepted**, no axioms beyond the whitelist | 130.5 s |
-| `reticulata_real_coxsackievirus_a6_spread_bad.lean` | 7 434 | **rejected** | 157.5 s |
+| `reticulata_real_hepatitis_b_accession.lean` | 3 182 | **accepted**, no axioms beyond the whitelist | 52.7 s |
+| `reticulata_real_hepatitis_b_accession_bad.lean` | 3 182 | **rejected** | 59.5 s |
+| `reticulata_real_coxsackievirus_a6_spread.lean` | 7 434 | **accepted**, no axioms beyond the whitelist | 117.6 s |
+| `reticulata_real_coxsackievirus_a6_spread_bad.lean` | 7 434 | **rejected** | 135.0 s |
 
 The kernel recomputes all six pair counts and the common column count from the
 embedded rows by `rfl`, so these are the first *real-data* findings in this
-programme that a reader can re-verify without running any of our code. One
-process note belongs here: the first attempt reported all four files rejected in
-0.3 s, for want of a file — `kernel_check` runs `lake` from the formal directory
-and the paths were relative. The rejection control came out vacuously true at
-the same time, both directions failing for the same irrelevant reason, which is
-precisely the shape of a control that cannot fail (`forced-not-measured`
-again). Fixed by canonicalising the path before the check.
+programme that a reader can re-verify without running any of our code. Two
+process notes belong here, both instances of the same failure shape. The first
+attempt reported all four files rejected in 0.3 s for want of a file —
+`kernel_check` runs `lake` from the formal directory and the paths were
+relative — and the rejection control came out vacuously true at the same time,
+both directions failing for the same irrelevant reason. Fixed by canonicalising
+the path. Then a later run reported the Hepatitis B file rejected in 4.4 s while
+the Coxsackievirus file was accepted in 132.8 s: the cause was a concurrent
+`lake build` of `GeneticaReticulataTree` in another shell, which left the import
+briefly broken. Run directly, that file exits 0 with only whitelisted axioms.
+The verdicts tabulated above are from a clean run with nothing else touching
+`lake`, and the lesson is the one already in this document twice: **a fast
+rejection is a suspicious rejection**, because the cheapest way to fail is not
+to have run at all.
 
 Raw output: [`data/reticulata_phase3/real_data.json`](../data/reticulata_phase3/real_data.json),
 certificates in [`data/reticulata_phase3/emitted/`](../data/reticulata_phase3/emitted/).
 
-### 11.6 Where this leaves the plan
+### 11.7 Where this leaves the plan
 
 | phase | status after Phase 3 |
 | :--- | :--- |
 | **0, 1** | complete |
 | **2** (real data) | **done, with a gate.** Ten populations built, three tested, seven refused by a measured admissibility threshold. The missing-aligner block is gone. |
-| **3** (the margin's null) | still the critical path, and now sharper: the matched-floor machinery of §11.5 is a simulation-based stand-in for exactly the distribution Phase 3 owes. |
+| **3** (the margin's null) | still the critical path, and now sharper: the matched-floor machinery of §11.6 is a simulation-based stand-in for exactly the distribution Phase 3 owes. |
 | **4** (tree-level no-go) | unchanged: nesting proved, Buneman cited. |
 | **5** (stable summaries) | unchanged. |
 | **6** (upstream, publish) | unchanged. |
-| **new** | **a progressive or consistency-based aligner.** Reference-anchored alignment is what blocked seven of ten populations, and no published alignment of a recombinant virus family would use it. This is now the binding constraint on real-data coverage, ahead of anything in the original plan. |
+| **new** | **a progressive or consistency-based aligner.** Reference-anchored alignment is what blocked seven of ten populations. A literature audit (§11.8) softens this: reference-anchored projection *is* standard surveillance practice and is the final step of MUSCLE5's Super5 mode, and its one real advantage is that without a guide tree there is no error-propagation failure mode. It remains the binding constraint on coverage, but the cheaper route is to use data that is **already aligned**. |
+
+### 11.8 What a literature audit changed, and the directions it opened
+
+A seven-thread review of the surrounding literature was run after the work above
+was committed. It corrected four things in it — the band-edge claim (§11.4), the
+hypotheses of Buneman's theorem, the HPV52 prior (§11.2), and the status of the
+simulator's indel parameters — and produced five directions that are better than
+anything in the original plan:
+
+1. **A real positive control that bypasses our aligner entirely.** The
+   SARS-CoV-2 Pango designation list carries **1 107 recombinant `X*` lineages,
+   111 of them with explicit numeric breakpoint intervals** in reference
+   coordinates, each traceable to a reviewed GitHub issue; and Nextstrain
+   publishes an **open, non-GISAID, already-aligned** `aligned.fasta.zst`
+   (Nextclade-aligned to MN908947), so the breakpoints and the alignment share
+   one coordinate system. That removes the aligner from the trust surface and
+   the admissibility gate with it. Licence: pango-designation is CC BY-NC 4.0,
+   non-commercial.
+2. **The head-to-head that has not been run.** The established no-clock
+   competitor is Bruen's Φw, whose published false-positive rate is **5.7%**
+   where NSS gives **37.5%** on the same non-recombinant control, and the
+   quartet-averaged treelikeness tests (mean δq, tree proportion) hold a correct
+   ~5% rate where mode δq and proportion-of-resolved-quartets **fail as tests**.
+   Until the quartet certificate is compared against those on the same
+   alignments, its standing is unestablished.
+3. **Buneman's converse is formalisable, and the first step is now done.** The
+   constructive proof factors through the Gromov product rather than attacking
+   the tree directly, and that reduction is pure algebra. It is now proved:
+
+   ```
+   theorem fourPoint_iff_gromov_strongTriangle {d : α → α → ℚ}
+       (hsym : ∀ x y, d x y = d y x) :
+       IsFourPoint d ↔ ∀ r, StrongTriangle (gromov d r)
+   ```
+
+   with `gromov d r x y = (d x y − d r x − d r y) / 2` and `StrongTriangle f`
+   the max inequality `∀ x y z, f x z ≤ max (f x y) (f y z)`. Both directions are
+   relabelling plus symmetry — instantiate at `(a,b,c,e) := (x,z,r,y)` one way and
+   root at `c` with the order `(a,e,b)` the other. `#print axioms` gives
+   `[propext, Classical.choice, Quot.sound]`, no `sorryAx`.
+
+   Two details worth keeping. The condition is stated as `StrongTriangle` and
+   **not** as `IsUltrametric`, because the Gromov product takes negative values:
+   calling it an ultrametric would import a positivity hypothesis it does not
+   satisfy, and the literature's phrase "the Gromov product is an ultrametric"
+   means only the max inequality. And the kernel earned its place here — the
+   first attempt instantiated the reverse direction at the wrong permutation,
+   `linarith` failed on two goals, and the axiom gate reported `sorryAx` rather
+   than letting a plausible-looking proof through.
+
+   What remains cited is the *tree construction*: the equidistant
+   cherry-picking recursion and the re-rooting that turns it back into a tree
+   metric. So the chain is now: certificate ⟹ not four-point ⟹ (proved) some
+   root's Gromov product fails the max inequality ⟹ (cited) not tree-realisable.
+   Still no formalisation of tree metrics, splits or Buneman's theorem was found
+   in Lean, Isabelle or Coq, so finishing it would be first-of-kind.
+4. **Our statistic is a maximum; the tests that work are averages — so the
+   comparison was run.** A maximum over subsets is an extreme-value statistic
+   whose floor grows with taxon count (the quartet floor moves 5–7 → 9–10 from 16
+   to 32 taxa), so margins are not comparable across population sizes — the
+   incommensurability trap again, now latent in the primary statistic. The
+   published treelikeness tests avoid it by averaging. `subset::quartet_distribution`
+   now computes the averaged statistics (mean δq, Q-residual, proportion of
+   violating quadruples) and `reticulation experiment` reports a seed-paired
+   head-to-head against the hard null, D2. **The result did not go the way the
+   critique predicted:**
+
+   | statistic | what it is | beats the relaxed-clock null | worst-seed separation |
+   | :--- | :--- | :--: | --: |
+   | quartet max margin | the certificate's own, exact, with a witness | 5/5 | **16.57×** |
+   | mean δq | the averaged statistic the literature favours | 5/5 | 5.07× |
+   | proportion violating | the variant the literature reports as failing | 5/5 | 1.22× |
+
+   All three rank both reticulate populations above the relaxed-clock null at
+   every seed, so **none** of them inherits the confound that destroyed the
+   triple statistic. But at fixed taxon count the maximum separates more than
+   three times as widely as the mean, and `proportion_violating` barely separates
+   at all — which is consistent with the published finding that that variant
+   fails as a test, obtained here independently.
+
+   What this does *not* settle: separation at one taxon count is not the max
+   statistic's weakness. Its weakness is incomparability *across* sizes, and this
+   grid is all at one size. The honest position is that the maximum is better
+   than assumed and still has the structural defect, so both are reported and
+   neither is retired. Note also that the averaged statistics are **floating
+   point and are not certificates** — only the max-margin row is exact and
+   kernel-checkable, because a mean has no witness to exhibit. That is the real
+   trade, and it is now priced.
+5. **The calibration argument generalises beyond this method.** RDP5's manual
+   states that misalignment-induced false positives *"will be detected as
+   recombination events with significant p-values"* but *"will likely be
+   undetectable in the shuffled alignments"*. Column-shuffling nulls are blind to
+   this artefact class by construction, which is an argument about how every
+   method in this family should be calibrated, independent of the four-point
+   statistic.
+
+Two framings to keep honest. No recombination-detection benchmark varies
+alignment quality as an independent variable — so §11.3's measurement is
+**confirmatory but novel**, the first direct measurement of a mechanism the field
+already asserts, not a surprise. And four-point *satisfaction* does not certify
+the absence of reticulation, nor does a violation pin down the tree
+(arXiv:1405.2965), which bounds what a certificate means even granting Buneman.
+
+Full report: [`reports/Reticulata next research directions.md`](../../../../reports/Reticulata%20next%20research%20directions.md) in the workspace root, with
+seven note files behind it.

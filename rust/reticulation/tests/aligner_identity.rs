@@ -32,7 +32,7 @@ fn the_aligner_is_the_identity_on_gapless_simulated_populations() {
         );
         let reference = centroid_reference(&pop.raw);
         let anchored =
-            reference_anchored_alignment(&pop.labels, &pop.raw, reference, &scoring, 64, 2048)
+            reference_anchored_alignment(&pop.labels, &pop.raw, reference, &scoring, 64, 2048, true)
                 .expect("gapless equal-length input is alignable");
         assert_eq!(
             anchored.rows, pop.truth.sequences,

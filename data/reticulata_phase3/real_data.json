@@ -19,28 +19,28 @@
       "detail": "accepted, no axioms beyond the whitelist",
       "file": "reticulata_real_coxsackievirus_a6_spread.lean",
       "population": "coxsackievirus_a6_spread",
-      "seconds": 130.507524843
+      "seconds": 117.623049389
     },
     {
       "accepted": false,
       "detail": "rejected, as a corrupted certificate must be",
       "file": "reticulata_real_coxsackievirus_a6_spread_bad.lean",
       "population": "coxsackievirus_a6_spread",
-      "seconds": 157.503972459
+      "seconds": 134.973740501
     },
     {
       "accepted": true,
       "detail": "accepted, no axioms beyond the whitelist",
       "file": "reticulata_real_hepatitis_b_accession.lean",
       "population": "hepatitis_b_accession",
-      "seconds": 67.802150191
+      "seconds": 52.720800577
     },
     {
       "accepted": false,
       "detail": "rejected, as a corrupted certificate must be",
       "file": "reticulata_real_hepatitis_b_accession_bad.lean",
       "population": "hepatitis_b_accession",
-      "seconds": 70.62964227
+      "seconds": 59.458411019
     }
   ],
   "populations": [
@@ -250,53 +250,53 @@
       "references_agree_on_verdict": true,
       "runs": [
         {
-          "gap_fraction": 0.0575306411062225,
-          "insertion_rate_per_site": 0.056862822124450034,
-          "insertions_dropped": 2895,
-          "max_band_used": 256,
-          "max_p_distance": 0.4026915113871636,
-          "mean_p_distance": 0.1771682041382146,
+          "gap_fraction": 0.1089330609679447,
+          "insertion_rate_per_site": 0.10826524198617223,
+          "insertions_dropped": 5512,
+          "max_band_used": 2048,
+          "max_p_distance": 0.11493155046163642,
+          "mean_p_distance": 0.059348286455120504,
           "quadruples_examined": 1820,
           "quartet_labels": [
             "DQ486023.1",
-            "MZ097691.1",
-            "MW601237.1",
-            "PP393580.1"
+            "EU939624.1",
+            "JQ023666.1",
+            "MT114169.1"
           ],
-          "quartet_margin": "78/1737",
-          "quartet_margin_f64": 0.044905008635578586,
-          "quartet_violating": 1739,
+          "quartet_margin": "30/1784",
+          "quartet_margin_f64": 0.016816143497757848,
+          "quartet_violating": 1720,
           "reference_label": "AB078031.2",
           "role": "primary",
-          "triple_margin": "256/1932",
-          "triple_violating": 548,
+          "triple_margin": "35/1820",
+          "triple_violating": 533,
           "width": 3182
         },
         {
-          "gap_fraction": 0.05884663733500943,
-          "insertion_rate_per_site": 0.05817881835323696,
-          "insertions_dropped": 2962,
-          "max_band_used": 128,
-          "max_p_distance": 0.3971486761710794,
-          "mean_p_distance": 0.17682927654150007,
+          "gap_fraction": 0.10901162790697674,
+          "insertion_rate_per_site": 0.10834380892520427,
+          "insertions_dropped": 5516,
+          "max_band_used": 2048,
+          "max_p_distance": 0.11379529561347743,
+          "mean_p_distance": 0.05918006091233412,
           "quadruples_examined": 1820,
           "quartet_labels": [
+            "AY206376.1",
             "DQ486023.1",
             "JQ023666.1",
-            "MW601237.1",
-            "MZ097691.1"
+            "MT114169.1"
           ],
-          "quartet_margin": "117/1738",
-          "quartet_margin_f64": 0.06731875719217491,
-          "quartet_violating": 1756,
+          "quartet_margin": "28/1818",
+          "quartet_margin_f64": 0.015401540154015401,
+          "quartet_violating": 1709,
           "reference_label": "GU456674.1",
           "role": "sensitivity",
-          "triple_margin": "216/1964",
-          "triple_violating": 545,
+          "triple_margin": "34/1818",
+          "triple_violating": 533,
           "width": 3182
         }
       ],
-      "status": "BLOCKED: the inferred alignment carries a gap fraction of 0.0588 and drops insertions at 0.05818 per aligned cell, against the measured admissibility threshold of 0.0039 and 0.00080. At that load `reticulation align-error` shows alignment error alone manufacturing four-point violations on a genealogy that is exactly a tree, so a verdict here would not be about this population. The counts above are reported, and are not evidence of reticulation.",
+      "status": "BLOCKED: the inferred alignment carries a gap fraction of 0.1090 and drops insertions at 0.10834 per aligned cell, against the measured admissibility threshold of 0.0039 and 0.00080. At that load `reticulation align-error` shows alignment error alone manufacturing four-point violations on a genealogy that is exactly a tree, so a verdict here would not be about this population. The counts above are reported, and are not evidence of reticulation.",
       "taxa": 16,
       "virus_name": "Hepatitis B virus"
     },
@@ -506,53 +506,53 @@
       "references_agree_on_verdict": true,
       "runs": [
         {
-          "gap_fraction": 0.06236574887717243,
-          "insertion_rate_per_site": 0.062377953524702205,
-          "insertions_dropped": 5111,
-          "max_band_used": 128,
-          "max_p_distance": 0.2812738853503185,
-          "mean_p_distance": 0.11771909803830145,
+          "gap_fraction": 0.014718804920913884,
+          "insertion_rate_per_site": 0.014731009568443663,
+          "insertions_dropped": 1207,
+          "max_band_used": 512,
+          "max_p_distance": 0.02701115678214915,
+          "mean_p_distance": 0.012071421296259568,
           "quadruples_examined": 1820,
           "quartet_labels": [
-            "AB127000.1",
-            "AY386378.1",
-            "AY342299.1",
-            "AY366359.1"
+            "AB038252.1",
+            "AY536241.1",
+            "AB127012.1",
+            "JF424942.1"
           ],
-          "quartet_margin": "141/3363",
-          "quartet_margin_f64": 0.04192685102586976,
-          "quartet_violating": 1520,
+          "quartet_margin": "13/5082",
+          "quartet_margin_f64": 0.0025580480125934673,
+          "quartet_violating": 1180,
           "reference_label": "AB126999.1",
           "role": "primary",
-          "triple_margin": "150/3374",
-          "triple_violating": 526,
+          "triple_margin": "18/4849",
+          "triple_violating": 522,
           "width": 5121
         },
         {
-          "gap_fraction": 0.059907552338094305,
-          "insertion_rate_per_site": 0.06187634513793778,
-          "insertions_dropped": 5060,
-          "max_band_used": 128,
-          "max_p_distance": 0.28494761052900586,
-          "mean_p_distance": 0.1177252868106174,
+          "gap_fraction": 0.013891606339268244,
+          "insertion_rate_per_site": 0.01586039913911172,
+          "insertions_dropped": 1297,
+          "max_band_used": 512,
+          "max_p_distance": 0.02706413022161208,
+          "mean_p_distance": 0.012097935456572133,
           "quadruples_examined": 1820,
           "quartet_labels": [
-            "AY366359.1",
-            "AY386378.1",
-            "AY378086.1",
+            "AB038252.1",
+            "AY536241.1",
+            "AB127012.1",
             "JF424942.1"
           ],
-          "quartet_margin": "43/3708",
-          "quartet_margin_f64": 0.011596548004314994,
-          "quartet_violating": 1397,
+          "quartet_margin": "13/5082",
+          "quartet_margin_f64": 0.0025580480125934673,
+          "quartet_violating": 1180,
           "reference_label": "AB126984.1",
           "role": "sensitivity",
-          "triple_margin": "63/3902",
-          "triple_violating": 531,
+          "triple_margin": "18/4849",
+          "triple_violating": 522,
           "width": 5111
         }
       ],
-      "status": "BLOCKED: the inferred alignment carries a gap fraction of 0.0624 and drops insertions at 0.06238 per aligned cell, against the measured admissibility threshold of 0.0039 and 0.00080. At that load `reticulation align-error` shows alignment error alone manufacturing four-point violations on a genealogy that is exactly a tree, so a verdict here would not be about this population. The counts above are reported, and are not evidence of reticulation.",
+      "status": "BLOCKED: the inferred alignment carries a gap fraction of 0.0147 and drops insertions at 0.01586 per aligned cell, against the measured admissibility threshold of 0.0039 and 0.00080. At that load `reticulation align-error` shows alignment error alone manufacturing four-point violations on a genealogy that is exactly a tree, so a verdict here would not be about this population. The counts above are reported, and are not evidence of reticulation.",
       "taxa": 16,
       "virus_name": "JC polyomavirus"
     },
