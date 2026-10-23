@@ -2340,6 +2340,53 @@ fn run_align_error(args: &[String]) -> Result<bool, String> {
 /// The matched null is the whole point: the floor a real margin must clear has
 /// to come from a population at the *same* sequence length and the *same*
 /// divergence, or the comparison measures the floor rather than the signal.
+/// Bisect `mu` so a relaxed-clock clonal tree reaches a target divergence.
+///
+/// The objective is the MEAN over `replicates` consecutive seeds, and that is a
+/// bug fix rather than a refinement. `clonal_tree_relaxed` draws its per-branch
+/// rate multipliers from the same RNG stream as `mutate`, and `mutate` consumes
+/// a number of draws that depends on `mu`. Changing `mu` therefore shifts the
+/// stream and changes every downstream rate multiplier, so a SINGLE
+/// realisation's divergence is a chaotic, non-monotone function of `mu` and
+/// bisecting it does not converge -- it wanders.
+///
+/// The earlier single-realisation version is kept as
+/// `tune_mu_single_realisation` so the size of the defect can be measured
+/// rather than asserted; `tuning-bias` reports it.
+fn tune_mu_for_divergence_k(
+    length: usize,
+    generations: u32,
+    spread: f64,
+    target: f64,
+    seed: u64,
+    replicates: u64,
+) -> (f64, f64) {
+    use reticulation::simulate::clonal_tree_relaxed;
+    let mean_divergence = |mu: f64| -> f64 {
+        let total: f64 = (0..replicates)
+            .map(|i| {
+                let pop = clonal_tree_relaxed(length, generations, mu, spread, seed + i);
+                divergence(&pop).0
+            })
+            .sum();
+        total / replicates.max(1) as f64
+    };
+    let mut low = 1e-6f64;
+    let mut high = 0.5f64;
+    let mut mid = 0.01f64;
+    let mut achieved = 0.0f64;
+    for _ in 0..40 {
+        mid = 0.5 * (low + high);
+        achieved = mean_divergence(mid);
+        if achieved < target {
+            low = mid;
+        } else {
+            high = mid;
+        }
+    }
+    (mid, achieved)
+}
+
 fn tune_mu_for_divergence(
     length: usize,
     generations: u32,
@@ -2347,23 +2394,134 @@ fn tune_mu_for_divergence(
     target: f64,
     seed: u64,
 ) -> (f64, f64) {
-    use reticulation::simulate::clonal_tree_relaxed;
-    let mut low = 1e-6f64;
-    let mut high = 0.5f64;
-    let mut mid = 0.01f64;
-    let mut achieved = 0.0f64;
-    for _ in 0..40 {
-        mid = 0.5 * (low + high);
-        let pop = clonal_tree_relaxed(length, generations, mid, spread, seed);
-        let (mean, _) = divergence(&pop);
-        achieved = mean;
-        if mean < target {
-            low = mid;
-        } else {
-            high = mid;
-        }
+    tune_mu_for_divergence_k(length, generations, spread, target, seed, 5)
+}
+
+/// The defective single-realisation bisection, retained only so `tuning-bias`
+/// can quantify what it cost. Nothing else calls it.
+fn tune_mu_single_realisation(
+    length: usize,
+    generations: u32,
+    spread: f64,
+    target: f64,
+    seed: u64,
+) -> (f64, f64) {
+    tune_mu_for_divergence_k(length, generations, spread, target, seed, 1)
+}
+
+/// Measure the divergence-matching defect in the published matched nulls.
+///
+/// Every matched null in this programme is built by bisecting `mu` until a
+/// clonal relaxed-clock tree reaches the population's own divergence. That
+/// bisection ran against a single realisation, whose divergence is a chaotic
+/// function of `mu` for the reasons above. This reports, over a grid of target
+/// divergences, how far the single-realisation bisection actually landed from
+/// its target and what the averaged bisection gives instead -- so the effect on
+/// published floors is measured rather than assumed.
+fn run_tuning_bias(args: &[String]) -> Result<bool, String> {
+    let length: usize = parse_flag(args, "--length", 2000);
+    let generations: u32 = parse_flag(args, "--generations", 4);
+    let spread: f64 = parse_flag(args, "--spread", 1.0);
+    let check_seeds: u64 = parse_flag(args, "--check-seeds", 20);
+    let targets: Vec<f64> = parse_flag(
+        args,
+        "--targets",
+        "0.002,0.005,0.01,0.02,0.05,0.1".to_string(),
+    )
+    .split(',')
+    .filter_map(|s| s.trim().parse().ok())
+    .collect();
+
+    // Verify against independent seeds, not the ones used for tuning.
+    let verify = |mu: f64| -> f64 {
+        use reticulation::simulate::clonal_tree_relaxed;
+        let total: f64 = (0..check_seeds)
+            .map(|i| {
+                let pop = clonal_tree_relaxed(length, generations, mu, spread, 9_000 + i);
+                divergence(&pop).0
+            })
+            .sum();
+        total / check_seeds as f64
+    };
+
+    // Is matching on divergence even well posed? At a FIXED `mu`, how much does
+    // a relaxed-clock tree's divergence vary across realisations? Each lineage's
+    // rate is its parent's times exp(spread*u), so rate multipliers COMPOUND
+    // across generations and their log-variance grows with depth. If the
+    // resulting spread in divergence is comparable to the range being matched,
+    // averaging more replicates narrows the standard error but cannot make
+    // "the null at this divergence" a single object.
+    let spread_probe: Vec<serde_json::Value> = parse_flag(args, "--probe-mus", "0.001,0.004,0.016".to_string())
+        .split(',')
+        .filter_map(|s| s.trim().parse::<f64>().ok())
+        .map(|mu| {
+            use reticulation::simulate::clonal_tree_relaxed;
+            let n: u64 = 200;
+            let values: Vec<f64> = (0..n)
+                .map(|i| divergence(&clonal_tree_relaxed(length, generations, mu, spread, 20_000 + i)).0)
+                .collect();
+            let mean = values.iter().sum::<f64>() / n as f64;
+            let variance = values.iter().map(|v| (v - mean).powi(2)).sum::<f64>() / (n - 1) as f64;
+            let sd = variance.sqrt();
+            let mut sorted = values.clone();
+            sorted.sort_by(|a, b| a.partial_cmp(b).unwrap());
+            serde_json::json!({
+                "mu": mu,
+                "realisations": n,
+                "mean_divergence": mean,
+                "sd": sd,
+                "coefficient_of_variation": if mean > 0.0 { sd / mean } else { f64::NAN },
+                "min": sorted[0],
+                "p50": sorted[(n / 2) as usize],
+                "max": sorted[(n - 1) as usize],
+                "max_over_min": if sorted[0] > 0.0 { sorted[(n - 1) as usize] / sorted[0] } else { f64::NAN },
+            })
+        })
+        .collect();
+
+    let mut grid = Vec::new();
+    let mut worst_single = 0.0f64;
+    let mut worst_averaged = 0.0f64;
+    for &target in &targets {
+        let (mu_single, _) = tune_mu_single_realisation(length, generations, spread, target, 1);
+        let (mu_averaged, _) = tune_mu_for_divergence(length, generations, spread, target, 1);
+        let got_single = verify(mu_single);
+        let got_averaged = verify(mu_averaged);
+        let err_single = (got_single - target).abs() / target;
+        let err_averaged = (got_averaged - target).abs() / target;
+        worst_single = worst_single.max(err_single);
+        worst_averaged = worst_averaged.max(err_averaged);
+        grid.push(serde_json::json!({
+            "target_divergence": target,
+            "single_realisation": {"mu": mu_single, "achieved": got_single,
+                                   "relative_error": err_single},
+            "averaged_over_5": {"mu": mu_averaged, "achieved": got_averaged,
+                                "relative_error": err_averaged},
+            "mu_ratio": if mu_averaged > 0.0 { mu_single / mu_averaged } else { f64::NAN },
+        }));
     }
-    (mid, achieved)
+
+    let report = serde_json::json!({
+        "experiment": "how far the published matched nulls actually missed their                        divergence targets",
+        "the_defect": "`clonal_tree_relaxed` draws its per-branch rate                 multipliers from the same RNG stream as `mutate`, and `mutate`                 consumes a number of draws that depends on `mu`. Changing `mu`                 shifts the stream and changes every downstream rate multiplier,                 so a single realisation's divergence is a chaotic, non-monotone                 function of `mu`. Bisecting it does not converge. Every matched                 null in this programme was tuned that way, with spread = 1.0 by                 default -- exactly the regime where the coupling bites. The                 strict-clock simulator has nothing downstream of its mutations,                 which is why only relaxed-clock nulls were affected.",
+        "how_this_was_found": "The split-system experiment reported a matched                 null whose divergence missed the population's by 77%, and only                 on the two relaxed-clock datasets.",
+        "method": "For each target divergence, tune `mu` both ways and then                 measure the achieved divergence on INDEPENDENT seeds (9000+), so                 the verification does not reuse the tuning realisations.",
+        "verification_seeds": check_seeds,
+        "is_matching_well_posed": {
+            "question": "At a FIXED mu, how much does a relaxed-clock tree's divergence vary across realisations? If that spread is comparable to the range being matched, averaging cannot rescue the procedure: a floor drawn from such a null is a draw from a wide distribution rather than a matched quantity.",
+            "probe": spread_probe,
+        },
+        "worst_relative_error": {
+            "single_realisation": worst_single,
+            "averaged_over_5": worst_averaged,
+        },
+        "grid": grid,
+    });
+    println!(
+        "{}",
+        serde_json::to_string_pretty(&report).map_err(|e| e.to_string())?
+    );
+    Ok(true)
 }
 
 /// The matched null floor: the largest quartet margin a *tree* produces at this
@@ -4110,6 +4268,608 @@ fn run_null_sweep(args: &[String]) -> Result<bool, String> {
     Ok(true)
 }
 
+/// Promote the certificate from a quadruple to a **split of the whole
+/// population**, and ask whether the certified split system is a tree.
+///
+/// A quartet certificate names four sequences. What a biologist reads is a
+/// split: this group against that group. The quadruple-level identity showed a
+/// certificate *is* the split-decomposition condition for four taxa; this asks
+/// the same question of every bipartition.
+///
+/// The split certificate is a **conjunction** of per-quadruple integer
+/// comparisons, never a numeric minimum over them, because under complete
+/// deletion within the subset each quadruple has its own denominator and a
+/// minimum across different denominators is an incommensurable comparison.
+///
+/// The first run of this experiment **failed its negative control**: with no
+/// floor on the conjuncts, a clonal population with no reticulation certified
+/// eight splits where its tree has five, and six of the resulting pairs were
+/// incompatible. The exhibit showed why -- two crossing sums differing by 2
+/// counts in 2000, which on an exact tree metric would be equal. So the
+/// criterion is swept against an exact rational **noise floor**, and the
+/// question becomes whether any floor separates reticulation from a clonal tree.
+/// A **matched-null floor** for the split conjunction, as an exact rational.
+///
+/// The constant-rate sweep failed, and the per-dataset breakdown said why: a
+/// saturated population keeps its certified splits at a floor sixty-four times
+/// higher than the one that wipes out every other dataset, because saturation
+/// inflates margins *in rate terms*. A single global rate is therefore the wrong
+/// functional form -- which is the same conclusion the null-floor surrogate
+/// reached when its fit put a large coefficient on divergence.
+///
+/// So the floor is calibrated per population, by this project's established
+/// method: simulate a clonal tree with **no reticulation** matched on taxon
+/// count, alignment length, gap load, clock spread and divergence, and take the
+/// worst four-point margin rate it produces. A conjunct must strictly beat that.
+///
+/// Returned as `Floor { num, den }` holding the null's worst `(margin, common)`
+/// pair, so `cleared_by` is the exact comparison `m * den > num * c` and no
+/// floating-point value enters the decision.
+fn matched_split_floor(
+    taxa: usize,
+    length: usize,
+    target_divergence: f64,
+    gap_load: f64,
+    spread: f64,
+    null_seeds: u64,
+    accept_tolerance: f64,
+) -> Result<(reticulation::splits::Floor, f64, f64, u64, u64), String> {
+    use reticulation::simulate::{clonal_tree, clonal_tree_relaxed, inject_gap_blocks};
+    use reticulation::splits::Floor;
+    use reticulation::subset::Alignment;
+
+    // Enough generations for the taxon count, then truncated to it: a subtree
+    // of a clonal tree is still a clonal tree, so the null has the same number
+    // of sequences as the population it calibrates.
+    let generations = (taxa as f64).log2().ceil().max(2.0) as u32;
+    let build = |mu: f64, seed: u64| -> reticulation::simulate::Population {
+        let mut pop = if spread > 0.0 {
+            clonal_tree_relaxed(length, generations, mu, spread, seed)
+        } else {
+            clonal_tree(length, generations, mu, seed)
+        };
+        if gap_load > 0.001 {
+            pop = inject_gap_blocks(pop, gap_load, seed ^ 0x5EED);
+        }
+        pop.labels.truncate(taxa);
+        pop.sequences.truncate(taxa);
+        pop
+    };
+
+    // Bisect `mu` on the MEAN over fixed seeds, disjoint from the floor's.
+    //
+    // Averaging is a bug fix, not a refinement: `clonal_tree_relaxed` draws its
+    // per-branch rate multipliers from the same RNG stream as `mutate`, and
+    // `mutate` consumes a number of draws that depends on `mu`. Changing `mu`
+    // shifts the stream and changes every downstream rate multiplier, so a
+    // single realisation's divergence is a chaotic, non-monotone function of
+    // `mu` and bisecting it wanders rather than converging.
+    let tuning_seeds: Vec<u64> = (101..=120).collect();
+    let mean_divergence = |mu: f64| -> f64 {
+        let total: f64 = tuning_seeds.iter().map(|&s| divergence(&build(mu, s)).0).sum();
+        total / tuning_seeds.len() as f64
+    };
+    let (mut lo, mut hi) = (1e-7f64, 0.5f64);
+    let mut mu = target_divergence;
+    let mut achieved = 0.0f64;
+    for _ in 0..40 {
+        mu = 0.5 * (lo + hi);
+        achieved = mean_divergence(mu);
+        if achieved < target_divergence {
+            lo = mu;
+        } else {
+            hi = mu;
+        }
+    }
+
+    // The null's worst four-point margin, as an exact rate.
+    //
+    // A replicate counts only if ITS OWN realised divergence is within
+    // tolerance of the population's. This is rejection sampling on the realised
+    // nuisance rather than matching in expectation, and it is necessary:
+    // `tuning-bias` measured the relaxed-clock divergence at fixed `mu` to have
+    // a coefficient of variation near 50% and a 10x-28x spread between its
+    // extremes. A floor taken as a max over mean-matched replicates is
+    // therefore dominated by whichever replicate drew a fast-rate tree, which
+    // inflates it -- conservative, but not matched.
+    let mut num = 0i64;
+    let mut den = 1i64;
+    let mut accepted = 0u64;
+    let mut attempts = 0u64;
+    let max_attempts = null_seeds * 2_000 + 2_000;
+    let mut seed = 0u64;
+    while accepted < null_seeds && attempts < max_attempts {
+        seed += 1;
+        attempts += 1;
+        let pop = build(mu, seed);
+        let realised = divergence(&pop).0;
+        if (realised - target_divergence).abs() / target_divergence.max(1e-12) > accept_tolerance {
+            continue;
+        }
+        accepted += 1;
+        let aln = Alignment::new(pop.labels.clone(), pop.sequences.clone())?;
+        let n = aln.len();
+        for a in 0..n {
+            for b in (a + 1)..n {
+                for c in (b + 1)..n {
+                    for e in (c + 1)..n {
+                        let counts = aln.quadruple_counts(a, b, c, e);
+                        if counts.common <= 0 {
+                            continue;
+                        }
+                        let mut sums = counts.pairing_sums();
+                        sums.sort_unstable();
+                        let margin = sums[2] - sums[1];
+                        if margin * den > num * counts.common {
+                            num = margin;
+                            den = counts.common;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if accepted < null_seeds {
+        return Err(format!(
+            "only {accepted} of {null_seeds} null replicates fell within {:.0}% of \
+             divergence {target_divergence:.5} in {attempts} attempts; this \
+             population is not matchable and no floor is reported",
+            accept_tolerance * 100.0
+        ));
+    }
+    Ok((Floor::new(num, den)?, mu, achieved, accepted, attempts))
+}
+
+fn run_split_system(args: &[String]) -> Result<bool, String> {
+    use reticulation::simulate::{
+        clonal_tree, clonal_tree_relaxed, inject_gap_blocks, with_recombination,
+        with_reciprocal_recombinants,
+    };
+    use reticulation::splits::{split_system_at, Floor};
+    use reticulation::subset::Alignment;
+
+    let length: usize = parse_flag(args, "--length", 2000);
+    let generations: u32 = parse_flag(args, "--generations", 3);
+    let mu: f64 = parse_flag(args, "--mu", 0.004);
+    let saturated_mu: f64 = parse_flag(args, "--saturated-mu", 0.25);
+    let spread: f64 = parse_flag(args, "--spread", 1.0);
+    let gap_fraction: f64 = parse_flag(args, "--gap-fraction", 0.25);
+    let n_seeds: usize = parse_flag(args, "--seeds", 5);
+    let seed0: u64 = parse_flag(args, "--seed", 2026);
+    let null_seeds: u64 = parse_flag(args, "--null-seeds", 5);
+    // A matched null whose divergence misses the population's by more than this
+    // is not a matched null, and its floor carries no verdict.
+    let match_tolerance: f64 = parse_flag(args, "--match-tolerance", 0.10);
+    let den: i64 = 100_000;
+    let floors: Vec<i64> = parse_flag(
+        args,
+        "--floors",
+        "0,25,50,100,200,400,800,1600,3200,6400".to_string(),
+    )
+    .split(',')
+    .filter_map(|s| s.trim().parse().ok())
+    .collect();
+
+    #[derive(serde::Serialize, Clone)]
+    struct Row {
+        dataset: &'static str,
+        reticulate: bool,
+        seed: u64,
+        floor_num: i64,
+        floor_den: i64,
+        taxa: usize,
+        /// The underlying clonal tree's internal split count, `n-3` for the
+        /// clonal taxa. A certified count far above this is over-certification.
+        tree_internal_splits: usize,
+        certified_splits: usize,
+        pairwise_compatible: bool,
+        incompatible_pairs: usize,
+        every_witness_violates_four_point: bool,
+        /// A planted recombinant appears in the WITNESS QUADRUPLE of some
+        /// incompatible pair. Deliberately NOT "appears in the pair's splits":
+        /// a split's two sides cover every taxon, so that test is true whenever
+        /// any incompatible pair exists. The first version of this experiment
+        /// used the vacuous form and recorded a forced pass.
+        planted_recombinant_in_a_witness: bool,
+        exhibit: Option<serde_json::Value>,
+    }
+
+    #[derive(serde::Serialize, Clone)]
+    struct Matched {
+        dataset: &'static str,
+        reticulate: bool,
+        seed: u64,
+        taxa: usize,
+        observed_divergence: f64,
+        /// The matched null's achieved divergence. If this is far from the
+        /// observed one the match failed and the floor is not comparable.
+        null_divergence: f64,
+        /// Relative divergence-match error. A row above the tolerance is not
+        /// interpretable and is excluded from the verdicts rather than counted
+        /// as a pass or a failure.
+        /// How far the TUNING bisection's mean landed from the population's
+        /// divergence. This is no longer the criterion for interpretability --
+        /// every accepted replicate is within tolerance individually -- but it
+        /// is kept because a large value shows the mean-matching that earlier
+        /// versions relied on was never reliable.
+        divergence_match_error: f64,
+        /// Null replicates accepted / drawn. Acceptance is on each replicate's
+        /// OWN realised divergence, so a low rate means the population sits in
+        /// the tail of what the null can produce -- which is the honest reason
+        /// to withhold a verdict, rather than the tuning mean's error.
+        null_replicates_accepted: u64,
+        null_replicates_attempted: u64,
+        null_acceptance_rate: f64,
+        interpretable: bool,
+        null_mu: f64,
+        floor_num: i64,
+        floor_den: i64,
+        floor_rate: f64,
+        tree_internal_splits: usize,
+        certified_splits: usize,
+        pairwise_compatible: bool,
+        incompatible_pairs: usize,
+        planted_recombinant_in_a_witness: bool,
+        exhibit: Option<serde_json::Value>,
+    }
+
+    let mut rows: Vec<Row> = Vec::new();
+    let mut matched: Vec<Matched> = Vec::new();
+    for index in 0..n_seeds {
+        let seed = seed0 + index as u64;
+        let clonal_taxa = 1usize << generations;
+        // Each entry carries the gap load and clock spread its matched null
+        // must reproduce, so the floor is calibrated against the same nuisances.
+        let datasets: Vec<(&'static str, bool, reticulation::simulate::Population, f64, f64)> = vec![
+            ("D1_clonal_strict_clock", false, clonal_tree(length, generations, mu, seed), 0.0, 0.0),
+            (
+                "D2_clonal_relaxed_clock",
+                false,
+                clonal_tree_relaxed(length, generations, mu, spread, seed),
+                0.0,
+                spread,
+            ),
+            (
+                "D3_strict_clock_one_recombinant",
+                true,
+                with_recombination(clonal_tree(length, generations, mu, seed), 0.5, seed ^ 0xABCD).0,
+                0.0,
+                0.0,
+            ),
+            (
+                "D4_relaxed_clock_one_recombinant",
+                true,
+                with_recombination(
+                    clonal_tree_relaxed(length, generations, mu, spread, seed),
+                    0.5,
+                    seed ^ 0xABCD,
+                )
+                .0,
+                0.0,
+                spread,
+            ),
+            (
+                "D5_strict_clock_reciprocal_mosaics",
+                true,
+                with_reciprocal_recombinants(clonal_tree(length, generations, mu, seed), 0.5, seed ^ 0xABCD).0,
+                0.0,
+                0.0,
+            ),
+            (
+                "D6_strict_clock_gap_blocks",
+                false,
+                inject_gap_blocks(clonal_tree(length, generations, mu, seed), gap_fraction, seed ^ 0x1357),
+                gap_fraction,
+                0.0,
+            ),
+            (
+                "D7_strict_clock_saturated",
+                false,
+                clonal_tree(length, generations, saturated_mu, seed),
+                0.0,
+                0.0,
+            ),
+        ];
+
+        for (name, reticulate, pop, gap_load, clock_spread) in datasets {
+            let aln = Alignment::new(pop.labels.clone(), pop.sequences.clone())?;
+
+            // --- the matched-null floor, calibrated for this population ---
+            let observed = divergence(&pop).0;
+            let (floor, null_mu, null_divergence, accepted, attempts) = matched_split_floor(
+                aln.len(),
+                length,
+                observed,
+                gap_load,
+                clock_spread,
+                null_seeds,
+                match_tolerance,
+            )?;
+            let system = split_system_at(&aln, floor)?;
+            matched.push(Matched {
+                dataset: name,
+                reticulate,
+                seed,
+                taxa: aln.len(),
+                observed_divergence: observed,
+                null_divergence,
+                divergence_match_error: (null_divergence - observed).abs()
+                    / observed.max(1e-12),
+                null_replicates_accepted: accepted,
+                null_replicates_attempted: attempts,
+                null_acceptance_rate: accepted as f64 / attempts.max(1) as f64,
+                // Every accepted replicate matches this population's realised
+                // divergence to within tolerance, so the floor is matched per
+                // replicate. A verdict is withheld only when acceptance was so
+                // rare that the population sits in the null's extreme tail.
+                interpretable: (accepted as f64 / attempts.max(1) as f64) >= 0.01,
+                null_mu,
+                floor_num: floor.num,
+                floor_den: floor.den,
+                floor_rate: floor.num as f64 / floor.den as f64,
+                tree_internal_splits: aln.len().saturating_sub(3),
+                certified_splits: system.certified_count,
+                pairwise_compatible: system.pairwise_compatible,
+                incompatible_pairs: system.incompatible_pairs.len(),
+                planted_recombinant_in_a_witness: system.incompatible_pairs.iter().any(|pair| {
+                    pair.witness
+                        .iter()
+                        .any(|n| n.starts_with("recombinant") || n.starts_with("mosaic"))
+                }),
+                exhibit: system
+                    .incompatible_pairs
+                    .first()
+                    .map(|pair| serde_json::to_value(pair).unwrap_or(serde_json::Value::Null)),
+            });
+
+            for &num in &floors {
+                let floor = Floor::new(num, den)?;
+                let system = split_system_at(&aln, floor)?;
+                let in_witness = system.incompatible_pairs.iter().any(|pair| {
+                    pair.witness
+                        .iter()
+                        .any(|n| n.starts_with("recombinant") || n.starts_with("mosaic"))
+                });
+                let exhibit = system
+                    .incompatible_pairs
+                    .first()
+                    .map(|pair| serde_json::to_value(pair).unwrap_or(serde_json::Value::Null));
+                rows.push(Row {
+                    dataset: name,
+                    reticulate,
+                    seed,
+                    floor_num: num,
+                    floor_den: den,
+                    taxa: system.taxa,
+                    tree_internal_splits: clonal_taxa.saturating_sub(3),
+                    certified_splits: system.certified_count,
+                    pairwise_compatible: system.pairwise_compatible,
+                    incompatible_pairs: system.incompatible_pairs.len(),
+                    every_witness_violates_four_point: system.every_witness_violates_four_point,
+                    planted_recombinant_in_a_witness: in_witness,
+                    exhibit,
+                });
+            }
+        }
+    }
+
+    // --- per floor: does this floor separate reticulation from a clonal tree? ---
+    let clonal = [
+        "D1_clonal_strict_clock",
+        "D2_clonal_relaxed_clock",
+        "D6_strict_clock_gap_blocks",
+        "D7_strict_clock_saturated",
+    ];
+    let reticulate = [
+        "D3_strict_clock_one_recombinant",
+        "D4_relaxed_clock_one_recombinant",
+        "D5_strict_clock_reciprocal_mosaics",
+    ];
+    let mut by_floor = Vec::new();
+    let mut separating: Vec<i64> = Vec::new();
+    for &num in &floors {
+        let at = |name: &str| -> Vec<&Row> {
+            rows.iter()
+                .filter(|r| r.dataset == name && r.floor_num == num)
+                .collect()
+        };
+        let mut clonal_trees = 0usize;
+        let mut clonal_total = 0usize;
+        for name in clonal {
+            let rs = at(name);
+            clonal_total += rs.len();
+            clonal_trees += rs.iter().filter(|r| r.pairwise_compatible).count();
+        }
+        let mut retic_broken = 0usize;
+        let mut retic_total = 0usize;
+        let mut retic_certified_any = 0usize;
+        for name in reticulate {
+            let rs = at(name);
+            retic_total += rs.len();
+            retic_broken += rs.iter().filter(|r| !r.pairwise_compatible).count();
+            retic_certified_any += rs.iter().filter(|r| r.certified_splits > 0).count();
+        }
+        // Separation requires BOTH: every clonal population reads as a tree,
+        // and every reticulate one does not -- while still certifying
+        // something, so an empty system cannot count as a tree.
+        let separates = clonal_trees == clonal_total
+            && retic_broken == retic_total
+            && retic_certified_any == retic_total;
+        if separates {
+            separating.push(num);
+        }
+        let d1 = at("D1_clonal_strict_clock");
+        let d3 = at("D3_strict_clock_one_recombinant");
+        by_floor.push(serde_json::json!({
+            "floor_num": num,
+            "floor_rate": num as f64 / den as f64,
+            "clonal_populations_reading_as_trees": format!("{clonal_trees}/{clonal_total}"),
+            "reticulate_populations_reading_as_non_trees": format!("{retic_broken}/{retic_total}"),
+            "reticulate_populations_still_certifying_something":
+                format!("{retic_certified_any}/{retic_total}"),
+            "separates": separates,
+            "d1_mean_certified": d1.iter().map(|r| r.certified_splits).sum::<usize>() as f64
+                / d1.len().max(1) as f64,
+            "d3_mean_certified": d3.iter().map(|r| r.certified_splits).sum::<usize>() as f64
+                / d3.len().max(1) as f64,
+            "d1_mean_incompatible_pairs": d1.iter().map(|r| r.incompatible_pairs).sum::<usize>() as f64
+                / d1.len().max(1) as f64,
+            "d3_mean_incompatible_pairs": d3.iter().map(|r| r.incompatible_pairs).sum::<usize>() as f64
+                / d3.len().max(1) as f64,
+        }));
+    }
+
+    let zero = |name: &str, f: &dyn Fn(&Row) -> bool| -> (usize, usize) {
+        let rs: Vec<&Row> = rows
+            .iter()
+            .filter(|r| r.dataset == name && r.floor_num == 0)
+            .collect();
+        (rs.iter().filter(|r| f(r)).count(), rs.len())
+    };
+    let p1 = zero("D1_clonal_strict_clock", &|r| r.pairwise_compatible);
+    let p2 = zero("D3_strict_clock_one_recombinant", &|r| !r.pairwise_compatible);
+    let p3 = zero("D5_strict_clock_reciprocal_mosaics", &|r| !r.pairwise_compatible);
+    let p4 = zero("D3_strict_clock_one_recombinant", &|r| {
+        !r.pairwise_compatible && r.planted_recombinant_in_a_witness
+    });
+    let p5_total = rows.len();
+    let p5_ok = rows
+        .iter()
+        .filter(|r| r.every_witness_violates_four_point)
+        .count();
+
+    let report = serde_json::json!({
+        "experiment": "the certificate promoted from a quadruple to a split of \
+                       the whole population, swept against a noise floor",
+        "why": "A quartet certificate names four sequences; what a biologist reads \
+                is a split -- this group against that group.",
+        "the_definition_and_why_it_is_a_conjunction": "Bandelt and Dress define a \
+                split's isolation index as a MINIMUM over the quadruples \
+                straddling it. Under complete deletion within the subset every \
+                quadruple has its own denominator, so that minimum would be an \
+                incommensurable comparison. The certificate is instead a logical \
+                CONJUNCTION of per-quadruple integer comparisons, each exact over \
+                its own denominator, needing no common metric.",
+        "the_theorem_being_exhibited": "Two certified splits that are \
+                INCOMPATIBLE force a four-point violation, with a witness \
+                quadruple CONSTRUCTED from one taxon per side-intersection rather \
+                than searched for. Proved as \
+                `third_pairing_strictly_largest_of_two_certified` and \
+                `fourPoint_violated_of_two_certified`; the four-set instance \
+                (`fourSet_splits_pairwise_incompatible`) proves the claim earlier \
+                editions asserted, that no two splits of a four-set are \
+                compatible.",
+        "the_negative_control_failed_at_zero_floor": {
+            "finding": "With no floor, the lift is NOT a certificate of \
+                    reticulation. A clonal strict-clock population with no \
+                    reticulation certified more splits than its tree has and \
+                    produced incompatible pairs.",
+            "mechanism": "On an exact tree metric a quadruple's two crossing \
+                    sums are EQUAL, so the middle split's isolation index is \
+                    exactly zero. With finite data they differ by sampling noise \
+                    of order sqrt(L), and `own < max(cross)` reads the sign of \
+                    that noise. The first exhibit had sums [66, 110, 112] over a \
+                    denominator of 2000: a 2-count margin.",
+            "P1_clonal_reads_as_a_tree": {"held": p1.0, "of": p1.1},
+            "P2_one_recombinant_breaks_it": {"held": p2.0, "of": p2.1},
+            "P3_reciprocal_mosaics_break_it": {"held": p3.0, "of": p3.1},
+            "P4_planted_taxon_in_a_witness_quadruple": {
+                "held": p4.0, "of": p4.1,
+                "note": "The first version of this test also accepted the \
+                        recombinant appearing anywhere in the incompatible \
+                        pair's splits. A split's two sides cover every taxon, so \
+                        that form is true whenever any incompatible pair exists \
+                        -- a forced test. Only the witness quadruple, four taxa \
+                        of nine, carries information, and that is what is \
+                        counted here.",
+            },
+            "P5_every_witness_really_violates_four_point": {
+                "held": p5_ok, "of": p5_total,
+                "claim": "the constructed witness violates four-point on every \
+                          dataset-seed-floor; a check on the theorem rather than \
+                          a restatement of it",
+            },
+        },
+        "floor_sweep": {
+            "question": "Is there a noise floor at which every clonal population \
+                    reads as a tree while every reticulate one does not, and the \
+                    reticulate ones still certify something? A floor so high that \
+                    nothing is certified makes everything a tree and answers \
+                    nothing, so an empty system does not count.",
+            "separating_floors": separating,
+            "a_separating_floor_exists": !separating.is_empty(),
+            "per_floor": by_floor,
+        },
+        "matched_null_floor": {
+            "why": "The constant-rate sweep failed, and the per-dataset \
+                    breakdown said why: the saturated population keeps its \
+                    certified splits at a floor 64x higher than the one that \
+                    wipes out every other dataset, because saturation inflates \
+                    margins IN RATE TERMS. A single global rate is the wrong \
+                    functional form -- the same conclusion the null-floor \
+                    surrogate reached when its fit put a large coefficient on \
+                    divergence. So the floor is calibrated per population \
+                    against a clonal null matched on taxon count, length, gap \
+                    load, clock spread and divergence.",
+            "preregistered": {
+                "M1": "every non-reticulate population reads as a tree under \
+                       its own matched floor",
+                "M2": "every reticulate population reads as a non-tree",
+                "M3": "the reticulate ones still certify something, so an empty \
+                       system cannot masquerade as a verdict",
+                "M4": "a planted recombinant appears in a witness quadruple",
+            },
+            "M1_clonal_read_as_trees": {
+                "held": matched.iter().filter(|m| m.interpretable && (!m.reticulate && m.pairwise_compatible)).count(),
+                "of": matched.iter().filter(|m| m.interpretable && !m.reticulate).count(),
+            },
+            "M2_reticulate_read_as_non_trees": {
+                "held": matched.iter().filter(|m| m.interpretable && (m.reticulate && !m.pairwise_compatible)).count(),
+                "of": matched.iter().filter(|m| m.interpretable && m.reticulate).count(),
+            },
+            "M3_reticulate_still_certify_something": {
+                "held": matched.iter().filter(|m| m.interpretable && (m.reticulate && m.certified_splits > 0)).count(),
+                "of": matched.iter().filter(|m| m.interpretable && m.reticulate).count(),
+            },
+            "M4_planted_taxon_in_a_witness": {
+                "held": matched
+                    .iter()
+                    .filter(|m| m.interpretable && m.reticulate && !m.pairwise_compatible
+                                && m.planted_recombinant_in_a_witness)
+                    .count(),
+                "of": matched.iter().filter(|m| m.interpretable && m.reticulate).count(),
+            },
+            "match_tolerance": match_tolerance,
+            "how_replicates_are_matched": "Each null replicate is accepted only if its OWN realised divergence is within the tolerance of the population's. This is rejection sampling on the realised nuisance, not matching in expectation. It is necessary rather than fastidious: `tuning-bias` measured the relaxed-clock divergence at fixed mu to have a coefficient of variation near 50% and a 10x-28x spread between extremes, so a floor taken as a max over mean-matched replicates is dominated by whichever replicate drew a fast-rate tree.",
+            "worst_acceptance_rate": matched
+                .iter()
+                .map(|m| m.null_acceptance_rate)
+                .fold(1.0f64, f64::min),
+            "worst_divergence_match_error": matched
+                .iter()
+                .map(|m| m.divergence_match_error)
+                .fold(0.0f64, f64::max),
+            "rows_excluded_as_not_interpretable": matched
+                .iter()
+                .filter(|m| !m.interpretable)
+                .map(|m| serde_json::json!({
+                    "dataset": m.dataset, "seed": m.seed,
+                    "observed_divergence": m.observed_divergence,
+                    "null_divergence": m.null_divergence,
+                    "divergence_match_error": m.divergence_match_error,
+                }))
+                .collect::<Vec<_>>(),
+            "rows": matched,
+        },
+        "rows": rows,
+    });
+    println!(
+        "{}",
+        serde_json::to_string_pretty(&report).map_err(|e| e.to_string())?
+    );
+    Ok(true)
+}
+
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().skip(1).collect();
     let result = match args.first().map(String::as_str) {
@@ -4126,6 +4886,8 @@ fn main() -> ExitCode {
         Some("scale") => run_scale(&args),
         Some("filtration") => run_filtration(&args),
         Some("null-sweep") => run_null_sweep(&args),
+        Some("split-system") => run_split_system(&args),
+        Some("tuning-bias") => run_tuning_bias(&args),
         _ => {
             eprintln!(
                 "usage:\n  reticulation controls [--length N] [--generations G] \

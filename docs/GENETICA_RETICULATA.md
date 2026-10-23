@@ -1629,3 +1629,172 @@ kept paying to rediscover.
 
 Raw output: [`data/reticulata_phase3/null_sweep.json`](../data/reticulata_phase3/null_sweep.json)
 and [`null_surrogate.json`](../data/reticulata_phase3/null_surrogate.json).
+
+## 17. The certificate promoted to a split, and three controls that failed first
+
+§15 established that a quartet certificate *is* the split-decomposition
+condition for four taxa. A quartet is not what a biologist reads, though; a
+**split** is — this group of sequences against that group. This section promotes
+the certificate to that level. The formal half worked first time. The empirical
+half failed its negative control three times, and each failure found something
+that mattered more than the original question.
+
+### 17.1 A conjunction, not a minimum
+
+Bandelt and Dress define a split's isolation index as a **minimum over the
+quadruples straddling it**. Taken literally that is unusable here: under
+complete deletion within the subset every quadruple has its own denominator, and
+a minimum over quantities with different denominators is an incommensurable
+comparison — the defect this project has caught in its own apparatus more than
+once. So the split certificate is a **logical conjunction** of per-quadruple
+integer comparisons:
+
+> `A|B` is certified iff for **every** quadruple `{a,a',b,b'}` with `a,a' ∈ A`
+> and `b,b' ∈ B`, the split's own pairing sum is strictly below the larger of
+> the two crossing sums — each comparison exact, over that quadruple's own
+> denominator.
+
+Nothing is averaged, nothing needs a common metric, and every conjunct is
+kernel-checkable. The split-level statement inherits exactness from the
+quadruple level rather than paying for it.
+
+### 17.2 The lift, proved
+
+Two splits are **incompatible** when all four of `A∩C, A∩D, B∩C, B∩D` are
+non-empty. Take one taxon from each: on that quadruple the two splits induce two
+*different* pairings. If both splits are certified, both of those pairings are
+non-maximal there, so the third is strictly the largest — exactly a four-point
+violation.
+
+| theorem | content |
+| :--- | :--- |
+| `third_pairing_strictly_largest_of_two_certified` | two certified pairings force the third strictly largest |
+| `fourPoint_violated_of_two_certified` | the same, stated as a four-point violation |
+| `fourSet_splits_pairwise_incompatible` | no two of a four-set's three splits are compatible — **the claim editions 5/9 asserted without proof** |
+| `splitsCompatible_self` | a split never crosses itself, so one certified split yields no spurious witness |
+
+`GeneticaReticulataTree.lean` is **27/27 declarations, 0 `sorry`, no axioms
+beyond the whitelist**. So a population-level claim *forces* a quadruple-level
+certificate, with the witness **constructed** from the four intersections rather
+than searched for. The code builds that witness and checks it really violates
+four-point: true on **350 of 350** dataset-seed-floor combinations.
+
+### 17.3 Failure 1 — the criterion had no noise floor
+
+With the definition as stated, the negative control failed **0 of 5**: a clonal
+strict-clock population with no reticulation certified 8 splits where its tree
+has 5, and 6 of the resulting pairs were incompatible.
+
+The exhibit showed why immediately. Pairing sums `[66, 110, 112]` over a
+denominator of 2000 — and on an *exact* tree metric the two crossing sums are
+**equal**. Their observed difference is sampling noise of order `√L`, and
+`own < max(cross)` reads the sign of that noise. The split with 110 was
+certified on a 2-count margin in 2000.
+
+**And one of the predictions was rigged.** P4 asked whether a planted
+recombinant was implicated, accepting it either in a witness quadruple or
+anywhere in the incompatible pair's splits. A split's two sides *cover every
+taxon*, so the second branch is true whenever any incompatible pair exists. It
+was a forced test and it recorded a forced pass; only the witness quadruple,
+four taxa of nine, carries information.
+
+### 17.4 Failure 2 — no constant floor can work
+
+Requiring each conjunct to clear a rate `θ` of its denominator, swept over ten
+values, **no separating floor exists**. The per-dataset breakdown says why:
+
+| floor rate | D1 | D2 | D6 | D7 | D3* | D4* | D5* |
+| ---: | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
+| 0.00100 | 5/5 | 5/5 | 1/5 | 1/5 | 0/5 | 0/5 | 0/5 |
+| 0.00400 | 5/5 | 5/5 | 5/5 | 3/5 | 2/5 | 2/5 | 0/5 |
+| 0.01600 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 |
+
+(tree-readings per 5 seeds; `*` = reticulate, where a tree-reading is a miss)
+
+The saturated population **keeps exactly 5 certified splits at a floor 64×
+higher than the one that erases every other dataset**, because saturation
+inflates margins *in rate terms*. A single global rate is the wrong functional
+form — which is what §16's surrogate already implied when its fit put a large
+coefficient on divergence.
+
+### 17.5 Failure 3 — the matched null was never matched
+
+Calibrating the floor per population against a clonal null matched on divergence
+fixed specificity but reported a null whose divergence missed the population's
+by **77%**, and only on the two relaxed-clock datasets. That exposed a bug in
+machinery shared with the published results:
+
+> `clonal_tree_relaxed` draws its per-branch rate multipliers from the **same RNG
+> stream** as `mutate`, and `mutate` consumes a number of draws that depends on
+> `mu`. Changing `mu` shifts the stream and changes every downstream rate
+> multiplier, so a single realisation's divergence is a **chaotic, non-monotone**
+> function of `mu`. `tune_mu_for_divergence` bisected exactly that, with
+> `spread = 1.0` in every caller. The strict-clock simulator has nothing
+> downstream of its mutations, which is why only relaxed-clock nulls were hit.
+
+Averaging the objective barely helped (worst error 147.5% → 143.7%), so the
+assumption underneath was measured instead. At **fixed** `mu`, over 200
+realisations:
+
+| `mu` | mean divergence | CV | min | max | max/min |
+| ---: | ---: | ---: | ---: | ---: | ---: |
+| 0.001 | 0.00658 | 57.6% | 0.00088 | 0.02495 | 28.4× |
+| 0.004 | 0.02677 | 49.1% | 0.00521 | 0.07064 | 13.6× |
+| 0.016 | 0.09299 | 48.9% | 0.02272 | 0.22849 | 10.1× |
+
+Each lineage's rate is its parent's times `exp(spread·u)`, so rate multipliers
+**compound** across generations and their log-variance grows with depth. The
+distributions at `mu = 0.001` and `0.004` overlap heavily. So matching a
+relaxed-clock null on divergence **in expectation is ill-posed**: the floor is a
+max over replicates whose divergences differ by up to 28×, dominated by
+whichever replicate drew a fast-rate tree. The null was inflated — conservative,
+but not matched.
+
+### 17.6 What works: rejection sampling on the realised nuisance
+
+A replicate counts only if **its own realised divergence** is within 10% of the
+population's. With that, all four pre-registered predictions hold at full count:
+
+| prediction | result |
+| :--- | :--- |
+| **M1** every non-reticulate population reads as a tree | **20/20** |
+| **M2** every reticulate population reads as a non-tree | **15/15** |
+| **M3** reticulate populations still certify something | **15/15** |
+| **M4** a planted recombinant appears in a witness quadruple | **15/15** |
+
+| dataset | reticulate | floor | certified | `n-3` | trees | incompatible pairs | null acceptance |
+| :--- | :--: | ---: | ---: | ---: | :--: | ---: | ---: |
+| D1 clonal, strict clock | no | 0.00170 | **5.0** | 5 | 5/5 | 0.0 | 72.5% |
+| D2 clonal, relaxed clock | no | 0.00120 | 4.4 | 5 | 5/5 | 0.0 | 17.1% |
+| D6 gap blocks | no | 0.00339 | 4.0 | 5 | 5/5 | 0.0 | 52.5% |
+| D7 saturated | no | **0.04000** | **5.0** | 5 | 5/5 | 0.0 | 100.0% |
+| D3 one recombinant | **yes** | 0.00160 | 9.0 | 6 | 0/5 | 7.0 | 54.7% |
+| D4 relaxed + recombinant | **yes** | 0.00190 | 7.4 | 6 | 0/5 | 4.6 | 15.5% |
+| D5 reciprocal mosaics | **yes** | 0.00170 | 10.6 | 7 | 0/5 | 18.8 | 51.5% |
+
+D1 and D7 recover **exactly `n-3` = 5** certified splits, their true internal
+split count. D7's floor is **23× D1's**, which is the divergence dependence no
+constant rate could express. Acceptance rates are reported because they matter:
+at 15–17% for the relaxed-clock populations the sampler needs ~6 draws per
+accepted replicate, and a population that could not be matched at all would get
+**no floor and no verdict** rather than a floor from an unmatched null.
+
+### 17.7 What this does and does not establish
+
+It establishes that the split-level certificate separates reticulation from four
+distinct tree-like confounders — relaxed clocks, gap blocks, and saturation —
+**perfectly on this grid**, 35 of 35 dataset-seeds, with a biologist-readable
+exhibit and a kernel-checkable witness beneath it.
+
+It does **not** establish that on real data. This is simulated data with planted
+truth at one parameter setting (2000 columns, 8–10 taxa). And the result arrived
+only after three negative-control failures, which is the honest summary of its
+maturity: the formal content is proved, the empirical content is one grid.
+
+**The methodological finding is the transferable part.** Matching a null in
+expectation is not matching it, whenever the nuisance has a heavy-tailed
+realised distribution; and a quantity whose across-realisation CV is ~50%
+cannot calibrate anything through its mean.
+
+Raw output: [`split_system.json`](../data/reticulata_phase5/split_system.json),
+[`tuning_bias.json`](../data/reticulata_phase5/tuning_bias.json).

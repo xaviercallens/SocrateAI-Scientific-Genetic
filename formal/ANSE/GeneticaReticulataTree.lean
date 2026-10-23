@@ -644,6 +644,88 @@ theorem buneman_supported_is_edge_when_fourPoint (s₁ s₂ s₃ : ℚ)
   subst h
   rw [buneman_supported_eq_half_gap s₁ s₂ s₂ h₁ le_rfl]
 
+/-
+  THE LIFT — FROM A QUADRUPLE TO A SPLIT OF THE WHOLE POPULATION.
+
+  Everything above is about four taxa. What a biologist reads is a SPLIT: this
+  group of sequences against that group. Bandelt and Dress define a split's
+  isolation index as a MINIMUM over the quadruples straddling it, which is
+  unusable under complete deletion within the subset, because every quadruple
+  then has its own denominator and a minimum over different denominators is an
+  incommensurable comparison.
+
+  So the split certificate is a CONJUNCTION of per-quadruple comparisons: the
+  split `A|B` is certified when, for every quadruple with two taxa on each side,
+  the split's own pairing sum is strictly less than the larger of the two
+  crossing sums. Each conjunct is exact over its own denominator and nothing
+  needs a common metric.
+
+  The theorem below is why that definition is the right one. Two splits are
+  INCOMPATIBLE when all four of `A∩C, A∩D, B∩C, B∩D` are non-empty; taking one
+  taxon from each gives a quadruple on which the two splits induce two DIFFERENT
+  pairings. If both splits are certified, both of those pairings are non-maximal
+  there — and then the third pairing is strictly the largest, which is exactly a
+  four-point violation.
+
+  So a population-level claim (two certified splits that no tree can display
+  together) FORCES a quadruple-level certificate, and the witness is constructed
+  rather than searched for. That is the lift.
+-/
+
+/-- Two certified pairings force the third to be strictly the largest.
+
+`p` and `q` are the pairing sums of two different splits on the same quadruple,
+`r` the third. Each hypothesis says a split's own sum is non-maximal, which is
+the conjunct its certificate supplies for this quadruple. -/
+theorem third_pairing_strictly_largest_of_two_certified (p q r : ℚ)
+    (hp : p < max q r) (hq : q < max p r) : max p q < r := by
+  rw [max_lt_iff]
+  rcases lt_max_iff.mp hp with hpq | hpr
+  · rcases lt_max_iff.mp hq with hqp | hqr
+    · -- `p < q` and `q < p` cannot both hold.
+      exact absurd (hpq.trans hqp) (lt_irrefl p)
+    · exact ⟨hpq.trans hqr, hqr⟩
+  · rcases lt_max_iff.mp hq with hqp | hqr
+    · exact ⟨hpr, hqp.trans hpr⟩
+    · exact ⟨hpr, hqr⟩
+
+/-- The same fact as a four-point violation: the condition cannot hold on a
+quadruple where two different splits are both certified. -/
+theorem fourPoint_violated_of_two_certified (p q r : ℚ)
+    (hp : p < max q r) (hq : q < max p r) : ¬ (r ≤ max p q) :=
+  not_le.mpr (third_pairing_strictly_largest_of_two_certified p q r hp hq)
+
+/-- Compatibility of two splits, given as the four side-intersections.
+
+A split system is displayed by a tree exactly when it is pairwise compatible
+(the splits-equivalence theorem), so this is the predicate an incompatible pair
+negates. Stated on `Finset` so the four-set instance below is decidable. -/
+def splitsCompatible {α : Type} [DecidableEq α]
+    (a b c d : Finset α) : Prop :=
+  a ∩ c = ∅ ∨ a ∩ d = ∅ ∨ b ∩ c = ∅ ∨ b ∩ d = ∅
+
+instance {α : Type} [DecidableEq α] (a b c d : Finset α) :
+    Decidable (splitsCompatible a b c d) := by
+  unfold splitsCompatible; infer_instance
+
+/-- The paper's claim, now proved rather than asserted: the three balanced
+splits of a four-set are pairwise incompatible.
+
+This is what makes a quartet certificate a statement about non-tree-likeness. A
+certificate says two of the three splits carry positive isolation index, and
+since no two of them can sit in one tree, the split system is not a tree. -/
+theorem fourSet_splits_pairwise_incompatible :
+    ¬ splitsCompatible ({0, 1} : Finset (Fin 4)) {2, 3} {0, 2} {1, 3} ∧
+    ¬ splitsCompatible ({0, 1} : Finset (Fin 4)) {2, 3} {0, 3} {1, 2} ∧
+    ¬ splitsCompatible ({0, 2} : Finset (Fin 4)) {1, 3} {0, 3} {1, 2} := by
+  refine ⟨by decide, by decide, by decide⟩
+
+/-- A split cannot be incompatible with itself, so a single certified split
+never produces a spurious witness. The negative control for the lift. -/
+theorem splitsCompatible_self {α : Type} [DecidableEq α] (a b : Finset α)
+    (h : a ∩ b = ∅) : splitsCompatible a b a b :=
+  Or.inr (Or.inl h)
+
 end ANSE.GeneticaReticulata
 
 #print axioms ANSE.GeneticaReticulata.fourPoint_of_ultrametric
@@ -669,3 +751,7 @@ end ANSE.GeneticaReticulata
 #print axioms ANSE.GeneticaReticulata.buneman_supported_eq_half_gap
 #print axioms ANSE.GeneticaReticulata.fourPoint_iff_middle_buneman_zero
 #print axioms ANSE.GeneticaReticulata.buneman_supported_is_edge_when_fourPoint
+#print axioms ANSE.GeneticaReticulata.third_pairing_strictly_largest_of_two_certified
+#print axioms ANSE.GeneticaReticulata.fourPoint_violated_of_two_certified
+#print axioms ANSE.GeneticaReticulata.fourSet_splits_pairwise_incompatible
+#print axioms ANSE.GeneticaReticulata.splitsCompatible_self

@@ -1,0 +1,135 @@
+{
+  "experiment": "how far the published matched nulls actually missed their                        divergence targets",
+  "grid": [
+    {
+      "averaged_over_5": {
+        "achieved": 0.004874999999999997,
+        "mu": 0.0007602436985779488,
+        "relative_error": 1.4374999999999987
+      },
+      "mu_ratio": 1.0110262651021622,
+      "single_realisation": {
+        "achieved": 0.004949374999999997,
+        "mu": 0.0007686263471407175,
+        "relative_error": 1.4746874999999986
+      },
+      "target_divergence": 0.002
+    },
+    {
+      "averaged_over_5": {
+        "achieved": 0.007818749999999996,
+        "mu": 0.001378828322454131,
+        "relative_error": 0.5637499999999991
+      },
+      "mu_ratio": 0.9628604429365196,
+      "single_realisation": {
+        "achieved": 0.007780416666666662,
+        "mu": 0.001327619249291603,
+        "relative_error": 0.5560833333333324
+      },
+      "target_divergence": 0.005
+    },
+    {
+      "averaged_over_5": {
+        "achieved": 0.010694374999999992,
+        "mu": 0.0019502103275593646,
+        "relative_error": 0.06943749999999918
+      },
+      "mu_ratio": 1.1909959109494792,
+      "single_realisation": {
+        "achieved": 0.01227791666666666,
+        "mu": 0.0023226925256146476,
+        "relative_error": 0.2277916666666659
+      },
+      "target_divergence": 0.01
+    },
+    {
+      "averaged_over_5": {
+        "achieved": 0.023403125,
+        "mu": 0.0044534641593017696,
+        "relative_error": 0.17015624999999998
+      },
+      "mu_ratio": 1.8097013029657734,
+      "single_realisation": {
+        "achieved": 0.042875,
+        "mu": 0.008059439891799785,
+        "relative_error": 1.14375
+      },
+      "target_divergence": 0.02
+    },
+    {
+      "averaged_over_5": {
+        "achieved": 0.07882520833333333,
+        "mu": 0.01334199384465445,
+        "relative_error": 0.5765041666666665
+      },
+      "mu_ratio": 1.006032319442606,
+      "single_realisation": {
+        "achieved": 0.07695791666666665,
+        "mu": 0.013422477013526689,
+        "relative_error": 0.539158333333333
+      },
+      "target_divergence": 0.05
+    },
+    {
+      "averaged_over_5": {
+        "achieved": 0.11018020833333335,
+        "mu": 0.019951903283563062,
+        "relative_error": 0.10180208333333343
+      },
+      "mu_ratio": 1.606873024044019,
+      "single_realisation": {
+        "achieved": 0.15404145833333333,
+        "mu": 0.03206017516469277,
+        "relative_error": 0.5404145833333331
+      },
+      "target_divergence": 0.1
+    }
+  ],
+  "how_this_was_found": "The split-system experiment reported a matched                 null whose divergence missed the population's by 77%, and only                 on the two relaxed-clock datasets.",
+  "is_matching_well_posed": {
+    "probe": [
+      {
+        "coefficient_of_variation": 0.5756687273100836,
+        "max": 0.024954166666666673,
+        "max_over_min": 28.383886255924157,
+        "mean_divergence": 0.0065757083333333275,
+        "min": 0.0008791666666666673,
+        "mu": 0.001,
+        "p50": 0.005583333333333328,
+        "realisations": 200,
+        "sd": 0.0037854296474123077
+      },
+      {
+        "coefficient_of_variation": 0.49078330142016485,
+        "max": 0.0706375,
+        "max_over_min": 13.562400000000013,
+        "mean_divergence": 0.026771749999999997,
+        "min": 0.005208333333333329,
+        "mu": 0.004,
+        "p50": 0.024929166666666665,
+        "realisations": 200,
+        "sd": 0.013139127849795297
+      },
+      {
+        "coefficient_of_variation": 0.48906316291358387,
+        "max": 0.22849166666666668,
+        "max_over_min": 10.056482670089864,
+        "mean_divergence": 0.09299243750000002,
+        "min": 0.022720833333333322,
+        "mu": 0.016,
+        "p50": 0.08304583333333328,
+        "realisations": 200,
+        "sd": 0.04547917561079378
+      }
+    ],
+    "question": "At a FIXED mu, how much does a relaxed-clock tree's divergence vary across realisations? If that spread is comparable to the range being matched, averaging cannot rescue the procedure: a floor drawn from such a null is a draw from a wide distribution rather than a matched quantity."
+  },
+  "method": "For each target divergence, tune `mu` both ways and then                 measure the achieved divergence on INDEPENDENT seeds (9000+), so                 the verification does not reuse the tuning realisations.",
+  "the_defect": "`clonal_tree_relaxed` draws its per-branch rate                 multipliers from the same RNG stream as `mutate`, and `mutate`                 consumes a number of draws that depends on `mu`. Changing `mu`                 shifts the stream and changes every downstream rate multiplier,                 so a single realisation's divergence is a chaotic, non-monotone                 function of `mu`. Bisecting it does not converge. Every matched                 null in this programme was tuned that way, with spread = 1.0 by                 default -- exactly the regime where the coupling bites. The                 strict-clock simulator has nothing downstream of its mutations,                 which is why only relaxed-clock nulls were affected.",
+  "verification_seeds": 20,
+  "worst_relative_error": {
+    "averaged_over_5": 1.4374999999999987,
+    "single_realisation": 1.4746874999999986
+  }
+}

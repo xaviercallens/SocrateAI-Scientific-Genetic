@@ -175,6 +175,7 @@ pub mod exact;
 pub mod incompat;
 pub mod rips;
 pub mod simulate;
+pub mod splits;
 pub mod subset;
 
 pub use align::{
