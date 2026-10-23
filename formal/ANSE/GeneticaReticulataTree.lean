@@ -538,82 +538,111 @@ theorem gromov_strongTriangle_fails_of_quartet_violation {d : α → α → ℚ}
   fun hg => h ((fourPoint_iff_gromov_strongTriangle hsym).mpr hg)
 
 /-!
-### The margin is a gap between isolation indices
+### The margin is twice an isolation index
 
 Section 14 of `docs/GENETICA_RETICULATA.md` closed the Vietoris--Rips route to
 detecting reticulation and concluded that this programme's topological content is
-the certificate itself. That conclusion deserves to be more than a slogan, so
-here is the precise bridge: the certificate's margin is a difference of
-**Bandelt--Dress isolation indices**, the weights of the split decomposition of a
-metric.
+the certificate itself. Here is the precise bridge.
 
-For a quadruple there are three ways to split it into two pairs, and each split
-`S` carries an isolation index
-`α(S) = ½ (min of the other two pairing sums − S's own pairing sum)`.
-A split with `α > 0` is one the data supports; on a tree metric the supported
-split's index is the internal edge's length, which is why split decomposition is
-the classical geometry of tree-likeness and the basis of split networks.
+**A correction first, because an earlier edition of this file got the definition
+wrong.** Editions 5 of Paper F and 9 of the textbook defined
+`½ (min of the other two pairing sums − own)` and called it the Bandelt--Dress
+isolation index. That is not the isolation index. The definition takes the
+**maximum** of the two crossing sums, clamped below at zero:
+`α(S) = ½ min over a,a' ∈ A, b,b' ∈ B of max{0, cross₁ − own, cross₂ − own}`,
+which for a single quadruple is `½ max(0, max(cross₁, cross₂) − own)`. The two
+forms agree on a tree metric, where the crossing sums are equal, and differ
+exactly where the four-point condition fails — so the error was invisible on
+precisely the data where the condition holds. The corrected statement is
+*stronger* than the one withdrawn, which is the only reason this is pleasant.
 
-Two facts, both pure algebra over the three sums, so both are proved here rather
-than cited:
+Write a quadruple's three pairing sums sorted as `s₁ ≤ s₂ ≤ s₃`. The three
+splits' isolation indices are then `½(s₃ - s₁)`, `½(s₃ - s₂)` and `0`, so:
 
-* `isolation_gap_eq_half_sum_gap` — between the two **non-minimal** splits, the
-  gap in isolation index is exactly half the gap in pairing sum. Since the
-  certificate's margin is the gap between the largest and second-largest pairing
-  sums, **the margin is twice an isolation-index gap**.
-* `quadruple_fourPoint_iff_isolation_gap_nonpos` — the four-point condition on a
-  quadruple holds exactly when that gap is non-positive.
+* `buneman_middle_eq_half_margin` — the **middle** split's index is exactly half
+  the certificate's margin `s₃ - s₂`;
+* `buneman_largest_eq_zero` — the dominant split's index is zero;
+* `fourPoint_iff_middle_buneman_zero` — the four-point condition on a quadruple
+  **is** the vanishing of the middle split's index;
+* `buneman_supported_eq_half_gap` and `buneman_supported_is_edge_when_fourPoint`
+  — the smallest split's index is `½(s₃ - s₁)`, which on a quadruple satisfying
+  the four-point condition is `½(s₂ - s₁)`, the internal edge's length.
 
-So a certificate is not merely *analogous* to a geometric statement: the number
-it reports is a split-decomposition quantity, and the condition it refutes is the
-vanishing of that quantity. This is stated over the three sums as bare rationals
-because that is all the content there is; nothing here needs a tree, a complex or
-a metric space, which is the point — it is why the certificate can be evaluated
-per subset where a global complex cannot.
+The interpretation is what makes this worth the correction. On a tree metric
+exactly **one** of the three splits has a positive index, the one the tree
+supports. A quartet certificate says the middle index is positive too — and any
+two distinct splits of a four-set are incompatible. So a certificate is the
+statement that **two incompatible splits both carry positive isolation index**,
+which is the textbook condition for a split system to fail to be a tree. The
+certificate is not analogous to the split-decomposition notion of
+non-tree-likeness; at the quadruple level it *is* that notion.
+
+Nothing here needs a tree, a complex or a metric space — only three rationals,
+which is why the quantity survives being computed one subset at a time where a
+complex over a global distance matrix cannot.
 -/
 
 /-- The Bandelt--Dress isolation index of one split of a quadruple, from its own
-pairing sum and the other two. -/
-def isoOf (own other₁ other₂ : ℚ) : ℚ := (min other₁ other₂ - own) / 2
+pairing sum and the other two: `½ max(0, max(other two) − own)`.
 
-/-- Between the two non-minimal splits, the isolation-index gap is half the
-pairing-sum gap.
+The clamp at zero is part of the definition and is why the index is never
+negative. -/
+def buneman (own other₁ other₂ : ℚ) : ℚ :=
+  (max 0 (max other₁ other₂ - own)) / 2
 
-`s₁` is the minimal sum; `s₂` and `s₃` are the other two in either order. The
-certificate's margin is `s₃ - s₂` when `s₃` dominates, so the margin is twice
-this gap. -/
-theorem isolation_gap_eq_half_sum_gap (s₁ s₂ s₃ : ℚ) (h₂ : s₁ ≤ s₂) (h₃ : s₁ ≤ s₃) :
-    isoOf s₂ s₁ s₃ - isoOf s₃ s₁ s₂ = (s₃ - s₂) / 2 := by
-  unfold isoOf
-  rw [min_eq_left h₃, min_eq_left h₂]
-  ring
+/-- The middle split's isolation index is half the certificate's margin. -/
+theorem buneman_middle_eq_half_margin (s₁ s₂ s₃ : ℚ) (h₁ : s₁ ≤ s₂) (h₂ : s₂ ≤ s₃) :
+    buneman s₂ s₁ s₃ = (s₃ - s₂) / 2 := by
+  unfold buneman
+  rw [max_eq_right (h₁.trans h₂)]
+  rw [max_eq_right (by linarith : (0 : ℚ) ≤ s₃ - s₂)]
 
-/-- The four-point condition on a quadruple is the non-positivity of that gap.
+/-- The dominant split's isolation index vanishes. -/
+theorem buneman_largest_eq_zero (s₁ s₂ s₃ : ℚ) (h₁ : s₁ ≤ s₃) (h₂ : s₂ ≤ s₃) :
+    buneman s₃ s₁ s₂ = 0 := by
+  unfold buneman
+  rw [max_eq_left (by
+    rcases le_total s₁ s₂ with h | h
+    · rw [max_eq_right h]; linarith
+    · rw [max_eq_left h]; linarith : max s₁ s₂ - s₃ ≤ 0)]
+  norm_num
 
-Read with `isolation_gap_eq_half_sum_gap`: a quartet certificate is the statement
-that one split's isolation index falls strictly below another's, by half the
-margin the certificate reports. -/
-theorem quadruple_fourPoint_iff_isolation_gap_nonpos (s₁ s₂ s₃ : ℚ)
-    (h₂ : s₁ ≤ s₂) (h₃ : s₁ ≤ s₃) :
-    s₃ ≤ max s₁ s₂ ↔ isoOf s₂ s₁ s₃ - isoOf s₃ s₁ s₂ ≤ 0 := by
-  rw [isolation_gap_eq_half_sum_gap s₁ s₂ s₃ h₂ h₃, max_eq_right h₂]
+/-- The smallest split's isolation index. -/
+theorem buneman_supported_eq_half_gap (s₁ s₂ s₃ : ℚ) (h₁ : s₁ ≤ s₂) (h₂ : s₂ ≤ s₃) :
+    buneman s₁ s₂ s₃ = (s₃ - s₁) / 2 := by
+  unfold buneman
+  rw [max_eq_right h₂]
+  rw [max_eq_right (by linarith : (0 : ℚ) ≤ s₃ - s₁)]
+
+/-- **The four-point condition on a quadruple is the vanishing of the middle
+split's isolation index.**
+
+With `buneman_largest_eq_zero`, this says: four-point holds exactly when at most
+one of the three splits carries a positive index. A violation gives two splits
+positive indices, and any two distinct splits of a four-set are incompatible --
+which is the split-decomposition condition for failing to be a tree. -/
+theorem fourPoint_iff_middle_buneman_zero (s₁ s₂ s₃ : ℚ) (h₁ : s₁ ≤ s₂) (h₂ : s₂ ≤ s₃) :
+    s₃ ≤ max s₁ s₂ ↔ buneman s₂ s₁ s₃ = 0 := by
+  rw [buneman_middle_eq_half_margin s₁ s₂ s₃ h₁ h₂, max_eq_right h₁]
   constructor
   · intro h
-    linarith
+    have : s₃ = s₂ := le_antisymm h h₂
+    rw [this]
+    norm_num
   · intro h
+    have : s₃ - s₂ = 0 := by
+      field_simp at h
+      linarith
     linarith
 
-/-- The supported split's isolation index, on a quadruple whose smallest pairing
-sum is `s₁`: half the gap to the next sum.
-
-On a tree metric this is the internal edge's length, which is the sense in which
-the split decomposition recovers the tree. Stated here only as the algebraic
-identity; that it *is* the edge length needs the tree construction this file
-cites rather than proves. -/
-theorem supported_isolation_eq_half_gap (s₁ s₂ s₃ : ℚ) (h₂ : s₁ ≤ s₂) (h₃ : s₂ ≤ s₃) :
-    isoOf s₁ s₂ s₃ = (s₂ - s₁) / 2 := by
-  unfold isoOf
-  rw [min_eq_left h₃]
+/-- On a quadruple satisfying the four-point condition, the supported split's
+isolation index is half the gap to the next pairing sum -- the internal edge's
+length in the tree the quadruple is consistent with. -/
+theorem buneman_supported_is_edge_when_fourPoint (s₁ s₂ s₃ : ℚ)
+    (h₁ : s₁ ≤ s₂) (h : s₂ = s₃) :
+    buneman s₁ s₂ s₃ = (s₂ - s₁) / 2 := by
+  subst h
+  rw [buneman_supported_eq_half_gap s₁ s₂ s₂ h₁ le_rfl]
 
 end ANSE.GeneticaReticulata
 
@@ -635,6 +664,8 @@ end ANSE.GeneticaReticulata
 #print axioms ANSE.GeneticaReticulata.a_gap_anywhere_shrinks_the_common_denominator
 #print axioms ANSE.GeneticaReticulata.fourPoint_iff_gromov_strongTriangle
 #print axioms ANSE.GeneticaReticulata.gromov_strongTriangle_fails_of_quartet_violation
-#print axioms ANSE.GeneticaReticulata.isolation_gap_eq_half_sum_gap
-#print axioms ANSE.GeneticaReticulata.quadruple_fourPoint_iff_isolation_gap_nonpos
-#print axioms ANSE.GeneticaReticulata.supported_isolation_eq_half_gap
+#print axioms ANSE.GeneticaReticulata.buneman_middle_eq_half_margin
+#print axioms ANSE.GeneticaReticulata.buneman_largest_eq_zero
+#print axioms ANSE.GeneticaReticulata.buneman_supported_eq_half_gap
+#print axioms ANSE.GeneticaReticulata.fourPoint_iff_middle_buneman_zero
+#print axioms ANSE.GeneticaReticulata.buneman_supported_is_edge_when_fourPoint

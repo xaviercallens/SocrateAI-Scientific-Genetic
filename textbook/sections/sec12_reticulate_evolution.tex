@@ -686,25 +686,45 @@ within the subset available at all. A complex built from one global distance
 matrix cannot restrict to a subset, and therefore cannot.
 
 That is sharper than a slogan, because the certificate's number turns out to be a
-classical one. Phylogenetic combinatorics assigns each split of a quadruple a
-\emph{Bandelt--Dress isolation index}, half the gap between the minimum of the
-other two pairing sums and its own; a split with positive index is one the data
-supports, and on a tree metric the supported split's index is the internal edge's
-length. Between the two \emph{non-minimal} splits that gap is exactly half the
-pairing-sum gap, so \textbf{the margin of \S\ref{sub:deletion} is twice an
-isolation-index gap}, and \eqref{eq:fourpoint} on a quadruple is precisely the
-non-positivity of that gap. Both are machine-checked, and neither proof needs a
-tree, a complex or a metric space --- only three rationals, which is why the
-quantity survives being computed one subset at a time.
+classical one --- though an earlier edition of this book got the classical
+definition wrong, and the correction is instructive enough to keep.
+
+Phylogenetic combinatorics assigns each split of a quadruple a
+\emph{Bandelt--Dress isolation index}: half the \emph{larger} of the two crossing
+pairing sums minus its own, clamped below at zero. Edition~9 of this book used
+the \emph{smaller} instead. The two agree on a tree metric, where the crossing
+sums are equal, and differ exactly where \eqref{eq:fourpoint} fails --- so the
+error was invisible on precisely the data where the condition holds, and the
+check used to choose between the forms (that the index should be an internal edge
+length on a tree) is satisfied by both and so decided nothing.
+
+With the right definition, and the quadruple's three pairing sums written
+$s_1 \le s_2 \le s_3$, the three indices are $\tfrac12(s_3-s_1)$,
+$\tfrac12(s_3-s_2)$ and $0$. So the \textbf{middle} split's index is exactly half
+the margin of \S\ref{sub:deletion}, and \eqref{eq:fourpoint} on a quadruple is
+precisely the vanishing of that one index. Five such statements are
+machine-checked, and none of the proofs needs a tree, a complex or a metric space
+--- only three rationals, which is why the quantity survives being computed one
+subset at a time.
+
+The reading is what makes the correction worth the space. On a tree metric
+exactly \emph{one} of the three splits carries a positive index, the one the tree
+supports; a certificate says a second one does too, and any two distinct splits
+of a four-set are incompatible. So a quartet certificate \emph{is} the condition
+that two incompatible splits both carry positive isolation index --- the textbook
+condition for a split system to fail to be a tree, not an analogue of it. The
+implementation checks that as an identity: across the grid, quadruples with two
+positive indices and quadruples violating \eqref{eq:fourpoint} both number
+$47\,802$.
 
 Measuring the split decomposition's own headline quantity then says where the
-signal is not. The largest supported-split index is identical to five decimal
-places on the clonal population and on both reticulate populations built from it:
-it is blind to the reticulation, as it should be, since the strongest supported
-split is a deep split of the underlying tree. What it tracks is divergence. So
-\emph{the supported index carries the tree, the gap between the non-supported
-indices carries the reticulation}, and a filtration driven by distance magnitudes
-was reading the first where the signal lives in the second.
+signal is \emph{not}. The largest supported-split index is identical to five
+decimal places on the clonal population and on both reticulate populations built
+from it: blind to the reticulation, as it should be, since the strongest
+supported split is a deep split of the underlying tree. What it tracks is
+divergence. So \emph{the supported index carries the tree, the index a tree
+forces to zero carries the reticulation}, and a filtration driven by distance
+magnitudes was reading the first where the signal lives in the second.
 
 These episodes taught one lesson that belongs in any ledger: \emph{check that a
 null varies before believing a $p$-value derived from it}, because a null that is

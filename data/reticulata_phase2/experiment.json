@@ -229,7 +229,8 @@
           "quartet_margin": 0.00175,
           "quartet_margin_exact": "7/4000",
           "quartet_violating": 1269,
-          "seed": 2026
+          "seed": 2026,
+          "two_positive_indices": 1269
         },
         {
           "complete_triple_common_columns": 4000,
@@ -258,7 +259,8 @@
           "quartet_margin": 0.00125,
           "quartet_margin_exact": "5/4000",
           "quartet_violating": 1136,
-          "seed": 2027
+          "seed": 2027,
+          "two_positive_indices": 1136
         },
         {
           "complete_triple_common_columns": 4000,
@@ -277,7 +279,7 @@
           "isolation_identity_fails": 0,
           "isolation_identity_holds": 1820,
           "max_delta_q": 0.17391304347826086,
-          "max_supported_isolation": 0.027375,
+          "max_supported_isolation": 0.0275,
           "mean_delta_q": 0.021739414734015708,
           "mean_p_distance": 0.02644583333333332,
           "pairwise_triple_margin": 0.00475,
@@ -287,7 +289,8 @@
           "quartet_margin": 0.0015,
           "quartet_margin_exact": "6/4000",
           "quartet_violating": 1179,
-          "seed": 2028
+          "seed": 2028,
+          "two_positive_indices": 1179
         },
         {
           "complete_triple_common_columns": 4000,
@@ -316,7 +319,8 @@
           "quartet_margin": 0.00175,
           "quartet_margin_exact": "7/4000",
           "quartet_violating": 1214,
-          "seed": 2029
+          "seed": 2029,
+          "two_positive_indices": 1214
         },
         {
           "complete_triple_common_columns": 4000,
@@ -345,7 +349,8 @@
           "quartet_margin": 0.00175,
           "quartet_margin_exact": "7/4000",
           "quartet_violating": 1304,
-          "seed": 2030
+          "seed": 2030,
+          "two_positive_indices": 1304
         }
       ],
       "quartets_examined": 1820
@@ -370,7 +375,7 @@
           "isolation_identity_fails": 0,
           "isolation_identity_holds": 1820,
           "max_delta_q": 0.5,
-          "max_supported_isolation": 0.035625,
+          "max_supported_isolation": 0.035875,
           "mean_delta_q": 0.02979849668595741,
           "mean_p_distance": 0.029252083333333328,
           "pairwise_triple_margin": 0.0265,
@@ -380,7 +385,8 @@
           "quartet_margin": 0.00175,
           "quartet_margin_exact": "7/4000",
           "quartet_violating": 1102,
-          "seed": 2026
+          "seed": 2026,
+          "two_positive_indices": 1102
         },
         {
           "complete_triple_common_columns": 4000,
@@ -409,7 +415,8 @@
           "quartet_margin": 0.00125,
           "quartet_margin_exact": "5/4000",
           "quartet_violating": 1072,
-          "seed": 2027
+          "seed": 2027,
+          "two_positive_indices": 1072
         },
         {
           "complete_triple_common_columns": 4000,
@@ -438,7 +445,8 @@
           "quartet_margin": 0.0005,
           "quartet_margin_exact": "2/4000",
           "quartet_violating": 267,
-          "seed": 2028
+          "seed": 2028,
+          "two_positive_indices": 267
         },
         {
           "complete_triple_common_columns": 4000,
@@ -457,7 +465,7 @@
           "isolation_identity_fails": 0,
           "isolation_identity_holds": 1820,
           "max_delta_q": 0.36363636363636365,
-          "max_supported_isolation": 0.0235,
+          "max_supported_isolation": 0.023875,
           "mean_delta_q": 0.03304899235779947,
           "mean_p_distance": 0.01825625000000001,
           "pairwise_triple_margin": 0.016,
@@ -467,7 +475,8 @@
           "quartet_margin": 0.0015,
           "quartet_margin_exact": "6/4000",
           "quartet_violating": 913,
-          "seed": 2029
+          "seed": 2029,
+          "two_positive_indices": 913
         },
         {
           "complete_triple_common_columns": 4000,
@@ -496,7 +505,8 @@
           "quartet_margin": 0.00025,
           "quartet_margin_exact": "1/4000",
           "quartet_violating": 112,
-          "seed": 2030
+          "seed": 2030,
+          "two_positive_indices": 112
         }
       ],
       "quartets_examined": 1820
@@ -531,7 +541,8 @@
           "quartet_margin": 0.01275,
           "quartet_margin_exact": "51/4000",
           "quartet_violating": 1775,
-          "seed": 2026
+          "seed": 2026,
+          "two_positive_indices": 1775
         },
         {
           "complete_triple_common_columns": 4000,
@@ -560,7 +571,8 @@
           "quartet_margin": 0.011,
           "quartet_margin_exact": "44/4000",
           "quartet_violating": 1615,
-          "seed": 2027
+          "seed": 2027,
+          "two_positive_indices": 1615
         },
         {
           "complete_triple_common_columns": 4000,
@@ -579,7 +591,7 @@
           "isolation_identity_fails": 0,
           "isolation_identity_holds": 2380,
           "max_delta_q": 1.0,
-          "max_supported_isolation": 0.027375,
+          "max_supported_isolation": 0.0275,
           "mean_delta_q": 0.10045271229814486,
           "mean_p_distance": 0.026419117647058815,
           "pairwise_triple_margin": 0.01525,
@@ -589,7 +601,8 @@
           "quartet_margin": 0.01575,
           "quartet_margin_exact": "63/4000",
           "quartet_violating": 1689,
-          "seed": 2028
+          "seed": 2028,
+          "two_positive_indices": 1689
         },
         {
           "complete_triple_common_columns": 4000,
@@ -618,7 +631,8 @@
           "quartet_margin": 0.0155,
           "quartet_margin_exact": "62/4000",
           "quartet_violating": 1732,
-          "seed": 2029
+          "seed": 2029,
+          "two_positive_indices": 1732
         },
         {
           "complete_triple_common_columns": 4000,
@@ -647,7 +661,8 @@
           "quartet_margin": 0.013,
           "quartet_margin_exact": "52/4000",
           "quartet_violating": 1815,
-          "seed": 2030
+          "seed": 2030,
+          "two_positive_indices": 1815
         }
       ],
       "quartets_examined": 2380
@@ -672,7 +687,7 @@
           "isolation_identity_fails": 0,
           "isolation_identity_holds": 2380,
           "max_delta_q": 1.0,
-          "max_supported_isolation": 0.035625,
+          "max_supported_isolation": 0.035875,
           "mean_delta_q": 0.10211690578755322,
           "mean_p_distance": 0.02958088235294117,
           "pairwise_triple_margin": 0.0265,
@@ -682,7 +697,8 @@
           "quartet_margin": 0.021,
           "quartet_margin_exact": "84/4000",
           "quartet_violating": 1561,
-          "seed": 2026
+          "seed": 2026,
+          "two_positive_indices": 1561
         },
         {
           "complete_triple_common_columns": 4000,
@@ -711,7 +727,8 @@
           "quartet_margin": 0.03025,
           "quartet_margin_exact": "121/4000",
           "quartet_violating": 1581,
-          "seed": 2027
+          "seed": 2027,
+          "two_positive_indices": 1581
         },
         {
           "complete_triple_common_columns": 4000,
@@ -740,7 +757,8 @@
           "quartet_margin": 0.0085,
           "quartet_margin_exact": "34/4000",
           "quartet_violating": 644,
-          "seed": 2028
+          "seed": 2028,
+          "two_positive_indices": 644
         },
         {
           "complete_triple_common_columns": 4000,
@@ -759,7 +777,7 @@
           "isolation_identity_fails": 0,
           "isolation_identity_holds": 2380,
           "max_delta_q": 0.9705882352941176,
-          "max_supported_isolation": 0.0235,
+          "max_supported_isolation": 0.023875,
           "mean_delta_q": 0.09377842191942888,
           "mean_p_distance": 0.018420955882352947,
           "pairwise_triple_margin": 0.016,
@@ -769,7 +787,8 @@
           "quartet_margin": 0.012,
           "quartet_margin_exact": "48/4000",
           "quartet_violating": 1336,
-          "seed": 2029
+          "seed": 2029,
+          "two_positive_indices": 1336
         },
         {
           "complete_triple_common_columns": 4000,
@@ -798,7 +817,8 @@
           "quartet_margin": 0.005,
           "quartet_margin_exact": "20/4000",
           "quartet_violating": 506,
-          "seed": 2030
+          "seed": 2030,
+          "two_positive_indices": 506
         }
       ],
       "quartets_examined": 2380
@@ -833,7 +853,8 @@
           "quartet_margin": 0.029,
           "quartet_margin_exact": "116/4000",
           "quartet_violating": 2404,
-          "seed": 2026
+          "seed": 2026,
+          "two_positive_indices": 2404
         },
         {
           "complete_triple_common_columns": 4000,
@@ -862,7 +883,8 @@
           "quartet_margin": 0.0235,
           "quartet_margin_exact": "94/4000",
           "quartet_violating": 2205,
-          "seed": 2027
+          "seed": 2027,
+          "two_positive_indices": 2205
         },
         {
           "complete_triple_common_columns": 4000,
@@ -881,7 +903,7 @@
           "isolation_identity_fails": 0,
           "isolation_identity_holds": 3060,
           "max_delta_q": 1.0,
-          "max_supported_isolation": 0.027375,
+          "max_supported_isolation": 0.0275,
           "mean_delta_q": 0.1691304212410633,
           "mean_p_distance": 0.026125816993464057,
           "pairwise_triple_margin": 0.01525,
@@ -891,7 +913,8 @@
           "quartet_margin": 0.0305,
           "quartet_margin_exact": "122/4000",
           "quartet_violating": 2287,
-          "seed": 2028
+          "seed": 2028,
+          "two_positive_indices": 2287
         },
         {
           "complete_triple_common_columns": 4000,
@@ -920,7 +943,8 @@
           "quartet_margin": 0.0335,
           "quartet_margin_exact": "134/4000",
           "quartet_violating": 2339,
-          "seed": 2029
+          "seed": 2029,
+          "two_positive_indices": 2339
         },
         {
           "complete_triple_common_columns": 4000,
@@ -949,7 +973,8 @@
           "quartet_margin": 0.0305,
           "quartet_margin_exact": "122/4000",
           "quartet_violating": 2444,
-          "seed": 2030
+          "seed": 2030,
+          "two_positive_indices": 2444
         }
       ],
       "quartets_examined": 3060
@@ -988,7 +1013,8 @@
           "quartet_margin": 0.004132231404958678,
           "quartet_margin_exact": "4/968",
           "quartet_violating": 711,
-          "seed": 2026
+          "seed": 2026,
+          "two_positive_indices": 711
         },
         {
           "complete_triple_common_columns": 1042,
@@ -1021,7 +1047,8 @@
           "quartet_margin": 0.0040941658137154556,
           "quartet_margin_exact": "4/977",
           "quartet_violating": 553,
-          "seed": 2027
+          "seed": 2027,
+          "two_positive_indices": 553
         },
         {
           "complete_triple_common_columns": 1259,
@@ -1044,7 +1071,7 @@
           "isolation_identity_fails": 0,
           "isolation_identity_holds": 1820,
           "max_delta_q": 0.5,
-          "max_supported_isolation": 0.029452529452529453,
+          "max_supported_isolation": 0.0297990297990298,
           "mean_delta_q": 0.035834238640559464,
           "mean_p_distance": 0.026650342417643916,
           "pairwise_triple_margin": 0.011151898734177216,
@@ -1054,7 +1081,8 @@
           "quartet_margin": 0.004120879120879121,
           "quartet_margin_exact": "3/728",
           "quartet_violating": 861,
-          "seed": 2028
+          "seed": 2028,
+          "two_positive_indices": 861
         },
         {
           "complete_triple_common_columns": 1299,
@@ -1077,7 +1105,7 @@
           "isolation_identity_fails": 0,
           "isolation_identity_holds": 1820,
           "max_delta_q": 1.0,
-          "max_supported_isolation": 0.02985638699924414,
+          "max_supported_isolation": 0.030234315948601664,
           "mean_delta_q": 0.042073244313705446,
           "mean_p_distance": 0.026740021445937744,
           "pairwise_triple_margin": 0.009993377483443708,
@@ -1087,7 +1115,8 @@
           "quartet_margin": 0.0037174721189591076,
           "quartet_margin_exact": "4/1076",
           "quartet_violating": 697,
-          "seed": 2029
+          "seed": 2029,
+          "two_positive_indices": 697
         },
         {
           "complete_triple_common_columns": 1716,
@@ -1120,7 +1149,8 @@
           "quartet_margin": 0.004629629629629629,
           "quartet_margin_exact": "3/648",
           "quartet_violating": 651,
-          "seed": 2030
+          "seed": 2030,
+          "two_positive_indices": 651
         }
       ],
       "quartets_examined": 1820
@@ -1155,7 +1185,8 @@
           "quartet_margin": 0.0115,
           "quartet_margin_exact": "46/4000",
           "quartet_violating": 1764,
-          "seed": 2026
+          "seed": 2026,
+          "two_positive_indices": 1764
         },
         {
           "complete_triple_common_columns": 4000,
@@ -1174,7 +1205,7 @@
           "isolation_identity_fails": 0,
           "isolation_identity_holds": 1820,
           "max_delta_q": 0.18430034129692832,
-          "max_supported_isolation": 0.191875,
+          "max_supported_isolation": 0.19225,
           "mean_delta_q": 0.02719602426363755,
           "mean_p_distance": 0.2210270833333333,
           "pairwise_triple_margin": 0.0125,
@@ -1184,7 +1215,8 @@
           "quartet_margin": 0.0135,
           "quartet_margin_exact": "54/4000",
           "quartet_violating": 1752,
-          "seed": 2027
+          "seed": 2027,
+          "two_positive_indices": 1752
         },
         {
           "complete_triple_common_columns": 4000,
@@ -1203,7 +1235,7 @@
           "isolation_identity_fails": 0,
           "isolation_identity_holds": 1820,
           "max_delta_q": 0.20701754385964913,
-          "max_supported_isolation": 0.19825,
+          "max_supported_isolation": 0.1985,
           "mean_delta_q": 0.031102727563361295,
           "mean_p_distance": 0.2246479166666666,
           "pairwise_triple_margin": 0.0105,
@@ -1213,7 +1245,8 @@
           "quartet_margin": 0.01475,
           "quartet_margin_exact": "59/4000",
           "quartet_violating": 1786,
-          "seed": 2028
+          "seed": 2028,
+          "two_positive_indices": 1786
         },
         {
           "complete_triple_common_columns": 4000,
@@ -1232,7 +1265,7 @@
           "isolation_identity_fails": 0,
           "isolation_identity_holds": 1820,
           "max_delta_q": 0.14909090909090908,
-          "max_supported_isolation": 0.189,
+          "max_supported_isolation": 0.1895,
           "mean_delta_q": 0.027089314075818632,
           "mean_p_distance": 0.22193958333333316,
           "pairwise_triple_margin": 0.0145,
@@ -1242,7 +1275,8 @@
           "quartet_margin": 0.0115,
           "quartet_margin_exact": "46/4000",
           "quartet_violating": 1772,
-          "seed": 2029
+          "seed": 2029,
+          "two_positive_indices": 1772
         },
         {
           "complete_triple_common_columns": 4000,
@@ -1261,7 +1295,7 @@
           "isolation_identity_fails": 0,
           "isolation_identity_holds": 1820,
           "max_delta_q": 0.18253968253968253,
-          "max_supported_isolation": 0.195,
+          "max_supported_isolation": 0.195625,
           "mean_delta_q": 0.02986699737477738,
           "mean_p_distance": 0.22410833333333322,
           "pairwise_triple_margin": 0.01975,
@@ -1271,7 +1305,8 @@
           "quartet_margin": 0.0115,
           "quartet_margin_exact": "46/4000",
           "quartet_violating": 1754,
-          "seed": 2030
+          "seed": 2030,
+          "two_positive_indices": 1754
         }
       ],
       "quartets_examined": 1820
@@ -1784,13 +1819,17 @@
     "relaxed_clock_triple_worst_case_D2_over_D1": 0.6,
     "triple_test_worst_case_D3_over_D1": 1.717948717948718
   },
-  "the_margin_is_an_isolation_index_gap": {
-    "a_failure_here_is_a_bug": "Any non-zero failure count is a defect in `subset::isolation_indices`, not a fact about the data.",
+  "the_margin_is_twice_an_isolation_index": {
+    "a_failure_here_is_a_bug": "Any non-zero failure count is a defect in `subset::buneman_indices`, not a fact about the data.",
+    "correction": "An earlier version of this block defined the isolation index as half the MINIMUM of the other two pairing sums minus its own. That is not the Bandelt-Dress isolation index, which takes the MAXIMUM of the two crossing sums clamped below at zero. The two forms agree on a tree metric, where the crossing sums are equal, and differ exactly where the four-point condition fails -- so the error was invisible on the data where the condition holds. Paper F edition 5 and textbook edition 9 carry the wrong definition and are superseded. The corrected statement is stronger.",
+    "quadruples_violating_four_point": 47802,
     "quadruples_where_it_fails": 0,
     "quadruples_where_the_identity_holds": 75500,
+    "quadruples_with_two_positive_indices": 47802,
     "supported_split_index": "`max_supported_isolation` per seed is the largest supported-split index in the population. On a tree metric a supported split's index is an internal edge length, so this is the split decomposition's own view of the same data -- reported for interpretation, not used in any verdict.",
+    "the_reading_that_matters": "On a tree metric exactly ONE of the three splits carries a positive index, the supported one. A certificate says the middle index is positive too, and any two distinct splits of a four-set are incompatible. So a certificate IS the split-decomposition condition for a split system to fail to be a tree, not an analogue of it -- which is why `two_positive_indices` equals `violating` exactly.",
     "what_is_checked_here": "The Lean theorems are about three rationals. These counts check the same identity against every quadruple of every dataset, computing each split's index from its own definition rather than from the sorted sums, so a mistake in the implementation would show as a failure rather than cancel out.",
-    "why": "Section 14 closed the Vietoris-Rips route and concluded that this programme's topological content is the certificate itself. That is made precise rather than rhetorical: the certificate's margin is twice the gap between the Bandelt-Dress isolation indices of a quadruple's two non-minimal splits, and the four-point condition is the non-positivity of that gap. Both are proved in Lean (isolation_gap_eq_half_sum_gap, quadruple_fourPoint_iff_isolation_gap_nonpos) over three bare rationals, because that is all the content there is -- no tree, no complex, no metric space, which is exactly why the certificate can be evaluated per subset where a global complex cannot."
+    "why": "Section 14 closed the Vietoris-Rips route and concluded that this programme's topological content is the certificate itself. Made precise: for sorted pairing sums s1 <= s2 <= s3 the three splits' isolation indices are (s3-s1)/2, (s3-s2)/2 and 0, so the MIDDLE split's index is exactly half the certificate's margin, and the four-point condition is the vanishing of it. Proved in Lean over three bare rationals -- no tree, no complex, no metric space -- which is exactly why the quantity survives per-subset evaluation where a global complex cannot."
   },
   "verdict": {
     "complete_deletion_fix_bites_P6": true,

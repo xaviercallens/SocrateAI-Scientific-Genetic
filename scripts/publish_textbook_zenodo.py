@@ -38,11 +38,11 @@ from typing import Any, Dict, List
 HERE = Path(__file__).resolve().parents[1]
 REPO = HERE.parents[2]
 ZENODO = "https://zenodo.org/api"
-RECEIPT = HERE / "data" / "zenodo_textbook_edition9_receipt.json"
+RECEIPT = HERE / "data" / "zenodo_textbook_edition10_receipt.json"
 
 TITLE = (
     "Formal Genetics: Proof, Computation and Evidence in Molecular Biology "
-    "(Edition 9)"
+    "(Edition 10)"
 )
 
 DESCRIPTION = """
@@ -82,7 +82,33 @@ two conditions nest is what licenses reading the difference between them. It
 closes on ten real viral populations, seven of which are reported blocked because
 a measured control shows the aligner alone would have produced the answer.</p>
 
-<p><strong>New in edition 9.</strong> The closure of Section&nbsp;12's
+<p><strong>CORRECTION.</strong> The previous edition defined the
+Bandelt&ndash;Dress isolation index as half the <em>minimum</em> of a quadruple's
+two crossing pairing sums minus its own. That is not the isolation index: the
+definition takes the <em>maximum</em>, clamped below at zero. The two forms agree
+on a tree metric, where the crossing sums are equal, and differ exactly where the
+four-point condition fails &mdash; so the error was invisible on precisely the
+data where the condition holds, and the property used to choose between them (that
+the index is an internal edge length on a tree) is satisfied by both and so
+decided nothing. The previous edition is superseded.</p>
+
+<p><strong>The corrected statement is stronger.</strong> For sorted pairing sums
+s1 &le; s2 &le; s3 the three splits' indices are (s3&minus;s1)/2, (s3&minus;s2)/2
+and 0, so the certificate's margin is twice <em>one</em> index &mdash; the middle
+one &mdash; and the four-point condition is exactly its vanishing. The reading is
+the payoff: a tree metric has exactly <em>one</em> split with positive index, a
+certificate makes a second positive, and any two distinct splits of a four-set are
+incompatible. So a quartet certificate <em>is</em> the split-decomposition
+condition for a split system to fail to be a tree, not an analogue of it &mdash;
+checked as an identity, with quadruples carrying two positive indices and
+quadruples violating the four-point condition both numbering 47,802 across the
+grid. The measurement that followed survives unchanged: the supported-split index
+is identical to five decimal places on a clonal population and on both reticulate
+populations built from it, so it is blind to the reticulation and tracks
+divergence instead. The supported index carries the tree; the index a tree forces
+to zero carries the reticulation.</p>
+
+<p><strong>What edition 9 claimed, now corrected.</strong> The closure of Section&nbsp;12's
 topological line is replaced by a positive statement about what the certificate
 was already measuring. Phylogenetic combinatorics assigns each split of a
 quadruple a Bandelt&ndash;Dress isolation index &mdash; on a tree metric, the
@@ -318,7 +344,7 @@ def main() -> int:
     parser.add_argument(
         "--new-version-of",
         type=int,
-        default=23588076,
+        default=23589161,
         help=(
             "deposit as a new version of this published record id, which is the "
             "only correct way to publish a corrected edition; 0 creates a fresh "
@@ -346,7 +372,7 @@ def main() -> int:
             "keywords": KEYWORDS,
             "license": "cc-by-4.0",
             "access_right": "open",
-            "version": "edition-9",
+            "version": "edition-10",
             "language": "eng",
             "related_identifiers": [
                 {
@@ -422,7 +448,7 @@ def main() -> int:
         "state": published.get("state"),
         "submitted": published.get("submitted"),
         "title": TITLE,
-        "version": "edition-9",
+        "version": "edition-10",
         "files_uploaded": uploaded,
         "peer_reviewed": False,
         "note": (

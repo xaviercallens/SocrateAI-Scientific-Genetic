@@ -37,7 +37,7 @@ from typing import Any, Dict, List
 HERE = Path(__file__).resolve().parents[1]
 REPO = HERE.parents[2]
 ZENODO = "https://zenodo.org/api"
-RECEIPT = HERE / "data" / "zenodo_paper_f_edition5_receipt.json"
+RECEIPT = HERE / "data" / "zenodo_paper_f_edition6_receipt.json"
 STEM = "PaperF_Reticulate_Evolution_TreeLevel_Null_Lean4"
 
 TITLE = (
@@ -96,7 +96,33 @@ averages; run seed-paired against the hard null, the maximum separates 16.57x
 against 5.07x for mean delta_q and 1.22x for the proportion of violating
 quadruples.</p>
 
-<p><strong>New in edition 5.</strong> Edition 4 closed the topological line;
+<p><strong>CORRECTION.</strong> The previous edition defined the
+Bandelt&ndash;Dress isolation index as half the <em>minimum</em> of a quadruple's
+two crossing pairing sums minus its own. That is not the isolation index: the
+definition takes the <em>maximum</em>, clamped below at zero. The two forms agree
+on a tree metric, where the crossing sums are equal, and differ exactly where the
+four-point condition fails &mdash; so the error was invisible on precisely the
+data where the condition holds, and the property used to choose between them (that
+the index is an internal edge length on a tree) is satisfied by both and so
+decided nothing. The previous edition is superseded.</p>
+
+<p><strong>The corrected statement is stronger.</strong> For sorted pairing sums
+s1 &le; s2 &le; s3 the three splits' indices are (s3&minus;s1)/2, (s3&minus;s2)/2
+and 0, so the certificate's margin is twice <em>one</em> index &mdash; the middle
+one &mdash; and the four-point condition is exactly its vanishing. The reading is
+the payoff: a tree metric has exactly <em>one</em> split with positive index, a
+certificate makes a second positive, and any two distinct splits of a four-set are
+incompatible. So a quartet certificate <em>is</em> the split-decomposition
+condition for a split system to fail to be a tree, not an analogue of it &mdash;
+checked as an identity, with quadruples carrying two positive indices and
+quadruples violating the four-point condition both numbering 47,802 across the
+grid. The measurement that followed survives unchanged: the supported-split index
+is identical to five decimal places on a clonal population and on both reticulate
+populations built from it, so it is blind to the reticulation and tracks
+divergence instead. The supported index carries the tree; the index a tree forces
+to zero carries the reticulation.</p>
+
+<p><strong>What edition 5 claimed, now corrected.</strong> Edition 4 closed the topological line;
 this edition replaces that closure with a proved identification of what the
 certificate was already measuring. Classical phylogenetic combinatorics assigns
 each split of a quadruple a Bandelt&ndash;Dress isolation index, and between the
@@ -323,7 +349,7 @@ def main() -> int:
     parser.add_argument(
         "--new-version-of",
         type=int,
-        default=23588075,
+        default=23589159,
         help=(
             "deposit as a new version of this published record id, which is the "
             "only correct way to publish a corrected edition; 0 creates a fresh "
@@ -351,7 +377,7 @@ def main() -> int:
             "keywords": KEYWORDS,
             "license": "cc-by-4.0",
             "access_right": "open",
-            "version": "edition-5",
+            "version": "edition-6",
             "language": "eng",
             "related_identifiers": [
                 {
@@ -427,7 +453,7 @@ def main() -> int:
         "state": published.get("state"),
         "submitted": published.get("submitted"),
         "title": TITLE,
-        "version": "edition-5",
+        "version": "edition-6",
         "files_uploaded": uploaded,
         "peer_reviewed": False,
         "note": (

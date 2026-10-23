@@ -1399,91 +1399,131 @@ and [`scale.json`](../data/reticulata_phase2/scale.json).
 
 §14 closed the Vietoris–Rips route and concluded that this programme's
 topological content is the certificate itself. That is a slogan unless it is made
-precise, so here is the bridge, proved rather than asserted.
+precise. It is precise, it is a theorem — and the first version of this section
+got the key definition wrong, so the withdrawal comes first.
 
-### 15.1 The margin is an isolation-index gap
+### 15.1 A correction: the isolation index takes the maximum, not the minimum
 
-A quadruple splits into two pairs three ways, and classical phylogenetic
-combinatorics assigns each split `S` a **Bandelt–Dress isolation index**
+The first version of this section, published as **Paper F edition 5
+(10.5281/zenodo.23589159)** and **textbook edition 9
+(10.5281/zenodo.23589161)**, defined
 
 ```
-α(S) = ½ ( min of the other two pairing sums − S's own pairing sum )
+WRONG:  α(S) = ½ ( min of the other two pairing sums − S's own sum )
 ```
 
-in distance units. A split with `α > 0` is one the data supports; on a tree
-metric the supported split's index is the internal edge's length. This is the
-basis of split decomposition and of split networks, and it is the canonical
-geometry of tree-likeness — the thing Rips was a poor substitute for.
+and called it the Bandelt–Dress isolation index. It is not. The definition takes
+the **maximum** of the two crossing sums, clamped below at zero:
 
-Two facts, both pure algebra over the three sums, both now in Lean with no
-axioms beyond the whitelist:
+```
+α(A|B) = ½ · min over a,a' ∈ A, b,b' ∈ B of
+             max{ 0, cross₁ − own, cross₂ − own }
+```
+
+which on a single quadruple is `½ max(0, max(cross₁, cross₂) − own)`. The
+degenerate case confirms it: for `A = {x}`, `B = {y,z}` the formula gives
+`½(d(x,y) + d(x,z) − d(y,z))`, the Gromov product — consistent with
+§11.8's `fourPoint_iff_gromov_strongTriangle`.
+
+**Why it slipped through.** The two forms **agree exactly on a tree metric**,
+where the crossing sums are equal, and differ only where the four-point condition
+fails. So the mistake was invisible on precisely the data where the condition
+holds. Worse, the check used to pick between them — "the index should equal the
+internal edge length on a tree" — is satisfied by *both* forms, so it was not a
+discriminating test and was treated as one. This project's rule is to verify every
+non-classic citation against a primary record before deposit; the rule was applied
+to the DOIs in the reference list and not to a definition assumed known.
+
+The theorems proved about the wrong function were true *about that function*; only
+the name was wrong. And the corrected statement is **stronger**, which is luck
+rather than vindication.
+
+### 15.2 The margin is twice an isolation index
+
+Write a quadruple's three pairing sums sorted as `s₁ ≤ s₂ ≤ s₃`. Under the
+correct definition the three splits' indices are
+
+| split | index |
+| :--- | :--- |
+| smallest sum (the supported one) | `½(s₃ − s₁)` |
+| middle sum | `½(s₃ − s₂)` |
+| largest sum | `0` |
+
+so the **middle** split's index is exactly half the certificate's margin
+`s₃ − s₂` — one index, not a gap between two. Five theorems in
+`GeneticaReticulataTree.lean`, 0 `sorry`, no axioms beyond the whitelist:
 
 | theorem | content |
 | :--- | :--- |
-| `isolation_gap_eq_half_sum_gap` | between the two **non-minimal** splits, the isolation-index gap is exactly half the pairing-sum gap |
-| `quadruple_fourPoint_iff_isolation_gap_nonpos` | the four-point condition on a quadruple **is** the non-positivity of that gap |
-| `supported_isolation_eq_half_gap` | the supported split's index is half the gap from the smallest to the middle sum |
+| `buneman_middle_eq_half_margin` | the middle split's index is `(s₃ − s₂)/2` |
+| `buneman_largest_eq_zero` | the dominant split's index vanishes |
+| `buneman_supported_eq_half_gap` | the smallest split's index is `(s₃ − s₁)/2` |
+| `fourPoint_iff_middle_buneman_zero` | **the four-point condition is the vanishing of the middle index** |
+| `buneman_supported_is_edge_when_fourPoint` | where four-point holds, the supported index is `(s₂ − s₁)/2`, the internal edge's length |
 
-Since the certificate's margin is the gap between the largest and second-largest
-pairing sums, the first theorem says:
+### 15.3 The reading, which is why the correction was worth making
 
-> **the margin is twice an isolation-index gap**,
+On a tree metric exactly **one** of the three splits carries a positive index —
+the one the tree supports. A certificate says the middle index is positive too,
+and **any two distinct splits of a four-set are incompatible**. So a quartet
+certificate is the statement that *two incompatible splits both carry positive
+isolation index*, which is the textbook condition for a split system to fail to
+be a tree.
 
-and the second says the condition the certificate refutes is exactly the
-vanishing of that gap. So a certificate is not *analogous* to a geometric
-statement — the number it reports is a split-decomposition quantity.
+The certificate is therefore not *analogous* to the split-decomposition notion of
+non-tree-likeness. At the quadruple level it **is** that notion. The code checks
+this as an identity rather than asserting it: across all seven datasets at five
+seeds, quadruples with two positive indices number **47 802**, and four-point
+violations number **47 802** — equal, as they must be.
 
-Note what the theorems do **not** need: no tree, no complex, no metric space,
-only three rationals. That is the whole reason the certificate can be evaluated
-per subset where a global complex cannot, and it is why §14's closure was a
-closure of the implementation rather than of the idea.
+Note what the proofs do not use: no tree, no complex, no metric space, only three
+rationals. That is exactly why the quantity survives being computed one subset at
+a time, where a complex over a global distance matrix cannot, and so why §14
+closed an implementation rather than an idea.
 
-### 15.2 Checked against the data, not only proved
+### 15.4 Checked against the data, not only proved
 
-The Lean theorems are about three rationals. `subset::isolation_indices` computes
-each split's index from its own definition — the minimum of the *other two* sums
-minus its own — rather than from the sorted sums, so an error in the
-implementation would show up as a mismatch rather than cancel out.
-`quartet_distribution` then checks the identity on every quadruple it examines.
+`subset::buneman_indices` computes each split's index from the per-split
+definition — the larger of the *other two* sums minus its own, clamped at zero —
+rather than from the sorted sums, so a mistake surfaces as a mismatch instead of
+cancelling out. `quartet_distribution` then checks on every quadruple that the
+middle index equals the margin numerator and the dominant index vanishes.
 
-Across all seven datasets at five seeds: **the identity holds on 75 500
-quadruples and fails on 0.**
+Across all seven datasets at five seeds: **the identities hold on 75 500
+quadruples and fail on 0.**
 
-### 15.3 Reticulation lives in the gap, not in the supported split
+### 15.5 Reticulation lives in the index that should be zero
 
-The split decomposition's own headline quantity is the supported split's index,
-and reporting it turns out to be informative in a way worth recording. Largest
-supported-split index per population, first three seeds:
+Largest supported-split index per population, first three seeds:
 
 | dataset | reticulation | max supported isolation |
 | :--- | :--: | :--- |
-| D1 clonal, strict clock | no | 0.02863, 0.02637, 0.02738 |
-| D3 one recombinant | **yes** | 0.02863, 0.02637, 0.02738 |
-| D5 reciprocal mosaics | **yes** | 0.02863, 0.02637, 0.02738 |
-| D2 clonal, relaxed clock | no | 0.03562, 0.03963, 0.02312 |
-| D6 gap blocks | no | 0.03388, 0.02981, 0.02945 |
-| D7 saturated | no | 0.19350, 0.19187, 0.19825 |
+| D1 clonal, strict clock | no | 0.02863, 0.02637, 0.02750 |
+| D3 one recombinant | **yes** | 0.02863, 0.02637, 0.02750 |
+| D5 reciprocal mosaics | **yes** | 0.02863, 0.02637, 0.02750 |
+| D2 clonal, relaxed clock | no | 0.03587, 0.03963, 0.02312 |
+| D6 gap blocks | no | 0.03388, 0.02981, 0.02980 |
+| D7 saturated | no | 0.19350, 0.19225, 0.19850 |
 
 **The supported-split index is identical, to five decimal places, on the clonal
-tree and on both reticulate populations built from it.** It is completely blind
-to the reticulation — which makes sense, since the strongest supported split is a
-deep split of the underlying tree and adding recombinants does not disturb it.
-What it *does* track is divergence: the saturated population's index is seven
-times the others', because an edge-length-like quantity scales with branch
-lengths.
+tree and on both reticulate populations built from it.** It is blind to the
+reticulation — as it should be, since the strongest supported split is a deep
+split of the underlying tree and adding recombinants does not disturb it. What it
+tracks is divergence: the saturated population's index is seven times the others'.
+This observation survives the correction of §15.1 unchanged.
 
-So the geometric statement the pivot arrives at is sharper than "the certificate
-is topological":
+So the statement the pivot arrives at:
 
-> **The split decomposition's supported index carries the tree. The gap between
-> the non-supported indices carries the reticulation. The certificate measures
-> the gap.**
+> **The supported split's index carries the tree. The index that a tree forces to
+> zero — the middle one — carries the reticulation. The certificate measures that
+> index.**
 
-That also explains, after the fact, why a global distance complex struggled: the
-Rips filtration is driven by distance magnitudes, which is the quantity that
-tracks divergence, and the signal is in a *difference* between indices that
-magnitudes do not expose.
+That also explains §13.3's failure after the fact. A Rips filtration is driven by
+distance *magnitudes*, which is the quantity the supported index tracks and hence
+the quantity that follows divergence; the signal lives in an index that a tree
+sets to zero, and magnitudes do not expose it. A statistic that fires on saturated
+data and misses a single recombinant is what the geometry predicts.
 
-Raw output: the `the_margin_is_an_isolation_index_gap` block and the per-seed
-`max_supported_isolation` in
+Raw output: the `the_margin_is_twice_an_isolation_index` block and the per-seed
+`max_supported_isolation` and `two_positive_indices` in
 [`data/reticulata_phase2/experiment.json`](../data/reticulata_phase2/experiment.json).

@@ -47,10 +47,12 @@ and the Gromov Hinge of Buneman's Converse}}
 \small SocrateAI Scientific Research \& Formal Verification Laboratory\\
 \small Formal artifacts: \texttt{ANSE.GeneticaReticulata},
 \texttt{ANSE.GeneticaReticulataTree} (Lean 4)}
-\date{Edition 5, 23 October 2026. Identifies the certificate's margin with a
-Bandelt--Dress isolation-index gap and proves it (\S\ref{sec:geometry}), which
-replaces edition~4's closure of the topological line with a positive statement
-about what the certificate was already measuring. \textbf{Not peer reviewed.}}
+\date{Edition 6, 23 October 2026. \textbf{Corrects edition~5}, which defined the
+Bandelt--Dress isolation index with a minimum where the definition takes a
+maximum (\S\ref{sec:geometry}). The corrected statement is stronger: the
+certificate's margin is twice one isolation index, and a certificate is exactly
+the condition that two incompatible splits both carry positive index.
+\textbf{Not peer reviewed.}}
 
 \begin{document}
 \maketitle
@@ -974,90 +976,109 @@ rather than exhaustive.
 
 Section~\ref{sec:topology} closed the Vietoris--Rips route and concluded that
 this programme's topological content is the certificate itself. That is a slogan
-unless it is made precise. It is precise, and it is a theorem.
+unless made precise. It is precise and it is a theorem --- and edition~5 of this
+paper got the key definition wrong, so the withdrawal comes first.
 
-Classical phylogenetic combinatorics assigns each split $S$ of a quadruple a
-\textbf{Bandelt--Dress isolation index}
+\paragraph{Correction to edition 5.} Edition~5 defined
+$\alpha(S) = \tfrac12(\min\{\text{other two sums}\} - \text{own})$ and called it
+the Bandelt--Dress isolation index. It is not. The definition takes the
+\textbf{maximum} of the two crossing sums, clamped below at zero:
 \[
-  \alpha(S) \;=\; \tfrac{1}{2}\big(\min\{\text{the other two pairing sums}\}
-  - \text{$S$'s own pairing sum}\big),
+  \alpha(A|B) \;=\; \tfrac12 \min_{a,a' \in A,\; b,b' \in B}
+    \max\{\,0,\; \mathrm{cross}_1 - \mathrm{own},\; \mathrm{cross}_2 - \mathrm{own}\,\},
 \]
-in distance units. A split with $\alpha > 0$ is one the data supports, and on a
-tree metric the supported split's index is the internal edge's length. This is
-the basis of split decomposition and of split networks --- the canonical geometry
-of tree-likeness, and the object a distance filtration was a poor substitute for.
+which on a single quadruple is
+$\tfrac12 \max(0, \max(\mathrm{cross}_1, \mathrm{cross}_2) - \mathrm{own})$. The
+degenerate case confirms it: for $A = \{x\}$, $B = \{y,z\}$ it gives
+$\tfrac12(d(x,y) + d(x,z) - d(y,z))$, the Gromov product, consistent with
+Theorem~\ref{thm:gromov}.
 
-\begin{theorem}[The margin is an isolation-index gap]\label{thm:isogap}
-Let $s_1 \le s_2$ and $s_1 \le s_3$ be a quadruple's three pairing sums, $s_1$
-minimal. Then
-\[
-  \alpha(s_2) - \alpha(s_3) \;=\; \tfrac{1}{2}(s_3 - s_2),
-\]
-and the four-point condition on that quadruple holds exactly when this gap is
-non-positive.
+The two forms \emph{agree on a tree metric}, where the crossing sums are equal,
+and differ only where the four-point condition fails --- so the error was
+invisible on precisely the data where the condition holds. And the property used
+to choose between them, that the index should be the internal edge's length on a
+tree, is satisfied by both, so it was not a discriminating check. The theorems
+proved about the wrong function were true of \emph{that function}; only the name
+was wrong. The corrected statement is stronger, which is luck and not
+vindication.
+
+\paragraph{The corrected statement.} Write a quadruple's three pairing sums
+sorted as $s_1 \le s_2 \le s_3$. The three splits' indices are then
+$\tfrac12(s_3-s_1)$, $\tfrac12(s_3-s_2)$ and $0$.
+
+\begin{theorem}[The margin is twice one isolation index]\label{thm:isoindex}
+The middle split's isolation index is $\tfrac12(s_3-s_2)$, exactly half the
+certificate's margin; the dominant split's index is $0$; and the four-point
+condition on the quadruple holds if and only if the middle index vanishes.
 \end{theorem}
 
 \begin{proof}
-Both non-minimal splits have $s_1$ as the minimum of their other two sums, so
-$\alpha(s_2) = \tfrac12(s_1 - s_2)$ and $\alpha(s_3) = \tfrac12(s_1 - s_3)$; the
-difference is $\tfrac12(s_3-s_2)$. The four-point condition reads
-$s_3 \le \max(s_1,s_2) = s_2$, which is exactly $s_3 - s_2 \le 0$.
+For the middle split the other two sums are $s_1$ and $s_3$, whose maximum is
+$s_3$, so its index is $\tfrac12\max(0, s_3-s_2) = \tfrac12(s_3-s_2)$ as
+$s_2 \le s_3$. For the dominant split the other two are $s_1, s_2$ with maximum
+$s_2 \le s_3$, so the clamp gives $0$. The four-point condition reads
+$s_3 \le \max(s_1,s_2) = s_2$, which with $s_2 \le s_3$ is $s_3 = s_2$, i.e.\ the
+middle index is zero.
 \end{proof}
 
-Since the certificate's margin is $s_3 - s_2$ over the common column count,
-Theorem~\ref{thm:isogap} says the margin is \textbf{twice an isolation-index
-gap}, and the condition the certificate refutes is the vanishing of that gap. The
-number the method reports is a split-decomposition quantity, not merely analogous
-to one. Both statements are machine-checked
-(\texttt{isolation\_gap\_eq\_half\_sum\_gap},
-\texttt{quadruple\_fourPoint\_iff\_isolation\_gap\_nonpos}).
+Five statements of this form are machine-checked
+(\texttt{buneman\_middle\_eq\_half\_margin},
+\texttt{buneman\_largest\_eq\_zero}, \texttt{buneman\_supported\_eq\_half\_gap},
+\texttt{fourPoint\_iff\_middle\_buneman\_zero},
+\texttt{buneman\_supported\_is\_edge\_when\_fourPoint}).
+
+\paragraph{The reading, which is why the correction was worth making.} On a tree
+metric exactly \textbf{one} of the three splits carries a positive index, the one
+the tree supports. A certificate says the middle index is positive too, and
+\emph{any two distinct splits of a four-set are incompatible}. So a quartet
+certificate is the statement that \textbf{two incompatible splits both carry
+positive isolation index} --- the textbook condition for a split system to fail
+to be a tree. The certificate is not \emph{analogous} to the
+split-decomposition notion of non-tree-likeness; at the quadruple level it
+\emph{is} that notion. The implementation checks this as an identity rather than
+asserting it: across all seven datasets at five seeds, quadruples with two
+positive indices number $47\,802$ and four-point violations number $47\,802$.
 
 Note what the proof does not use: no tree, no complex, no metric space, only
-three rationals. That is exactly why the certificate can be evaluated per subset
-where a complex over a global distance matrix cannot, and so why
+three rationals. That is why the quantity survives per-subset evaluation where a
+complex over a global distance matrix cannot, and so why
 Section~\ref{sec:topology} closed an implementation rather than an idea.
 
-\paragraph{Checked against the data, not only proved.} The theorem is about three
-rationals. The implementation computes each split's index from its own definition
---- the minimum of the \emph{other two} sums minus its own --- rather than from
-the sorted sums, so a mistake would surface as a mismatch rather than cancel out,
-and the identity is then checked on every quadruple examined. Across all seven
-datasets at five seeds it holds on $75\,500$ quadruples and fails on none.
+\paragraph{Checked against the data.} The implementation computes each index from
+the per-split definition --- the larger of the \emph{other two} sums minus its
+own, clamped --- rather than from the sorted sums, so a mistake surfaces as a
+mismatch. Across the grid the identities hold on $75\,500$ quadruples and fail on
+none.
 
-\paragraph{And the measurement that follows.} Reporting the split
-decomposition's own headline quantity is informative in a way worth recording.
-The largest supported-split index is \emph{identical to five decimal places} on
-the clonal tree and on both reticulate populations built from it --- $0.02863$,
-$0.02637$, $0.02738$ across the first three seeds for the clonal population, the
-single recombinant and the reciprocal mosaics alike. It is blind to the
-reticulation, which it should be: the strongest supported split is a deep split
-of the underlying tree, and adding recombinants does not disturb it. What it
-tracks instead is divergence --- the saturated population's index is seven times
-the others'.
-
-So the statement this paper arrives at is sharper than ``the certificate is
-topological'':
+\paragraph{Where the signal is not.} The largest supported-split index is
+\emph{identical to five decimal places} on the clonal population and on both
+reticulate populations built from it --- $0.02863$, $0.02637$, $0.02750$ across
+the first three seeds for all three. It is blind to the reticulation, as it
+should be: the strongest supported split is a deep split of the underlying tree
+and adding recombinants does not disturb it. What it tracks is divergence; the
+saturated population's index is seven times the others'. This observation
+survives the correction unchanged.
 
 \begin{quote}
-The split decomposition's supported index carries the \emph{tree}. The gap
-between the non-supported indices carries the \emph{reticulation}. The
-certificate measures the gap.
+The supported split's index carries the \emph{tree}. The index a tree forces to
+zero --- the middle one --- carries the \emph{reticulation}. The certificate
+measures that index.
 \end{quote}
 
-That also explains, after the fact, Section~\ref{sec:topology}'s failure. A Rips
-filtration is driven by distance \emph{magnitudes}, which is the quantity that
-tracks divergence; the signal lives in a \emph{difference} between indices that
-magnitudes do not expose. A statistic that fires on saturated data and misses a
-single recombinant is what that predicts.
+That also explains Section~\ref{sec:topology}'s failure after the fact. A Rips
+filtration is driven by distance \emph{magnitudes}, the quantity the supported
+index tracks and hence the quantity that follows divergence; the signal lives in
+an index a tree sets to zero, which magnitudes do not expose.
 
 \section{Limitations, and what would make this wrong}\label{sec:limits}
 
 \begin{itemize}
 \item \textbf{Buneman's converse is half-cited.} Theorem~\ref{thm:gromov} closes
 the first step; the construction is not formalised. Likewise
-Theorem~\ref{thm:isogap} identifies the margin with an isolation-index gap but
-does not prove that a supported split's index is a tree edge's length, which
-needs the same construction. So ``satisfies \eqref{eq:fp}
+Theorem~\ref{thm:isoindex} identifies the margin with an isolation index but
+does not prove that a supported split's index \emph{is} a tree edge's length in
+general, which needs the same construction; only the quadruple-level identity is
+proved. So ``satisfies \eqref{eq:fp}
 everywhere'' is not yet formally ``is a tree'' in this development.
 \item \textbf{A certificate does not identify an event.} Satisfying \eqref{eq:fp}
 does not certify the \emph{absence} of reticulation, and a violation does not

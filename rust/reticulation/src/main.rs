@@ -1053,6 +1053,7 @@ fn run_experiment(args: &[String]) -> Result<bool, String> {
                         "isolation_identity_holds": r.distribution.isolation_identity_holds,
                         "isolation_identity_fails": r.distribution.isolation_identity_fails,
                         "max_supported_isolation": r.distribution.max_supported_isolation,
+                        "two_positive_indices": r.distribution.two_positive_indices,
                     })).collect::<Vec<_>>(),
                 }),
             )
@@ -1370,20 +1371,34 @@ fn run_experiment(args: &[String]) -> Result<bool, String> {
                         verdicts, the certificate's distinctive contribution is \
                         the exhibitable witness rather than the decision.",
         },
-        "the_margin_is_an_isolation_index_gap": {
+        "the_margin_is_twice_an_isolation_index": {
+            "correction": "An earlier version of this block defined the \
+                    isolation index as half the MINIMUM of the other two pairing \
+                    sums minus its own. That is not the Bandelt-Dress isolation \
+                    index, which takes the MAXIMUM of the two crossing sums \
+                    clamped below at zero. The two forms agree on a tree metric, \
+                    where the crossing sums are equal, and differ exactly where \
+                    the four-point condition fails -- so the error was invisible \
+                    on the data where the condition holds. Paper F edition 5 and \
+                    textbook edition 9 carry the wrong definition and are \
+                    superseded. The corrected statement is stronger.",
             "why": "Section 14 closed the Vietoris-Rips route and concluded that \
                     this programme's topological content is the certificate \
-                    itself. That is made precise rather than rhetorical: the \
-                    certificate's margin is twice the gap between the \
-                    Bandelt-Dress isolation indices of a quadruple's two \
-                    non-minimal splits, and the four-point condition is the \
-                    non-positivity of that gap. Both are proved in Lean \
-                    (isolation_gap_eq_half_sum_gap, \
-                    quadruple_fourPoint_iff_isolation_gap_nonpos) over three bare \
-                    rationals, because that is all the content there is -- no \
-                    tree, no complex, no metric space, which is exactly why the \
-                    certificate can be evaluated per subset where a global \
+                    itself. Made precise: for sorted pairing sums s1 <= s2 <= s3 \
+                    the three splits' isolation indices are (s3-s1)/2, (s3-s2)/2 \
+                    and 0, so the MIDDLE split's index is exactly half the \
+                    certificate's margin, and the four-point condition is the \
+                    vanishing of it. Proved in Lean over three bare rationals -- \
+                    no tree, no complex, no metric space -- which is exactly why \
+                    the quantity survives per-subset evaluation where a global \
                     complex cannot.",
+            "the_reading_that_matters": "On a tree metric exactly ONE of the \
+                    three splits carries a positive index, the supported one. A \
+                    certificate says the middle index is positive too, and any \
+                    two distinct splits of a four-set are incompatible. So a \
+                    certificate IS the split-decomposition condition for a split \
+                    system to fail to be a tree, not an analogue of it -- which \
+                    is why `two_positive_indices` equals `violating` exactly.",
             "what_is_checked_here": "The Lean theorems are about three \
                     rationals. These counts check the same identity against every \
                     quadruple of every dataset, computing each split's index from \
@@ -1401,7 +1416,17 @@ fn run_experiment(args: &[String]) -> Result<bool, String> {
                 .map(|r| r.distribution.isolation_identity_fails)
                 .sum::<usize>(),
             "a_failure_here_is_a_bug": "Any non-zero failure count is a defect in \
-                    `subset::isolation_indices`, not a fact about the data.",
+                    `subset::buneman_indices`, not a fact about the data.",
+            "quadruples_with_two_positive_indices": results
+                .values()
+                .flatten()
+                .map(|r| r.distribution.two_positive_indices)
+                .sum::<usize>(),
+            "quadruples_violating_four_point": results
+                .values()
+                .flatten()
+                .map(|r| r.distribution.violating)
+                .sum::<usize>(),
             "supported_split_index": "`max_supported_isolation` per seed is the \
                     largest supported-split index in the population. On a tree \
                     metric a supported split's index is an internal edge length, \
