@@ -47,11 +47,15 @@ and the Gromov Hinge of Buneman's Converse}}
 \small SocrateAI Scientific Research \& Formal Verification Laboratory\\
 \small Formal artifacts: \texttt{ANSE.GeneticaReticulata},
 \texttt{ANSE.GeneticaReticulataTree} (Lean 4)}
-\date{Edition 6, 23 October 2026. \textbf{Corrects edition~5}, which defined the
-Bandelt--Dress isolation index with a minimum where the definition takes a
-maximum (\S\ref{sec:geometry}). The corrected statement is stronger: the
-certificate's margin is twice one isolation index, and a certificate is exactly
-the condition that two incompatible splits both carry positive index.
+\date{Edition 7, 23 October 2026. \textbf{Corrects the matched-null floors of
+editions~5 and~6.} Those floors were tuned by bisecting a single realisation of
+a chaotic objective and then taken as a maximum over replicates whose realised
+divergences differed by up to an order of magnitude, so the null was never
+matched (\S\ref{sec:real}). Re-deciding against a null matched per replicate
+leaves all three verdicts and the 3/3 literature agreement intact, but moves two
+numbers in opposite directions: Coxsackievirus A6 clears $2.75\times$ rather
+than $1.24\times$, and the JC polyomavirus margin is four-fifths of its floor
+rather than a sixth. Edition~6's isolation-index correction stands.
 \textbf{Not peer reviewed.}}
 
 \begin{document}
@@ -885,25 +889,35 @@ three.}
 population & expectation & margin & matched floor & verdict \\
 \midrule
 Hepatitis B, accession order & reticulate & $9/3182$ & $2/3182$ & above $2\times$ \\
-Coxsackievirus A6, diversity & reticulate & $329/7312$ & $268/7390$ & above $1\times$ only \\
-JC polyomavirus, accession order & tree-like & $4/5108$ & $24/5121$ & \textbf{below} \\
+Coxsackievirus A6, diversity & reticulate & $329/7312$ & $121/7390$ & above $2\times$ \\
+JC polyomavirus, accession order & tree-like & $4/5108$ & $5/5121$ & \textbf{below} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 Three populations, three agreements with the prior. The JC polyomavirus row is
-the one that could most easily have embarrassed the method and did not: its
-margin is a sixth of the floor a tree produces at matched width and divergence.
+the one that could most easily have embarrassed the method and did not --- but by
+a far narrower margin than editions~5 and~6 reported. Against a null matched
+\emph{per replicate} on realised divergence, its margin is \textbf{four-fifths}
+of the floor a tree produces at matched width and divergence, not the sixth those
+editions claimed. The verdict is unchanged and still correct; the published
+figure simply overstated how far from the line this population sat, because the
+floor it was compared against was inflated by over-dispersed replicates. That
+correction is invisible in the verdict and visible only in the ratio, which is
+why it is stated here rather than left to the artifact.
 Both populations clearing their floor carry a Lean file embedding the four
 aligned rows, so the kernel recomputes the six pair counts and the common column
 count itself: accepted at $3182$ columns in $52.7$~s and at $7434$ columns in
 $117.6$~s, with both corrupted twins rejected.
 
 Two cautions belong beside Table~\ref{tab:real} rather than in a footnote. Three
-is not a validation. And the Coxsackievirus row is weak and at high divergence
-(mean $p = 0.11$): it clears $1\times$ and not $2\times$, and the noise floor
-itself grows with divergence, so it should be read as not inconsistent with the
-prior rather than as a detection. A further caution concerns the prior itself:
+is not a validation. And the Coxsackievirus row sits at high divergence (mean
+$p = 0.11$), where the noise floor itself grows: editions~5 and~6 compared it
+against a null tuned to \emph{half} that divergence and still read it as clearing
+only $1\times$. Matched per replicate it clears $2.75\times$, so the published
+caution understated its own evidence --- though a population at this divergence
+deserves the stronger reading only because the floor is now calibrated at the
+divergence it actually has. A further caution concerns the prior itself:
 one of our two negative-control families, the papillomaviruses, has documented
 within-type recombination~\cite{murahwa}, so that prior is the weakest in the set
 and we mark it as such. A clonal bacterial lineage would be the stronger negative

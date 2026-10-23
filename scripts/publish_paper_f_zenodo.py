@@ -37,7 +37,7 @@ from typing import Any, Dict, List
 HERE = Path(__file__).resolve().parents[1]
 REPO = HERE.parents[2]
 ZENODO = "https://zenodo.org/api"
-RECEIPT = HERE / "data" / "zenodo_paper_f_edition6_receipt.json"
+RECEIPT = HERE / "data" / "zenodo_paper_f_edition7_receipt.json"
 STEM = "PaperF_Reticulate_Evolution_TreeLevel_Null_Lean4"
 
 TITLE = (
@@ -95,6 +95,33 @@ statistic is a maximum over subsets where the established treelikeness tests are
 averages; run seed-paired against the hard null, the maximum separates 16.57x
 against 5.07x for mean delta_q and 1.22x for the proportion of violating
 quadruples.</p>
+
+<p><strong>CORRECTION TO THE MATCHED-NULL FLOORS.</strong> The previous
+edition's matched-null floors were not matched. Each was tuned by bisecting a
+<em>single</em> realisation of a quantity that is chaotic in the mutation rate
+&mdash; the simulator draws its per-branch rate multipliers from the same random
+stream as its mutations, so changing the rate shifts every downstream multiplier
+&mdash; and the floor was then taken as a <em>maximum</em> over replicates whose
+realised divergences differed by up to an order of magnitude. Measured, the
+published nulls missed their populations' divergence by &minus;49%, +11% and
+&minus;12%; at fixed rate the simulator's divergence has a coefficient of
+variation near 50%, spanning 10&ndash;28&times; between extremes, so matching
+such a null <em>in expectation</em> is ill-posed however carefully it is
+implemented.</p>
+
+<p><strong>Re-deciding against a null matched per replicate</strong> &mdash; each
+replicate accepted only if its own realised divergence is within 10% of the
+population's &mdash; leaves <em>every verdict and the 3/3 literature agreement
+intact</em>, but moves two numbers in opposite directions. Coxsackievirus A6
+clears <strong>2.75&times;</strong> its floor rather than 1.24&times;, so the
+previous edition understated its own evidence. And the JC polyomavirus margin is
+<strong>four-fifths</strong> of its floor rather than the sixth previously
+reported: still correctly below, but a far closer call than published. Hepatitis
+B is unchanged at 4.50&times; with an identical rational floor. Two defects acted
+in opposite directions here &mdash; a non-converging bisection misses either way,
+while over-dispersion always inflates a maximum &mdash; so the net direction was
+a measurement, not an argument, and a prediction made before re-running it was
+wrong.</p>
 
 <p><strong>CORRECTION.</strong> The previous edition defined the
 Bandelt&ndash;Dress isolation index as half the <em>minimum</em> of a quadruple's
@@ -339,6 +366,39 @@ def new_version(previous: int, tok: str, files, metadata):
     return deposition_id, deposition["links"]["bucket"]
 
 
+def adopt_draft(deposition_id: int, tok: str, metadata):
+    """Finish an EXISTING unsubmitted draft instead of creating another one.
+
+    Zenodo's API returns 504 Gateway Time-out on writes that in fact succeeded,
+    so `/actions/newversion` can leave a draft behind while the caller sees a
+    failure. Re-running the whole script then creates a SECOND draft and the
+    first is stranded. This adopts the draft that already exists: clear its
+    inherited files, set this edition's metadata, and hand back the bucket so
+    the upload and publish proceed normally.
+    """
+    deposition = req("GET", f"{ZENODO}/deposit/depositions/{deposition_id}", tok)
+    if deposition.get("submitted"):
+        raise RuntimeError(
+            f"deposition {deposition_id} is already submitted; adopting it would "
+            "modify a published record"
+        )
+    inherited = deposition.get("files", [])
+    for old in inherited:
+        req(
+            "DELETE",
+            f"{ZENODO}/deposit/depositions/{deposition_id}/files/{old['id']}",
+            tok,
+        )
+    print(f"adopted draft {deposition_id}; cleared {len(inherited)} inherited files")
+    req(
+        "PUT",
+        f"{ZENODO}/deposit/depositions/{deposition_id}",
+        tok,
+        json.dumps(metadata).encode(),
+    )
+    return deposition_id, deposition["links"]["bucket"]
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -349,11 +409,21 @@ def main() -> int:
     parser.add_argument(
         "--new-version-of",
         type=int,
-        default=23589159,
+        default=23594789,
         help=(
             "deposit as a new version of this published record id, which is the "
             "only correct way to publish a corrected edition; 0 creates a fresh "
             "record and should only be used for a first deposit"
+        ),
+    )
+    parser.add_argument(
+        "--use-draft",
+        type=int,
+        default=0,
+        help=(
+            "finish this existing unsubmitted draft instead of creating a new "
+            "version; use after a 504 that left a draft behind, so a second "
+            "draft is not created and the first stranded"
         ),
     )
     args = parser.parse_args()
@@ -377,7 +447,7 @@ def main() -> int:
             "keywords": KEYWORDS,
             "license": "cc-by-4.0",
             "access_right": "open",
-            "version": "edition-6",
+            "version": "edition-7",
             "language": "eng",
             "related_identifiers": [
                 {
@@ -392,8 +462,12 @@ def main() -> int:
         }
     }
 
-    if args.new_version_of:
-        deposition_id, bucket = new_version(args.new_version_of, tok, files, metadata)
+    if args.use_draft:
+        deposition_id, bucket = adopt_draft(args.use_draft, tok, metadata)
+    elif args.new_version_of:
+        deposition_id, bucket = new_version(
+            args.new_version_of, tok, files, metadata
+        )
     else:
         deposition = req(
             "POST",
@@ -453,7 +527,7 @@ def main() -> int:
         "state": published.get("state"),
         "submitted": published.get("submitted"),
         "title": TITLE,
-        "version": "edition-6",
+        "version": "edition-7",
         "files_uploaded": uploaded,
         "peer_reviewed": False,
         "note": (

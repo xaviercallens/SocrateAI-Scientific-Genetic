@@ -453,14 +453,23 @@ alignment width, \emph{matched} mean $p$-distance and \emph{matched} gap load.
 population & expected & margin & floor & verdict \\
 \midrule
 Hepatitis B, accession & reticulate & $9/3182$ & $2/3182$ & above $2\times$ \\
-Coxsackievirus A6, spread & reticulate & $329/7312$ & $268/7390$ & above $1\times$ \\
-JC polyomavirus, accession & tree-like & $4/5108$ & $24/5121$ & below \\
+Coxsackievirus A6, spread & reticulate & $329/7312$ & $121/7390$ & above $2\times$ \\
+JC polyomavirus, accession & tree-like & $4/5108$ & $5/5121$ & below \\
 \bottomrule
 \end{tabular}
 \end{center}
 
 Three populations, three agreements with the prior, and the two alignment
-references agree on the verdict in all three. Both populations that clear their
+references agree on the verdict in all three. The floors in this table are
+corrected: edition~9 and edition~10 tuned each matched null by bisecting a
+\emph{single} realisation of a quantity that is chaotic in the mutation rate, and
+then took the floor as a maximum over replicates whose realised divergences
+differed by up to an order of magnitude. Such a null is not matched. Re-deciding
+against a null matched \emph{per replicate} leaves every verdict intact but moves
+two ratios in opposite directions: Coxsackievirus clears $2.75\times$ rather than
+$1.24\times$, and the JC polyomavirus margin is four-fifths of its floor rather
+than the sixth those editions reported --- a correct call, but a much closer one
+than was published. Both populations that clear their
 floor carry a Lean file embedding the four aligned rows, so the kernel
 recomputes the six pair counts and the common column count itself: accepted at
 $3182$ columns in $67.8$~s and at $7434$ columns in $130.5$~s, with both
