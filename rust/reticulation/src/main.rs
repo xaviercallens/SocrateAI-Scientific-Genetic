@@ -669,6 +669,10 @@ fn held_at(flags: &[bool]) -> (usize, usize) {
 /// be able to come out false without the run being reported as a failure, or the
 /// experiment would be rigged to confirm it.
 fn run_experiment(args: &[String]) -> Result<bool, String> {
+    // A null replicate counts toward the floor only if its own realised
+    // divergence is within this of the population's. Matching in expectation is
+    // not matching: see `matched_floor`.
+    let floor_match_tolerance: f64 = parse_flag(args, "--floor-match-tolerance", 0.10);
     use reticulation::simulate::{
         clonal_tree, clonal_tree_relaxed, inject_gap_blocks, with_recombination,
         with_reciprocal_recombinants,
@@ -861,15 +865,19 @@ fn run_experiment(args: &[String]) -> Result<bool, String> {
         for (name, rows) in &results {
             let mut per_seed = Vec::new();
             for row in rows {
-                let (floor, _, _, _) = matched_floor(
+                let matched = matched_floor(
                     length,
                     row.distribution.mean_p_distance,
                     row.gap_fraction,
                     spread,
                     seeds.len() as u64,
                     max_quadruples,
+                    floor_match_tolerance,
                 )?;
-                per_seed.push(exceeds_k_times(row.quartet_margin, floor, 1));
+                // An unmatchable null yields no comparison, not a free pass.
+                per_seed.push(
+                    matched.matched && exceeds_k_times(row.quartet_margin, matched.floor, 1),
+                );
             }
             matched.insert(name, per_seed);
         }
@@ -2526,6 +2534,30 @@ fn run_tuning_bias(args: &[String]) -> Result<bool, String> {
 
 /// The matched null floor: the largest quartet margin a *tree* produces at this
 /// length, divergence and gap load.
+/// The matched-null floor for a real population, with each replicate matched on
+/// its **own realised divergence**.
+///
+/// This replaces a version that matched only in expectation, and the difference
+/// is not cosmetic. Two defects compounded in the original:
+///
+/// 1. `tune_mu_for_divergence` bisected a SINGLE realisation of
+///    `clonal_tree_relaxed`, whose rate multipliers come from the same RNG
+///    stream as `mutate`. Since `mutate` consumes a `mu`-dependent number of
+///    draws, changing `mu` shifts every downstream multiplier and the objective
+///    is chaotic rather than monotone, so the bisection wandered. Measured on
+///    the published runs, the null's achieved divergence missed the
+///    population's by -49% (coxsackievirus A6), +11% (hepatitis B) and -12%
+///    (JC polyomavirus).
+/// 2. Even with `mu` right, the floor is a MAX over replicates, and at fixed
+///    `mu` the relaxed-clock divergence has a coefficient of variation near 50%
+///    spanning 10x-28x (`tuning-bias`). The max is then set by whichever
+///    replicate drew a fast-rate tree.
+///
+/// The two push in opposite directions, so the net error is not predictably
+/// conservative and has to be measured per population rather than argued.
+/// Rejection sampling removes both: a replicate counts only if its own realised
+/// divergence is within `accept_tolerance` of the population's, and the
+/// acceptance rate is returned so an unmatchable population is visible.
 fn matched_floor(
     length: usize,
     target_divergence: f64,
@@ -2533,19 +2565,39 @@ fn matched_floor(
     spread: f64,
     seeds: u64,
     max_quadruples: usize,
-) -> Result<(Option<reticulation::Ratio>, f64, f64, usize), String> {
+    accept_tolerance: f64,
+) -> Result<MatchedFloor, String> {
     use reticulation::simulate::{clonal_tree_relaxed, inject_gap_blocks};
     use reticulation::subset::{find_quartet_certificates, Alignment};
 
     let generations = 4u32; // 16 leaves, matching the real populations
-    let (mu, achieved) = tune_mu_for_divergence(length, generations, spread, target_divergence, 1);
-    let mut best: Option<reticulation::Ratio> = None;
-    let mut violating_total = 0usize;
-    for seed in 1..=seeds {
+    let build = |mu: f64, seed: u64| -> reticulation::simulate::Population {
         let mut pop = clonal_tree_relaxed(length, generations, mu, spread, seed);
         if gap_load > 0.001 {
             pop = inject_gap_blocks(pop, gap_load, seed ^ 0x5EED);
         }
+        pop
+    };
+    let (mu, achieved) =
+        tune_mu_for_divergence(length, generations, spread, target_divergence, 1);
+
+    let mut best: Option<reticulation::Ratio> = None;
+    let mut violating_total = 0usize;
+    let mut accepted = 0u64;
+    let mut attempts = 0u64;
+    let mut realised_sum = 0.0f64;
+    let max_attempts = seeds * 2_000 + 2_000;
+    let mut seed = 0u64;
+    while accepted < seeds && attempts < max_attempts {
+        seed += 1;
+        attempts += 1;
+        let pop = build(mu, seed);
+        let realised = divergence(&pop).0;
+        if (realised - target_divergence).abs() / target_divergence.max(1e-12) > accept_tolerance {
+            continue;
+        }
+        accepted += 1;
+        realised_sum += realised;
         let aln = Alignment::new(pop.labels.clone(), pop.sequences.clone())?;
         let search = find_quartet_certificates(&aln, 1, max_quadruples)?;
         violating_total += search.violating;
@@ -2562,7 +2614,39 @@ fn matched_floor(
             }
         }
     }
-    Ok((best, mu, achieved, violating_total))
+    Ok(MatchedFloor {
+        floor: best,
+        mu,
+        tuned_mean_divergence: achieved,
+        accepted,
+        attempts,
+        mean_realised_divergence: if accepted > 0 {
+            realised_sum / accepted as f64
+        } else {
+            f64::NAN
+        },
+        violating_total,
+        matched: accepted == seeds,
+    })
+}
+
+/// A matched-null floor together with the evidence that it is matched.
+#[derive(Debug, Clone)]
+struct MatchedFloor {
+    floor: Option<reticulation::Ratio>,
+    mu: f64,
+    /// What the tuning bisection believed it achieved, kept because the gap
+    /// between this and `mean_realised_divergence` is the original defect.
+    tuned_mean_divergence: f64,
+    accepted: u64,
+    attempts: u64,
+    /// Mean divergence of the ACCEPTED replicates: within tolerance of the
+    /// population's by construction.
+    mean_realised_divergence: f64,
+    violating_total: usize,
+    /// False when the required number of replicates could not be matched, in
+    /// which case no floor should be reported for this population.
+    matched: bool,
 }
 
 /// Run the four-point test on real viral populations.
@@ -2579,6 +2663,10 @@ fn matched_floor(
 /// a floor from a simulated tree at matched length, matched divergence and
 /// matched gap load, because a margin on its own is not a statistic.
 fn run_real_data(args: &[String]) -> Result<bool, String> {
+    // A null replicate counts toward the floor only if its own realised
+    // divergence is within this of the population's. Matching in expectation is
+    // not matching: see `matched_floor`.
+    let floor_match_tolerance: f64 = parse_flag(args, "--floor-match-tolerance", 0.10);
     use reticulation::align::{centroid_ranking, reference_anchored_alignment, Scoring};
     use reticulation::subset::{find_complete_triple_certificates, find_quartet_certificates, Alignment};
 
@@ -2676,6 +2764,16 @@ fn run_real_data(args: &[String]) -> Result<bool, String> {
         matched_floor_f64: Option<f64>,
         matched_floor_mu: Option<f64>,
         matched_floor_divergence: Option<f64>,
+        /// Mean divergence of the ACCEPTED null replicates. Each is within
+        /// tolerance of this population's by construction, so the gap between
+        /// this and `matched_floor_divergence` shows what the old
+        /// expectation-matching was doing.
+        matched_floor_realised_divergence: Option<f64>,
+        matched_floor_accepted: Option<u64>,
+        matched_floor_attempts: Option<u64>,
+        /// False when the null could not be matched, in which case the floor
+        /// comparisons above are withheld rather than reported.
+        matched_floor_is_matched: Option<bool>,
         exceeds_matched_floor: Option<bool>,
         exceeds_twice_matched_floor: Option<bool>,
     }
@@ -2709,6 +2807,10 @@ fn run_real_data(args: &[String]) -> Result<bool, String> {
             matched_floor_f64: None,
             matched_floor_mu: None,
             matched_floor_divergence: None,
+                matched_floor_realised_divergence: None,
+                matched_floor_accepted: None,
+                matched_floor_attempts: None,
+                matched_floor_is_matched: None,
             exceeds_matched_floor: None,
             exceeds_twice_matched_floor: None,
         };
@@ -2808,13 +2910,14 @@ fn run_real_data(args: &[String]) -> Result<bool, String> {
         }
         // The matched null, built from the primary run's own numbers.
         let primary = &entry.runs[0];
-        let (floor, mu, achieved, _) = matched_floor(
+        let matched = matched_floor(
             primary.width,
             primary.mean_p_distance,
             primary.gap_fraction,
             spread,
             seeds,
             max_quadruples,
+            floor_match_tolerance,
         )?;
         let observed = if primary.quartet_margin == "none" {
             None
@@ -2833,12 +2936,28 @@ fn run_real_data(args: &[String]) -> Result<bool, String> {
                 None
             }
         };
-        entry.matched_floor = Some(margin_exact(floor));
-        entry.matched_floor_f64 = Some(margin_f64(floor));
-        entry.matched_floor_mu = Some(mu);
-        entry.matched_floor_divergence = Some(achieved);
-        entry.exceeds_matched_floor = Some(exceeds_k_times(observed, floor, 1));
-        entry.exceeds_twice_matched_floor = Some(exceeds_k_times(observed, floor, 2));
+        entry.matched_floor = Some(margin_exact(matched.floor));
+        entry.matched_floor_f64 = Some(margin_f64(matched.floor));
+        entry.matched_floor_mu = Some(matched.mu);
+        // What the tuning bisection believed, kept beside what the accepted
+        // replicates actually realised: the gap between them was the defect.
+        entry.matched_floor_divergence = Some(matched.tuned_mean_divergence);
+        entry.matched_floor_realised_divergence = Some(matched.mean_realised_divergence);
+        entry.matched_floor_accepted = Some(matched.accepted);
+        entry.matched_floor_attempts = Some(matched.attempts);
+        entry.matched_floor_is_matched = Some(matched.matched);
+        // A floor from an unmatched null decides nothing, so the comparison is
+        // withheld rather than reported.
+        entry.exceeds_matched_floor = if matched.matched {
+            Some(exceeds_k_times(observed, matched.floor, 1))
+        } else {
+            None
+        };
+        entry.exceeds_twice_matched_floor = if matched.matched {
+            Some(exceeds_k_times(observed, matched.floor, 2))
+        } else {
+            None
+        };
         results.push(entry);
     }
 
@@ -3043,6 +3162,10 @@ fn run_real_data(args: &[String]) -> Result<bool, String> {
 /// measured. The admissibility gate calibrated for our aligner does not
 /// transfer, so it is not applied; the gap load is reported instead.
 fn run_breakpoint(args: &[String]) -> Result<bool, String> {
+    // A null replicate counts toward the floor only if its own realised
+    // divergence is within this of the population's. Matching in expectation is
+    // not matching: see `matched_floor`.
+    let floor_match_tolerance: f64 = parse_flag(args, "--floor-match-tolerance", 0.10);
     use reticulation::subset::{find_quartet_certificates, quartet_distribution, Alignment};
 
     let fasta: String = parse_flag(args, "--population", String::new());
@@ -3174,13 +3297,14 @@ fn run_breakpoint(args: &[String]) -> Result<bool, String> {
         })
         .count();
 
-    let (floor, floor_mu, floor_divergence, _) = matched_floor(
+    let matched = matched_floor(
         aln.width(),
         mean_p,
         gaps,
         spread,
         seeds,
         max_quadruples,
+        floor_match_tolerance,
     )?;
     let observed = search.certificates.first().map(|c| c.margin());
 
@@ -3225,18 +3349,22 @@ fn run_breakpoint(args: &[String]) -> Result<bool, String> {
         "certificates": certificates,
         "quartet_distribution": distribution,
         "matched_floor": {
-            "margin": margin_exact(floor),
-            "margin_f64": margin_f64(floor),
-            "mu": floor_mu,
-            "achieved_divergence": floor_divergence,
-            "exceeds_floor": exceeds_k_times(observed, floor, 1),
-            "exceeds_twice_floor": exceeds_k_times(observed, floor, 2),
+            "margin": margin_exact(matched.floor),
+            "margin_f64": margin_f64(matched.floor),
+            "mu": matched.mu,
+            "tuned_mean_divergence": matched.tuned_mean_divergence,
+            "realised_mean_divergence": matched.mean_realised_divergence,
+            "replicates_accepted": matched.accepted,
+            "replicates_attempted": matched.attempts,
+            "is_matched": matched.matched,
+            "exceeds_floor": matched.matched && exceeds_k_times(observed, matched.floor, 1),
+            "exceeds_twice_floor": matched.matched && exceeds_k_times(observed, matched.floor, 2),
             // A floor of `none` means the matched null produced no violating
             // quadruple at all. `exceeds_floor` is then true for ANY positive
             // margin, which is not a calibrated comparison -- it is the same
             // degeneracy the topology experiment hit, and at these divergences
             // it is the expected one.
-            "null_is_degenerate": floor.is_none(),
+            "null_is_degenerate": matched.floor.is_none(),
             "degenerate_means": "The matched null produced no violating                 quadruple in any replicate, so `exceeds_floor` reduces to                 `the observed margin is positive` and carries no calibration.                 Raise the replicate count, or read this population as below the                 method's resolution at its divergence.",
         },
         "resolution_warning": {

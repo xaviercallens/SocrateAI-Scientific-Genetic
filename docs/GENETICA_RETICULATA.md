@@ -1798,3 +1798,87 @@ cannot calibrate anything through its mean.
 
 Raw output: [`split_system.json`](../data/reticulata_phase5/split_system.json),
 [`tuning_bias.json`](../data/reticulata_phase5/tuning_bias.json).
+
+## 18. Re-deciding the real populations against a null that is actually matched
+
+§17.5 found that `tune_mu_for_divergence` bisected a single realisation of a
+chaotic objective, and that matching a relaxed-clock null on *expected*
+divergence is ill-posed when the realised divergence has CV ≈ 50%. That function
+set the matched floors behind **the published real-data verdicts**, so those
+verdicts had to be re-decided rather than reasoned about.
+
+### 18.1 How badly the published nulls missed
+
+The published artifact recorded each floor's null divergence, so the miss is
+recoverable from it directly:
+
+| population | observed divergence | published null | error |
+| :--- | ---: | ---: | ---: |
+| coxsackievirus A6 | 0.10957 | 0.05588 | **−49.0%** |
+| hepatitis B | 0.00882 | 0.00977 | +10.8% |
+| JC polyomavirus | 0.00961 | 0.00842 | −12.3% |
+
+The coxsackievirus null sat at **half** its population's divergence. The seven
+refused populations are unaffected: they fail the aligner *admissibility* gate,
+which never consults a floor.
+
+### 18.2 Two defects pulling opposite ways, so the net had to be measured
+
+Before re-running I claimed the bug's direction was "conservative", and then
+predicted the coxsackievirus floor would **rise** once its null was matched at
+the correct, higher divergence. **Both claims were wrong as stated**, and the
+second was wrong on the record because it ignored a mechanism §17.5 had already
+established. Two defects act in opposite directions:
+
+* A **non-converging bisection** misses its divergence target in *either*
+  direction, so the null's central divergence can be too low or too high.
+* The floor is a **max over replicates**, and over-dispersion always *inflates*
+  a max — the extreme draw sets it, regardless of the nominal centre.
+
+So the net is not deducible from the divergence error alone. Measured, the
+inflation term dominated in all three populations: **every corrected floor is
+lower or equal**, even where the correctly-matched null sits at twice the
+divergence.
+
+### 18.3 The corrected verdicts
+
+Each null replicate is now accepted only if **its own realised divergence** is
+within 10% of the population's:
+
+| population | margin | published floor | ratio | corrected floor | ratio | acceptance | literature |
+| :--- | ---: | ---: | ---: | ---: | ---: | ---: | :--- |
+| coxsackievirus A6 | 329/7312 | 268/7390 | 1.24× | **121/7390** | **2.75×** | 5/30 | reticulate |
+| hepatitis B | 9/3182 | 2/3182 | 4.50× | 2/3182 | 4.50× | 5/23 | reticulate |
+| JC polyomavirus | 4/5108 | 24/5121 | 0.17× | **5/5121** | **0.80×** | 5/16 | tree-like |
+
+**No verdict is overturned**, and all three still agree with their literature
+expectation (3/3). But two published numbers move, in opposite directions:
+
+* **Coxsackievirus A6 strengthens.** 1.24× → 2.75×, so it now clears *twice* its
+  floor as well. The published result understated its own evidence, and the
+  summary's `exceeding_twice_matched_floor` gains it.
+* **JC polyomavirus's negative is far less comfortable than published.** At
+  0.17× it read as decisively tree-like; against a properly matched floor it is
+  a **near-miss at 0.80×**. The verdict is unchanged and still correct, but the
+  published figure overstated how far from the line it sat. This is the honest
+  cost of the correction and it is not visible anywhere in the verdict itself.
+
+Hepatitis B is untouched: its floor is identical rational (`2/3182`), which is
+the stability a population well inside its regime should show.
+
+### 18.4 What this does and does not change
+
+The method's published *conclusions* survive — three usable populations, seven
+refused on admissibility, 3/3 agreement with the literature. What changes is
+that the floors those conclusions rest on are now **matched per replicate rather
+than in expectation**, with acceptance rates reported (17%, 22%, 31%) and a
+population that cannot be matched receiving no floor and no comparison instead
+of a floor from an unmatched null.
+
+The transferable point, restated because getting it wrong twice is the evidence
+for it: **when two defects in an apparatus act in opposite directions, the net
+direction is not an argument, it is a measurement.**
+
+Raw output: [`real_data.json`](../data/reticulata_phase3/real_data.json),
+regenerated — never hand-edited — and
+[`tuning_bias.json`](../data/reticulata_phase5/tuning_bias.json).
