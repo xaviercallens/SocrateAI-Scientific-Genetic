@@ -685,6 +685,27 @@ combinatorially per quadruple, which is exactly what makes complete deletion
 within the subset available at all. A complex built from one global distance
 matrix cannot restrict to a subset, and therefore cannot.
 
+That is sharper than a slogan, because the certificate's number turns out to be a
+classical one. Phylogenetic combinatorics assigns each split of a quadruple a
+\emph{Bandelt--Dress isolation index}, half the gap between the minimum of the
+other two pairing sums and its own; a split with positive index is one the data
+supports, and on a tree metric the supported split's index is the internal edge's
+length. Between the two \emph{non-minimal} splits that gap is exactly half the
+pairing-sum gap, so \textbf{the margin of \S\ref{sub:deletion} is twice an
+isolation-index gap}, and \eqref{eq:fourpoint} on a quadruple is precisely the
+non-positivity of that gap. Both are machine-checked, and neither proof needs a
+tree, a complex or a metric space --- only three rationals, which is why the
+quantity survives being computed one subset at a time.
+
+Measuring the split decomposition's own headline quantity then says where the
+signal is not. The largest supported-split index is identical to five decimal
+places on the clonal population and on both reticulate populations built from it:
+it is blind to the reticulation, as it should be, since the strongest supported
+split is a deep split of the underlying tree. What it tracks is divergence. So
+\emph{the supported index carries the tree, the gap between the non-supported
+indices carries the reticulation}, and a filtration driven by distance magnitudes
+was reading the first where the signal lives in the second.
+
 These episodes taught one lesson that belongs in any ledger: \emph{check that a
 null varies before believing a $p$-value derived from it}, because a null that is
 identically zero makes every positive observation significant at the floor and is

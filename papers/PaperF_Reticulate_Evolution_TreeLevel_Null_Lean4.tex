@@ -47,11 +47,10 @@ and the Gromov Hinge of Buneman's Converse}}
 \small SocrateAI Scientific Research \& Formal Verification Laboratory\\
 \small Formal artifacts: \texttt{ANSE.GeneticaReticulata},
 \texttt{ANSE.GeneticaReticulataTree} (Lean 4)}
-\date{Edition 4, 23 October 2026. Closes the topological line on measured
-grounds (\S\ref{sec:topology}), measures the maximum statistic's defect across
-taxon counts rather than arguing it from two points (\S\ref{sec:scale}), and
-reports a filtration funnel in which no variant met its pre-registered
-criterion. \textbf{Not peer reviewed.}}
+\date{Edition 5, 23 October 2026. Identifies the certificate's margin with a
+Bandelt--Dress isolation-index gap and proves it (\S\ref{sec:geometry}), which
+replaces edition~4's closure of the topological line with a positive statement
+about what the certificate was already measuring. \textbf{Not peer reviewed.}}
 
 \begin{document}
 \maketitle
@@ -971,11 +970,94 @@ spaces but no tree metrics, no splits and no four-point condition, so completing
 the construction appears to be first of its kind. That search was across indexes
 rather than exhaustive.
 
+\section{The geometry the certificate was already doing}\label{sec:geometry}
+
+Section~\ref{sec:topology} closed the Vietoris--Rips route and concluded that
+this programme's topological content is the certificate itself. That is a slogan
+unless it is made precise. It is precise, and it is a theorem.
+
+Classical phylogenetic combinatorics assigns each split $S$ of a quadruple a
+\textbf{Bandelt--Dress isolation index}
+\[
+  \alpha(S) \;=\; \tfrac{1}{2}\big(\min\{\text{the other two pairing sums}\}
+  - \text{$S$'s own pairing sum}\big),
+\]
+in distance units. A split with $\alpha > 0$ is one the data supports, and on a
+tree metric the supported split's index is the internal edge's length. This is
+the basis of split decomposition and of split networks --- the canonical geometry
+of tree-likeness, and the object a distance filtration was a poor substitute for.
+
+\begin{theorem}[The margin is an isolation-index gap]\label{thm:isogap}
+Let $s_1 \le s_2$ and $s_1 \le s_3$ be a quadruple's three pairing sums, $s_1$
+minimal. Then
+\[
+  \alpha(s_2) - \alpha(s_3) \;=\; \tfrac{1}{2}(s_3 - s_2),
+\]
+and the four-point condition on that quadruple holds exactly when this gap is
+non-positive.
+\end{theorem}
+
+\begin{proof}
+Both non-minimal splits have $s_1$ as the minimum of their other two sums, so
+$\alpha(s_2) = \tfrac12(s_1 - s_2)$ and $\alpha(s_3) = \tfrac12(s_1 - s_3)$; the
+difference is $\tfrac12(s_3-s_2)$. The four-point condition reads
+$s_3 \le \max(s_1,s_2) = s_2$, which is exactly $s_3 - s_2 \le 0$.
+\end{proof}
+
+Since the certificate's margin is $s_3 - s_2$ over the common column count,
+Theorem~\ref{thm:isogap} says the margin is \textbf{twice an isolation-index
+gap}, and the condition the certificate refutes is the vanishing of that gap. The
+number the method reports is a split-decomposition quantity, not merely analogous
+to one. Both statements are machine-checked
+(\texttt{isolation\_gap\_eq\_half\_sum\_gap},
+\texttt{quadruple\_fourPoint\_iff\_isolation\_gap\_nonpos}).
+
+Note what the proof does not use: no tree, no complex, no metric space, only
+three rationals. That is exactly why the certificate can be evaluated per subset
+where a complex over a global distance matrix cannot, and so why
+Section~\ref{sec:topology} closed an implementation rather than an idea.
+
+\paragraph{Checked against the data, not only proved.} The theorem is about three
+rationals. The implementation computes each split's index from its own definition
+--- the minimum of the \emph{other two} sums minus its own --- rather than from
+the sorted sums, so a mistake would surface as a mismatch rather than cancel out,
+and the identity is then checked on every quadruple examined. Across all seven
+datasets at five seeds it holds on $75\,500$ quadruples and fails on none.
+
+\paragraph{And the measurement that follows.} Reporting the split
+decomposition's own headline quantity is informative in a way worth recording.
+The largest supported-split index is \emph{identical to five decimal places} on
+the clonal tree and on both reticulate populations built from it --- $0.02863$,
+$0.02637$, $0.02738$ across the first three seeds for the clonal population, the
+single recombinant and the reciprocal mosaics alike. It is blind to the
+reticulation, which it should be: the strongest supported split is a deep split
+of the underlying tree, and adding recombinants does not disturb it. What it
+tracks instead is divergence --- the saturated population's index is seven times
+the others'.
+
+So the statement this paper arrives at is sharper than ``the certificate is
+topological'':
+
+\begin{quote}
+The split decomposition's supported index carries the \emph{tree}. The gap
+between the non-supported indices carries the \emph{reticulation}. The
+certificate measures the gap.
+\end{quote}
+
+That also explains, after the fact, Section~\ref{sec:topology}'s failure. A Rips
+filtration is driven by distance \emph{magnitudes}, which is the quantity that
+tracks divergence; the signal lives in a \emph{difference} between indices that
+magnitudes do not expose. A statistic that fires on saturated data and misses a
+single recombinant is what that predicts.
+
 \section{Limitations, and what would make this wrong}\label{sec:limits}
 
 \begin{itemize}
 \item \textbf{Buneman's converse is half-cited.} Theorem~\ref{thm:gromov} closes
-the first step; the construction is not formalised. So ``satisfies \eqref{eq:fp}
+the first step; the construction is not formalised. Likewise
+Theorem~\ref{thm:isogap} identifies the margin with an isolation-index gap but
+does not prove that a supported split's index is a tree edge's length, which
+needs the same construction. So ``satisfies \eqref{eq:fp}
 everywhere'' is not yet formally ``is a tree'' in this development.
 \item \textbf{A certificate does not identify an event.} Satisfying \eqref{eq:fp}
 does not certify the \emph{absence} of reticulation, and a violation does not
@@ -1043,7 +1125,7 @@ SHA-256 of the source file \\
 All are deterministic given their seeds. The population extraction is
 deterministic given the source corpus, whose digest, filters and every selected
 accession are recorded in \texttt{provenance.json}. Verification at the release:
-$98$ library and $2$ integration tests in Rust; Lean $18/18$ and $14/14$
+$100$ library and $2$ integration tests in Rust; Lean $21/21$ and $14/14$
 declarations with zero \texttt{sorry} and no unwhitelisted axioms; $33$ Python
 tests; an anti-stub audit over $227$ files.
 

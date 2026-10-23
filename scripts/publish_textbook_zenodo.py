@@ -38,11 +38,11 @@ from typing import Any, Dict, List
 HERE = Path(__file__).resolve().parents[1]
 REPO = HERE.parents[2]
 ZENODO = "https://zenodo.org/api"
-RECEIPT = HERE / "data" / "zenodo_textbook_edition8_receipt.json"
+RECEIPT = HERE / "data" / "zenodo_textbook_edition9_receipt.json"
 
 TITLE = (
     "Formal Genetics: Proof, Computation and Evidence in Molecular Biology "
-    "(Edition 8)"
+    "(Edition 9)"
 )
 
 DESCRIPTION = """
@@ -82,7 +82,22 @@ two conditions nest is what licenses reading the difference between them. It
 closes on ten real viral populations, seven of which are reported blocked because
 a measured control shows the aligner alone would have produced the answer.</p>
 
-<p><strong>New in edition 8.</strong> Section&nbsp;12's ledger now records the
+<p><strong>New in edition 9.</strong> The closure of Section&nbsp;12's
+topological line is replaced by a positive statement about what the certificate
+was already measuring. Phylogenetic combinatorics assigns each split of a
+quadruple a Bandelt&ndash;Dress isolation index &mdash; on a tree metric, the
+supported split's index is the internal edge's length &mdash; and between the two
+non-minimal splits that index gap is exactly half the pairing-sum gap. So the
+certificate's margin <em>is</em> twice an isolation-index gap, and the four-point
+condition is precisely the non-positivity of that gap; both are machine-checked,
+and neither proof needs a tree, a complex or a metric space. Measuring the split
+decomposition's own headline quantity then shows where the signal is not: the
+largest supported-split index is identical to five decimal places on the clonal
+population and on both reticulate populations built from it, tracking divergence
+instead. The supported index carries the tree; the gap carries the
+reticulation.</p>
+
+<p><strong>What edition 8 added.</strong> Section&nbsp;12's ledger now records the
 closure of its topological line on measured grounds. Re-run at sixty-four taxa,
 the persistent-homology statistic fires on the two populations containing no
 reticulation &mdash; gap-blocked and saturated &mdash; while missing a single
@@ -303,7 +318,7 @@ def main() -> int:
     parser.add_argument(
         "--new-version-of",
         type=int,
-        default=23578498,
+        default=23588076,
         help=(
             "deposit as a new version of this published record id, which is the "
             "only correct way to publish a corrected edition; 0 creates a fresh "
@@ -331,7 +346,7 @@ def main() -> int:
             "keywords": KEYWORDS,
             "license": "cc-by-4.0",
             "access_right": "open",
-            "version": "edition-8",
+            "version": "edition-9",
             "language": "eng",
             "related_identifiers": [
                 {
@@ -407,7 +422,7 @@ def main() -> int:
         "state": published.get("state"),
         "submitted": published.get("submitted"),
         "title": TITLE,
-        "version": "edition-8",
+        "version": "edition-9",
         "files_uploaded": uploaded,
         "peer_reviewed": False,
         "note": (

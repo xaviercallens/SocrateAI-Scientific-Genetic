@@ -37,7 +37,7 @@ from typing import Any, Dict, List
 HERE = Path(__file__).resolve().parents[1]
 REPO = HERE.parents[2]
 ZENODO = "https://zenodo.org/api"
-RECEIPT = HERE / "data" / "zenodo_paper_f_edition4_receipt.json"
+RECEIPT = HERE / "data" / "zenodo_paper_f_edition5_receipt.json"
 STEM = "PaperF_Reticulate_Evolution_TreeLevel_Null_Lean4"
 
 TITLE = (
@@ -96,7 +96,27 @@ averages; run seed-paired against the hard null, the maximum separates 16.57x
 against 5.07x for mean delta_q and 1.22x for the proportion of violating
 quadruples.</p>
 
-<p><strong>New in edition 4.</strong> The topological line is closed on measured
+<p><strong>New in edition 5.</strong> Edition 4 closed the topological line;
+this edition replaces that closure with a proved identification of what the
+certificate was already measuring. Classical phylogenetic combinatorics assigns
+each split of a quadruple a Bandelt&ndash;Dress isolation index, and between the
+two non-minimal splits that index gap is exactly half the pairing-sum gap &mdash;
+so <strong>the certificate's margin is twice an isolation-index gap</strong>, and
+the four-point condition on a quadruple is precisely the non-positivity of that
+gap. Both are machine-checked, and neither proof needs a tree, a complex or a
+metric space, only three rationals, which is why the quantity survives being
+computed one subset at a time where a global complex cannot. The identity is also
+checked against the data on 75,500 quadruples with zero failures, using indices
+computed from the per-split definition rather than from sorted sums. And
+measuring the split decomposition's own headline quantity locates the signal: the
+largest supported-split index is identical to five decimal places on the clonal
+population and on both reticulate populations built from it &mdash; blind to the
+reticulation, tracking divergence instead. The supported index carries the tree;
+the gap carries the reticulation; the certificate measures the gap. That is also
+a retrospective explanation of edition 4's topological failure, since a distance
+filtration is driven by the magnitudes that track divergence.</p>
+
+<p><strong>What edition 4 added.</strong> The topological line is closed on measured
 grounds, and the maximum statistic's defect is measured across taxon counts
 rather than argued from two points. Bit-parallel subset counting (21.6&times;
 measured, verified against the byte implementation by property test) made
@@ -303,7 +323,7 @@ def main() -> int:
     parser.add_argument(
         "--new-version-of",
         type=int,
-        default=23578484,
+        default=23588075,
         help=(
             "deposit as a new version of this published record id, which is the "
             "only correct way to publish a corrected edition; 0 creates a fresh "
@@ -331,7 +351,7 @@ def main() -> int:
             "keywords": KEYWORDS,
             "license": "cc-by-4.0",
             "access_right": "open",
-            "version": "edition-4",
+            "version": "edition-5",
             "language": "eng",
             "related_identifiers": [
                 {
@@ -407,7 +427,7 @@ def main() -> int:
         "state": published.get("state"),
         "submitted": published.get("submitted"),
         "title": TITLE,
-        "version": "edition-4",
+        "version": "edition-5",
         "files_uploaded": uploaded,
         "peer_reviewed": False,
         "note": (

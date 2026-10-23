@@ -1,9 +1,185 @@
 {
   "averaged_statistic_calibrated_as_a_test": {
-    "p_value_floor": 1.0,
-    "per_dataset": [],
+    "p_value_floor": 0.01,
+    "per_dataset": [
+      {
+        "dataset": "D1_clonal_strict_clock",
+        "null_mean_per_seed": [
+          0.024595674770103864,
+          0.024933061037767892,
+          0.024595674770103864,
+          0.024595674770103864,
+          0.024595674770103864
+        ],
+        "observed_mean_delta_q_per_seed": [
+          0.026710477846820745,
+          0.02421556029795215,
+          0.021739414734015708,
+          0.026825275092520882,
+          0.028711840963749628
+        ],
+        "p_value_per_seed": [
+          0.41,
+          0.52,
+          0.59,
+          0.41,
+          0.35
+        ],
+        "significant_at_0.05": "0/5"
+      },
+      {
+        "dataset": "D2_clonal_relaxed_clock",
+        "null_mean_per_seed": [
+          0.024595674770103864,
+          0.024595674770103864,
+          0.0186979184778294,
+          0.0186979184778294,
+          0.019259361369984705
+        ],
+        "observed_mean_delta_q_per_seed": [
+          0.02979849668595741,
+          0.02186832667288242,
+          0.0077049300301643316,
+          0.03304899235779947,
+          0.005372405372405367
+        ],
+        "p_value_per_seed": [
+          0.32,
+          0.57,
+          0.74,
+          0.14,
+          0.84
+        ],
+        "significant_at_0.05": "0/5"
+      },
+      {
+        "dataset": "D3_strict_clock_one_recombinant",
+        "null_mean_per_seed": [
+          0.024595674770103864,
+          0.024933061037767892,
+          0.024595674770103864,
+          0.024595674770103864,
+          0.024595674770103864
+        ],
+        "observed_mean_delta_q_per_seed": [
+          0.10571892080395721,
+          0.08811819385237346,
+          0.10045271229814486,
+          0.10173387762914264,
+          0.10418347690912433
+        ],
+        "p_value_per_seed": [
+          0.01,
+          0.01,
+          0.01,
+          0.01,
+          0.01
+        ],
+        "significant_at_0.05": "5/5"
+      },
+      {
+        "dataset": "D4_relaxed_clock_one_recombinant",
+        "null_mean_per_seed": [
+          0.024595674770103864,
+          0.024595674770103864,
+          0.0186979184778294,
+          0.0186979184778294,
+          0.019259361369984705
+        ],
+        "observed_mean_delta_q_per_seed": [
+          0.10211690578755322,
+          0.0956330500703428,
+          0.06911999431794817,
+          0.09377842191942888,
+          0.061883977622426874
+        ],
+        "p_value_per_seed": [
+          0.01,
+          0.01,
+          0.02,
+          0.01,
+          0.02
+        ],
+        "significant_at_0.05": "5/5"
+      },
+      {
+        "dataset": "D5_strict_clock_reciprocal_mosaics",
+        "null_mean_per_seed": [
+          0.024595674770103864,
+          0.024933061037767892,
+          0.024595674770103864,
+          0.024595674770103864,
+          0.024595674770103864
+        ],
+        "observed_mean_delta_q_per_seed": [
+          0.17278871007658234,
+          0.15221917950008645,
+          0.1691304212410633,
+          0.16759829684656238,
+          0.17794528362202938
+        ],
+        "p_value_per_seed": [
+          0.01,
+          0.01,
+          0.01,
+          0.01,
+          0.01
+        ],
+        "significant_at_0.05": "5/5"
+      },
+      {
+        "dataset": "D6_strict_clock_gap_blocks",
+        "null_mean_per_seed": [
+          0.024595674770103864,
+          0.024933061037767892,
+          0.024595674770103864,
+          0.024595674770103864,
+          0.024595674770103864
+        ],
+        "observed_mean_delta_q_per_seed": [
+          0.04397410001666806,
+          0.023803332768423533,
+          0.035834238640559464,
+          0.042073244313705446,
+          0.03706818651980128
+        ],
+        "p_value_per_seed": [
+          0.08,
+          0.53,
+          0.13,
+          0.09,
+          0.11
+        ],
+        "significant_at_0.05": "0/5"
+      },
+      {
+        "dataset": "D7_strict_clock_saturated",
+        "null_mean_per_seed": [
+          0.06488680456640142,
+          0.06488680456640142,
+          0.06488680456640142,
+          0.06488680456640142,
+          0.06488680456640142
+        ],
+        "observed_mean_delta_q_per_seed": [
+          0.02728958952368267,
+          0.02719602426363755,
+          0.031102727563361295,
+          0.027089314075818632,
+          0.02986699737477738
+        ],
+        "p_value_per_seed": [
+          0.97,
+          0.98,
+          0.94,
+          0.98,
+          0.94
+        ],
+        "significant_at_0.05": "0/5"
+      }
+    ],
     "reading": "A calibrated averaged statistic is the fairest possible competitor to the certificate: same quadruples, same alignment, same matched-null discipline, and no permutation. Where it and the certificate reach the same verdicts, the certificate's distinctive contribution is the exhibitable witness rather than the decision.",
-    "replicates": 0,
+    "replicates": 99,
     "why": "The treelikeness statistics are usually reported as scores. The one place they are used as a hypothesis test, the null comes from a parametric bootstrap under a fitted tree rather than from a permutation -- and that choice matters here, because a site-order permutation null is reported to be blind to the misalignment artefact class `align-error` measures. So mean delta_q is calibrated here against a MATCHED tree null: clonal, relaxed-clock, at this population's own alignment width and mean p-distance."
   },
   "cost_of_complete_deletion": "On D6 the common-column count per triple is far below the alignment length, because 15 of 16 sequences carry a gap block. That lost power is the price of removing the confound, and it is why complete deletion should be the default only when there is missing data to delete.",
@@ -1127,7 +1303,7 @@
     "how_to_read_the_side_by_side": "`our_quartet_margin_above_D1_floor` uses D1's floor at the same seed, which is commensurable only where the dataset's divergence and denominator match D1's. On D7 (ten times the divergence) and D6 (gap blocks, hence a different denominator) it is NOT, and a 5/5 there is the incommensurability this project has already recorded three times, not a measured false positive. The real-data command uses a MATCHED floor for exactly this reason. What the column does show, where it is commensurable, is whether the two tests reach the same verdict on the same alignment.",
     "per_dataset": [
       {
-        "calibrated_mean_delta_q_significant": "0/0",
+        "calibrated_mean_delta_q_significant": "0/5",
         "dataset": "D1_clonal_strict_clock",
         "informative_sites": 212,
         "lift_over_permuted_mean_per_seed": [
@@ -1138,7 +1314,7 @@
           -0.0003319047553845822
         ],
         "our_quartet_margin_above_D1_floor": "0/5",
-        "our_quartet_margin_above_ITS_OWN_matched_floor": "0/0",
+        "our_quartet_margin_above_ITS_OWN_matched_floor": "0/5",
         "p_value_floor": 0.005,
         "p_value_per_seed": [
           0.89,
@@ -1174,7 +1350,7 @@
         "the_two_tests_agree": true
       },
       {
-        "calibrated_mean_delta_q_significant": "0/0",
+        "calibrated_mean_delta_q_significant": "0/5",
         "dataset": "D2_clonal_relaxed_clock",
         "informative_sites": 211,
         "lift_over_permuted_mean_per_seed": [
@@ -1185,7 +1361,7 @@
           0.0
         ],
         "our_quartet_margin_above_D1_floor": "0/5",
-        "our_quartet_margin_above_ITS_OWN_matched_floor": "0/0",
+        "our_quartet_margin_above_ITS_OWN_matched_floor": "0/5",
         "p_value_floor": 0.005,
         "p_value_per_seed": [
           0.18,
@@ -1221,7 +1397,7 @@
         "the_two_tests_agree": true
       },
       {
-        "calibrated_mean_delta_q_significant": "0/0",
+        "calibrated_mean_delta_q_significant": "5/5",
         "dataset": "D3_strict_clock_one_recombinant",
         "informative_sites": 224,
         "lift_over_permuted_mean_per_seed": [
@@ -1232,7 +1408,7 @@
           0.03940706036447905
         ],
         "our_quartet_margin_above_D1_floor": "5/5",
-        "our_quartet_margin_above_ITS_OWN_matched_floor": "0/0",
+        "our_quartet_margin_above_ITS_OWN_matched_floor": "5/5",
         "p_value_floor": 0.005,
         "p_value_per_seed": [
           0.005,
@@ -1268,7 +1444,7 @@
         "the_two_tests_agree": true
       },
       {
-        "calibrated_mean_delta_q_significant": "0/0",
+        "calibrated_mean_delta_q_significant": "5/5",
         "dataset": "D4_relaxed_clock_one_recombinant",
         "informative_sites": 234,
         "lift_over_permuted_mean_per_seed": [
@@ -1279,7 +1455,7 @@
           0.03356942191271317
         ],
         "our_quartet_margin_above_D1_floor": "5/5",
-        "our_quartet_margin_above_ITS_OWN_matched_floor": "0/0",
+        "our_quartet_margin_above_ITS_OWN_matched_floor": "5/5",
         "p_value_floor": 0.005,
         "p_value_per_seed": [
           0.005,
@@ -1315,7 +1491,7 @@
         "the_two_tests_agree": true
       },
       {
-        "calibrated_mean_delta_q_significant": "0/0",
+        "calibrated_mean_delta_q_significant": "5/5",
         "dataset": "D5_strict_clock_reciprocal_mosaics",
         "informative_sites": 239,
         "lift_over_permuted_mean_per_seed": [
@@ -1326,7 +1502,7 @@
           0.08320189181200122
         ],
         "our_quartet_margin_above_D1_floor": "5/5",
-        "our_quartet_margin_above_ITS_OWN_matched_floor": "0/0",
+        "our_quartet_margin_above_ITS_OWN_matched_floor": "5/5",
         "p_value_floor": 0.005,
         "p_value_per_seed": [
           0.005,
@@ -1362,12 +1538,12 @@
         "the_two_tests_agree": true
       },
       {
-        "calibrated_mean_delta_q_significant": "0/0",
+        "calibrated_mean_delta_q_significant": "0/5",
         "dataset": "D6_strict_clock_gap_blocks",
         "informative_sites": null,
         "lift_over_permuted_mean_per_seed": [],
         "our_quartet_margin_above_D1_floor": "5/5",
-        "our_quartet_margin_above_ITS_OWN_matched_floor": "0/0",
+        "our_quartet_margin_above_ITS_OWN_matched_floor": "0/5",
         "p_value_floor": null,
         "p_value_per_seed": [],
         "permuted_mean_per_seed": [],
@@ -1379,7 +1555,7 @@
         "the_two_tests_agree": false
       },
       {
-        "calibrated_mean_delta_q_significant": "0/0",
+        "calibrated_mean_delta_q_significant": "0/5",
         "dataset": "D7_strict_clock_saturated",
         "informative_sites": 1046,
         "lift_over_permuted_mean_per_seed": [
@@ -1390,7 +1566,7 @@
           -0.0015391241923905508
         ],
         "our_quartet_margin_above_D1_floor": "5/5",
-        "our_quartet_margin_above_ITS_OWN_matched_floor": "0/0",
+        "our_quartet_margin_above_ITS_OWN_matched_floor": "0/5",
         "p_value_floor": 0.005,
         "p_value_per_seed": [
           0.23,
