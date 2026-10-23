@@ -37,7 +37,7 @@ from typing import Any, Dict, List
 HERE = Path(__file__).resolve().parents[1]
 REPO = HERE.parents[2]
 ZENODO = "https://zenodo.org/api"
-RECEIPT = HERE / "data" / "zenodo_paper_f_edition3_receipt.json"
+RECEIPT = HERE / "data" / "zenodo_paper_f_edition4_receipt.json"
 STEM = "PaperF_Reticulate_Evolution_TreeLevel_Null_Lean4"
 
 TITLE = (
@@ -96,7 +96,24 @@ averages; run seed-paired against the hard null, the maximum separates 16.57x
 against 5.07x for mean delta_q and 1.22x for the proportion of violating
 quadruples.</p>
 
-<p><strong>New in edition 3.</strong> A published-breakpoint test, and the
+<p><strong>New in edition 4.</strong> The topological line is closed on measured
+grounds, and the maximum statistic's defect is measured across taxon counts
+rather than argued from two points. Bit-parallel subset counting (21.6&times;
+measured, verified against the byte implementation by property test) made
+sixty-four taxa affordable; the clonal floor roughly doubles from sixteen to
+sixty-four taxa while the signal stays flat, so separation halves from
+19.4&times; to 9.2&times; &mdash; detection at a fixed size survives, but a
+threshold calibrated at one size does not transfer. A filtration funnel then
+tested three hypotheses against the topological statistic's failure, with the
+criterion fixed in advance, and <em>none met it</em>: saturation correction is
+refuted (it makes the false positive worse), global complete deletion removes the
+gap false positive entirely and confirms it was the missing-data confound
+reappearing as topology, and the miss of a single recombinant survives all four
+variants while the certificate detects that population at every seed. The
+global-distance-matrix construction is therefore closed: it cannot use per-subset
+complete deletion, and it misses what the certificate catches.</p>
+
+<p><strong>What edition 3 added.</strong> A published-breakpoint test, and the
 resolution limit it reveals. Two SARS-CoV-2 triads whose recombinants are
 <em>named</em> by the Pango designation process with published breakpoint
 intervals, taken already aligned from Nextstrain's open release &mdash; so this
@@ -286,7 +303,7 @@ def main() -> int:
     parser.add_argument(
         "--new-version-of",
         type=int,
-        default=23575732,
+        default=23578484,
         help=(
             "deposit as a new version of this published record id, which is the "
             "only correct way to publish a corrected edition; 0 creates a fresh "
@@ -314,7 +331,7 @@ def main() -> int:
             "keywords": KEYWORDS,
             "license": "cc-by-4.0",
             "access_right": "open",
-            "version": "edition-3",
+            "version": "edition-4",
             "language": "eng",
             "related_identifiers": [
                 {
@@ -390,7 +407,7 @@ def main() -> int:
         "state": published.get("state"),
         "submitted": published.get("submitted"),
         "title": TITLE,
-        "version": "edition-3",
+        "version": "edition-4",
         "files_uploaded": uploaded,
         "peer_reviewed": False,
         "note": (

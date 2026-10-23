@@ -665,14 +665,30 @@ lineages sit below this statistic's resolution, and the tension is structural --
 the datasets with the best ground truth are the least divergent, because
 recombinants are named between lineages close enough to assign confidently.
 
-A persistent-homology experiment on the same grid is \emph{inconclusive} and says
-so in its own output: the matched null produced no cycle in 495 of 495 replicates
-on five of seven populations, so its $p$-value takes only two values and the test
-reduces to whether a cycle appeared at all. Both of these taught the same lesson,
-which belongs in any ledger: \emph{check that a null varies before believing a
-$p$-value derived from it}, because a null that is identically zero makes every
-positive observation significant at the floor and is indistinguishable from a
-powerful test until you look.
+A persistent-homology experiment on the same grid was \emph{inconclusive} at
+sixteen taxa and said so in its own output: the matched null produced no cycle in
+495 of 495 replicates on five of seven populations, so its $p$-value took only
+two values and the test reduced to whether a cycle appeared at all. Re-run at
+sixty-four taxa the answer arrived, and it closed the line. Where the calibration
+becomes valid the statistic fires on the two populations containing \emph{no}
+reticulation --- gap-blocked and saturated --- while missing a single recombinant
+entirely, and no cheap filtration change fixed that: correcting for saturation
+made it worse, and although restricting to columns comparable in every sequence
+removed the gap false positive completely, confirming that it was
+Remark~\ref{rem:denominators}'s confound reappearing as topology, the miss
+survived all four variants. The certificate detects that same population at every
+seed with roughly fivefold margins.
+
+So the topological content of this section is the \emph{certificate}, not a
+complex: the same theorem --- a tree metric admits no unfilled cycle --- evaluated
+combinatorially per quadruple, which is exactly what makes complete deletion
+within the subset available at all. A complex built from one global distance
+matrix cannot restrict to a subset, and therefore cannot.
+
+These episodes taught one lesson that belongs in any ledger: \emph{check that a
+null varies before believing a $p$-value derived from it}, because a null that is
+identically zero makes every positive observation significant at the floor and is
+indistinguishable from a powerful test until you look.
 
 \textbf{Open:} Buneman's converse (Theorem~\ref{thm:buneman}) is still cited for
 its second half --- the equidistant-tree construction and the re-rooting --- so

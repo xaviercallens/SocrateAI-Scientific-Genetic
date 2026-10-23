@@ -47,11 +47,11 @@ and the Gromov Hinge of Buneman's Converse}}
 \small SocrateAI Scientific Research \& Formal Verification Laboratory\\
 \small Formal artifacts: \texttt{ANSE.GeneticaReticulata},
 \texttt{ANSE.GeneticaReticulataTree} (Lean 4)}
-\date{Edition 3, 22 October 2026. Adds the published-breakpoint test
-(\S\ref{sec:breakpoint}) and the resolution limit it reveals, corrects
-edition~2's comparison table, which judged this method against a mismatched
-null, and reports a topology experiment that cannot answer its own question.
-\textbf{Not peer reviewed.}}
+\date{Edition 4, 23 October 2026. Closes the topological line on measured
+grounds (\S\ref{sec:topology}), measures the maximum statistic's defect across
+taxon counts rather than arguing it from two points (\S\ref{sec:scale}), and
+reports a filtration funnel in which no variant met its pre-registered
+criterion. \textbf{Not peer reviewed.}}
 
 \begin{document}
 \maketitle
@@ -719,7 +719,59 @@ measures. Provenance improves; measurement coverage does not, since we have not
 measured their error. The admissibility gate calibrated for ours does not
 transfer and is not applied.
 
-\section{A topology experiment that cannot answer its own question}
+\section{The maximum statistic's defect, measured across taxon counts}
+\label{sec:scale}
+
+Section~\ref{sec:maxmean} concluded that the certificate's weakness is not power
+but incomparability across taxon counts, and argued it from two data points. This
+paper has twice recorded the cost of reasoning from too few points, so the defect
+is measured.
+
+That required making the measurement affordable. Sixty-four taxa is $635\,376$
+quadruples and the byte-at-a-time counting visits $4000$ columns per quadruple.
+Packing each sequence into three bitvectors over columns --- the base's two bits,
+plus a mask of definite bases --- turns a quadruple's seven counts into one pass
+over $L/64$ words: intersect four masks for the common columns, then count
+differing bits for each of the six pairs inside it. Measured $21.6\times$ faster
+at thirty-two taxa with identical exact margins. It is a second implementation,
+not a replacement: the byte path remains the specification, agreement is a
+property test across widths $1$, $7$, $63$, $64$, $65$, $130$ and $257$ plus
+gap-blocked data, and the sweep re-checks it on every run.
+
+\begin{table}[h]
+\centering\small
+\caption{Exhaustive over every quadruple, three seeds, margins over $4000$. The
+``above floor'' column is seed-paired and decided by exact integer
+cross-product.}
+\label{tab:scale}
+\begin{tabular}{@{}rrllcl@{}}
+\toprule
+taxa & quadruples & clonal floor & one recombinant & above floor & mosaics \\
+\midrule
+16 & $1\,820$ & 7, 5, 6 & 60, 52, 53 & $3/3$ & 136, 112, 124 \\
+32 & $35\,960$ & 10, 9, 10 & 60, 67, 98 & $3/3$ & 148, 154, 108 \\
+64 & $635\,376$ & 17, 16, 14 & 89, 82, 83 & $3/3$ & 156, 148, 166 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The floor roughly doubles from sixteen to sixty-four taxa while the signal stays
+flat, so the worst-seed separation of mosaics over the floor halves:
+$19.4\times$, $10.8\times$, $9.2\times$. Two readings, both needed. Detection at
+a \emph{fixed} taxon count survives comfortably. But ``twice the floor'' means
+something different at sixteen taxa than at sixty-four, so a threshold
+calibrated at one size does not transfer --- which is why
+Section~\ref{sec:real}'s verdicts use a floor matched to each population, and
+why edition~2's raw-margin comparison was the wrong one.
+
+One figure looks alarming and is not: at sixty-four taxa $82\%$ of all
+quadruples violate the four-point condition on a clonal, strict-clock
+population. Finite sequences are never exactly additive, which is precisely why
+the \emph{margin} and not the \emph{count} carries the inference --- and why the
+proportion-violating variant of Section~\ref{sec:maxmean} separated by only
+$1.22\times$.
+
+\section{A topology experiment, and the grounds for closing it}
 \label{sec:topology}
 
 The construction this programme began from reads an unfilled $1$-cycle in the
@@ -729,21 +781,68 @@ literature found no peer-reviewed independent calibration of that method's
 specificity. Our grid has the ground truth to supply one, since the saturated
 dataset differs from the baseline only in having ten times the substitution rate.
 
-The experiment is \textbf{inconclusive}, and its output says so
-(\texttt{"this\_experiment\_is\_interpretable": false}). The matched null produced
+At sixteen taxa the experiment is \textbf{inconclusive} and its output says so
+(\texttt{"this\_experiment\_is\_interpretable": false}): the matched null produced
 no cycle in $495$ of $495$ replicates on five of seven datasets, so the $p$-value
-takes only two values: the floor when the observed total persistence is non-zero,
-and $1$ otherwise. The bootstrap calibrates nothing; the test reduces to
-\emph{did a cycle appear at all}. The $2/5$ counts on the three reticulate
-datasets and on the saturated one are that binary, and the mutation-rate concern
-is therefore neither reproduced nor refuted.
+takes only two values and the test reduces to \emph{did a cycle appear at all}.
+The cause is diagnosable --- at that size the complex is too small for $H_1$ to
+populate --- and the fix is more taxa, which \S\ref{sec:scale} made affordable.
 
-The cause is diagnosable: at $16$ taxa with a threshold at the median
-off-diagonal distance, the complex is too small for $H_1$ to populate. One
-observation survives --- where cycles do appear, the reciprocal-mosaic dataset's
-persistence is an order of magnitude larger than the single-recombinant or
-saturated ones --- suggesting the magnitude may separate where the binary verdict
-cannot, at a taxon count where the null can vary.
+Re-run at sixty-four taxa, the answer arrives. Two nulls become
+non-degenerate, and they are the two datasets containing \emph{no reticulation}:
+the statistic fires at $3/3$ on gap-blocked data and at $3/3$ on saturated data,
+while a genuine single recombinant produces \textbf{no cycles at all} and is
+missed at $0/3$.
+
+Five hypotheses were then written down for that failure, three selected on
+cost-to-decide, and the criterion fixed in advance: a variant succeeds if the
+reciprocal-mosaic population is significant at every seed and both
+no-reticulation populations at none.
+
+\begin{table}[h]
+\centering\footnotesize
+\caption{Filtration funnel, sixty-four taxa, three seeds, 49 bootstrap
+replicates. No variant meets the criterion.}
+\label{tab:funnel}
+\begin{tabular}{@{}llcccc@{}}
+\toprule
+variant & hypothesis & mosaics & one recomb. & gaps & saturated \\
+\midrule
+baseline, total & --- & $3/3$ & $\mathbf{0/3}$ & $2/3$ & $3/3$ \\
+F1 Jukes--Cantor & saturation & $3/3$ & $\mathbf{0/3}$ & $2/3$ & $3/3$ \\
+F2 global complete deletion & denominators & $3/3$ & $\mathbf{0/3}$ & $\mathbf{0/3}$ & $3/3$ \\
+F3 longest bar & the summary & $3/3$ & $\mathbf{0/3}$ & $\mathbf{0/3}$ & $3/3$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{F1 is refuted}: correcting for saturation leaves that cell at $3/3$ and
+\emph{raises} its statistic, $0.00867 \to 0.01421$. \textbf{F2 is confirmed}, and
+confirms the construction argument below: global complete deletion takes
+gap-blocked data from $13.3$ cycles and $2/3$ to $0.0$ cycles and $0/3$, so the
+gap false positive was the missing-data confound of Section~\ref{sec:deletion}
+reappearing as topology. F3 removes it too, by distinguishing many weak cycles
+from few strong ones. But \textbf{the miss is not a filtration artefact} --- zero
+cycles on a single recombinant in all four variants --- and the certificate
+detects that same population at $3/3$ with roughly fivefold margins
+(Table~\ref{tab:scale}).
+
+\paragraph{Decision: the line is closed.} Not because topology is the wrong
+idea; the warrant, \emph{a tree metric admits no unfilled cycle}, is the same
+fact this paper's null rests on. What is closed is the
+global-distance-matrix implementation, for two reasons the funnel established
+rather than assumed. It \textbf{cannot use per-subset complete deletion}, because
+a complex is built from all pairs at once and there is no ``within this subset''
+to restrict to; F2 shows the available substitute works but costs every column
+any taxon is missing. And it \textbf{misses the signal the certificate catches}.
+So this programme's topological content is the certificate itself: the same
+theorem, evaluated combinatorially per quadruple, which is exactly what makes
+complete deletion within the subset available at all.
+
+\paragraph{Limits.} Three seeds, one generative model, and the saturated cell's
+null is degenerate in every variant, so that column carries no calibration and
+its $3/3$ is the binary above. The two conclusions the decision rests on --- F1's
+refutation and the single-recombinant miss --- do not depend on it.
 
 \begin{remark}[The lesson both of these share]
 Two experiments in this edition produced a confident-looking count from a null
@@ -930,6 +1029,9 @@ threshold it measures \\
 divergence caution \\
 \texttt{reticulation experiment} \texttt{-{}-phi-window}, \texttt{-{}-phi-permutations}
 & Table~\ref{tab:headtohead}; defaults $50$ and $199$ \\
+\texttt{reticulation scale} & Table~\ref{tab:scale} and the $21.6\times$ check \\
+\texttt{reticulation filtration} & Table~\ref{tab:funnel} \\
+\texttt{reticulation breakpoint} & Table~\ref{tab:breakpoint} \\
 \texttt{scripts/reticulata\_hf\_populations.py} & the ten populations, with a
 SHA-256 of the source file \\
 \texttt{lake build ANSE.GeneticaReticulataTree} & the theorems, with
@@ -941,7 +1043,7 @@ SHA-256 of the source file \\
 All are deterministic given their seeds. The population extraction is
 deterministic given the source corpus, whose digest, filters and every selected
 accession are recorded in \texttt{provenance.json}. Verification at the release:
-$93$ library and $2$ integration tests in Rust; Lean $18/18$ and $14/14$
+$98$ library and $2$ integration tests in Rust; Lean $18/18$ and $14/14$
 declarations with zero \texttt{sorry} and no unwhitelisted axioms; $33$ Python
 tests; an anti-stub audit over $227$ files.
 

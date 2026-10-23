@@ -38,11 +38,11 @@ from typing import Any, Dict, List
 HERE = Path(__file__).resolve().parents[1]
 REPO = HERE.parents[2]
 ZENODO = "https://zenodo.org/api"
-RECEIPT = HERE / "data" / "zenodo_textbook_edition7_receipt.json"
+RECEIPT = HERE / "data" / "zenodo_textbook_edition8_receipt.json"
 
 TITLE = (
     "Formal Genetics: Proof, Computation and Evidence in Molecular Biology "
-    "(Edition 7)"
+    "(Edition 8)"
 )
 
 DESCRIPTION = """
@@ -82,7 +82,18 @@ two conditions nest is what licenses reading the difference between them. It
 closes on ten real viral populations, seven of which are reported blocked because
 a measured control shows the aligner alone would have produced the answer.</p>
 
-<p><strong>New in edition 7.</strong> Section&nbsp;12's comparison table is
+<p><strong>New in edition 8.</strong> Section&nbsp;12's ledger now records the
+closure of its topological line on measured grounds. Re-run at sixty-four taxa,
+the persistent-homology statistic fires on the two populations containing no
+reticulation &mdash; gap-blocked and saturated &mdash; while missing a single
+recombinant entirely, and no cheap filtration change fixes it: correcting for
+saturation makes it worse, and restricting to globally comparable columns removes
+the gap false positive completely (confirming it was the missing-data confound
+reappearing as topology) but leaves the miss. The section's topological content
+is therefore the certificate itself, the same theorem evaluated per quadruple,
+which is what makes complete deletion within the subset available at all.</p>
+
+<p><strong>What edition 7 added.</strong> Section&nbsp;12's comparison table is
 corrected &mdash; the earlier edition judged this book's own statistic against a
 mismatched null and so understated its specificity &mdash; and its ledger now
 reports two results found since, both against the section's own interest: a
@@ -292,7 +303,7 @@ def main() -> int:
     parser.add_argument(
         "--new-version-of",
         type=int,
-        default=23575744,
+        default=23578498,
         help=(
             "deposit as a new version of this published record id, which is the "
             "only correct way to publish a corrected edition; 0 creates a fresh "
@@ -320,7 +331,7 @@ def main() -> int:
             "keywords": KEYWORDS,
             "license": "cc-by-4.0",
             "access_right": "open",
-            "version": "edition-7",
+            "version": "edition-8",
             "language": "eng",
             "related_identifiers": [
                 {
@@ -396,7 +407,7 @@ def main() -> int:
         "state": published.get("state"),
         "submitted": published.get("submitted"),
         "title": TITLE,
-        "version": "edition-7",
+        "version": "edition-8",
         "files_uploaded": uploaded,
         "peer_reviewed": False,
         "note": (
