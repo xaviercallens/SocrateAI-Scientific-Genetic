@@ -1882,3 +1882,119 @@ direction is not an argument, it is a measurement.**
 Raw output: [`real_data.json`](../data/reticulata_phase3/real_data.json),
 regenerated — never hand-edited — and
 [`tuning_bias.json`](../data/reticulata_phase5/tuning_bias.json).
+
+## 19. The split-level certificate does not transfer to the real populations
+
+§17 ended with the split-level certificate separating reticulation from relaxed
+clocks, gap blocks and saturation on **35 of 35** simulated dataset-seeds, and
+with the scope stated as "one parameter grid, 8–10 taxa". That scope statement
+named the wrong axis as harmless. Taxon count is not a detail of the grid; it is
+the variable the method's central requirement scales with. On the real
+populations, at 16 taxa, the split-level certificate **has no power at all**, and
+the extension that recovers power **does not separate**.
+
+### 19.1 Making it computable: one table instead of 39.7 million scans
+
+Certifying every split of 16 taxa means evaluating about **39.7 million**
+straddling quadruples. There are only `C(16,4) = 1820` distinct ones, each reused
+about **21 800** times, so the quadruple counts are precomputed once
+(`QuadrupleTable`, ~1.3 × 10⁷ column comparisons) and the rest are lookups. Done
+naively it is ~2.8 × 10¹¹.
+
+The table identifies which of the three canonical pairing sums a split induces by
+asking whom the smallest index is paired with — one piece of index arithmetic
+that is easy to get subtly wrong and invisible in aggregate output. It is checked
+exhaustively against directly computed counts for **every quadruple and every
+2+2 split**, and the whole refactor is confirmed behaviour-preserving: the
+simulated experiment reproduces its committed artifact exactly, all 35 matched
+rows and all 350 floor-sweep rows identical.
+
+### 19.2 Zero power at sixteen taxa
+
+A 16-taxon tree has `n-3 = 13` internal splits. Against a matched-null floor,
+with the strict conjunction:
+
+| population | prior | certified splits | reads as |
+| :--- | :--- | ---: | :--- |
+| coxsackievirus A6 | reticulate | **0** / 32751 | tree |
+| hepatitis B | reticulate | **2** / 32751 | tree |
+| JC polyomavirus | tree-like | **4** / 32751 | tree |
+
+Every population reads as a tree, so the single "agreement" with the literature
+is vacuous — a method that always answers *tree* agrees with every tree-like
+prior for no reason.
+
+**The mechanism, measured rather than inferred.** The conjunction requires every
+straddling quadruple to clear the floor, and the number of conjuncts for a
+balanced split is `C(n/2,2)²`: **36 at n = 8, but 784 at n = 16**. The
+near-miss histogram shows the consequence precisely — the closest-missing splits
+failed by **1 conjunct out of 91** (coxsackievirus), **2 of 91** (hepatitis B)
+and **11 of 234** (JC polyomavirus). The rule is not wrong about which splits
+exist. It is too strict to certify one at that conjunction length, and it got
+away with it on the simulated grid only because 8 taxa made the requirement
+roughly twenty times weaker.
+
+### 19.3 An exception budget, calibrated and not chosen
+
+Allowing at most `k` dissenting conjuncts keeps the condition **exact and
+countable** — "at most `k` of these integer comparisons fail" is as checkable as
+"none does" — so it is a weaker claim, not a vaguer one. What it must never be is
+a *chosen* number. `k` is calibrated as the largest value at which **every
+matched null replicate still reads as a tree**: one step beyond it, a genuine
+clonal tree at this population's own divergence would be called reticulate.
+
+Calibrated `k = 23` for all three populations, with the null first breaking at
+24. That recovers power, and produces a false positive:
+
+| population | prior | certified at `k=23` | reads as | verdict |
+| :--- | :--- | ---: | :--- | :--- |
+| coxsackievirus A6 | reticulate | 8 | non-tree | correct |
+| hepatitis B | reticulate | 18 | non-tree | correct |
+| JC polyomavirus | **tree-like** | 6 | **non-tree** | **wrong** |
+
+### 19.4 The comparison that replaces the threshold, and why it still fails
+
+A threshold invites fitting, so the better statistic is a **comparison**: the
+budget at which the population stops reading as a tree, against the budget at
+which its own matched null does. No cutoff is chosen anywhere.
+
+| population | prior | population breaks at | null breaks at | difference |
+| :--- | :--- | ---: | ---: | ---: |
+| hepatitis B | reticulate | 3 | 24 | −21 |
+| coxsackievirus A6 | reticulate | 9 | 24 | −15 |
+| JC polyomavirus | **tree-like** | 13 | 24 | **−11** |
+
+**All three break earlier than a tree, including the negative control.** The
+ordering is in the right direction — the two reticulate populations break
+earliest, the tree-like one is intermediate, a genuine tree latest — but the
+statistic does not separate. Any threshold between 13 and 24 would classify all
+three correctly, and with three populations and **one** negative control,
+choosing such a threshold is fitting it to the answer. That is the forced test
+this document has had to label in its own apparatus more than once, and it is not
+being done here.
+
+Both alignment references agree on every verdict (3/3), so none of this is an
+alignment artefact.
+
+### 19.5 The honest verdict, and the binding constraint
+
+The split-level certificate is **proved** (§17.2, four theorems, module 27/27
+with 0 `sorry`) and **unvalidated**. It works on one simulated grid at 8–10 taxa
+and does not transfer to 16 real taxa, where the strict form has no power and the
+calibrated form cannot be shown to separate.
+
+What limits this is not the statistic. It is that **the aligner admissibility
+gate leaves only 3 of 10 populations usable, and only one of them is a negative
+control.** No amount of further statistical work on three populations can
+establish specificity; one negative control cannot distinguish "this method has a
+false-positive problem" from "this population's tree-like prior is wrong" — and
+§12's own caution already records that one of the negative-control families has
+documented recombination, so these priors are priors, not labels.
+
+So the next move for this line is **more admissible negative controls**, by
+better alignment or by pre-aligned data of known provenance, and not another
+statistic. Until then the quartet-level certificate remains the programme's only
+validated instrument, and the split-level lift remains a proved theorem with a
+simulated demonstration.
+
+Raw output: [`split_real.json`](../data/reticulata_phase5/split_real.json).

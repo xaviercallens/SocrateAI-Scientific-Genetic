@@ -75,6 +75,7 @@ fn mutate(seq: &[u8], mu: f64, rng: &mut SplitMix64) -> Vec<u8> {
 }
 
 /// A simulated population: labelled, aligned sequences.
+#[derive(Debug, Clone)]
 pub struct Population {
     /// Sequence labels.
     pub labels: Vec<String>,

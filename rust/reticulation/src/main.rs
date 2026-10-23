@@ -2586,6 +2586,9 @@ fn matched_floor(
     let mut accepted = 0u64;
     let mut attempts = 0u64;
     let mut realised_sum = 0.0f64;
+    // The accepted replicates themselves, so a threshold can be calibrated on
+    // the same populations that set the floor rather than on fresh draws.
+    let mut kept: Vec<reticulation::simulate::Population> = Vec::new();
     let max_attempts = seeds * 2_000 + 2_000;
     let mut seed = 0u64;
     while accepted < seeds && attempts < max_attempts {
@@ -2599,6 +2602,7 @@ fn matched_floor(
         accepted += 1;
         realised_sum += realised;
         let aln = Alignment::new(pop.labels.clone(), pop.sequences.clone())?;
+        kept.push(pop.clone());
         let search = find_quartet_certificates(&aln, 1, max_quadruples)?;
         violating_total += search.violating;
         if let Some(margin) = search.certificates.first().map(|c| c.margin()) {
@@ -2627,11 +2631,11 @@ fn matched_floor(
         },
         violating_total,
         matched: accepted == seeds,
+        replicates: kept,
     })
 }
 
 /// A matched-null floor together with the evidence that it is matched.
-#[derive(Debug, Clone)]
 struct MatchedFloor {
     floor: Option<reticulation::Ratio>,
     mu: f64,
@@ -2647,6 +2651,9 @@ struct MatchedFloor {
     /// False when the required number of replicates could not be matched, in
     /// which case no floor should be reported for this population.
     matched: bool,
+    /// The accepted replicates, each within tolerance of the population's
+    /// realised divergence and carrying no reticulation by construction.
+    replicates: Vec<reticulation::simulate::Population>,
 }
 
 /// Run the four-point test on real viral populations.
@@ -4998,6 +5005,341 @@ fn run_split_system(args: &[String]) -> Result<bool, String> {
     Ok(true)
 }
 
+/// The split-level certificate on the **real** populations.
+///
+/// The split certificate separated reticulation from relaxed clocks, gap blocks
+/// and saturation on 35 of 35 simulated dataset-seeds. That is one parameter
+/// grid with planted truth. This asks the same question of the viral
+/// populations, where the ground truth is an independent literature
+/// expectation and the exhibit is a named set of sequences rather than a
+/// quadruple of indices.
+///
+/// Everything that gated the quartet result gates this one too: the same
+/// reference-anchored alignment, the same two references, and the same
+/// *measured* admissibility threshold, above which a population is reported
+/// BLOCKED rather than interpreted. The floor is the same matched-null floor,
+/// now matched per replicate on realised divergence.
+fn run_split_real(args: &[String]) -> Result<bool, String> {
+    use reticulation::align::{centroid_ranking, reference_anchored_alignment, Scoring};
+    use reticulation::splits::{split_system_at, split_system_with, Exceptions, Floor};
+    use reticulation::subset::Alignment;
+
+    let dir: String = parse_flag(
+        args,
+        "--populations",
+        "../../data/reticulata_phase3/populations".to_string(),
+    );
+    let band: usize = parse_flag(args, "--band", 64);
+    let max_band: usize = parse_flag(args, "--max-band", 4096);
+    let seeds: u64 = parse_flag(args, "--seeds", 5);
+    // How far the calibration sweep looks before giving up. A budget this large
+    // would already be a very weak claim, so stopping here is not a limitation
+    // in practice.
+    let max_exceptions_probe: Exceptions = parse_flag(args, "--max-exceptions", 40);
+    let spread: f64 = parse_flag(args, "--spread", 1.0);
+    let max_quadruples: usize = parse_flag(args, "--max-quadruples", 20_000);
+    let floor_match_tolerance: f64 = parse_flag(args, "--floor-match-tolerance", 0.10);
+    // The same measured gate as `real-data`, for the same reason.
+    let max_gap_admissible: f64 = parse_flag(args, "--max-gap-fraction", 0.0039);
+    let max_insertion_rate: f64 = parse_flag(args, "--max-insertion-rate", 0.0008);
+
+    let path = std::path::Path::new(&dir);
+    let mut fastas: Vec<std::path::PathBuf> = std::fs::read_dir(path)
+        .map_err(|e| format!("--populations {dir}: {e}"))?
+        .filter_map(Result::ok)
+        .map(|entry| entry.path())
+        .filter(|p| p.extension().and_then(|s| s.to_str()) == Some("fasta"))
+        .collect();
+    fastas.sort();
+    if fastas.is_empty() {
+        return Err(format!("no .fasta files under {dir}"));
+    }
+
+    // The literature expectations, read from the extraction script's manifest
+    // rather than restated here, so this command cannot disagree with
+    // `real-data` about what the prior was.
+    let provenance: serde_json::Value = std::fs::read_to_string(path.join("provenance.json"))
+        .ok()
+        .and_then(|text| serde_json::from_str(&text).ok())
+        .unwrap_or(serde_json::Value::Null);
+    let expectation_for = |stem: &str| -> (String, String) {
+        if let Some(populations) = provenance.get("populations").and_then(|v| v.as_array()) {
+            for entry in populations {
+                let slug = entry.get("slug").and_then(|v| v.as_str()).unwrap_or("");
+                if !slug.is_empty() && stem.starts_with(slug) {
+                    return (
+                        entry
+                            .get("expectation")
+                            .and_then(|v| v.as_str())
+                            .unwrap_or("unknown")
+                            .to_string(),
+                        entry
+                            .get("virus_name")
+                            .and_then(|v| v.as_str())
+                            .unwrap_or(stem)
+                            .to_string(),
+                    );
+                }
+            }
+        }
+        ("unknown".to_string(), stem.to_string())
+    };
+
+    let scoring = Scoring::default();
+    let mut rows: Vec<serde_json::Value> = Vec::new();
+
+    for fasta in &fastas {
+        let stem = fasta
+            .file_stem()
+            .and_then(|s| s.to_str())
+            .unwrap_or("")
+            .to_string();
+        let (expectation, virus_name) = expectation_for(&stem);
+        let text = std::fs::read_to_string(fasta).map_err(|e| format!("{}: {e}", fasta.display()))?;
+        let records = reticulation::align::read_fasta(&text)?;
+        let labels: Vec<String> = records.iter().map(|r| r.label.clone()).collect();
+        let raw: Vec<Vec<u8>> = records.iter().map(|r| r.sequence.clone()).collect();
+        if raw.len() < 4 {
+            rows.push(serde_json::json!({
+                "file": stem, "virus_name": virus_name,
+                "literature_expectation": expectation,
+                "status": format!("BLOCKED: {} sequences, a split needs 4", raw.len()),
+            }));
+            continue;
+        }
+
+        let ranking = centroid_ranking(&raw);
+        let mut per_reference: Vec<serde_json::Value> = Vec::new();
+        let mut blocked: Option<String> = None;
+        for (role, reference) in [("primary", ranking[0]), ("sensitivity", ranking[1])] {
+            let anchored = match reference_anchored_alignment(
+                &labels, &raw, reference, &scoring, band, max_band, true,
+            ) {
+                Ok(value) => value,
+                Err(error) => {
+                    blocked = Some(format!("BLOCKED at the {role} reference: {error}"));
+                    break;
+                }
+            };
+            let gaps = anchored.gap_fraction();
+            let insertions: usize = anchored.insertions_dropped.iter().sum();
+            let insertion_rate =
+                insertions as f64 / (anchored.width * anchored.rows.len()).max(1) as f64;
+            if gaps > max_gap_admissible || insertion_rate > max_insertion_rate {
+                blocked = Some(format!(
+                    "BLOCKED at the {role} reference: gap fraction {gaps:.5} and \
+                     insertion rate {insertion_rate:.6} against the measured \
+                     admissibility thresholds {max_gap_admissible:.4} and \
+                     {max_insertion_rate:.4}"
+                ));
+                break;
+            }
+
+            let aln = Alignment::new(anchored.labels.clone(), anchored.rows.clone())?;
+            let (mean_p, _) = alignment_divergence(&anchored.labels, &anchored.rows);
+            let matched = matched_floor(
+                anchored.width,
+                mean_p,
+                gaps,
+                spread,
+                seeds,
+                max_quadruples,
+                floor_match_tolerance,
+            )?;
+            // The floor is a margin over its own denominator; the split
+            // conjunction needs exactly that rate.
+            let floor = match (matched.matched, matched.floor) {
+                (true, Some(ratio)) => Floor::new(ratio.num, ratio.den)?,
+                _ => {
+                    per_reference.push(serde_json::json!({
+                        "role": role,
+                        "status": "no floor: the matched null could not be built \
+                                   or produced no violating quadruple, so no \
+                                   split verdict is reported",
+                        "null_replicates_accepted": matched.accepted,
+                        "null_replicates_attempted": matched.attempts,
+                    }));
+                    continue;
+                }
+            };
+            // --- calibrate the exception budget on the matched nulls ---
+            //
+            // The strict conjunction certifies almost nothing at sixteen taxa:
+            // a balanced split spans C(8,2)^2 = 784 quadruples and the measured
+            // closest misses failed by ONE conjunct out of 91. Allowing `k`
+            // dissents keeps the condition exact and countable, but `k` must be
+            // measured, not picked. It is the largest value at which EVERY
+            // matched null replicate -- a clonal tree with no reticulation, at
+            // this population's own divergence -- still reads as a tree. One
+            // step beyond that, a genuine tree would be called reticulate.
+            let mut calibrated: Exceptions = 0;
+            let mut null_breaks_at: Option<Exceptions> = None;
+            for k in 0..=max_exceptions_probe {
+                let mut all_trees = true;
+                for null in &matched.replicates {
+                    let null_aln =
+                        Alignment::new(null.labels.clone(), null.sequences.clone())?;
+                    let null_system = split_system_with(&null_aln, floor, k)?;
+                    if !null_system.pairwise_compatible {
+                        all_trees = false;
+                        break;
+                    }
+                }
+                if all_trees {
+                    calibrated = k;
+                } else {
+                    null_breaks_at = Some(k);
+                    break;
+                }
+            }
+
+            // The better statistic is not a threshold but a COMPARISON: the
+            // exception budget at which the population stops reading as a tree,
+            // against the budget at which its own matched null does. A tree
+            // needs a large budget before it looks reticulate; a population
+            // that breaks at a strictly smaller budget than a tree does is less
+            // tree-like than a tree, and that is a calibrated statement rather
+            // than a chosen cutoff.
+            let mut population_breaks_at: Option<Exceptions> = None;
+            for k in 0..=max_exceptions_probe {
+                let probe = split_system_with(&aln, floor, k)?;
+                if !probe.pairwise_compatible {
+                    population_breaks_at = Some(k);
+                    break;
+                }
+            }
+
+            let strict = split_system_at(&aln, floor)?;
+            let system = split_system_with(&aln, floor, calibrated)?;
+            // The deepest certified splits, as the exhibit a reader can check.
+            let mut deepest: Vec<&reticulation::splits::SplitVerdict> =
+                system.certified.iter().collect();
+            deepest.sort_by_key(|v| std::cmp::Reverse(v.smaller_side));
+            per_reference.push(serde_json::json!({
+                "role": role,
+                "reference_label": anchored.reference_label.clone(),
+                "width": anchored.width,
+                "mean_p_distance": mean_p,
+                "gap_fraction": gaps,
+                "insertion_rate_per_site": insertion_rate,
+                "floor": format!("{}/{}", floor.num, floor.den),
+                "floor_rate": floor.num as f64 / floor.den as f64,
+                "null_replicates_accepted": matched.accepted,
+                "null_replicates_attempted": matched.attempts,
+                "null_realised_divergence": matched.mean_realised_divergence,
+                "exception_budget": {
+                    "calibrated": calibrated,
+                    "null_first_breaks_at": null_breaks_at,
+                    "population_first_breaks_at": population_breaks_at,
+                    // Negative means the population stops looking like a tree at
+                    // a SMALLER budget than a genuine tree does, which is the
+                    // calibrated direction of evidence for reticulation.
+                    "population_minus_null_break": match (population_breaks_at, null_breaks_at) {
+                        (Some(pop), Some(null)) => Some(pop as i64 - null as i64),
+                        _ => None,
+                    },
+                    "reads_as_less_tree_like_than_a_tree": match (population_breaks_at, null_breaks_at) {
+                        (Some(pop), Some(null)) => Some(pop < null),
+                        _ => None,
+                    },
+                    "probe_ceiling": max_exceptions_probe,
+                    "how": "the largest k at which every matched null replicate -- a clonal tree with no reticulation at this population's own divergence -- still reads as a tree; measured, not chosen",
+                    "strict_certified_splits": strict.certified_count,
+                    "strict_reads_as": if strict.pairwise_compatible { "tree" } else { "non-tree" },
+                },
+                "informative_splits": system.informative_splits,
+                "certified_splits": system.certified_count,
+                // How close the non-certified splits came. A conjunction over
+                // hundreds of quadruples dies on a single dissent, so this says
+                // whether the method is wrong about the splits or merely too
+                // strict to ever certify one at this taxon count.
+                "max_conjunction_length": system.max_conjunction_length,
+                "closest_miss_failing_conjuncts": system.closest_miss_failures,
+                "closest_miss_splits": system.closest_miss_splits,
+                "closest_miss_conjunction_length": system.closest_miss_conjuncts,
+                "failure_histogram_failures_to_splits": system.failure_histogram,
+                "tree_internal_splits_if_a_tree": aln.len().saturating_sub(3),
+                "pairwise_compatible": system.pairwise_compatible,
+                "reads_as": if system.pairwise_compatible { "tree" } else { "non-tree" },
+                "incompatible_pairs": system.incompatible_pairs.len(),
+                "every_witness_violates_four_point": system.every_witness_violates_four_point,
+                "deepest_certified_splits": deepest
+                    .iter()
+                    .take(3)
+                    .map(|v| serde_json::json!({
+                        "left": v.left, "right": v.right,
+                        "smaller_side": v.smaller_side,
+                        "conjuncts": v.conjuncts,
+                    }))
+                    .collect::<Vec<_>>(),
+                "exhibit": system.incompatible_pairs.first(),
+            }));
+        }
+
+        let verdicts: Vec<&str> = per_reference
+            .iter()
+            .filter_map(|r| r.get("reads_as").and_then(|v| v.as_str()))
+            .collect();
+        let agree = if verdicts.len() == 2 {
+            Some(verdicts[0] == verdicts[1])
+        } else {
+            None
+        };
+        rows.push(serde_json::json!({
+            "file": stem,
+            "virus_name": virus_name,
+            "literature_expectation": expectation,
+            "status": blocked.clone().unwrap_or_else(|| "ok".to_string()),
+            "references_agree_on_verdict": agree,
+            "agrees_with_literature": match (verdicts.first(), expectation.as_str()) {
+                (Some(&"non-tree"), "reticulate") => Some(true),
+                (Some(&"tree"), "tree-like") => Some(true),
+                (Some(_), _) => Some(false),
+                (None, _) => None,
+            },
+            "references": per_reference,
+        }));
+    }
+
+    let usable: Vec<&serde_json::Value> = rows
+        .iter()
+        .filter(|r| r.get("status").and_then(|v| v.as_str()) == Some("ok"))
+        .collect();
+    let agreeing = usable
+        .iter()
+        .filter(|r| r.get("agrees_with_literature").and_then(|v| v.as_bool()) == Some(true))
+        .count();
+    let both_references_agree = usable
+        .iter()
+        .filter(|r| r.get("references_agree_on_verdict").and_then(|v| v.as_bool()) == Some(true))
+        .count();
+
+    let report = serde_json::json!({
+        "experiment": "the split-level certificate on the real viral populations",
+        "why": "The split certificate separated reticulation from relaxed clocks, gap blocks and saturation on 35 of 35 simulated dataset-seeds, which is one parameter grid with planted truth. Here the ground truth is an independent literature expectation and the exhibit is a named set of sequences.",
+        "what_is_preregistered": {
+            "R1": "every population admissible to the quartet test is admissible here, since the gate is the same measured threshold",
+            "R2": "populations the literature calls reticulate read as NON-TREES: their certified split system is not pairwise compatible",
+            "R3": "the population the literature calls tree-like reads as a TREE",
+            "R4": "both alignment references give the same verdict, as they did for the quartet test",
+            "R5": "every incompatible pair's constructed witness really violates four-point",
+        },
+        "how_this_is_computable_at_all": "Certifying every split of 16 taxa means evaluating about 39.7 million straddling quadruples, but there are only C(16,4) = 1820 distinct ones, each reused about 21800 times. The quadruple counts are precomputed once (about 1.3e7 column comparisons) and the rest are table lookups; done naively it would be about 2.8e11.",
+        "summary": {
+            "populations": rows.len(),
+            "usable": usable.len(),
+            "agreeing_with_literature": format!("{agreeing}/{}", usable.len()),
+            "both_references_agree": format!("{both_references_agree}/{}", usable.len()),
+        },
+        "populations": rows,
+    });
+    println!(
+        "{}",
+        serde_json::to_string_pretty(&report).map_err(|e| e.to_string())?
+    );
+    Ok(true)
+}
+
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().skip(1).collect();
     let result = match args.first().map(String::as_str) {
@@ -5015,6 +5357,7 @@ fn main() -> ExitCode {
         Some("filtration") => run_filtration(&args),
         Some("null-sweep") => run_null_sweep(&args),
         Some("split-system") => run_split_system(&args),
+        Some("split-real") => run_split_real(&args),
         Some("tuning-bias") => run_tuning_bias(&args),
         _ => {
             eprintln!(

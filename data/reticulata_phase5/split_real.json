@@ -1,0 +1,1709 @@
+{
+  "experiment": "the split-level certificate on the real viral populations",
+  "how_this_is_computable_at_all": "Certifying every split of 16 taxa means evaluating about 39.7 million straddling quadruples, but there are only C(16,4) = 1820 distinct ones, each reused about 21800 times. The quadruple counts are precomputed once (about 1.3e7 column comparisons) and the rest are table lookups; done naively it would be about 2.8e11.",
+  "populations": [
+    {
+      "agrees_with_literature": null,
+      "file": "coxsackievirus_a6_accession",
+      "literature_expectation": "reticulate",
+      "references": [],
+      "references_agree_on_verdict": null,
+      "status": "BLOCKED at the primary reference: gap fraction 0.00012 and insertion rate 0.003543 against the measured admissibility thresholds 0.0039 and 0.0008",
+      "virus_name": "Coxsackievirus A6"
+    },
+    {
+      "agrees_with_literature": true,
+      "file": "coxsackievirus_a6_spread",
+      "literature_expectation": "reticulate",
+      "references": [
+        {
+          "certified_splits": 8,
+          "closest_miss_conjunction_length": 91,
+          "closest_miss_failing_conjuncts": 27,
+          "closest_miss_splits": 2,
+          "deepest_certified_splits": [
+            {
+              "conjuncts": 784,
+              "left": [
+                "AB779614.1",
+                "AB779616.1",
+                "AB779617.1",
+                "KT779410.1",
+                "LC506447.1",
+                "MK106196.1",
+                "MT814557.1",
+                "MT814580.1"
+              ],
+              "right": [
+                "KP289393.1",
+                "MH539786.1",
+                "MN845862.1",
+                "MT814405.1",
+                "MT814417.1",
+                "MT814563.1",
+                "PP191111.1",
+                "PP858874.1"
+              ],
+              "smaller_side": 8
+            },
+            {
+              "conjuncts": 234,
+              "left": [
+                "AB779614.1",
+                "AB779616.1",
+                "KP289393.1",
+                "LC506447.1",
+                "MH539786.1",
+                "MN845862.1",
+                "MT814405.1",
+                "MT814417.1",
+                "MT814557.1",
+                "MT814563.1",
+                "MT814580.1",
+                "PP191111.1",
+                "PP858874.1"
+              ],
+              "right": [
+                "AB779617.1",
+                "KT779410.1",
+                "MK106196.1"
+              ],
+              "smaller_side": 3
+            },
+            {
+              "conjuncts": 91,
+              "left": [
+                "AB779614.1",
+                "AB779616.1",
+                "AB779617.1",
+                "KP289393.1",
+                "KT779410.1",
+                "LC506447.1",
+                "MH539786.1",
+                "MK106196.1",
+                "MT814405.1",
+                "MT814417.1",
+                "MT814557.1",
+                "MT814563.1",
+                "MT814580.1",
+                "PP858874.1"
+              ],
+              "right": [
+                "MN845862.1",
+                "PP191111.1"
+              ],
+              "smaller_side": 2
+            }
+          ],
+          "every_witness_violates_four_point": true,
+          "exception_budget": {
+            "calibrated": 23,
+            "how": "the largest k at which every matched null replicate -- a clonal tree with no reticulation at this population's own divergence -- still reads as a tree; measured, not chosen",
+            "null_first_breaks_at": 24,
+            "population_first_breaks_at": 9,
+            "population_minus_null_break": -15,
+            "probe_ceiling": 40,
+            "reads_as_less_tree_like_than_a_tree": true,
+            "strict_certified_splits": 0,
+            "strict_reads_as": "tree"
+          },
+          "exhibit": {
+            "first": [
+              [
+                "AB779614.1",
+                "AB779616.1",
+                "AB779617.1",
+                "KT779410.1",
+                "LC506447.1",
+                "MK106196.1",
+                "MT814557.1",
+                "MT814580.1"
+              ],
+              [
+                "KP289393.1",
+                "MH539786.1",
+                "MN845862.1",
+                "MT814405.1",
+                "MT814417.1",
+                "MT814563.1",
+                "PP191111.1",
+                "PP858874.1"
+              ]
+            ],
+            "four_point_fails_on_witness": true,
+            "second": [
+              [
+                "AB779614.1",
+                "AB779616.1",
+                "AB779617.1",
+                "KP289393.1",
+                "KT779410.1",
+                "LC506447.1",
+                "MH539786.1",
+                "MK106196.1",
+                "MN845862.1",
+                "MT814405.1",
+                "MT814417.1",
+                "MT814580.1",
+                "PP191111.1",
+                "PP858874.1"
+              ],
+              [
+                "MT814557.1",
+                "MT814563.1"
+              ]
+            ],
+            "witness": [
+              "AB779614.1",
+              "MT814557.1",
+              "KP289393.1",
+              "MT814563.1"
+            ],
+            "witness_common": 7432,
+            "witness_pairing_sums": [
+              1407,
+              1421,
+              1645
+            ]
+          },
+          "failure_histogram_failures_to_splits": [
+            [
+              27,
+              2
+            ],
+            [
+              31,
+              1
+            ],
+            [
+              32,
+              2
+            ],
+            [
+              34,
+              2
+            ],
+            [
+              37,
+              1
+            ],
+            [
+              42,
+              1
+            ],
+            [
+              44,
+              1
+            ],
+            [
+              45,
+              2
+            ],
+            [
+              47,
+              1
+            ],
+            [
+              48,
+              1
+            ],
+            [
+              49,
+              2
+            ],
+            [
+              51,
+              2
+            ],
+            [
+              52,
+              2
+            ],
+            [
+              53,
+              1
+            ],
+            [
+              54,
+              3
+            ],
+            [
+              55,
+              4
+            ],
+            [
+              56,
+              3
+            ],
+            [
+              57,
+              4
+            ],
+            [
+              58,
+              4
+            ],
+            [
+              59,
+              8
+            ],
+            [
+              60,
+              5
+            ],
+            [
+              61,
+              2
+            ],
+            [
+              62,
+              4
+            ],
+            [
+              64,
+              3
+            ]
+          ],
+          "floor": "121/7390",
+          "floor_rate": 0.016373477672530445,
+          "gap_fraction": 0.001580575733118106,
+          "incompatible_pairs": 5,
+          "informative_splits": 32751,
+          "insertion_rate_per_site": 0.00007566585956416465,
+          "max_conjunction_length": 784,
+          "mean_p_distance": 0.10956573071183857,
+          "null_realised_divergence": 0.11271422734340115,
+          "null_replicates_accepted": 5,
+          "null_replicates_attempted": 30,
+          "pairwise_compatible": false,
+          "reads_as": "non-tree",
+          "reference_label": "AB779614.1",
+          "role": "primary",
+          "tree_internal_splits_if_a_tree": 13,
+          "width": 7434
+        },
+        {
+          "certified_splits": 8,
+          "closest_miss_conjunction_length": 91,
+          "closest_miss_failing_conjuncts": 26,
+          "closest_miss_splits": 1,
+          "deepest_certified_splits": [
+            {
+              "conjuncts": 784,
+              "left": [
+                "AB779614.1",
+                "AB779616.1",
+                "AB779617.1",
+                "KT779410.1",
+                "LC506447.1",
+                "MK106196.1",
+                "MT814557.1",
+                "MT814580.1"
+              ],
+              "right": [
+                "KP289393.1",
+                "MH539786.1",
+                "MN845862.1",
+                "MT814405.1",
+                "MT814417.1",
+                "MT814563.1",
+                "PP191111.1",
+                "PP858874.1"
+              ],
+              "smaller_side": 8
+            },
+            {
+              "conjuncts": 234,
+              "left": [
+                "AB779614.1",
+                "AB779616.1",
+                "KP289393.1",
+                "LC506447.1",
+                "MH539786.1",
+                "MN845862.1",
+                "MT814405.1",
+                "MT814417.1",
+                "MT814557.1",
+                "MT814563.1",
+                "MT814580.1",
+                "PP191111.1",
+                "PP858874.1"
+              ],
+              "right": [
+                "AB779617.1",
+                "KT779410.1",
+                "MK106196.1"
+              ],
+              "smaller_side": 3
+            },
+            {
+              "conjuncts": 91,
+              "left": [
+                "AB779614.1",
+                "AB779616.1",
+                "AB779617.1",
+                "KP289393.1",
+                "KT779410.1",
+                "LC506447.1",
+                "MH539786.1",
+                "MK106196.1",
+                "MT814405.1",
+                "MT814417.1",
+                "MT814557.1",
+                "MT814563.1",
+                "MT814580.1",
+                "PP858874.1"
+              ],
+              "right": [
+                "MN845862.1",
+                "PP191111.1"
+              ],
+              "smaller_side": 2
+            }
+          ],
+          "every_witness_violates_four_point": true,
+          "exception_budget": {
+            "calibrated": 23,
+            "how": "the largest k at which every matched null replicate -- a clonal tree with no reticulation at this population's own divergence -- still reads as a tree; measured, not chosen",
+            "null_first_breaks_at": 24,
+            "population_first_breaks_at": 9,
+            "population_minus_null_break": -15,
+            "probe_ceiling": 40,
+            "reads_as_less_tree_like_than_a_tree": true,
+            "strict_certified_splits": 0,
+            "strict_reads_as": "tree"
+          },
+          "exhibit": {
+            "first": [
+              [
+                "AB779614.1",
+                "AB779616.1",
+                "AB779617.1",
+                "KT779410.1",
+                "LC506447.1",
+                "MK106196.1",
+                "MT814557.1",
+                "MT814580.1"
+              ],
+              [
+                "KP289393.1",
+                "MH539786.1",
+                "MN845862.1",
+                "MT814405.1",
+                "MT814417.1",
+                "MT814563.1",
+                "PP191111.1",
+                "PP858874.1"
+              ]
+            ],
+            "four_point_fails_on_witness": true,
+            "second": [
+              [
+                "AB779614.1",
+                "AB779616.1",
+                "AB779617.1",
+                "KP289393.1",
+                "KT779410.1",
+                "LC506447.1",
+                "MH539786.1",
+                "MK106196.1",
+                "MN845862.1",
+                "MT814405.1",
+                "MT814417.1",
+                "MT814580.1",
+                "PP191111.1",
+                "PP858874.1"
+              ],
+              [
+                "MT814557.1",
+                "MT814563.1"
+              ]
+            ],
+            "witness": [
+              "AB779614.1",
+              "MT814557.1",
+              "KP289393.1",
+              "MT814563.1"
+            ],
+            "witness_common": 7432,
+            "witness_pairing_sums": [
+              1407,
+              1421,
+              1645
+            ]
+          },
+          "failure_histogram_failures_to_splits": [
+            [
+              26,
+              1
+            ],
+            [
+              27,
+              1
+            ],
+            [
+              31,
+              1
+            ],
+            [
+              32,
+              2
+            ],
+            [
+              33,
+              1
+            ],
+            [
+              35,
+              1
+            ],
+            [
+              37,
+              1
+            ],
+            [
+              42,
+              1
+            ],
+            [
+              43,
+              1
+            ],
+            [
+              45,
+              2
+            ],
+            [
+              47,
+              1
+            ],
+            [
+              48,
+              2
+            ],
+            [
+              50,
+              1
+            ],
+            [
+              51,
+              2
+            ],
+            [
+              52,
+              2
+            ],
+            [
+              53,
+              1
+            ],
+            [
+              54,
+              3
+            ],
+            [
+              55,
+              4
+            ],
+            [
+              56,
+              3
+            ],
+            [
+              57,
+              4
+            ],
+            [
+              58,
+              4
+            ],
+            [
+              59,
+              9
+            ],
+            [
+              60,
+              4
+            ],
+            [
+              61,
+              2
+            ]
+          ],
+          "floor": "121/7390",
+          "floor_rate": 0.016373477672530445,
+          "gap_fraction": 0.001555353779930051,
+          "incompatible_pairs": 5,
+          "informative_splits": 32751,
+          "insertion_rate_per_site": 0.000050443906376109764,
+          "max_conjunction_length": 784,
+          "mean_p_distance": 0.10960178006172885,
+          "null_realised_divergence": 0.11271422734340115,
+          "null_replicates_accepted": 5,
+          "null_replicates_attempted": 30,
+          "pairwise_compatible": false,
+          "reads_as": "non-tree",
+          "reference_label": "AB779616.1",
+          "role": "sensitivity",
+          "tree_internal_splits_if_a_tree": 13,
+          "width": 7434
+        }
+      ],
+      "references_agree_on_verdict": true,
+      "status": "ok",
+      "virus_name": "Coxsackievirus A6"
+    },
+    {
+      "agrees_with_literature": true,
+      "file": "hepatitis_b_accession",
+      "literature_expectation": "reticulate",
+      "references": [
+        {
+          "certified_splits": 18,
+          "closest_miss_conjunction_length": 91,
+          "closest_miss_failing_conjuncts": 28,
+          "closest_miss_splits": 1,
+          "deepest_certified_splits": [
+            {
+              "conjuncts": 550,
+              "left": [
+                "AB078031.2",
+                "AB078032.1",
+                "AB078033.2",
+                "AB090270.1",
+                "AB109475.1",
+                "AB109476.1",
+                "AB109477.1",
+                "AB109479.1",
+                "AB110075.1",
+                "AB116266.1",
+                "AB119252.1"
+              ],
+              "right": [
+                "AB090268.1",
+                "AB090269.1",
+                "AB109478.1",
+                "AB119251.1",
+                "AB119253.1"
+              ],
+              "smaller_side": 5
+            },
+            {
+              "conjuncts": 396,
+              "left": [
+                "AB078031.2",
+                "AB078032.1",
+                "AB078033.2",
+                "AB090269.1",
+                "AB090270.1",
+                "AB109475.1",
+                "AB109476.1",
+                "AB109477.1",
+                "AB109479.1",
+                "AB110075.1",
+                "AB116266.1",
+                "AB119252.1"
+              ],
+              "right": [
+                "AB090268.1",
+                "AB109478.1",
+                "AB119251.1",
+                "AB119253.1"
+              ],
+              "smaller_side": 4
+            },
+            {
+              "conjuncts": 234,
+              "left": [
+                "AB078031.2",
+                "AB078032.1",
+                "AB078033.2"
+              ],
+              "right": [
+                "AB090268.1",
+                "AB090269.1",
+                "AB090270.1",
+                "AB109475.1",
+                "AB109476.1",
+                "AB109477.1",
+                "AB109478.1",
+                "AB109479.1",
+                "AB110075.1",
+                "AB116266.1",
+                "AB119251.1",
+                "AB119252.1",
+                "AB119253.1"
+              ],
+              "smaller_side": 3
+            }
+          ],
+          "every_witness_violates_four_point": false,
+          "exception_budget": {
+            "calibrated": 23,
+            "how": "the largest k at which every matched null replicate -- a clonal tree with no reticulation at this population's own divergence -- still reads as a tree; measured, not chosen",
+            "null_first_breaks_at": 24,
+            "population_first_breaks_at": 3,
+            "population_minus_null_break": -21,
+            "probe_ceiling": 40,
+            "reads_as_less_tree_like_than_a_tree": true,
+            "strict_certified_splits": 2,
+            "strict_reads_as": "tree"
+          },
+          "exhibit": {
+            "first": [
+              [
+                "AB078031.2",
+                "AB078032.1"
+              ],
+              [
+                "AB078033.2",
+                "AB090268.1",
+                "AB090269.1",
+                "AB090270.1",
+                "AB109475.1",
+                "AB109476.1",
+                "AB109477.1",
+                "AB109478.1",
+                "AB109479.1",
+                "AB110075.1",
+                "AB116266.1",
+                "AB119251.1",
+                "AB119252.1",
+                "AB119253.1"
+              ]
+            ],
+            "four_point_fails_on_witness": false,
+            "second": [
+              [
+                "AB078031.2",
+                "AB078033.2"
+              ],
+              [
+                "AB078032.1",
+                "AB090268.1",
+                "AB090269.1",
+                "AB090270.1",
+                "AB109475.1",
+                "AB109476.1",
+                "AB109477.1",
+                "AB109478.1",
+                "AB109479.1",
+                "AB110075.1",
+                "AB116266.1",
+                "AB119251.1",
+                "AB119252.1",
+                "AB119253.1"
+              ]
+            ],
+            "witness": [
+              "AB078031.2",
+              "AB078032.1",
+              "AB078033.2",
+              "AB090268.1"
+            ],
+            "witness_common": 3182,
+            "witness_pairing_sums": [
+              39,
+              37,
+              39
+            ]
+          },
+          "failure_histogram_failures_to_splits": [
+            [
+              28,
+              1
+            ],
+            [
+              29,
+              5
+            ],
+            [
+              30,
+              1
+            ],
+            [
+              31,
+              1
+            ],
+            [
+              32,
+              3
+            ],
+            [
+              34,
+              2
+            ],
+            [
+              42,
+              1
+            ],
+            [
+              43,
+              1
+            ],
+            [
+              45,
+              1
+            ],
+            [
+              46,
+              2
+            ],
+            [
+              48,
+              2
+            ],
+            [
+              49,
+              3
+            ],
+            [
+              50,
+              1
+            ],
+            [
+              52,
+              1
+            ],
+            [
+              53,
+              2
+            ],
+            [
+              54,
+              3
+            ],
+            [
+              55,
+              6
+            ],
+            [
+              56,
+              3
+            ],
+            [
+              57,
+              2
+            ],
+            [
+              58,
+              2
+            ],
+            [
+              59,
+              4
+            ],
+            [
+              60,
+              3
+            ],
+            [
+              61,
+              4
+            ],
+            [
+              62,
+              5
+            ]
+          ],
+          "floor": "2/3182",
+          "floor_rate": 0.0006285355122564425,
+          "gap_fraction": 0.0,
+          "incompatible_pairs": 41,
+          "informative_splits": 32751,
+          "insertion_rate_per_site": 0.00023570081709616594,
+          "max_conjunction_length": 784,
+          "mean_p_distance": 0.008817829457364342,
+          "null_realised_divergence": 0.008861303163628745,
+          "null_replicates_accepted": 5,
+          "null_replicates_attempted": 23,
+          "pairwise_compatible": false,
+          "reads_as": "non-tree",
+          "reference_label": "AB109475.1",
+          "role": "primary",
+          "tree_internal_splits_if_a_tree": 13,
+          "width": 3182
+        },
+        {
+          "certified_splits": 18,
+          "closest_miss_conjunction_length": 91,
+          "closest_miss_failing_conjuncts": 28,
+          "closest_miss_splits": 1,
+          "deepest_certified_splits": [
+            {
+              "conjuncts": 550,
+              "left": [
+                "AB078031.2",
+                "AB078032.1",
+                "AB078033.2",
+                "AB090270.1",
+                "AB109475.1",
+                "AB109476.1",
+                "AB109477.1",
+                "AB109479.1",
+                "AB110075.1",
+                "AB116266.1",
+                "AB119252.1"
+              ],
+              "right": [
+                "AB090268.1",
+                "AB090269.1",
+                "AB109478.1",
+                "AB119251.1",
+                "AB119253.1"
+              ],
+              "smaller_side": 5
+            },
+            {
+              "conjuncts": 396,
+              "left": [
+                "AB078031.2",
+                "AB078032.1",
+                "AB078033.2",
+                "AB090269.1",
+                "AB090270.1",
+                "AB109475.1",
+                "AB109476.1",
+                "AB109477.1",
+                "AB109479.1",
+                "AB110075.1",
+                "AB116266.1",
+                "AB119252.1"
+              ],
+              "right": [
+                "AB090268.1",
+                "AB109478.1",
+                "AB119251.1",
+                "AB119253.1"
+              ],
+              "smaller_side": 4
+            },
+            {
+              "conjuncts": 234,
+              "left": [
+                "AB078031.2",
+                "AB078032.1",
+                "AB078033.2"
+              ],
+              "right": [
+                "AB090268.1",
+                "AB090269.1",
+                "AB090270.1",
+                "AB109475.1",
+                "AB109476.1",
+                "AB109477.1",
+                "AB109478.1",
+                "AB109479.1",
+                "AB110075.1",
+                "AB116266.1",
+                "AB119251.1",
+                "AB119252.1",
+                "AB119253.1"
+              ],
+              "smaller_side": 3
+            }
+          ],
+          "every_witness_violates_four_point": false,
+          "exception_budget": {
+            "calibrated": 23,
+            "how": "the largest k at which every matched null replicate -- a clonal tree with no reticulation at this population's own divergence -- still reads as a tree; measured, not chosen",
+            "null_first_breaks_at": 24,
+            "population_first_breaks_at": 3,
+            "population_minus_null_break": -21,
+            "probe_ceiling": 40,
+            "reads_as_less_tree_like_than_a_tree": true,
+            "strict_certified_splits": 2,
+            "strict_reads_as": "tree"
+          },
+          "exhibit": {
+            "first": [
+              [
+                "AB078031.2",
+                "AB078032.1"
+              ],
+              [
+                "AB078033.2",
+                "AB090268.1",
+                "AB090269.1",
+                "AB090270.1",
+                "AB109475.1",
+                "AB109476.1",
+                "AB109477.1",
+                "AB109478.1",
+                "AB109479.1",
+                "AB110075.1",
+                "AB116266.1",
+                "AB119251.1",
+                "AB119252.1",
+                "AB119253.1"
+              ]
+            ],
+            "four_point_fails_on_witness": false,
+            "second": [
+              [
+                "AB078031.2",
+                "AB078033.2"
+              ],
+              [
+                "AB078032.1",
+                "AB090268.1",
+                "AB090269.1",
+                "AB090270.1",
+                "AB109475.1",
+                "AB109476.1",
+                "AB109477.1",
+                "AB109478.1",
+                "AB109479.1",
+                "AB110075.1",
+                "AB116266.1",
+                "AB119251.1",
+                "AB119252.1",
+                "AB119253.1"
+              ]
+            ],
+            "witness": [
+              "AB078031.2",
+              "AB078032.1",
+              "AB078033.2",
+              "AB090268.1"
+            ],
+            "witness_common": 3182,
+            "witness_pairing_sums": [
+              39,
+              37,
+              39
+            ]
+          },
+          "failure_histogram_failures_to_splits": [
+            [
+              28,
+              1
+            ],
+            [
+              29,
+              5
+            ],
+            [
+              30,
+              1
+            ],
+            [
+              31,
+              1
+            ],
+            [
+              32,
+              3
+            ],
+            [
+              34,
+              2
+            ],
+            [
+              42,
+              1
+            ],
+            [
+              43,
+              1
+            ],
+            [
+              45,
+              1
+            ],
+            [
+              46,
+              2
+            ],
+            [
+              48,
+              2
+            ],
+            [
+              49,
+              3
+            ],
+            [
+              50,
+              1
+            ],
+            [
+              52,
+              1
+            ],
+            [
+              53,
+              2
+            ],
+            [
+              54,
+              3
+            ],
+            [
+              55,
+              6
+            ],
+            [
+              56,
+              3
+            ],
+            [
+              57,
+              2
+            ],
+            [
+              58,
+              2
+            ],
+            [
+              59,
+              4
+            ],
+            [
+              60,
+              3
+            ],
+            [
+              61,
+              4
+            ],
+            [
+              62,
+              5
+            ]
+          ],
+          "floor": "2/3182",
+          "floor_rate": 0.0006285355122564425,
+          "gap_fraction": 0.0,
+          "incompatible_pairs": 41,
+          "informative_splits": 32751,
+          "insertion_rate_per_site": 0.00023570081709616594,
+          "max_conjunction_length": 784,
+          "mean_p_distance": 0.008817829457364342,
+          "null_realised_divergence": 0.008861303163628745,
+          "null_replicates_accepted": 5,
+          "null_replicates_attempted": 23,
+          "pairwise_compatible": false,
+          "reads_as": "non-tree",
+          "reference_label": "AB109477.1",
+          "role": "sensitivity",
+          "tree_internal_splits_if_a_tree": 13,
+          "width": 3182
+        }
+      ],
+      "references_agree_on_verdict": true,
+      "status": "ok",
+      "virus_name": "Hepatitis B virus"
+    },
+    {
+      "agrees_with_literature": null,
+      "file": "hepatitis_b_spread",
+      "literature_expectation": "reticulate",
+      "references": [],
+      "references_agree_on_verdict": null,
+      "status": "BLOCKED at the primary reference: gap fraction 0.10893 and insertion rate 0.108265 against the measured admissibility thresholds 0.0039 and 0.0008",
+      "virus_name": "Hepatitis B virus"
+    },
+    {
+      "agrees_with_literature": null,
+      "file": "hpv52_accession",
+      "literature_expectation": "tree-like",
+      "references": [],
+      "references_agree_on_verdict": null,
+      "status": "BLOCKED at the primary reference: gap fraction 0.00047 and insertion rate 0.001677 against the measured admissibility thresholds 0.0039 and 0.0008",
+      "virus_name": "human papillomavirus 52"
+    },
+    {
+      "agrees_with_literature": null,
+      "file": "hpv52_spread",
+      "literature_expectation": "tree-like",
+      "references": [],
+      "references_agree_on_verdict": null,
+      "status": "BLOCKED at the primary reference: gap fraction 0.00030 and insertion rate 0.003552 against the measured admissibility thresholds 0.0039 and 0.0008",
+      "virus_name": "human papillomavirus 52"
+    },
+    {
+      "agrees_with_literature": false,
+      "file": "jc_polyomavirus_accession",
+      "literature_expectation": "tree-like",
+      "references": [
+        {
+          "certified_splits": 6,
+          "closest_miss_conjunction_length": 91,
+          "closest_miss_failing_conjuncts": 24,
+          "closest_miss_splits": 3,
+          "deepest_certified_splits": [
+            {
+              "conjuncts": 396,
+              "left": [
+                "AB038252.1",
+                "AB038253.1",
+                "AB048545.1",
+                "AB048546.1"
+              ],
+              "right": [
+                "AB126981.1",
+                "AB126983.1",
+                "AB126984.1",
+                "AB126985.1",
+                "AB126986.1",
+                "AB126987.1",
+                "AB126988.1",
+                "AB126989.1",
+                "AB126990.1",
+                "AB126991.1",
+                "AB126992.1",
+                "AB126993.1"
+              ],
+              "smaller_side": 4
+            },
+            {
+              "conjuncts": 234,
+              "left": [
+                "AB038252.1",
+                "AB048545.1",
+                "AB048546.1"
+              ],
+              "right": [
+                "AB038253.1",
+                "AB126981.1",
+                "AB126983.1",
+                "AB126984.1",
+                "AB126985.1",
+                "AB126986.1",
+                "AB126987.1",
+                "AB126988.1",
+                "AB126989.1",
+                "AB126990.1",
+                "AB126991.1",
+                "AB126992.1",
+                "AB126993.1"
+              ],
+              "smaller_side": 3
+            },
+            {
+              "conjuncts": 91,
+              "left": [
+                "AB038252.1",
+                "AB048545.1"
+              ],
+              "right": [
+                "AB038253.1",
+                "AB048546.1",
+                "AB126981.1",
+                "AB126983.1",
+                "AB126984.1",
+                "AB126985.1",
+                "AB126986.1",
+                "AB126987.1",
+                "AB126988.1",
+                "AB126989.1",
+                "AB126990.1",
+                "AB126991.1",
+                "AB126992.1",
+                "AB126993.1"
+              ],
+              "smaller_side": 2
+            }
+          ],
+          "every_witness_violates_four_point": true,
+          "exception_budget": {
+            "calibrated": 23,
+            "how": "the largest k at which every matched null replicate -- a clonal tree with no reticulation at this population's own divergence -- still reads as a tree; measured, not chosen",
+            "null_first_breaks_at": 24,
+            "population_first_breaks_at": 13,
+            "population_minus_null_break": -11,
+            "probe_ceiling": 40,
+            "reads_as_less_tree_like_than_a_tree": true,
+            "strict_certified_splits": 4,
+            "strict_reads_as": "tree"
+          },
+          "exhibit": {
+            "first": [
+              [
+                "AB038252.1",
+                "AB048545.1"
+              ],
+              [
+                "AB038253.1",
+                "AB048546.1",
+                "AB126981.1",
+                "AB126983.1",
+                "AB126984.1",
+                "AB126985.1",
+                "AB126986.1",
+                "AB126987.1",
+                "AB126988.1",
+                "AB126989.1",
+                "AB126990.1",
+                "AB126991.1",
+                "AB126992.1",
+                "AB126993.1"
+              ]
+            ],
+            "four_point_fails_on_witness": true,
+            "second": [
+              [
+                "AB038252.1",
+                "AB048546.1"
+              ],
+              [
+                "AB038253.1",
+                "AB048545.1",
+                "AB126981.1",
+                "AB126983.1",
+                "AB126984.1",
+                "AB126985.1",
+                "AB126986.1",
+                "AB126987.1",
+                "AB126988.1",
+                "AB126989.1",
+                "AB126990.1",
+                "AB126991.1",
+                "AB126992.1",
+                "AB126993.1"
+              ]
+            ],
+            "witness": [
+              "AB038252.1",
+              "AB048545.1",
+              "AB048546.1",
+              "AB038253.1"
+            ],
+            "witness_common": 5109,
+            "witness_pairing_sums": [
+              36,
+              54,
+              56
+            ]
+          },
+          "failure_histogram_failures_to_splits": [
+            [
+              24,
+              3
+            ],
+            [
+              25,
+              2
+            ],
+            [
+              36,
+              2
+            ],
+            [
+              38,
+              2
+            ],
+            [
+              43,
+              1
+            ],
+            [
+              45,
+              4
+            ],
+            [
+              46,
+              1
+            ],
+            [
+              48,
+              2
+            ],
+            [
+              50,
+              1
+            ],
+            [
+              55,
+              2
+            ],
+            [
+              58,
+              4
+            ],
+            [
+              59,
+              1
+            ],
+            [
+              62,
+              2
+            ],
+            [
+              64,
+              1
+            ],
+            [
+              65,
+              1
+            ],
+            [
+              69,
+              2
+            ],
+            [
+              70,
+              4
+            ],
+            [
+              71,
+              1
+            ],
+            [
+              72,
+              2
+            ],
+            [
+              73,
+              2
+            ],
+            [
+              74,
+              3
+            ],
+            [
+              75,
+              4
+            ],
+            [
+              76,
+              7
+            ],
+            [
+              77,
+              2
+            ]
+          ],
+          "floor": "5/5121",
+          "floor_rate": 0.0009763718023823472,
+          "gap_fraction": 0.0003051161882444835,
+          "incompatible_pairs": 1,
+          "informative_splits": 32751,
+          "insertion_rate_per_site": 0.00007322788517867604,
+          "max_conjunction_length": 784,
+          "mean_p_distance": 0.009606390153135415,
+          "null_realised_divergence": 0.009641020633990756,
+          "null_replicates_accepted": 5,
+          "null_replicates_attempted": 16,
+          "pairwise_compatible": false,
+          "reads_as": "non-tree",
+          "reference_label": "AB126983.1",
+          "role": "primary",
+          "tree_internal_splits_if_a_tree": 13,
+          "width": 5121
+        },
+        {
+          "certified_splits": 6,
+          "closest_miss_conjunction_length": 91,
+          "closest_miss_failing_conjuncts": 24,
+          "closest_miss_splits": 3,
+          "deepest_certified_splits": [
+            {
+              "conjuncts": 396,
+              "left": [
+                "AB038252.1",
+                "AB038253.1",
+                "AB048545.1",
+                "AB048546.1"
+              ],
+              "right": [
+                "AB126981.1",
+                "AB126983.1",
+                "AB126984.1",
+                "AB126985.1",
+                "AB126986.1",
+                "AB126987.1",
+                "AB126988.1",
+                "AB126989.1",
+                "AB126990.1",
+                "AB126991.1",
+                "AB126992.1",
+                "AB126993.1"
+              ],
+              "smaller_side": 4
+            },
+            {
+              "conjuncts": 234,
+              "left": [
+                "AB038252.1",
+                "AB048545.1",
+                "AB048546.1"
+              ],
+              "right": [
+                "AB038253.1",
+                "AB126981.1",
+                "AB126983.1",
+                "AB126984.1",
+                "AB126985.1",
+                "AB126986.1",
+                "AB126987.1",
+                "AB126988.1",
+                "AB126989.1",
+                "AB126990.1",
+                "AB126991.1",
+                "AB126992.1",
+                "AB126993.1"
+              ],
+              "smaller_side": 3
+            },
+            {
+              "conjuncts": 91,
+              "left": [
+                "AB038252.1",
+                "AB048545.1"
+              ],
+              "right": [
+                "AB038253.1",
+                "AB048546.1",
+                "AB126981.1",
+                "AB126983.1",
+                "AB126984.1",
+                "AB126985.1",
+                "AB126986.1",
+                "AB126987.1",
+                "AB126988.1",
+                "AB126989.1",
+                "AB126990.1",
+                "AB126991.1",
+                "AB126992.1",
+                "AB126993.1"
+              ],
+              "smaller_side": 2
+            }
+          ],
+          "every_witness_violates_four_point": true,
+          "exception_budget": {
+            "calibrated": 23,
+            "how": "the largest k at which every matched null replicate -- a clonal tree with no reticulation at this population's own divergence -- still reads as a tree; measured, not chosen",
+            "null_first_breaks_at": 24,
+            "population_first_breaks_at": 13,
+            "population_minus_null_break": -11,
+            "probe_ceiling": 40,
+            "reads_as_less_tree_like_than_a_tree": true,
+            "strict_certified_splits": 4,
+            "strict_reads_as": "tree"
+          },
+          "exhibit": {
+            "first": [
+              [
+                "AB038252.1",
+                "AB048545.1"
+              ],
+              [
+                "AB038253.1",
+                "AB048546.1",
+                "AB126981.1",
+                "AB126983.1",
+                "AB126984.1",
+                "AB126985.1",
+                "AB126986.1",
+                "AB126987.1",
+                "AB126988.1",
+                "AB126989.1",
+                "AB126990.1",
+                "AB126991.1",
+                "AB126992.1",
+                "AB126993.1"
+              ]
+            ],
+            "four_point_fails_on_witness": true,
+            "second": [
+              [
+                "AB038252.1",
+                "AB048546.1"
+              ],
+              [
+                "AB038253.1",
+                "AB048545.1",
+                "AB126981.1",
+                "AB126983.1",
+                "AB126984.1",
+                "AB126985.1",
+                "AB126986.1",
+                "AB126987.1",
+                "AB126988.1",
+                "AB126989.1",
+                "AB126990.1",
+                "AB126991.1",
+                "AB126992.1",
+                "AB126993.1"
+              ]
+            ],
+            "witness": [
+              "AB038252.1",
+              "AB048545.1",
+              "AB048546.1",
+              "AB038253.1"
+            ],
+            "witness_common": 5109,
+            "witness_pairing_sums": [
+              36,
+              54,
+              56
+            ]
+          },
+          "failure_histogram_failures_to_splits": [
+            [
+              24,
+              3
+            ],
+            [
+              25,
+              2
+            ],
+            [
+              36,
+              2
+            ],
+            [
+              38,
+              2
+            ],
+            [
+              43,
+              1
+            ],
+            [
+              45,
+              4
+            ],
+            [
+              46,
+              1
+            ],
+            [
+              48,
+              2
+            ],
+            [
+              50,
+              1
+            ],
+            [
+              55,
+              2
+            ],
+            [
+              58,
+              4
+            ],
+            [
+              59,
+              1
+            ],
+            [
+              62,
+              2
+            ],
+            [
+              64,
+              1
+            ],
+            [
+              65,
+              1
+            ],
+            [
+              69,
+              2
+            ],
+            [
+              70,
+              4
+            ],
+            [
+              71,
+              1
+            ],
+            [
+              72,
+              2
+            ],
+            [
+              73,
+              2
+            ],
+            [
+              74,
+              3
+            ],
+            [
+              75,
+              4
+            ],
+            [
+              76,
+              7
+            ],
+            [
+              77,
+              2
+            ]
+          ],
+          "floor": "5/5121",
+          "floor_rate": 0.0009763718023823472,
+          "gap_fraction": 0.0003051161882444835,
+          "incompatible_pairs": 1,
+          "informative_splits": 32751,
+          "insertion_rate_per_site": 0.00007322788517867604,
+          "max_conjunction_length": 784,
+          "mean_p_distance": 0.009606390153135415,
+          "null_realised_divergence": 0.009641020633990756,
+          "null_replicates_accepted": 5,
+          "null_replicates_attempted": 16,
+          "pairwise_compatible": false,
+          "reads_as": "non-tree",
+          "reference_label": "AB126991.1",
+          "role": "sensitivity",
+          "tree_internal_splits_if_a_tree": 13,
+          "width": 5121
+        }
+      ],
+      "references_agree_on_verdict": true,
+      "status": "ok",
+      "virus_name": "JC polyomavirus"
+    },
+    {
+      "agrees_with_literature": null,
+      "file": "jc_polyomavirus_spread",
+      "literature_expectation": "tree-like",
+      "references": [],
+      "references_agree_on_verdict": null,
+      "status": "BLOCKED at the primary reference: gap fraction 0.01472 and insertion rate 0.014731 against the measured admissibility thresholds 0.0039 and 0.0008",
+      "virus_name": "JC polyomavirus"
+    },
+    {
+      "agrees_with_literature": null,
+      "file": "rabies_accession",
+      "literature_expectation": "tree-like",
+      "references": [],
+      "references_agree_on_verdict": null,
+      "status": "BLOCKED at the primary reference: gap fraction 0.00124 and insertion rate 0.001352 against the measured admissibility thresholds 0.0039 and 0.0008",
+      "virus_name": "Lyssavirus rabies"
+    },
+    {
+      "agrees_with_literature": null,
+      "file": "rabies_spread",
+      "literature_expectation": "tree-like",
+      "references": [],
+      "references_agree_on_verdict": null,
+      "status": "BLOCKED at the primary reference: gap fraction 0.00201 and insertion rate 0.001771 against the measured admissibility thresholds 0.0039 and 0.0008",
+      "virus_name": "Lyssavirus rabies"
+    }
+  ],
+  "summary": {
+    "agreeing_with_literature": "2/3",
+    "both_references_agree": "3/3",
+    "populations": 10,
+    "usable": 3
+  },
+  "what_is_preregistered": {
+    "R1": "every population admissible to the quartet test is admissible here, since the gate is the same measured threshold",
+    "R2": "populations the literature calls reticulate read as NON-TREES: their certified split system is not pairwise compatible",
+    "R3": "the population the literature calls tree-like reads as a TREE",
+    "R4": "both alignment references give the same verdict, as they did for the quartet test",
+    "R5": "every incompatible pair's constructed witness really violates four-point"
+  },
+  "why": "The split certificate separated reticulation from relaxed clocks, gap blocks and saturation on 35 of 35 simulated dataset-seeds, which is one parameter grid with planted truth. Here the ground truth is an independent literature expectation and the exhibit is a named set of sequences."
+}
