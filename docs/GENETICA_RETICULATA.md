@@ -1527,3 +1527,105 @@ data and misses a single recombinant is what the geometry predicts.
 Raw output: the `the_margin_is_twice_an_isolation_index` block and the per-seed
 `max_supported_isolation` and `two_positive_indices` in
 [`data/reticulata_phase2/experiment.json`](../data/reticulata_phase2/experiment.json).
+
+## 16. The null's floor, predicted instead of simulated
+
+Phase 3 of §5's plan — the margin's null distribution — has been the oldest open
+item in this programme, and the literature review found no analytic sampling
+distribution for it either. Every calibrated answer here costs a matched
+simulation: `real-data` spends a bisection plus five tree simulations per
+population, each calibrated statistic spends 99 replicates per dataset-seed, and
+§12.4 and §12.3 both reported counts against nulls that could not vary because
+there was no cheap way to know in advance where the null is degenerate.
+
+`reticulation null-sweep` and `scripts/reticulata_null_surrogate.py` close that,
+with a restriction.
+
+### 16.1 Why a fitted model is admissible here at all
+
+**Only the floor is predicted.** The certificate's margin remains an exact
+integer comparison the Lean kernel can check, so a wrong surrogate costs power or
+wastes a query — it cannot make a certificate wrong. That is the admissibility
+condition of
+[`RETICULATA_NUMERICS_TOPOLOGY_ML.md`](./RETICULATA_NUMERICS_TOPOLOGY_ML.md) §1,
+and it is the only reason this sits inside a method whose whole claim is
+checkability.
+
+The sweep records, for each of **288 parameter cells** at five seeds, the maximum
+quartet margin on a clonal population with no reticulation — the same floor
+`real-data` computes. No bisection: `mu` is swept directly and the *achieved*
+divergence recorded, which is the covariate a surrogate wants and removes the
+40-step tuning from every cell. Bit-parallel counting (§13.1) is what makes 32
+taxa across 288 cells affordable.
+
+### 16.2 The falsifiable check, fixed before the fit
+
+The model is a scaling law, not a black box:
+
+```
+log(floor) ~ intercept + b·log(L) + c·log(mean p-distance)
+             + d·log(quadruples) + e·gap_load + f·clock_spread
+```
+
+and `b` has an **independent prediction**. The margin is a difference of counts
+over a denominator of order `L`; the numerator carries multinomial noise scaling
+as `√L`, so the floor should scale as `√L / L = L^(-1/2)`. §10.6's length-scaling
+diagnostic measured exactly that signature independently (0.42–0.53 across two
+divergences). So a tolerance of ±0.15 around **−0.5** was fixed before fitting.
+
+**Fitted: `b = −0.556`.** The scaling law is confirmed rather than merely
+interpolated — the floor is noise-dominated, and the surrogate rests on a
+mechanism instead of on a curve through a table.
+
+### 16.3 Held-out regions, and the honest verdict
+
+Tested by **region**, not by random split, because extrapolation is the failure
+mode that matters:
+
+| held out | train rows | test rows | median relative error | p90 |
+| :--- | --: | --: | --: | --: |
+| longest alignments (`L = 8000`) | 903 | 343 | **20.5%** | 55.5% |
+| largest taxon count (32) | 781 | 465 | **28.7%** | 66.5% |
+
+In-sample median error is 23.3%, so the model is not overfitting — it is simply
+this accurate.
+
+§4.1 of the directions document fixed the abandonment criterion in advance:
+*abandon if held-out error at the quantiles that matter exceeds the margin
+differences the method is trying to resolve.* Applying it honestly:
+
+- **Wide-margin verdicts survive.** The Hepatitis B population's margin is 4.5×
+  its floor; a 30% error in the floor does not move that verdict.
+- **Borderline verdicts do not.** The Coxsackievirus population clears its floor
+  by 1.23×; a 25% floor error flips it.
+
+So the criterion is **partially met, and the outcome is a restricted deployment
+rather than adoption**: the surrogate is adequate for screening parameter regions
+and for predicting degeneracy, and it must not decide a verdict near the floor.
+Those still get a simulation. Stating that as a restriction rather than reporting
+the 20% median as a success is the whole point of having fixed the criterion
+first.
+
+### 16.4 What it buys immediately, demonstrated rather than claimed
+
+**Degeneracy is now predictable.** Ten of the 288 cells are degenerate — no
+replicate produced a violating quadruple — and they cluster exactly where
+expected: the smallest taxon count (8) at the lowest substitution rate, i.e. few
+subsets and little divergence. These are reported, never imputed: a floor of zero
+has no logarithm and is not a floor any model should invent.
+
+And the surrogate reproduces §12.3's hard-won conclusion in advance. Its
+calibrated divergence range is **0.00239 to 0.51429**. The XCP
+published-breakpoint population sits at mean p-distance **0.00057** — **4.2×
+below the lower bound**, so the surrogate refuses to predict for it and flags it
+as outside the calibrated regime. That is precisely the verdict §12.3 reached
+only after a 2.2 GB download, an alignment, a test, and a degenerate floor.
+Having the table first would have saved all of it.
+
+That is the honest case for this piece of machinery: not that it predicts floors
+well, because at 20–29% it predicts them only adequately, but that **it knows
+where it cannot be used, and that boundary is itself the finding** the programme
+kept paying to rediscover.
+
+Raw output: [`data/reticulata_phase3/null_sweep.json`](../data/reticulata_phase3/null_sweep.json)
+and [`null_surrogate.json`](../data/reticulata_phase3/null_surrogate.json).

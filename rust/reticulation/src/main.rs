@@ -3917,6 +3917,199 @@ fn run_filtration(args: &[String]) -> Result<bool, String> {
     Ok(true)
 }
 
+/// Sweep the null's parameter space, so the floor can be predicted instead of
+/// simulated per query.
+///
+/// Phase 3 of the original plan — the margin's null distribution — is the
+/// oldest open item in this programme, and the literature review confirmed no
+/// analytic sampling distribution of the four-point margin exists there either.
+/// Current practice is to simulate a matched null for every question asked:
+/// `real-data` spends a bisection plus five tree simulations per population, and
+/// each calibrated statistic spends 99 replicates per dataset-seed. That is
+/// thousands of simulations to answer one question, and it is why two
+/// experiments this session reported counts from nulls that could not vary —
+/// nobody had a cheap way to know in advance where the null is degenerate.
+///
+/// This command produces the table a surrogate is fitted to: for each point in a
+/// parameter grid, the empirical distribution of the **maximum quartet margin**
+/// on a clonal population with no reticulation. No bisection: `mu` is swept
+/// directly and the *achieved* divergence recorded, which is what a surrogate
+/// needs and removes the tuning cost entirely.
+///
+/// The margin is exact; only the floor would ever be predicted, and a predicted
+/// floor is checkable against simulation at any time. That is the whole reason
+/// this is an admissible place for a fitted model — see
+/// `docs/RETICULATA_NUMERICS_TOPOLOGY_ML.md` §1 and §4.1.
+fn run_null_sweep(args: &[String]) -> Result<bool, String> {
+    use reticulation::simulate::{clonal_tree, clonal_tree_relaxed, inject_gap_blocks};
+    use reticulation::subset::Alignment;
+    use reticulation::BitAlignment;
+
+    let seeds: usize = parse_flag(args, "--seeds", 5);
+    let seed0: u64 = parse_flag(args, "--seed", 2026);
+    let max_quadruples: usize = parse_flag(args, "--max-quadruples", 2_000_000);
+    let generations: Vec<u32> = parse_flag(args, "--generations", "3,4,5".to_string())
+        .split(',')
+        .filter_map(|s| s.trim().parse().ok())
+        .collect();
+    let lengths: Vec<usize> = parse_flag(args, "--lengths", "1000,2000,4000,8000".to_string())
+        .split(',')
+        .filter_map(|s| s.trim().parse().ok())
+        .collect();
+    let mus: Vec<f64> = parse_flag(
+        args,
+        "--mus",
+        "0.001,0.002,0.004,0.008,0.016,0.032".to_string(),
+    )
+    .split(',')
+    .filter_map(|s| s.trim().parse().ok())
+    .collect();
+    let gaps: Vec<f64> = parse_flag(args, "--gaps", "0.0,0.25".to_string())
+        .split(',')
+        .filter_map(|s| s.trim().parse().ok())
+        .collect();
+    let spreads: Vec<f64> = parse_flag(args, "--spreads", "0.0,1.0".to_string())
+        .split(',')
+        .filter_map(|s| s.trim().parse().ok())
+        .collect();
+
+    #[derive(serde::Serialize)]
+    struct Cell {
+        taxa: usize,
+        quadruples: usize,
+        length: usize,
+        mu: f64,
+        gap_load: f64,
+        clock_spread: f64,
+        /// Achieved mean p-distance, which is the covariate a surrogate wants;
+        /// `mu` alone is not comparable across lengths and clock spreads.
+        mean_p_distance: Vec<f64>,
+        /// The maximum quartet margin on each replicate: the floor itself.
+        max_margin: Vec<f64>,
+        max_margin_exact: Vec<String>,
+        /// Replicates with no violating quadruple at all. A cell where this is
+        /// every replicate is a **degenerate null**: any positive observation
+        /// would be significant at the floor there, and no p-value computed
+        /// against it carries calibration.
+        replicates_with_no_violation: usize,
+        null_is_degenerate: bool,
+        violating_fraction: Vec<f64>,
+    }
+
+    let mut cells: Vec<Cell> = Vec::new();
+    for &g in &generations {
+        for &length in &lengths {
+            for &mu in &mus {
+                for &gap in &gaps {
+                    for &spread in &spreads {
+                        let mut divergences = Vec::new();
+                        let mut margins = Vec::new();
+                        let mut margins_exact = Vec::new();
+                        let mut fractions = Vec::new();
+                        let mut empty = 0usize;
+                        let mut quadruples = 0usize;
+                        for index in 0..seeds {
+                            let seed = seed0 + index as u64;
+                            let mut pop = if spread > 0.0 {
+                                clonal_tree_relaxed(length, g, mu, spread, seed)
+                            } else {
+                                clonal_tree(length, g, mu, seed)
+                            };
+                            if gap > 0.001 {
+                                pop = inject_gap_blocks(pop, gap, seed ^ 0x5EED);
+                            }
+                            let (mean_p, _) = divergence(&pop);
+                            let aln =
+                                Alignment::new(pop.labels.clone(), pop.sequences.clone())?;
+                            let bits = BitAlignment::from_alignment(&aln)?;
+                            let (margin, violating, examined) =
+                                max_quartet_margin_bits(&bits, max_quadruples)?;
+                            quadruples = examined;
+                            if margin.is_none() {
+                                empty += 1;
+                            }
+                            divergences.push(mean_p);
+                            margins.push(margin_f64(margin));
+                            margins_exact.push(margin_exact(margin));
+                            fractions
+                                .push(violating as f64 / examined.max(1) as f64);
+                        }
+                        cells.push(Cell {
+                            taxa: 1usize << g,
+                            quadruples,
+                            length,
+                            mu,
+                            gap_load: gap,
+                            clock_spread: spread,
+                            mean_p_distance: divergences,
+                            max_margin: margins,
+                            max_margin_exact: margins_exact,
+                            replicates_with_no_violation: empty,
+                            null_is_degenerate: empty == seeds,
+                            violating_fraction: fractions,
+                        });
+                    }
+                }
+            }
+        }
+    }
+
+    let degenerate: Vec<&Cell> = cells.iter().filter(|c| c.null_is_degenerate).collect();
+    let report = serde_json::json!({
+        "experiment": "the null's parameter space, swept, so the floor can be \
+                       predicted rather than simulated per query",
+        "why": "Phase 3 of the plan -- the margin's null distribution -- is the \
+                oldest open item here, and no analytic sampling distribution of \
+                the four-point margin exists in the literature either. Every \
+                calibrated answer in this programme currently costs a matched \
+                simulation, and two experiments this session reported counts from \
+                nulls that could not vary because there was no cheap way to know \
+                in advance where the null is degenerate. This is the table a \
+                surrogate is fitted to.",
+        "what_is_predicted_and_what_is_not": "Only the FLOOR would ever be \
+                predicted. The certificate's margin stays an exact integer \
+                comparison the kernel can check, so a wrong surrogate costs power \
+                or wastes a query -- never correctness. That is the condition for \
+                a fitted model to be admissible here at all.",
+        "no_bisection": "`mu` is swept directly and the ACHIEVED mean p-distance \
+                recorded, rather than tuning `mu` to hit a target divergence. The \
+                achieved divergence is the covariate a surrogate wants, and this \
+                removes the 40-step bisection from every cell.",
+        "design": {
+            "null_populations": "clonal descent, no reticulation, at each grid \
+                                 point; relaxed clock where spread > 0",
+            "statistic": "the maximum quartet margin, exhaustive over every \
+                          quadruple -- the same floor `real-data` computes",
+            "seeds_per_cell": seeds,
+            "cells": cells.len(),
+        },
+        "degenerate_cells": {
+            "count": degenerate.len(),
+            "why_this_matters": "A cell where no replicate produced a violating \
+                    quadruple cannot calibrate anything: any positive observation \
+                    is significant at the floor there. Knowing which regions of \
+                    parameter space are degenerate BEFORE running an experiment is \
+                    the single most useful thing this table buys, and is exactly \
+                    what was missing when the topology and breakpoint experiments \
+                    reported counts against empty nulls.",
+            "parameters": degenerate
+                .iter()
+                .map(|c| serde_json::json!({
+                    "taxa": c.taxa, "length": c.length, "mu": c.mu,
+                    "gap_load": c.gap_load, "clock_spread": c.clock_spread,
+                    "mean_p_distance": c.mean_p_distance,
+                }))
+                .collect::<Vec<_>>(),
+        },
+        "cells": cells,
+    });
+    println!(
+        "{}",
+        serde_json::to_string_pretty(&report).map_err(|e| e.to_string())?
+    );
+    Ok(true)
+}
+
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().skip(1).collect();
     let result = match args.first().map(String::as_str) {
@@ -3932,6 +4125,7 @@ fn main() -> ExitCode {
         Some("topology") => run_topology(&args),
         Some("scale") => run_scale(&args),
         Some("filtration") => run_filtration(&args),
+        Some("null-sweep") => run_null_sweep(&args),
         _ => {
             eprintln!(
                 "usage:\n  reticulation controls [--length N] [--generations G] \

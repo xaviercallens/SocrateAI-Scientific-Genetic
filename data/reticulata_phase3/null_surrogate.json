@@ -1,0 +1,245 @@
+{
+  "what_this_is": "A surrogate for the four-point margin's null floor, fitted to `reticulation null-sweep`. Only the floor is predicted; the certificate's margin stays an exact integer comparison, so a wrong surrogate costs power or wastes a query and cannot make a certificate wrong.",
+  "model": {
+    "form": "log(floor) ~ intercept + b*log(L) + c*log(mean p-distance) + d*log(quadruples) + e*gap_load + f*clock_spread",
+    "why_a_scaling_law": "Interpretable and falsifiable. The length exponent has an independent prediction: the earlier length-scaling diagnostic found the clonal margin shrinking as L^(-1/2), the signature of sampling noise. A fit recovering an exponent near -0.5 confirms the law; one far from it would mean the floor is not noise-dominated and this surrogate rests on nothing.",
+    "fitted_exponents": {
+      "intercept": 0.40674047293714977,
+      "log_length": -0.5563288339901509,
+      "log_mean_p_distance": 0.9906861629029718,
+      "log_quadruples": 0.17970405879552337,
+      "gap_load": 3.1743806764212694,
+      "clock_spread": 0.15545867777363923
+    },
+    "rows_fitted": 1246
+  },
+  "the_falsifiable_check": {
+    "predicted_length_exponent": -0.5,
+    "fitted_length_exponent": -0.5563288339901509,
+    "tolerance": 0.15,
+    "scaling_law_supported": true,
+    "reading": "This is the check that distinguishes a principled surrogate from a curve through a table. It was fixed before the fit was run."
+  },
+  "in_sample_relative_error": {
+    "rows": 1246,
+    "median": 0.23310706524491895,
+    "mean": 0.3081739747760019,
+    "p90": 0.6116872229530487,
+    "max": 3.7614028846901855
+  },
+  "held_out_regions": {
+    "length": {
+      "held_out_value": 8000.0,
+      "description": "trained without the longest alignments, tested only on them",
+      "train_rows": 903,
+      "test_rows": 343,
+      "in_sample": {
+        "rows": 903,
+        "median": 0.23285134455663062,
+        "mean": 0.31181948393534814,
+        "p90": 0.6071394517655223,
+        "max": 3.708099912329693
+      },
+      "held_out": {
+        "rows": 343,
+        "median": 0.2049401971902711,
+        "mean": 0.28120666837684327,
+        "p90": 0.5550490305561625,
+        "max": 1.8409540220730318
+      },
+      "length_exponent_without_this_region": -0.5839569511900216
+    },
+    "taxa": {
+      "held_out_value": 32.0,
+      "description": "trained without the largest taxon count, tested only on them",
+      "train_rows": 781,
+      "test_rows": 465,
+      "in_sample": {
+        "rows": 781,
+        "median": 0.22335258732632934,
+        "mean": 0.3216854119825804,
+        "p90": 0.6711583372064281,
+        "max": 4.052133175132523
+      },
+      "held_out": {
+        "rows": 465,
+        "median": 0.2873739373458361,
+        "mean": 0.34071873295925786,
+        "p90": 0.6649809143377469,
+        "max": 1.8127024774778386
+      },
+      "length_exponent_without_this_region": -0.5735541527737945
+    }
+  },
+  "worst_held_out_median_relative_error": 0.2873739373458361,
+  "degenerate_region": {
+    "cells": 10,
+    "why_it_is_reported_not_imputed": "A cell where no replicate produced a violating quadruple has a floor of zero, which has no logarithm and is not a floor any model should invent. Knowing which parameters are degenerate before running an experiment is the most useful thing this table buys -- it is exactly what was missing when the topology and breakpoint experiments reported counts against empty nulls.",
+    "parameters": [
+      {
+        "clock_spread": 0.0,
+        "gap_load": 0.0,
+        "length": 1000,
+        "mean_p_distance": [
+          0.0035357142857142874,
+          0.003714285714285716,
+          0.00435714285714286,
+          0.005714285714285716,
+          0.007035714285714288
+        ],
+        "mu": 0.001,
+        "taxa": 8
+      },
+      {
+        "clock_spread": 1.0,
+        "gap_load": 0.0,
+        "length": 1000,
+        "mean_p_distance": [
+          0.0055714285714285735,
+          0.0009285714285714289,
+          0.003500000000000001,
+          0.004464285714285717,
+          0.00392857142857143
+        ],
+        "mu": 0.001,
+        "taxa": 8
+      },
+      {
+        "clock_spread": 0.0,
+        "gap_load": 0.25,
+        "length": 1000,
+        "mean_p_distance": [
+          0.005044311659659656,
+          0.0036420207779202752,
+          0.0036167225794878554,
+          0.006135656855453556,
+          0.006698992887001668
+        ],
+        "mu": 0.001,
+        "taxa": 8
+      },
+      {
+        "clock_spread": 1.0,
+        "gap_load": 0.25,
+        "length": 1000,
+        "mean_p_distance": [
+          0.007253265281467739,
+          0.0014125982998503795,
+          0.002945042188820273,
+          0.005190975350326954,
+          0.003970425436645349
+        ],
+        "mu": 0.001,
+        "taxa": 8
+      },
+      {
+        "clock_spread": 0.0,
+        "gap_load": 0.0,
+        "length": 4000,
+        "mean_p_distance": [
+          0.003500000000000002,
+          0.004607142857142859,
+          0.004517857142857144,
+          0.004223214285714288,
+          0.005812500000000003
+        ],
+        "mu": 0.001,
+        "taxa": 8
+      },
+      {
+        "clock_spread": 0.0,
+        "gap_load": 0.25,
+        "length": 4000,
+        "mean_p_distance": [
+          0.003812387343657444,
+          0.004086840066658814,
+          0.004751971721344486,
+          0.0038484497989621363,
+          0.006003495568917911
+        ],
+        "mu": 0.001,
+        "taxa": 8
+      },
+      {
+        "clock_spread": 1.0,
+        "gap_load": 0.25,
+        "length": 4000,
+        "mean_p_distance": [
+          0.0018103678669354193,
+          0.005779081437028629,
+          0.002175160036180477,
+          0.006492397737642272,
+          0.00724050792015147
+        ],
+        "mu": 0.001,
+        "taxa": 8
+      },
+      {
+        "clock_spread": 1.0,
+        "gap_load": 0.0,
+        "length": 1000,
+        "mean_p_distance": [
+          0.007200000000000004,
+          0.0023916666666666682,
+          0.00501666666666667,
+          0.00504166666666667,
+          0.00491666666666667
+        ],
+        "mu": 0.001,
+        "taxa": 16
+      },
+      {
+        "clock_spread": 0.0,
+        "gap_load": 0.25,
+        "length": 1000,
+        "mean_p_distance": [
+          0.004497349413504948,
+          0.005962133877095648,
+          0.00466825786511484,
+          0.007022767966285436,
+          0.008501255359125512
+        ],
+        "mu": 0.001,
+        "taxa": 16
+      },
+      {
+        "clock_spread": 1.0,
+        "gap_load": 0.25,
+        "length": 1000,
+        "mean_p_distance": [
+          0.006851637466004815,
+          0.0028755223804748124,
+          0.004121207418894928,
+          0.0055894361630778235,
+          0.005122887910482895
+        ],
+        "mu": 0.001,
+        "taxa": 16
+      }
+    ]
+  },
+  "calibrated_range": {
+    "why": "A surrogate must refuse to predict outside the parameters it was fitted on. These are the bounds; anything outside them gets a simulation, not a prediction.",
+    "length": [
+      1000.0,
+      8000.0
+    ],
+    "taxa": [
+      8.0,
+      32.0
+    ],
+    "mean_p_distance": [
+      0.002392708333333331,
+      0.5142893145161291
+    ],
+    "gap_load": [
+      0.0,
+      0.25
+    ],
+    "clock_spread": [
+      0.0,
+      1.0
+    ]
+  },
+  "how_to_use_it": "Refuse to predict outside the convex hull of the swept parameters, and keep the surrogate honest at runtime by simulating a handful of replicates and checking they fall where it says. A surrogate that silently extrapolates is the unexamined step this project keeps finding in its own apparatus."
+}

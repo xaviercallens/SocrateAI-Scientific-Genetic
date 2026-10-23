@@ -205,7 +205,7 @@ search dressed as topology.
 
 ## 4. Machine learning, under the §1 rule
 
-### 4.1 A learned surrogate for the null floor · **admissible, highest value**
+### 4.1 A learned surrogate for the null floor · **built; restricted deployment**
 
 Phase 3 of the original plan — the margin's null distribution — remains open, and
 the review confirmed that no analytic sampling distribution of the four-point
@@ -238,6 +238,23 @@ of replicates and checking they fall where the surrogate says.
 * **Abandon if** held-out error at the quantiles that matter exceeds the margin
   differences the method is trying to resolve, in which case it cannot support a
   verdict and simulation stays.
+
+**Built, and the criterion is partially met** (§16 of the companion document).
+The falsifiable check passed: the fitted length exponent is **−0.556** against a
+prediction of −0.5 fixed in advance, so the floor is noise-dominated and the law
+is confirmed rather than interpolated. Held-out *regions* give median relative
+errors of **20.5%** (longest alignments) and **28.7%** (largest taxon count),
+p90 up to 66%. By the criterion above that is enough for wide-margin verdicts
+(Hepatitis B clears its floor by 4.5×) and **not** enough for borderline ones
+(Coxsackievirus clears by 1.23×, which a 25% floor error flips). So: adequate for
+screening and for predicting degeneracy, not for deciding near the floor, which
+still gets a simulation.
+
+What it actually buys is the boundary rather than the prediction. Its calibrated
+divergence range is 0.00239–0.51429, and the XCP published-breakpoint population
+sits at 0.00057 — 4.2× below the lower bound, so the surrogate refuses it and
+flags it as out of regime. That is the conclusion §12.3 reached only after a
+2.2 GB download and a degenerate floor.
 
 ### 4.2 A learned search order · **admissible, cannot corrupt the answer**
 
@@ -299,7 +316,7 @@ scale from an optimisation to a precondition.
 | # | direction | effort | why first |
 | :-: | :--- | :--- | :--- |
 | 1 | §2.1 bit-parallel counting | days | **promoted.** Larger taxon counts are the precondition for §3.1 to be interpretable at all, and the only way to characterise the max statistic's real weakness |
-| 2 | §4.1 learned null floor surrogate | days | closes the oldest open item in the plan, makes every sweep affordable — and would have flagged both degenerate nulls immediately, since a surrogate trained across the parameter space knows where the null is identically zero |
+| 2 | ~~§4.1 learned null floor surrogate~~ **built** | — | Done, with a restriction: the falsifiable exponent check passed (−0.556 against −0.5), held-out error is 20–29% median, so it screens and predicts degeneracy but does not decide borderline verdicts. It does reproduce §12.3's conclusion in advance by refusing the out-of-regime population |
 | 3 | ~~topology~~ **closed** | — | **The line is closed (§14 of the companion document).** No cheap filtration change met the criterion; F1 (saturation) was refuted, F2 confirmed that the gap false positive is finding 6 reappearing as topology, and a single recombinant produces zero cycles in all four variants while the certificate detects it 3/3 at matched taxon count. Earlier note retained: **§3.1 is answered as far as this construction goes.** Where its calibration is valid the statistic tracks divergence and missing data rather than reticulation, and the structural argument above says the Rips route cannot adopt complete deletion. Further topology work should either change the filtration (§3.3) or stop; re-running the same construction at more taxa will not change the structural point |
 | 4 | §3.2 complete the four-way benchmark | hours after 3 | the field has no such table |
 | 5 | §4.3 learned ceiling | days | tells us whether to keep working on detection at all |
