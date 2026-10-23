@@ -189,6 +189,7 @@ pub use exact::{CountCertificate, ExactDistances, Ratio};
 pub use incompat::{compatible, informative_sites, phi_test, BiallelicSite, PhiTest};
 pub use rips::{CycleRepresentative, RipsPersistence};
 pub use subset::{
-    quartet_distribution, Alignment, CompleteTripleCertificate, QuadrupleCounts,
-    QuartetCertificate, QuartetDistribution, QuartetSearch, TripleCounts, TripleSearch,
+    isolation_indices, quartet_distribution, Alignment, CompleteTripleCertificate,
+    IsolationIndices, QuadrupleCounts, QuartetCertificate, QuartetDistribution, QuartetSearch,
+    TripleCounts, TripleSearch,
 };

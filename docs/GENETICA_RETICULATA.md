@@ -1394,3 +1394,96 @@ miss, and those are the two the decision rests on.
 
 Raw output: [`data/reticulata_phase2/filtration.json`](../data/reticulata_phase2/filtration.json)
 and [`scale.json`](../data/reticulata_phase2/scale.json).
+
+## 15. The geometry the certificate was already doing
+
+§14 closed the Vietoris–Rips route and concluded that this programme's
+topological content is the certificate itself. That is a slogan unless it is made
+precise, so here is the bridge, proved rather than asserted.
+
+### 15.1 The margin is an isolation-index gap
+
+A quadruple splits into two pairs three ways, and classical phylogenetic
+combinatorics assigns each split `S` a **Bandelt–Dress isolation index**
+
+```
+α(S) = ½ ( min of the other two pairing sums − S's own pairing sum )
+```
+
+in distance units. A split with `α > 0` is one the data supports; on a tree
+metric the supported split's index is the internal edge's length. This is the
+basis of split decomposition and of split networks, and it is the canonical
+geometry of tree-likeness — the thing Rips was a poor substitute for.
+
+Two facts, both pure algebra over the three sums, both now in Lean with no
+axioms beyond the whitelist:
+
+| theorem | content |
+| :--- | :--- |
+| `isolation_gap_eq_half_sum_gap` | between the two **non-minimal** splits, the isolation-index gap is exactly half the pairing-sum gap |
+| `quadruple_fourPoint_iff_isolation_gap_nonpos` | the four-point condition on a quadruple **is** the non-positivity of that gap |
+| `supported_isolation_eq_half_gap` | the supported split's index is half the gap from the smallest to the middle sum |
+
+Since the certificate's margin is the gap between the largest and second-largest
+pairing sums, the first theorem says:
+
+> **the margin is twice an isolation-index gap**,
+
+and the second says the condition the certificate refutes is exactly the
+vanishing of that gap. So a certificate is not *analogous* to a geometric
+statement — the number it reports is a split-decomposition quantity.
+
+Note what the theorems do **not** need: no tree, no complex, no metric space,
+only three rationals. That is the whole reason the certificate can be evaluated
+per subset where a global complex cannot, and it is why §14's closure was a
+closure of the implementation rather than of the idea.
+
+### 15.2 Checked against the data, not only proved
+
+The Lean theorems are about three rationals. `subset::isolation_indices` computes
+each split's index from its own definition — the minimum of the *other two* sums
+minus its own — rather than from the sorted sums, so an error in the
+implementation would show up as a mismatch rather than cancel out.
+`quartet_distribution` then checks the identity on every quadruple it examines.
+
+Across all seven datasets at five seeds: **the identity holds on 75 500
+quadruples and fails on 0.**
+
+### 15.3 Reticulation lives in the gap, not in the supported split
+
+The split decomposition's own headline quantity is the supported split's index,
+and reporting it turns out to be informative in a way worth recording. Largest
+supported-split index per population, first three seeds:
+
+| dataset | reticulation | max supported isolation |
+| :--- | :--: | :--- |
+| D1 clonal, strict clock | no | 0.02863, 0.02637, 0.02738 |
+| D3 one recombinant | **yes** | 0.02863, 0.02637, 0.02738 |
+| D5 reciprocal mosaics | **yes** | 0.02863, 0.02637, 0.02738 |
+| D2 clonal, relaxed clock | no | 0.03562, 0.03963, 0.02312 |
+| D6 gap blocks | no | 0.03388, 0.02981, 0.02945 |
+| D7 saturated | no | 0.19350, 0.19187, 0.19825 |
+
+**The supported-split index is identical, to five decimal places, on the clonal
+tree and on both reticulate populations built from it.** It is completely blind
+to the reticulation — which makes sense, since the strongest supported split is a
+deep split of the underlying tree and adding recombinants does not disturb it.
+What it *does* track is divergence: the saturated population's index is seven
+times the others', because an edge-length-like quantity scales with branch
+lengths.
+
+So the geometric statement the pivot arrives at is sharper than "the certificate
+is topological":
+
+> **The split decomposition's supported index carries the tree. The gap between
+> the non-supported indices carries the reticulation. The certificate measures
+> the gap.**
+
+That also explains, after the fact, why a global distance complex struggled: the
+Rips filtration is driven by distance magnitudes, which is the quantity that
+tracks divergence, and the signal is in a *difference* between indices that
+magnitudes do not expose.
+
+Raw output: the `the_margin_is_an_isolation_index_gap` block and the per-seed
+`max_supported_isolation` in
+[`data/reticulata_phase2/experiment.json`](../data/reticulata_phase2/experiment.json).

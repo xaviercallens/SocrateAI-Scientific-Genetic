@@ -537,6 +537,84 @@ theorem gromov_strongTriangle_fails_of_quartet_violation {d : α → α → ℚ}
     ¬ (∀ r, StrongTriangle (gromov d r)) :=
   fun hg => h ((fourPoint_iff_gromov_strongTriangle hsym).mpr hg)
 
+/-!
+### The margin is a gap between isolation indices
+
+Section 14 of `docs/GENETICA_RETICULATA.md` closed the Vietoris--Rips route to
+detecting reticulation and concluded that this programme's topological content is
+the certificate itself. That conclusion deserves to be more than a slogan, so
+here is the precise bridge: the certificate's margin is a difference of
+**Bandelt--Dress isolation indices**, the weights of the split decomposition of a
+metric.
+
+For a quadruple there are three ways to split it into two pairs, and each split
+`S` carries an isolation index
+`α(S) = ½ (min of the other two pairing sums − S's own pairing sum)`.
+A split with `α > 0` is one the data supports; on a tree metric the supported
+split's index is the internal edge's length, which is why split decomposition is
+the classical geometry of tree-likeness and the basis of split networks.
+
+Two facts, both pure algebra over the three sums, so both are proved here rather
+than cited:
+
+* `isolation_gap_eq_half_sum_gap` — between the two **non-minimal** splits, the
+  gap in isolation index is exactly half the gap in pairing sum. Since the
+  certificate's margin is the gap between the largest and second-largest pairing
+  sums, **the margin is twice an isolation-index gap**.
+* `quadruple_fourPoint_iff_isolation_gap_nonpos` — the four-point condition on a
+  quadruple holds exactly when that gap is non-positive.
+
+So a certificate is not merely *analogous* to a geometric statement: the number
+it reports is a split-decomposition quantity, and the condition it refutes is the
+vanishing of that quantity. This is stated over the three sums as bare rationals
+because that is all the content there is; nothing here needs a tree, a complex or
+a metric space, which is the point — it is why the certificate can be evaluated
+per subset where a global complex cannot.
+-/
+
+/-- The Bandelt--Dress isolation index of one split of a quadruple, from its own
+pairing sum and the other two. -/
+def isoOf (own other₁ other₂ : ℚ) : ℚ := (min other₁ other₂ - own) / 2
+
+/-- Between the two non-minimal splits, the isolation-index gap is half the
+pairing-sum gap.
+
+`s₁` is the minimal sum; `s₂` and `s₃` are the other two in either order. The
+certificate's margin is `s₃ - s₂` when `s₃` dominates, so the margin is twice
+this gap. -/
+theorem isolation_gap_eq_half_sum_gap (s₁ s₂ s₃ : ℚ) (h₂ : s₁ ≤ s₂) (h₃ : s₁ ≤ s₃) :
+    isoOf s₂ s₁ s₃ - isoOf s₃ s₁ s₂ = (s₃ - s₂) / 2 := by
+  unfold isoOf
+  rw [min_eq_left h₃, min_eq_left h₂]
+  ring
+
+/-- The four-point condition on a quadruple is the non-positivity of that gap.
+
+Read with `isolation_gap_eq_half_sum_gap`: a quartet certificate is the statement
+that one split's isolation index falls strictly below another's, by half the
+margin the certificate reports. -/
+theorem quadruple_fourPoint_iff_isolation_gap_nonpos (s₁ s₂ s₃ : ℚ)
+    (h₂ : s₁ ≤ s₂) (h₃ : s₁ ≤ s₃) :
+    s₃ ≤ max s₁ s₂ ↔ isoOf s₂ s₁ s₃ - isoOf s₃ s₁ s₂ ≤ 0 := by
+  rw [isolation_gap_eq_half_sum_gap s₁ s₂ s₃ h₂ h₃, max_eq_right h₂]
+  constructor
+  · intro h
+    linarith
+  · intro h
+    linarith
+
+/-- The supported split's isolation index, on a quadruple whose smallest pairing
+sum is `s₁`: half the gap to the next sum.
+
+On a tree metric this is the internal edge's length, which is the sense in which
+the split decomposition recovers the tree. Stated here only as the algebraic
+identity; that it *is* the edge length needs the tree construction this file
+cites rather than proves. -/
+theorem supported_isolation_eq_half_gap (s₁ s₂ s₃ : ℚ) (h₂ : s₁ ≤ s₂) (h₃ : s₂ ≤ s₃) :
+    isoOf s₁ s₂ s₃ = (s₂ - s₁) / 2 := by
+  unfold isoOf
+  rw [min_eq_left h₃]
+
 end ANSE.GeneticaReticulata
 
 #print axioms ANSE.GeneticaReticulata.fourPoint_of_ultrametric
@@ -557,3 +635,6 @@ end ANSE.GeneticaReticulata
 #print axioms ANSE.GeneticaReticulata.a_gap_anywhere_shrinks_the_common_denominator
 #print axioms ANSE.GeneticaReticulata.fourPoint_iff_gromov_strongTriangle
 #print axioms ANSE.GeneticaReticulata.gromov_strongTriangle_fails_of_quartet_violation
+#print axioms ANSE.GeneticaReticulata.isolation_gap_eq_half_sum_gap
+#print axioms ANSE.GeneticaReticulata.quadruple_fourPoint_iff_isolation_gap_nonpos
+#print axioms ANSE.GeneticaReticulata.supported_isolation_eq_half_gap

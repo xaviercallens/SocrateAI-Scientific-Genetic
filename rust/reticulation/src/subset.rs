@@ -394,6 +394,90 @@ impl QuartetCertificate {
     }
 }
 
+/// The Bandelt–Dress isolation indices of a quadruple's three splits, exact.
+///
+/// A quadruple splits into two pairs three ways, and each split `S` carries
+/// `α(S) = ½ (min of the other two pairing sums − S's own sum)`, in distance
+/// units. A split with `α > 0` is one the data supports; on a tree metric the
+/// supported split's index is the internal edge's length, which is why the split
+/// decomposition is the classical geometry of tree-likeness.
+///
+/// This connects the certificate to that geometry, and the connection is proved
+/// rather than asserted:
+/// `ANSE.GeneticaReticulata.isolation_gap_eq_half_sum_gap` shows the gap between
+/// the two **non-minimal** splits' indices is exactly half the gap in their
+/// pairing sums, so **the certificate's margin is twice an isolation-index
+/// gap**; and `quadruple_fourPoint_iff_isolation_gap_nonpos` shows the four-point
+/// condition on a quadruple is the non-positivity of that gap.
+///
+/// Every index here is an exact rational with denominator `2 × common`, computed
+/// from the per-split definition rather than from the sorted sums, so
+/// [`IsolationIndices::identity_holds`] is a real check on that definition and
+/// not a tautology.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub struct IsolationIndices {
+    /// The quadruple's common comparable-site count.
+    pub common: i64,
+    /// Numerator of the supported (maximal) split's index, over `2 × common`.
+    pub supported_num: i64,
+    /// Numerator of the index gap between the two non-minimal splits.
+    pub gap_num: i64,
+    /// The certificate's margin numerator, over `common`: the dominant pairing
+    /// sum minus the second largest.
+    pub margin_num: i64,
+    /// Whether `gap_num == margin_num`, which is the Lean identity restated on
+    /// these integers. A false here is a bug in this function.
+    pub identity_holds: bool,
+}
+
+impl IsolationIndices {
+    /// The supported split's isolation index as an exact ratio.
+    pub fn supported(&self) -> Ratio {
+        Ratio {
+            num: self.supported_num,
+            den: 2 * self.common,
+        }
+    }
+
+    /// The gap between the two non-minimal splits' indices, exactly.
+    pub fn gap(&self) -> Ratio {
+        Ratio {
+            num: self.gap_num,
+            den: 2 * self.common,
+        }
+    }
+}
+
+/// Compute a quadruple's three isolation indices from the per-split definition.
+///
+/// Returns `None` when the quadruple shares no comparable column, since every
+/// index would then have a zero denominator.
+pub fn isolation_indices(counts: &QuadrupleCounts) -> Option<IsolationIndices> {
+    if counts.common <= 0 {
+        return None;
+    }
+    let sums = counts.pairing_sums();
+    // Each split's index numerator, straight from the definition: the smaller of
+    // the other two sums, minus its own.
+    let numerators: [i64; 3] = [
+        sums[1].min(sums[2]) - sums[0],
+        sums[0].min(sums[2]) - sums[1],
+        sums[0].min(sums[1]) - sums[2],
+    ];
+    let mut order = [0usize, 1, 2];
+    order.sort_by_key(|&i| sums[i]);
+    let (mid, max) = (order[1], order[2]);
+    let gap_num = numerators[mid] - numerators[max];
+    let margin_num = sums[max] - sums[mid];
+    Some(IsolationIndices {
+        common: counts.common,
+        supported_num: numerators[order[0]],
+        gap_num,
+        margin_num,
+        identity_holds: gap_num == margin_num,
+    })
+}
+
 /// Summaries of the *whole* quartet distribution, not only its maximum.
 ///
 /// # Why this exists
@@ -450,6 +534,16 @@ pub struct QuartetDistribution {
     /// Mean pairwise p-distance under pairwise deletion, the Q-residual's
     /// normaliser, reported so the division can be checked.
     pub mean_p_distance: f64,
+    /// Quadruples whose isolation-index gap equalled the certificate's margin,
+    /// which is the Lean identity `isolation_gap_eq_half_sum_gap` checked
+    /// against the data on every quadruple examined.
+    pub isolation_identity_holds: usize,
+    /// Quadruples where it did not. Any non-zero value here is a bug in
+    /// [`isolation_indices`], not a fact about the data.
+    pub isolation_identity_fails: usize,
+    /// Largest supported-split isolation index seen, as a decimal. On a tree
+    /// metric this is an internal edge length.
+    pub max_supported_isolation: f64,
 }
 
 /// Compute the averaged quartet statistics alongside the certificate's maximum.
@@ -503,6 +597,9 @@ pub fn quartet_distribution(
     let mut delta_sum = 0.0f64;
     let mut delta_max = 0.0f64;
     let mut squared_sum = 0.0f64;
+    let mut identity_holds = 0usize;
+    let mut identity_fails = 0usize;
+    let mut max_supported = 0.0f64;
 
     for i in 0..n {
         for j in (i + 1)..n {
@@ -534,6 +631,17 @@ pub fn quartet_distribution(
                     }
                     let gap = (m1 - m2) as f64 / counts.common as f64;
                     squared_sum += gap * gap;
+                    if let Some(indices) = isolation_indices(&counts) {
+                        if indices.identity_holds {
+                            identity_holds += 1;
+                        } else {
+                            identity_fails += 1;
+                        }
+                        let supported = indices.supported().to_f64();
+                        if supported > max_supported {
+                            max_supported = supported;
+                        }
+                    }
                 }
             }
         }
@@ -554,6 +662,9 @@ pub fn quartet_distribution(
         max_delta_q: delta_max,
         q_residual,
         mean_p_distance,
+        isolation_identity_holds: identity_holds,
+        isolation_identity_fails: identity_fails,
+        max_supported_isolation: max_supported,
     })
 }
 
@@ -1036,6 +1147,59 @@ mod tests {
         let s = find_quartet_certificates(&a, 5, 1000).unwrap();
         assert_eq!(s.violating, 0);
         assert!(s.certificates.is_empty());
+    }
+
+    #[test]
+    fn the_isolation_identity_holds_on_a_hand_computed_quadruple() {
+        // Pairing sums 60, 38, 36 over 60 common columns, the worked example of
+        // the textbook's Section 12. The minimal split is the 36 one, so the two
+        // non-minimal are 38 and 60; their index numerators are 36-38 = -2 and
+        // 36-60 = -24, a gap of 22 -- which must equal the margin numerator
+        // 60-38 = 22.
+        let counts = QuadrupleCounts {
+            common: 60,
+            n_ab: 31,
+            n_ce: 29,
+            n_ac: 18,
+            n_be: 20,
+            n_ae: 19,
+            n_bc: 17,
+        };
+        let indices = isolation_indices(&counts).expect("non-empty");
+        assert_eq!(indices.margin_num, 22, "dominant 60 minus second 38");
+        assert_eq!(indices.gap_num, 22, "the identity, by hand");
+        assert!(indices.identity_holds);
+        // The supported split is the minimal one, index (38 - 36)/2 over 60.
+        assert_eq!(indices.supported_num, 2);
+        assert_eq!(indices.supported(), Ratio { num: 2, den: 120 });
+        // And the margin as a ratio is the certificate's own number.
+        assert_eq!(indices.gap(), Ratio { num: 22, den: 120 });
+    }
+
+    #[test]
+    fn the_isolation_identity_holds_over_a_whole_simulated_grid() {
+        // The Lean theorem is about three rationals; this checks the same
+        // identity against every quadruple of real simulated populations, which
+        // is what would catch a mistake in `isolation_indices` rather than in
+        // the algebra.
+        use crate::simulate::{clonal_tree, inject_gap_blocks, with_reciprocal_recombinants};
+        for pop in [
+            clonal_tree(2000, 4, 0.004, 3),
+            with_reciprocal_recombinants(clonal_tree(2000, 4, 0.004, 3), 0.5, 21).0,
+            inject_gap_blocks(clonal_tree(2000, 4, 0.004, 3), 0.25, 8),
+        ] {
+            let aln = Alignment::new(pop.labels.clone(), pop.sequences.clone()).unwrap();
+            let d = quartet_distribution(&aln, 20_000).expect("searchable");
+            assert_eq!(
+                d.isolation_identity_fails, 0,
+                "the isolation identity must hold on every quadruple"
+            );
+            assert!(
+                d.isolation_identity_holds > 1000,
+                "expected the full quadruple set, got {}",
+                d.isolation_identity_holds
+            );
+        }
     }
 
     #[test]

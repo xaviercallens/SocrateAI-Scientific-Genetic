@@ -1050,6 +1050,9 @@ fn run_experiment(args: &[String]) -> Result<bool, String> {
                         "proportion_violating": r.distribution.proportion_violating,
                         "q_residual": r.distribution.q_residual,
                         "mean_p_distance": r.distribution.mean_p_distance,
+                        "isolation_identity_holds": r.distribution.isolation_identity_holds,
+                        "isolation_identity_fails": r.distribution.isolation_identity_fails,
+                        "max_supported_isolation": r.distribution.max_supported_isolation,
                     })).collect::<Vec<_>>(),
                 }),
             )
@@ -1366,6 +1369,44 @@ fn run_experiment(args: &[String]) -> Result<bool, String> {
                         permutation. Where it and the certificate reach the same \
                         verdicts, the certificate's distinctive contribution is \
                         the exhibitable witness rather than the decision.",
+        },
+        "the_margin_is_an_isolation_index_gap": {
+            "why": "Section 14 closed the Vietoris-Rips route and concluded that \
+                    this programme's topological content is the certificate \
+                    itself. That is made precise rather than rhetorical: the \
+                    certificate's margin is twice the gap between the \
+                    Bandelt-Dress isolation indices of a quadruple's two \
+                    non-minimal splits, and the four-point condition is the \
+                    non-positivity of that gap. Both are proved in Lean \
+                    (isolation_gap_eq_half_sum_gap, \
+                    quadruple_fourPoint_iff_isolation_gap_nonpos) over three bare \
+                    rationals, because that is all the content there is -- no \
+                    tree, no complex, no metric space, which is exactly why the \
+                    certificate can be evaluated per subset where a global \
+                    complex cannot.",
+            "what_is_checked_here": "The Lean theorems are about three \
+                    rationals. These counts check the same identity against every \
+                    quadruple of every dataset, computing each split's index from \
+                    its own definition rather than from the sorted sums, so a \
+                    mistake in the implementation would show as a failure rather \
+                    than cancel out.",
+            "quadruples_where_the_identity_holds": results
+                .values()
+                .flatten()
+                .map(|r| r.distribution.isolation_identity_holds)
+                .sum::<usize>(),
+            "quadruples_where_it_fails": results
+                .values()
+                .flatten()
+                .map(|r| r.distribution.isolation_identity_fails)
+                .sum::<usize>(),
+            "a_failure_here_is_a_bug": "Any non-zero failure count is a defect in \
+                    `subset::isolation_indices`, not a fact about the data.",
+            "supported_split_index": "`max_supported_isolation` per seed is the \
+                    largest supported-split index in the population. On a tree \
+                    metric a supported split's index is an internal edge length, \
+                    so this is the split decomposition's own view of the same \
+                    data -- reported for interpretation, not used in any verdict."
         },
         "max_versus_mean": {
             "why": "The certificate's statistic is a maximum over quadruples, which                     is an extreme-value statistic: its null level grows with the                     number of subsets examined, and this grid shows it -- the                     quartet floor moves from 5-7 at 16 taxa to 9-10 at 32. So                     margins are not comparable across population sizes, which is                     the same incommensurability that has already cost this project                     three criteria. The averaged statistics do not have that                     defect and cannot be certified, because a mean has no witness                     to exhibit. This block measures the price.",
