@@ -3068,8 +3068,6 @@ fn run_topology(args: &[String]) -> Result<bool, String> {
         clonal_tree, clonal_tree_relaxed, inject_gap_blocks, with_recombination,
         with_reciprocal_recombinants,
     };
-    use reticulation::subset::{quartet_distribution, Alignment};
-
     let length: usize = parse_flag(args, "--length", 4000);
     let generations: u32 = parse_flag(args, "--generations", 4);
     let mu: f64 = parse_flag(args, "--mu", 0.004);
@@ -3079,7 +3077,6 @@ fn run_topology(args: &[String]) -> Result<bool, String> {
     let n_seeds: usize = parse_flag(args, "--seeds", 5);
     let seed0: u64 = parse_flag(args, "--seed", 2026);
     let replicates: usize = parse_flag(args, "--bootstrap", 99);
-    let max_quadruples: usize = parse_flag(args, "--max-quadruples", 20_000);
 
     let h1_of = |pop: &reticulation::simulate::Population| -> Result<(f64, usize, f64), String> {
         let dm = pop.distances(DistanceModel::PDistance)?;
@@ -3189,8 +3186,12 @@ fn run_topology(args: &[String]) -> Result<bool, String> {
                 _ => clonal_tree(length, generations, saturated_mu, seed),
             };
             let (total, count, scale) = h1_of(&pop)?;
-            let aln = Alignment::new(pop.labels.clone(), pop.sequences.clone())?;
-            let divergence = quartet_distribution(&aln, max_quadruples)?.mean_p_distance;
+            // The mean p-distance comes straight from the distance matrix. An
+            // earlier version took it from `quartet_distribution`, which also
+            // enumerates every quadruple and so tripped the refuse-to-sample
+            // ceiling at 64 taxa -- the guard firing correctly on a call that
+            // only ever needed one number.
+            let (divergence, _) = divergence(&pop);
             let gaps = gap_fraction(&pop.sequences);
             let null = null_for(length, divergence, gaps)?;
             null_empty += null.iter().filter(|v| **v <= 0.0).count();
@@ -3294,6 +3295,562 @@ fn run_topology(args: &[String]) -> Result<bool, String> {
     Ok(true)
 }
 
+/// Exhaustive maximum quartet margin, counted bit-parallel.
+///
+/// Returns the largest exact margin, the violating count and the number
+/// examined. Only the maximum is needed for a floor, so no certificates are
+/// built; when a witness is wanted the byte path of
+/// [`reticulation::subset::find_quartet_certificates`] produces it, and
+/// `bit_and_byte_counting_agree_on_random_alignments_with_gaps` is what licenses
+/// using the two interchangeably.
+fn max_quartet_margin_bits(
+    bits: &reticulation::BitAlignment,
+    max_quadruples: usize,
+) -> Result<(Option<reticulation::Ratio>, usize, usize), String> {
+    let n = bits.len();
+    if n < 4 {
+        return Err(format!("need at least 4 sequences, got {n}"));
+    }
+    let total = n * (n - 1) * (n - 2) * (n - 3) / 24;
+    if total > max_quadruples {
+        return Err(format!(
+            "{n} sequences give {total} quadruples, above the ceiling of \
+             {max_quadruples}. Raise it deliberately: this search is exhaustive \
+             and will not sample."
+        ));
+    }
+    let mut best: Option<reticulation::Ratio> = None;
+    let mut violating = 0usize;
+    let mut examined = 0usize;
+    for i in 0..n {
+        for j in (i + 1)..n {
+            for k in (j + 1)..n {
+                for l in (k + 1)..n {
+                    examined += 1;
+                    let counts = bits.quadruple_counts(i, j, k, l);
+                    if counts.common == 0 {
+                        continue;
+                    }
+                    let mut sums = counts.pairing_sums();
+                    sums.sort_unstable_by(|a, b| b.cmp(a));
+                    if sums[0] <= sums[1] {
+                        continue;
+                    }
+                    violating += 1;
+                    let margin = reticulation::Ratio {
+                        num: sums[0] - sums[1],
+                        den: counts.common,
+                    };
+                    let better = match best {
+                        None => true,
+                        Some(current) => margin
+                            .checked_cmp(current)
+                            .map(|o| o == std::cmp::Ordering::Greater)
+                            .unwrap_or(false),
+                    };
+                    if better {
+                        best = Some(margin);
+                    }
+                }
+            }
+        }
+    }
+    Ok((best, violating, examined))
+}
+
+/// How does the certificate's floor grow with taxon count?
+///
+/// This is the measurement the head-to-head said was missing. The statistic is a
+/// maximum over subsets, so its null level rises with the number of subsets
+/// examined, and margins are therefore not comparable across populations of
+/// different size. That defect was argued from two data points — the quartet
+/// floor moving from 5–7 at sixteen taxa to 9–10 at thirty-two — and arguing
+/// from two points is how this project has twice talked itself into an
+/// incommensurable comparison. So it is measured across a range, which the
+/// bit-parallel counting of [`reticulation::BitAlignment`] makes affordable:
+/// sixty-four taxa is 635 376 quadruples, and the byte path would spend 2.5e9
+/// column visits on each population.
+///
+/// Two things are reported. The **floor** — the largest margin a clonal
+/// population with no reticulation produces — as a function of taxon count,
+/// which is the growth the defect consists of. And the **separation**, the
+/// reciprocal-mosaic margin over that floor at the same seed, which says whether
+/// the growth actually costs detection or merely shifts both numbers.
+fn run_scale(args: &[String]) -> Result<bool, String> {
+    use reticulation::simulate::{clonal_tree, clonal_tree_relaxed, with_reciprocal_recombinants};
+    use reticulation::subset::Alignment;
+    use reticulation::BitAlignment;
+
+    let length: usize = parse_flag(args, "--length", 4000);
+    let mu: f64 = parse_flag(args, "--mu", 0.004);
+    let spread: f64 = parse_flag(args, "--spread", 1.0);
+    let n_seeds: usize = parse_flag(args, "--seeds", 3);
+    let seed0: u64 = parse_flag(args, "--seed", 2026);
+    let max_quadruples: usize = parse_flag(args, "--max-quadruples", 2_000_000);
+    let generations: Vec<u32> = parse_flag(args, "--generations", "4,5,6".to_string())
+        .split(',')
+        .filter_map(|s| s.trim().parse().ok())
+        .collect();
+
+    #[derive(serde::Serialize)]
+    struct Rung {
+        generations: u32,
+        taxa: usize,
+        quadruples: usize,
+        clonal_strict_floor_exact: Vec<String>,
+        clonal_strict_floor: Vec<f64>,
+        clonal_relaxed_floor_exact: Vec<String>,
+        one_recombinant_margin_exact: Vec<String>,
+        one_recombinant_above_floor: String,
+        mosaic_margin_exact: Vec<String>,
+        mosaic_margin: Vec<f64>,
+        worst_seed_separation_over_strict_floor: f64,
+        clonal_violating_fraction: Vec<f64>,
+    }
+
+    let measure = |pop: &reticulation::simulate::Population| -> Result<
+        (Option<reticulation::Ratio>, usize, usize),
+        String,
+    > {
+        let aln = Alignment::new(pop.labels.clone(), pop.sequences.clone())?;
+        let bits = BitAlignment::from_alignment(&aln)?;
+        max_quartet_margin_bits(&bits, max_quadruples)
+    };
+
+    let mut rungs: Vec<Rung> = Vec::new();
+    for &g in &generations {
+        let taxa = 1usize << g;
+        let mut strict = Vec::new();
+        let mut strict_f = Vec::new();
+        let mut relaxed = Vec::new();
+        let mut mosaic = Vec::new();
+        let mut mosaic_f = Vec::new();
+        let mut single = Vec::new();
+        let mut single_above = Vec::new();
+        let mut separations = Vec::new();
+        let mut violating_fraction = Vec::new();
+        let mut quadruples = 0usize;
+        for index in 0..n_seeds {
+            let seed = seed0 + index as u64;
+            let (s_margin, s_violating, examined) =
+                measure(&clonal_tree(length, g, mu, seed))?;
+            quadruples = examined;
+            let (r_margin, _, _) =
+                measure(&clonal_tree_relaxed(length, g, mu, spread, seed))?;
+            let (m_margin, _, _) = measure(
+                &with_reciprocal_recombinants(clonal_tree(length, g, mu, seed), 0.5, seed ^ 0x33).0,
+            )?;
+            // The single recombinant, which the topological statistic misses at
+            // 0 of 3 in every filtration variant. Measured here at the same
+            // taxon count so the two can actually be compared.
+            let (one_margin, _, _) = measure(
+                &reticulation::simulate::with_recombination(
+                    clonal_tree(length, g, mu, seed),
+                    0.5,
+                    seed ^ 0x11,
+                )
+                .0,
+            )?;
+            single.push(margin_exact(one_margin));
+            single_above.push(exceeds_k_times(one_margin, s_margin, 1));
+            strict.push(margin_exact(s_margin));
+            strict_f.push(margin_f64(s_margin));
+            relaxed.push(margin_exact(r_margin));
+            mosaic.push(margin_exact(m_margin));
+            mosaic_f.push(margin_f64(m_margin));
+            violating_fraction.push(s_violating as f64 / examined.max(1) as f64);
+            let (a, b) = (margin_f64(m_margin), margin_f64(s_margin));
+            separations.push(if b > 0.0 { a / b } else { f64::INFINITY });
+        }
+        rungs.push(Rung {
+            generations: g,
+            taxa,
+            quadruples,
+            clonal_strict_floor_exact: strict,
+            clonal_strict_floor: strict_f,
+            clonal_relaxed_floor_exact: relaxed,
+            one_recombinant_margin_exact: single,
+            one_recombinant_above_floor: {
+                let (held, total) = held_at(&single_above);
+                format!("{held}/{total}")
+            },
+            mosaic_margin_exact: mosaic,
+            mosaic_margin: mosaic_f,
+            worst_seed_separation_over_strict_floor: separations
+                .iter()
+                .copied()
+                .fold(f64::INFINITY, f64::min),
+            clonal_violating_fraction: violating_fraction,
+        });
+    }
+
+    // The speedup claim, measured rather than asserted, at the largest rung the
+    // byte path can be timed on without dominating the run.
+    let timing_generations: u32 = parse_flag(args, "--time-generations", 5);
+    let timing_pop = clonal_tree(length, timing_generations, mu, seed0);
+    let timing_aln = Alignment::new(timing_pop.labels.clone(), timing_pop.sequences.clone())?;
+    let bits = BitAlignment::from_alignment(&timing_aln)?;
+    let bit_start = std::time::Instant::now();
+    let (bit_margin, _, bit_examined) = max_quartet_margin_bits(&bits, max_quadruples)?;
+    let bit_secs = bit_start.elapsed().as_secs_f64();
+    let byte_start = std::time::Instant::now();
+    let byte_search =
+        reticulation::subset::find_quartet_certificates(&timing_aln, 1, max_quadruples)?;
+    let byte_secs = byte_start.elapsed().as_secs_f64();
+    let byte_margin = byte_search.certificates.first().map(|c| c.margin());
+    let agree = margin_exact(bit_margin) == margin_exact(byte_margin);
+
+    let report = serde_json::json!({
+        "experiment": "how does the certificate's floor grow with taxon count?",
+        "why": "The statistic is a maximum over subsets, so its null level rises \
+                with the number of subsets examined and margins are not \
+                comparable across population sizes. That defect was previously \
+                argued from two data points; arguing from two points is how this \
+                project has twice talked itself into an incommensurable \
+                comparison, so it is measured across a range here.",
+        "parameters": {
+            "alignment_length": length,
+            "mu_per_generation": mu,
+            "relaxed_clock_spread": spread,
+            "seeds": n_seeds,
+            "exhaustive": "every quadruple examined; the search refuses to sample"
+        },
+        "rungs": rungs,
+        "implementation_check": {
+            "why": "The bit-parallel counter is an optimisation, and an \
+                    optimisation that disagrees with the obvious implementation \
+                    is a silent wrong answer. The byte path is the \
+                    specification.",
+            "taxa_timed": 1usize << timing_generations,
+            "quadruples": bit_examined,
+            "bit_parallel_seconds": bit_secs,
+            "byte_seconds": byte_secs,
+            "speedup": if bit_secs > 0.0 { byte_secs / bit_secs } else { f64::INFINITY },
+            "margins_agree": agree,
+            "bit_margin": margin_exact(bit_margin),
+            "byte_margin": margin_exact(byte_margin),
+        },
+        "how_to_read_this": "A floor that grows with taxon count is the defect. \
+                Whether it MATTERS is the separation column: if the mosaic margin \
+                grows at least as fast as the floor, the growth shifts both \
+                numbers and detection at a fixed taxon count is unaffected -- but \
+                margins still cannot be compared BETWEEN taxon counts, and a \
+                threshold calibrated at one size does not transfer to another."
+    });
+    println!(
+        "{}",
+        serde_json::to_string_pretty(&report).map_err(|e| e.to_string())?
+    );
+    if !agree {
+        eprintln!("FAIL: the bit-parallel and byte counters disagree on the margin");
+        return Ok(false);
+    }
+    Ok(true)
+}
+
+/// Restrict an alignment to the columns comparable in *every* sequence.
+///
+/// Global complete deletion: one denominator for the whole population. This is
+/// the only form of complete deletion a Vietoris--Rips filtration can use, since
+/// the complex is built from all pairs at once and there is no "within this
+/// subset" to restrict to. It is strictly weaker than the per-subset complete
+/// deletion the certificate uses, and the cost is columns.
+fn globally_comparable(pop: &reticulation::simulate::Population) -> reticulation::simulate::Population {
+    let width = pop.sequences.first().map_or(0, Vec::len);
+    let keep: Vec<usize> = (0..width)
+        .filter(|&column| {
+            pop.sequences.iter().all(|row| {
+                matches!(
+                    row[column].to_ascii_uppercase(),
+                    b'A' | b'C' | b'G' | b'T'
+                )
+            })
+        })
+        .collect();
+    reticulation::simulate::Population {
+        labels: pop.labels.clone(),
+        sequences: pop
+            .sequences
+            .iter()
+            .map(|row| keep.iter().map(|&c| row[c]).collect())
+            .collect(),
+    }
+}
+
+/// Test three cheap filtration changes against the failure of §13.3.
+///
+/// At sixty-four taxa the Vietoris--Rips H1 statistic fires on gap-blocked and
+/// on saturated populations -- neither of which contains reticulation -- and
+/// misses a single recombinant entirely. Three hypotheses explain that, each
+/// implying a different change to the filtration, and each is cheap enough to
+/// decide now:
+///
+/// * **F1, saturation.** The p-distance is concave in true divergence, so a
+///   high-divergence population has compressed distances that create spurious
+///   cycles. Change: Jukes--Cantor corrected distances.
+/// * **F2, denominators.** Pairwise deletion gives each pair its own
+///   denominator -- the audit's finding 6 -- and Rips cannot avoid it per
+///   subset. Change: one global denominator, columns comparable in every
+///   sequence.
+/// * **F3, the summary.** Gap blocks produce many weak cycles and mosaics few
+///   strong ones, which total persistence conflates. Change: the longest bar
+///   instead of the total.
+///
+/// The criterion was fixed before the run: a variant succeeds if the
+/// reciprocal-mosaic population is significant at every seed **and** both
+/// no-reticulation populations are significant at none. A variant that merely
+/// reduces one false positive has diagnosed something without fixing it, and is
+/// reported as that.
+///
+/// The two expensive hypotheses are deliberately not tested here. Filtering on
+/// residuals from a fitted tree metric, and abandoning distance filtration for a
+/// complex built from violating subsets, are both principled rebuilds worth
+/// doing only if these three show the cause is none of the above.
+fn run_filtration(args: &[String]) -> Result<bool, String> {
+    use reticulation::rips::vietoris_rips_h1;
+    use reticulation::simulate::{
+        clonal_tree, inject_gap_blocks, with_recombination, with_reciprocal_recombinants,
+    };
+
+    let length: usize = parse_flag(args, "--length", 4000);
+    let generations: u32 = parse_flag(args, "--generations", 6);
+    let mu: f64 = parse_flag(args, "--mu", 0.004);
+    let saturated_mu: f64 = parse_flag(args, "--saturated-mu", 0.04);
+    let gap_fraction_flag: f64 = parse_flag(args, "--gap-fraction", 0.25);
+    let n_seeds: usize = parse_flag(args, "--seeds", 3);
+    let seed0: u64 = parse_flag(args, "--seed", 2026);
+    let replicates: usize = parse_flag(args, "--bootstrap", 49);
+    let spread: f64 = parse_flag(args, "--spread", 1.0);
+
+    let frac = |flags: &[bool]| -> String {
+        let (held, total) = held_at(flags);
+        format!("{held}/{total}")
+    };
+
+    // Four variants: the baseline that failed, plus one per hypothesis.
+    #[derive(Clone, Copy, PartialEq, Eq)]
+    enum Variant {
+        Baseline,
+        JukesCantor,
+        GlobalDeletion,
+        LongestBar,
+    }
+    let variants = [
+        ("baseline_p_distance_total", Variant::Baseline),
+        ("F1_jukes_cantor_total", Variant::JukesCantor),
+        ("F2_global_complete_deletion_total", Variant::GlobalDeletion),
+        ("F3_p_distance_longest_bar", Variant::LongestBar),
+    ];
+
+    let statistic = |pop: &reticulation::simulate::Population,
+                     variant: Variant|
+     -> Result<(f64, usize), String> {
+        let effective = if variant == Variant::GlobalDeletion {
+            globally_comparable(pop)
+        } else {
+            reticulation::simulate::Population {
+                labels: pop.labels.clone(),
+                sequences: pop.sequences.clone(),
+            }
+        };
+        if effective.sequences.first().map_or(0, Vec::len) == 0 {
+            return Err("global complete deletion left no columns".to_string());
+        }
+        let model = if variant == Variant::JukesCantor {
+            DistanceModel::JukesCantor
+        } else {
+            DistanceModel::PDistance
+        };
+        let dm = effective.distances(model)?;
+        let scale = default_scale(&dm);
+        let persistence = vietoris_rips_h1(&dm, scale);
+        let value = if variant == Variant::LongestBar {
+            persistence.h1.first().map_or(0.0, |bar| bar.persistence)
+        } else {
+            persistence.h1_total_persistence
+        };
+        Ok((value, persistence.h1.len()))
+    };
+
+    // The four datasets that decide the question: one reticulate control that
+    // must keep firing, one reticulate case the baseline misses, and the two
+    // no-reticulation populations the baseline falsely fires on.
+    let build = |which: &str, seed: u64| -> reticulation::simulate::Population {
+        match which {
+            "D5_reciprocal_mosaics" => {
+                with_reciprocal_recombinants(clonal_tree(length, generations, mu, seed), 0.5, seed ^ 0x33).0
+            }
+            "D3_one_recombinant" => {
+                with_recombination(clonal_tree(length, generations, mu, seed), 0.5, seed ^ 0x11).0
+            }
+            "D6_gap_blocks" => inject_gap_blocks(
+                clonal_tree(length, generations, mu, seed),
+                gap_fraction_flag,
+                seed ^ 0x44,
+            ),
+            _ => clonal_tree(length, generations, saturated_mu, seed),
+        }
+    };
+    let datasets = [
+        ("D5_reciprocal_mosaics", true),
+        ("D3_one_recombinant", true),
+        ("D6_gap_blocks", false),
+        ("D7_saturated", false),
+    ];
+
+    #[derive(serde::Serialize)]
+    struct Cell {
+        dataset: &'static str,
+        reticulation_present: bool,
+        observed: Vec<f64>,
+        cycles: Vec<usize>,
+        null_mean: Vec<f64>,
+        null_replicates_with_no_signal: usize,
+        null_replicates_total: usize,
+        null_is_degenerate: bool,
+        p_value: Vec<f64>,
+        significant_at_005: String,
+    }
+    #[derive(serde::Serialize)]
+    struct VariantResult {
+        variant: &'static str,
+        hypothesis: &'static str,
+        cells: Vec<Cell>,
+        mosaics_detected: String,
+        false_positives: String,
+        criterion_met: bool,
+    }
+
+    let mut results: Vec<VariantResult> = Vec::new();
+    for (name, variant) in variants {
+        let hypothesis = match variant {
+            Variant::Baseline => "none: the construction of section 13.3, repeated as the control",
+            Variant::JukesCantor => "F1 saturation: p-distance concavity creates spurious cycles at high divergence",
+            Variant::GlobalDeletion => "F2 denominators: pairwise deletion is the audit's finding 6, appearing as topology",
+            Variant::LongestBar => "F3 summary: many weak cycles and few strong ones are conflated by a total",
+        };
+        let mut cells = Vec::new();
+        let mut mosaic_flags = Vec::new();
+        let mut false_positive_flags = Vec::new();
+        for (dataset, reticulate) in datasets {
+            let mut observed = Vec::new();
+            let mut cycles = Vec::new();
+            let mut null_means = Vec::new();
+            let mut p_values = Vec::new();
+            let mut flags = Vec::new();
+            let mut null_empty = 0usize;
+            let mut null_drawn = 0usize;
+            for index in 0..n_seeds {
+                let seed = seed0 + index as u64;
+                let pop = build(dataset, seed);
+                let (value, count) = statistic(&pop, variant)?;
+                // The matched null: clonal, relaxed clock, tuned to this
+                // population's own divergence, carrying its own gap load.
+                let (mean_p, _) = divergence(&pop);
+                let gaps = gap_fraction(&pop.sequences);
+                let (null_mu, _) =
+                    tune_mu_for_divergence(length, generations, spread, mean_p, 1);
+                let mut null_values = Vec::with_capacity(replicates);
+                for replicate in 0..replicates {
+                    let null_seed = 0xF117_0000 + replicate as u64;
+                    let mut null_pop = reticulation::simulate::clonal_tree_relaxed(
+                        length, generations, null_mu, spread, null_seed,
+                    );
+                    if gaps > 0.001 {
+                        null_pop = inject_gap_blocks(null_pop, gaps, null_seed ^ 0xFACE);
+                    }
+                    null_values.push(statistic(&null_pop, variant)?.0);
+                }
+                null_empty += null_values.iter().filter(|v| **v <= 0.0).count();
+                null_drawn += null_values.len();
+                let at_least = null_values.iter().filter(|v| **v >= value).count();
+                let p_value = (at_least + 1) as f64 / (replicates + 1) as f64;
+                observed.push(value);
+                cycles.push(count);
+                null_means.push(if null_values.is_empty() {
+                    0.0
+                } else {
+                    null_values.iter().sum::<f64>() / null_values.len() as f64
+                });
+                p_values.push(p_value);
+                flags.push(p_value <= 0.05);
+            }
+            let held = flags.iter().filter(|b| **b).count();
+            if dataset == "D5_reciprocal_mosaics" {
+                mosaic_flags = flags.clone();
+            }
+            if !reticulate {
+                false_positive_flags.extend(flags.iter().copied());
+            }
+            cells.push(Cell {
+                dataset,
+                reticulation_present: reticulate,
+                observed,
+                cycles,
+                null_mean: null_means,
+                null_replicates_with_no_signal: null_empty,
+                null_replicates_total: null_drawn,
+                null_is_degenerate: null_drawn > 0 && null_empty == null_drawn,
+                p_value: p_values,
+                significant_at_005: format!("{held}/{n_seeds}"),
+            });
+        }
+        let mosaics_all = mosaic_flags.iter().all(|b| *b) && !mosaic_flags.is_empty();
+        let no_false_positives = false_positive_flags.iter().all(|b| !*b);
+        results.push(VariantResult {
+            variant: name,
+            hypothesis,
+            cells,
+            mosaics_detected: frac(&mosaic_flags),
+            false_positives: frac(&false_positive_flags),
+            criterion_met: mosaics_all && no_false_positives,
+        });
+    }
+
+    let winner = results
+        .iter()
+        .find(|r| r.criterion_met && r.variant != "baseline_p_distance_total")
+        .map(|r| r.variant);
+    let report = serde_json::json!({
+        "experiment": "three cheap filtration changes against the failure of \
+                       section 13.3",
+        "the_failure_being_explained": "At 64 taxa the Vietoris-Rips H1 statistic \
+                fires at 3/3 on gap-blocked and on saturated populations, neither \
+                of which contains reticulation, and misses a single recombinant \
+                entirely at 0/3.",
+        "criterion_fixed_before_the_run": "A variant succeeds if the \
+                reciprocal-mosaic population is significant at EVERY seed and \
+                both no-reticulation populations at NONE. A variant that merely \
+                reduces one false positive has diagnosed something without \
+                fixing it.",
+        "not_tested_here": "Two expensive hypotheses are deliberately held back: \
+                filtering on residuals from a fitted tree metric, and abandoning \
+                distance filtration for a complex built from violating subsets \
+                under per-subset complete deletion. Both are principled rebuilds \
+                worth doing only if these three show the cause is none of the \
+                above.",
+        "parameters": {
+            "taxa": 1usize << generations,
+            "alignment_length": length,
+            "seeds": n_seeds,
+            "bootstrap_replicates": replicates,
+            "p_value_floor": 1.0 / (replicates + 1) as f64,
+        },
+        "variants": results,
+        "winner": winner,
+        "how_to_read_a_degenerate_cell": "`null_is_degenerate` means the null \
+                produced no signal in any replicate, so the p-value is the floor \
+                whenever the observed value is positive and 1 otherwise. Such a \
+                cell carries no calibration and its count must not be read as \
+                power or specificity."
+    });
+    println!(
+        "{}",
+        serde_json::to_string_pretty(&report).map_err(|e| e.to_string())?
+    );
+    Ok(true)
+}
+
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().skip(1).collect();
     let result = match args.first().map(String::as_str) {
@@ -3307,6 +3864,8 @@ fn main() -> ExitCode {
         Some("real-data") => run_real_data(&args),
         Some("breakpoint") => run_breakpoint(&args),
         Some("topology") => run_topology(&args),
+        Some("scale") => run_scale(&args),
+        Some("filtration") => run_filtration(&args),
         _ => {
             eprintln!(
                 "usage:\n  reticulation controls [--length N] [--generations G] \

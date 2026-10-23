@@ -1,0 +1,501 @@
+{
+  "criterion_fixed_before_the_run": "A variant succeeds if the reciprocal-mosaic population is significant at EVERY seed and both no-reticulation populations at NONE. A variant that merely reduces one false positive has diagnosed something without fixing it.",
+  "experiment": "three cheap filtration changes against the failure of section 13.3",
+  "how_to_read_a_degenerate_cell": "`null_is_degenerate` means the null produced no signal in any replicate, so the p-value is the floor whenever the observed value is positive and 1 otherwise. Such a cell carries no calibration and its count must not be read as power or specificity.",
+  "not_tested_here": "Two expensive hypotheses are deliberately held back: filtering on residuals from a fitted tree metric, and abandoning distance filtration for a complex built from violating subsets under per-subset complete deletion. Both are principled rebuilds worth doing only if these three show the cause is none of the above.",
+  "parameters": {
+    "alignment_length": 4000,
+    "bootstrap_replicates": 49,
+    "p_value_floor": 0.02,
+    "seeds": 3,
+    "taxa": 64
+  },
+  "the_failure_being_explained": "At 64 taxa the Vietoris-Rips H1 statistic fires at 3/3 on gap-blocked and on saturated populations, neither of which contains reticulation, and misses a single recombinant entirely at 0/3.",
+  "variants": [
+    {
+      "cells": [
+        {
+          "cycles": [
+            2,
+            1,
+            2
+          ],
+          "dataset": "D5_reciprocal_mosaics",
+          "null_is_degenerate": true,
+          "null_mean": [
+            -0.0,
+            -0.0,
+            -0.0
+          ],
+          "null_replicates_total": 147,
+          "null_replicates_with_no_signal": 147,
+          "observed": [
+            0.014500000000000002,
+            0.013750000000000002,
+            0.016000000000000004
+          ],
+          "p_value": [
+            0.02,
+            0.02,
+            0.02
+          ],
+          "reticulation_present": true,
+          "significant_at_005": "3/3"
+        },
+        {
+          "cycles": [
+            0,
+            0,
+            0
+          ],
+          "dataset": "D3_one_recombinant",
+          "null_is_degenerate": true,
+          "null_mean": [
+            -0.0,
+            -0.0,
+            -0.0
+          ],
+          "null_replicates_total": 147,
+          "null_replicates_with_no_signal": 147,
+          "observed": [
+            -0.0,
+            -0.0,
+            -0.0
+          ],
+          "p_value": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "reticulation_present": true,
+          "significant_at_005": "0/3"
+        },
+        {
+          "cycles": [
+            12,
+            12,
+            16
+          ],
+          "dataset": "D6_gap_blocks",
+          "null_is_degenerate": false,
+          "null_mean": [
+            0.0035690372822526966,
+            0.003322496369788302,
+            0.0035690372822526966
+          ],
+          "null_replicates_total": 147,
+          "null_replicates_with_no_signal": 5,
+          "observed": [
+            0.010807161327730068,
+            0.006562548460893771,
+            0.014789884589781973
+          ],
+          "p_value": [
+            0.02,
+            0.12,
+            0.02
+          ],
+          "reticulation_present": false,
+          "significant_at_005": "2/3"
+        },
+        {
+          "cycles": [
+            8,
+            4,
+            9
+          ],
+          "dataset": "D7_saturated",
+          "null_is_degenerate": true,
+          "null_mean": [
+            -0.0,
+            -0.0,
+            -0.0
+          ],
+          "null_replicates_total": 147,
+          "null_replicates_with_no_signal": 147,
+          "observed": [
+            0.011499999999999982,
+            0.006750000000000089,
+            0.00774999999999984
+          ],
+          "p_value": [
+            0.02,
+            0.02,
+            0.02
+          ],
+          "reticulation_present": false,
+          "significant_at_005": "3/3"
+        }
+      ],
+      "criterion_met": false,
+      "false_positives": "5/6",
+      "hypothesis": "none: the construction of section 13.3, repeated as the control",
+      "mosaics_detected": "3/3",
+      "variant": "baseline_p_distance_total"
+    },
+    {
+      "cells": [
+        {
+          "cycles": [
+            2,
+            1,
+            2
+          ],
+          "dataset": "D5_reciprocal_mosaics",
+          "null_is_degenerate": true,
+          "null_mean": [
+            -0.0,
+            -0.0,
+            -0.0
+          ],
+          "null_replicates_total": 147,
+          "null_replicates_with_no_signal": 147,
+          "observed": [
+            0.015218155804281545,
+            0.014400861352352953,
+            0.016757121741571984
+          ],
+          "p_value": [
+            0.02,
+            0.02,
+            0.02
+          ],
+          "reticulation_present": true,
+          "significant_at_005": "3/3"
+        },
+        {
+          "cycles": [
+            0,
+            0,
+            0
+          ],
+          "dataset": "D3_one_recombinant",
+          "null_is_degenerate": true,
+          "null_mean": [
+            -0.0,
+            -0.0,
+            -0.0
+          ],
+          "null_replicates_total": 147,
+          "null_replicates_with_no_signal": 147,
+          "observed": [
+            -0.0,
+            -0.0,
+            -0.0
+          ],
+          "p_value": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "reticulation_present": true,
+          "significant_at_005": "0/3"
+        },
+        {
+          "cycles": [
+            12,
+            12,
+            16
+          ],
+          "dataset": "D6_gap_blocks",
+          "null_is_degenerate": false,
+          "null_mean": [
+            0.0036469504211608704,
+            0.0033934743745892017,
+            0.0036469504211608704
+          ],
+          "null_replicates_total": 147,
+          "null_replicates_with_no_signal": 5,
+          "observed": [
+            0.011242649222114844,
+            0.006806818722492555,
+            0.015491976117952569
+          ],
+          "p_value": [
+            0.02,
+            0.12,
+            0.02
+          ],
+          "reticulation_present": false,
+          "significant_at_005": "2/3"
+        },
+        {
+          "cycles": [
+            8,
+            4,
+            9
+          ],
+          "dataset": "D7_saturated",
+          "null_is_degenerate": true,
+          "null_mean": [
+            -0.0,
+            -0.0,
+            -0.0
+          ],
+          "null_replicates_total": 147,
+          "null_replicates_with_no_signal": 147,
+          "observed": [
+            0.019266348603729777,
+            0.010950561727533448,
+            0.012408220616301646
+          ],
+          "p_value": [
+            0.02,
+            0.02,
+            0.02
+          ],
+          "reticulation_present": false,
+          "significant_at_005": "3/3"
+        }
+      ],
+      "criterion_met": false,
+      "false_positives": "5/6",
+      "hypothesis": "F1 saturation: p-distance concavity creates spurious cycles at high divergence",
+      "mosaics_detected": "3/3",
+      "variant": "F1_jukes_cantor_total"
+    },
+    {
+      "cells": [
+        {
+          "cycles": [
+            2,
+            1,
+            2
+          ],
+          "dataset": "D5_reciprocal_mosaics",
+          "null_is_degenerate": true,
+          "null_mean": [
+            -0.0,
+            -0.0,
+            -0.0
+          ],
+          "null_replicates_total": 147,
+          "null_replicates_with_no_signal": 147,
+          "observed": [
+            0.014500000000000002,
+            0.013750000000000002,
+            0.016000000000000004
+          ],
+          "p_value": [
+            0.02,
+            0.02,
+            0.02
+          ],
+          "reticulation_present": true,
+          "significant_at_005": "3/3"
+        },
+        {
+          "cycles": [
+            0,
+            0,
+            0
+          ],
+          "dataset": "D3_one_recombinant",
+          "null_is_degenerate": true,
+          "null_mean": [
+            -0.0,
+            -0.0,
+            -0.0
+          ],
+          "null_replicates_total": 147,
+          "null_replicates_with_no_signal": 147,
+          "observed": [
+            -0.0,
+            -0.0,
+            -0.0
+          ],
+          "p_value": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "reticulation_present": true,
+          "significant_at_005": "0/3"
+        },
+        {
+          "cycles": [
+            0,
+            0,
+            0
+          ],
+          "dataset": "D6_gap_blocks",
+          "null_is_degenerate": false,
+          "null_mean": [
+            0.002331264123716954,
+            0.0002834467120181406,
+            0.002331264123716954
+          ],
+          "null_replicates_total": 147,
+          "null_replicates_with_no_signal": 140,
+          "observed": [
+            -0.0,
+            -0.0,
+            -0.0
+          ],
+          "p_value": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "reticulation_present": false,
+          "significant_at_005": "0/3"
+        },
+        {
+          "cycles": [
+            8,
+            4,
+            9
+          ],
+          "dataset": "D7_saturated",
+          "null_is_degenerate": true,
+          "null_mean": [
+            -0.0,
+            -0.0,
+            -0.0
+          ],
+          "null_replicates_total": 147,
+          "null_replicates_with_no_signal": 147,
+          "observed": [
+            0.011499999999999982,
+            0.006750000000000089,
+            0.00774999999999984
+          ],
+          "p_value": [
+            0.02,
+            0.02,
+            0.02
+          ],
+          "reticulation_present": false,
+          "significant_at_005": "3/3"
+        }
+      ],
+      "criterion_met": false,
+      "false_positives": "3/6",
+      "hypothesis": "F2 denominators: pairwise deletion is the audit's finding 6, appearing as topology",
+      "mosaics_detected": "3/3",
+      "variant": "F2_global_complete_deletion_total"
+    },
+    {
+      "cells": [
+        {
+          "cycles": [
+            2,
+            1,
+            2
+          ],
+          "dataset": "D5_reciprocal_mosaics",
+          "null_is_degenerate": true,
+          "null_mean": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "null_replicates_total": 147,
+          "null_replicates_with_no_signal": 147,
+          "observed": [
+            0.013250000000000001,
+            0.013750000000000002,
+            0.014500000000000002
+          ],
+          "p_value": [
+            0.02,
+            0.02,
+            0.02
+          ],
+          "reticulation_present": true,
+          "significant_at_005": "3/3"
+        },
+        {
+          "cycles": [
+            0,
+            0,
+            0
+          ],
+          "dataset": "D3_one_recombinant",
+          "null_is_degenerate": true,
+          "null_mean": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "null_replicates_total": 147,
+          "null_replicates_with_no_signal": 147,
+          "observed": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "p_value": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "reticulation_present": true,
+          "significant_at_005": "0/3"
+        },
+        {
+          "cycles": [
+            12,
+            12,
+            16
+          ],
+          "dataset": "D6_gap_blocks",
+          "null_is_degenerate": false,
+          "null_mean": [
+            0.0012026837164527467,
+            0.0011660332961704602,
+            0.0012026837164527467
+          ],
+          "null_replicates_total": 147,
+          "null_replicates_with_no_signal": 5,
+          "observed": [
+            0.002286621675267962,
+            0.0013333333333333322,
+            0.001911807937285643
+          ],
+          "p_value": [
+            0.08,
+            0.38,
+            0.16
+          ],
+          "reticulation_present": false,
+          "significant_at_005": "0/3"
+        },
+        {
+          "cycles": [
+            8,
+            4,
+            9
+          ],
+          "dataset": "D7_saturated",
+          "null_is_degenerate": true,
+          "null_mean": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "null_replicates_total": 147,
+          "null_replicates_with_no_signal": 147,
+          "observed": [
+            0.003249999999999975,
+            0.003750000000000031,
+            0.0017499999999999738
+          ],
+          "p_value": [
+            0.02,
+            0.02,
+            0.02
+          ],
+          "reticulation_present": false,
+          "significant_at_005": "3/3"
+        }
+      ],
+      "criterion_met": false,
+      "false_positives": "3/6",
+      "hypothesis": "F3 summary: many weak cycles and few strong ones are conflated by a total",
+      "mosaics_detected": "3/3",
+      "variant": "F3_p_distance_longest_bar"
+    }
+  ],
+  "winner": null
+}

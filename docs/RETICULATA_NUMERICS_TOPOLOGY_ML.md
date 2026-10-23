@@ -40,7 +40,7 @@ with it.
 
 ## 2. Numeric Rust
 
-### 2.1 Bit-parallel subset counting, to attack the statistic's known weakness · **highest value**
+### 2.1 Bit-parallel subset counting · **done, 21.6× measured**
 
 The certificate's statistic is a maximum over subsets, and the head-to-head
 showed its real defect is not power but **incomparability across taxon counts**:
@@ -59,14 +59,18 @@ masked by the comparable-site mask, and a quadruple's six counts come from six
 such reductions over `L/64` words. That is a 20–60× reduction in inner-loop work
 on plausible parameters, which is what makes 64 and 128 taxa measurable.
 
-* **First step.** A `BitAlignment` type beside `Alignment`, with a
-  `quadruple_counts` that is checked against the existing byte implementation on
-  random alignments by a property test. Not a replacement — a second
-  implementation that must agree, which is the only way to add a clever one
-  safely.
-* **Abandon if.** The agreement test is hard to make exhaustive, or the measured
-  speedup on 16–64 taxa is under ~5×, in which case the complexity is not worth
-  the second code path.
+**Implemented as `bitcount::BitAlignment`.** Measured **21.6×** at thirty-two
+taxa (0.24 s against 5.14 s over 35 960 quadruples) with both implementations
+returning the same exact margin, which the `scale` command re-checks on every run
+and exits non-zero if it ever fails. The byte path remains the specification and
+the agreement is a property test across widths 1, 7, 63, 64, 65, 130 and 257 plus
+gap-blocked simulated data.
+
+What it bought, immediately: the taxon-count sweep of §13 in the companion
+document. The floor roughly doubles from sixteen to sixty-four taxa while the
+mosaic margin stays flat, so separation halves from 19.4× to 9.2× — the defect
+measured across a range rather than argued from two points. Detection at a fixed
+size survives; a threshold calibrated at one size does not transfer.
 * **Note.** `popcount` is a single instruction on anything this will run on;
   explicit SIMD is not needed and would add an unsafe surface for little gain.
 
@@ -134,13 +138,28 @@ concern is neither reproduced nor refuted. See §12.4 of the companion document.
 
 * **Diagnosed cause.** At 16 taxa with a Rips threshold at the median
   off-diagonal distance, the complex is too small for H₁ to populate.
-* **Consequence for this plan.** §2.1 must come *first*. Larger taxon counts are
-  not an optimisation here; they are the precondition for the experiment to mean
-  anything. The ranking in §5 is corrected accordingly.
-* **One observation survives.** When cycles do appear, the reciprocal-mosaic
-  dataset's total persistence is an order of magnitude larger (0.0107, 0.0095)
-  than the single-recombinant or saturated ones (0.0003–0.0013). The *magnitude*
-  may separate where the binary verdict cannot — the same fix applies.
+* **Re-run at 64 taxa, and the answer arrived.** §2.1 made it affordable. Five
+  of seven nulls are still degenerate, so the run is still formally flagged
+  uninterpretable — **but the two that are not degenerate are the two datasets
+  containing no reticulation**, and the statistic fires on both at 3/3:
+  saturated data (ten times the divergence) and gap-blocked data. Meanwhile a
+  genuine single recombinant produces *no cycles at all* and is missed 0/3. The
+  magnitude hypothesis below also fails: the mosaic persistence is within a
+  factor of 1.7 of both false positives. See §13.3 of the companion document for
+  the scope caveats, which matter — this is a result about this construction and
+  calibration at three seeds, not a refutation of the published method.
+* **And one structural argument, which is stronger than the counts.** The Rips
+  construction needs a *global* distance matrix, so it cannot use complete
+  deletion within a subset — there is no "within this subset" when the complex is
+  built from all pairs at once. The topological route therefore necessarily uses
+  pairwise deletion and necessarily inherits the audit's finding 6, the confound
+  the four-point certificate was redesigned to avoid. The gap-blocked dataset's
+  13.3 cycles per population is that confound appearing as topology. This follows
+  from the construction, not from three seeds.
+* **Hypothesis tested and failed, kept rather than deleted.** At 16 taxa the
+  mosaic persistence looked an order of magnitude larger than the
+  single-recombinant and saturated ones, suggesting magnitude might separate
+  where the binary verdict could not. At 64 taxa it does not.
 
 ### 3.2 A four-way benchmark on one ground-truth grid
 
@@ -160,7 +179,13 @@ honest expectation, after the head-to-head, is that **the certificate will not
 win on power** and its contribution will remain the exhibitable witness. Finding
 that out precisely is worth more than assuming it either way.
 
-### 3.3 A filtration built from quadruple violations · **speculative**
+### 3.3 A filtration built from quadruple violations · **demoted; see §14 of the companion document**
+
+The filtration funnel closed the Rips line, and closed this with it. A complex
+over violating subsets would use per-subset complete deletion and so would not
+inherit finding 6 — but it adds information only about how violations *overlap*,
+and the certificate already captures the quadruple-level signal the global
+construction was missing. Optional and speculative, not the pivot.
 
 Every statistic above summarises the quartet distribution by one number. The
 quadruples themselves carry structure: *which* quadruples violate, and how they
@@ -275,7 +300,7 @@ scale from an optimisation to a precondition.
 | :-: | :--- | :--- | :--- |
 | 1 | §2.1 bit-parallel counting | days | **promoted.** Larger taxon counts are the precondition for §3.1 to be interpretable at all, and the only way to characterise the max statistic's real weakness |
 | 2 | §4.1 learned null floor surrogate | days | closes the oldest open item in the plan, makes every sweep affordable — and would have flagged both degenerate nulls immediately, since a surrogate trained across the parameter space knows where the null is identically zero |
-| 3 | §3.1 re-run the topology test at 32–64 taxa | hours after 1 | the experiment is built; it needs a non-degenerate null, and the magnitude observation above suggests what to measure |
+| 3 | ~~topology~~ **closed** | — | **The line is closed (§14 of the companion document).** No cheap filtration change met the criterion; F1 (saturation) was refuted, F2 confirmed that the gap false positive is finding 6 reappearing as topology, and a single recombinant produces zero cycles in all four variants while the certificate detects it 3/3 at matched taxon count. Earlier note retained: **§3.1 is answered as far as this construction goes.** Where its calibration is valid the statistic tracks divergence and missing data rather than reticulation, and the structural argument above says the Rips route cannot adopt complete deletion. Further topology work should either change the filtration (§3.3) or stop; re-running the same construction at more taxa will not change the structural point |
 | 4 | §3.2 complete the four-way benchmark | hours after 3 | the field has no such table |
 | 5 | §4.3 learned ceiling | days | tells us whether to keep working on detection at all |
 | 6 | §2.3 `poasta`, or Gibrat's bound rederived | days | reduces the largest trust-surface item for gappy families |

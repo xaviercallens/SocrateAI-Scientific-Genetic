@@ -1146,11 +1146,13 @@ threshold — which reorders the plan in
 the bit-parallel counting of its §2.1 has to come *before* the topology test, not
 after it.
 
-One observation survives the degeneracy and is worth keeping. When cycles do
-appear, the reciprocal-mosaic dataset's total persistence is an order of
-magnitude larger (0.0107, 0.0095) than the single-recombinant or saturated ones
-(0.0003–0.0013). The *magnitude* may separate where the binary verdict cannot,
-which is an argument for the same fix.
+One observation appeared to survive the degeneracy: when cycles did appear, the
+reciprocal-mosaic dataset's total persistence was an order of magnitude larger
+(0.0107, 0.0095) than the single-recombinant or saturated ones (0.0003–0.0013),
+suggesting the *magnitude* might separate where the binary verdict could not.
+**§13.3 refutes that at sixty-four taxa**, where the mosaic persistence sits
+within a factor of two of both no-reticulation datasets. It is recorded here as
+a hypothesis that was tested and failed rather than deleted.
 
 ### 12.5 The four-way comparison, corrected
 
@@ -1165,3 +1167,230 @@ averaged statistic. Φw alone cannot be measured on gap-blocked data.
 
 Raw output: [`data/reticulata_phase4/`](../data/reticulata_phase4/) and
 [`data/reticulata_phase2/topology.json`](../data/reticulata_phase2/topology.json).
+
+## 13. The max statistic's defect, measured across taxon counts
+
+§11.8's head-to-head concluded that the certificate's real weakness is not power
+but **incomparability across taxon counts**, and it argued that from two data
+points: the quartet floor moving from 5–7 at sixteen taxa to 9–10 at thirty-two.
+Arguing from two points is how this project has twice talked itself into an
+incommensurable comparison, so the defect is now measured across a range.
+
+### 13.1 Bit-parallel counting, because the measurement was unaffordable
+
+Sixty-four taxa is 635 376 quadruples, and the byte path visits 4000 columns per
+quadruple — 2.5e9 column visits per population. `bitcount::BitAlignment` packs
+each sequence into three bitvectors over columns (the base's two bits under
+`A=00, C=01, G=10, T=11`, plus a mask of definite bases), so a quadruple's seven
+counts come from one pass over `L/64` words: intersect four masks for the common
+columns, then `popcount` the differing bits for each of the six pairs inside it.
+
+It is a **second** implementation, not a replacement. The byte path of
+`Alignment` remains the specification;
+`bit_and_byte_counting_agree_on_random_alignments_with_gaps` asserts identical
+counts on random alignments containing gaps, ambiguity codes and mixed case at
+widths 1, 7, 63, 64, 65, 130 and 257 — the partial-final-word cases a packing bug
+would hide in — and a second test does the same on gap-blocked simulated data.
+An optimisation that disagrees with the obvious implementation is a silent wrong
+answer, and these counts are what the whole method rests on.
+
+Measured, not asserted: **21.6× faster** at thirty-two taxa (0.24 s against
+5.14 s over 35 960 quadruples), with the two implementations returning the same
+exact margin. The `scale` command re-checks that agreement on every run and exits
+non-zero if it ever fails.
+
+### 13.2 The floor grows, the signal does not
+
+Three seeds per rung, 4000 nt, exhaustive over every quadruple. Margins are exact
+rationals with denominator 4000; the table gives numerators.
+
+| taxa | quadruples | violating fraction, clonal | strict-clock floor | reciprocal-mosaic margin | worst-seed separation |
+| --: | --: | --: | :--- | :--- | --: |
+| 16 | 1 820 | 0.656 | 7, 5, 6 | 136, 112, 124 | **19.43×** |
+| 32 | 35 960 | 0.755 | 10, 9, 10 | 148, 154, 108 | **10.80×** |
+| 64 | 635 376 | 0.821 | 17, 16, 14 | 156, 148, 166 | **9.18×** |
+
+The floor roughly **doubles** from sixteen to sixty-four taxa (mean 6 → 15.7)
+while the mosaic margin stays essentially flat (124 → 157). So the separation
+**halves**, 19.4× → 9.2×, over a fourfold increase in population size. That is
+the defect, measured: more subsets, more chances at an extreme pair of rates, a
+higher null level, and a signal that does not grow to match.
+
+Two readings, and both matter:
+
+- **Detection at a fixed taxon count is not lost.** Nine-fold separation at
+  sixty-four taxa is still wide. The growth shifts both numbers rather than
+  drowning the signal.
+- **A threshold calibrated at one size does not transfer to another.** "Twice the
+  floor" means something different at sixteen taxa than at sixty-four, which is
+  exactly why §11.6's real-data verdicts use a floor matched to each population
+  and why the raw-margin column of §11.8 was the wrong comparison. The defect is
+  real, bounded, and already handled by the matched-null discipline — but it must
+  not be forgotten when a margin is quoted.
+
+A third observation is worth recording because it looks alarming and is not. The
+fraction of quadruples that violate the four-point condition on a **clonal,
+strict-clock** population rises from 0.656 to 0.821 as taxa grow: at sixty-four
+taxa, 82% of all quadruples violate. Finite sequences are never exactly
+additive, so this is expected — and it is precisely why the *margin* rather than
+the *count* carries the inference, and why `proportion_violating` was the variant
+the literature reported as failing as a test and that §11.8 measured separating
+by only 1.22×.
+
+Raw output: [`data/reticulata_phase2/scale.json`](../data/reticulata_phase2/scale.json).
+
+### 13.3 Topology at sixty-four taxa: where the calibration becomes valid, the statistic fires on the wrong things
+
+§12.4's topology experiment was uninterpretable because its matched null produced
+no cycle in 495 of 495 replicates. The diagnosed fix was more taxa, which §13.1
+made affordable. Re-run at sixty-four taxa, three seeds, 49 bootstrap replicates
+(p-value floor 0.02):
+
+| dataset | reticulation | mean H₁ total | mean cycles | null replicates with no cycle | significant |
+| :--- | :--: | --: | --: | :--- | :--: |
+| D1 clonal, strict clock | no | 0.00000 | 0.0 | 147/147 | 0/3 |
+| D2 clonal, relaxed clock | no | 0.00000 | 0.0 | 147/147 | 0/3 |
+| D3 one recombinant | **yes** | 0.00000 | **0.0** | 147/147 | **0/3** |
+| D4 relaxed clock + one recombinant | yes | 0.00008 | 0.3 | 147/147 | 1/3 |
+| D5 reciprocal mosaics | yes | 0.01475 | 1.7 | 147/147 | 3/3 |
+| D6 gap blocks | **no** | 0.01072 | 13.3 | **66/147** | **3/3** |
+| D7 saturated | **no** | 0.00867 | 7.0 | **138/147** | **3/3** |
+
+The output still reports `"this_experiment_is_interpretable": false`, because
+five of the seven nulls remain degenerate. But **two nulls are now
+non-degenerate, and they are the two datasets containing no reticulation at
+all** — and the statistic fires on both at 3/3:
+
+- **D7, saturated.** No reticulation; differs from D1 only in having ten times
+  the substitution rate. This is the concern from the one unpublished evaluation
+  we found, now observed on data with a known answer in a cell where the
+  calibration is valid: the statistic responds to **mutation rate**.
+- **D6, gap blocks.** No reticulation; differs from D1 only in missing data. The
+  statistic responds to **gaps**, and 13.3 cycles per population is by far the
+  largest count in the table.
+
+Against that, **D3 — a genuine single recombinant — produces no cycles at all**,
+and is missed at 0/3. And the magnitude hypothesis of §12.4 fails: the mosaic
+persistence (0.0147) is within a factor of 1.4 to 1.7 of the two
+no-reticulation datasets (0.0107, 0.0087), so magnitude does not separate them
+either.
+
+**Scope of this claim, stated carefully.** This is a result about the statistic
+*as implemented and calibrated here* — Vietoris–Rips H₁ on a p-distance matrix
+with the threshold at the median off-diagonal distance, against a matched
+relaxed-clock null — at three seeds. It is not a refutation of the published
+method, which used different data, thresholds and emphasis, and we have not
+reproduced that work's own analysis. What it does establish is that this
+construction, on this grid, cannot be relied on to distinguish reticulation from
+divergence or from missing data.
+
+### 13.4 Why the gap result is structural, not just empirical
+
+D6 deserves more than a row. The audit's finding 6 was that pairwise deletion
+gives different pairs different denominators, and that this alone manufactures
+violations on a genealogy that is exactly a clock tree; §10.3's answer was
+**complete deletion within the subset**, which makes every distance in a
+certificate share one denominator.
+
+**The Rips construction cannot do that.** Persistent homology needs a full
+distance matrix over the population, and a matrix has one distance per pair —
+there is no "within this subset" to restrict to, because the complex is built
+from all pairs at once. So the topological route necessarily uses pairwise
+deletion and necessarily inherits the confound the four-point certificate was
+redesigned to avoid. D6's 13.3 cycles per population on gap-blocked clonal data
+is that confound showing up as topology.
+
+This is an argument from construction rather than from these three seeds, and it
+is the strongest thing in this section: on gappy data, a statistic defined over
+a single global distance matrix has no analogue of complete deletion available
+to it.
+
+Raw output: [`data/reticulata_phase2/topology_n64.json`](../data/reticulata_phase2/topology_n64.json).
+
+## 14. The filtration funnel, and closing the topology line
+
+§13.3 left one instruction: change the filtration or stop. Five hypotheses were
+written down for *why* Vietoris–Rips H₁ fires on gap-blocked and saturated
+populations while missing a single recombinant, three were selected on
+**cost-to-decide** — each cheap and each decisive about a different cause — and
+the criterion was fixed before the run: a variant succeeds if the
+reciprocal-mosaic population is significant at every seed **and** both
+no-reticulation populations at none.
+
+Sixty-four taxa, three seeds, 49 bootstrap replicates, matched null per cell.
+
+| variant | hypothesis | mosaics | single recombinant | gap blocks | saturated | criterion |
+| :--- | :--- | :--: | :--: | :--: | :--: | :--: |
+| baseline, p-distance total | — | 3/3 | **0/3** | 2/3 | 3/3 | no |
+| **F1** Jukes–Cantor total | saturation: p-distance concavity | 3/3 | **0/3** | 2/3 | 3/3 | no |
+| **F2** global complete deletion | denominators: finding 6 as topology | 3/3 | **0/3** | **0/3** | 3/3 | no |
+| **F3** longest bar, not total | many weak cycles conflated with few strong | 3/3 | **0/3** | **0/3** | 3/3 | no |
+
+**No variant meets the criterion.** But three things are now settled.
+
+**F1 is refuted.** Jukes–Cantor correction leaves the saturated false positive
+at 3/3 and *raises* its statistic (0.00867 → 0.01421). The sensitivity is not
+p-distance concavity.
+
+**F2 is confirmed, and confirms the structural argument of §13.4.** Global
+complete deletion takes the gap-blocked population from 13.3 cycles and 2/3
+significant to **0.0 cycles and 0/3**. The gap false positive *was* the audit's
+finding 6 reappearing as topology, exactly as the construction argument
+predicted. This is the round's most satisfying result: the same confound, in a
+second guise, removed by the same idea. F3 removes it too, by a different route
+— distinguishing many weak cycles from few strong ones.
+
+**The miss is not a filtration artefact.** A single recombinant produces
+**zero cycles in all four variants**. That is not something a filtration choice
+fixes, and it is what closes the line, because the certificate does not have the
+problem. Measured on the same populations at the same taxon counts:
+
+| taxa | clonal floor | single-recombinant margin | above floor | mosaic margin |
+| --: | :--- | :--- | :--: | :--- |
+| 16 | 7, 5, 6 | 60, 52, 53 | **3/3** | 136, 112, 124 |
+| 32 | 10, 9, 10 | 60, 67, 98 | **3/3** | 148, 154, 108 |
+| 64 | 17, 16, 14 | 89, 82, 83 | **3/3** | 156, 148, 166 |
+
+At sixty-four taxa the four-point certificate detects the single recombinant at
+every seed with a roughly fivefold margin over the floor, on the population
+where the topological statistic finds no cycle at all.
+
+### 14.1 Decision: the topology line is closed
+
+Not because topology is the wrong idea. The warrant — *a tree metric admits no
+unfilled cycle* — is the same fact the certificate rests on, and it is the reason
+any of this works. What is closed is the **global-distance-matrix
+implementation** of it, for two reasons that the funnel established rather than
+assumed:
+
+1. It **cannot use per-subset complete deletion.** A complex is built from all
+   pairs at once, so there is no "within this subset" to restrict to; F2 shows
+   that the available substitute, one global denominator, does remove the gap
+   artefact but at the cost of every column that any taxon is missing.
+2. It **misses the signal the certificate catches.** Zero cycles on a single
+   recombinant in four variants, against 3/3 detection by the certificate at
+   matched taxon count.
+
+So the programme's topological content is the certificate itself: the same
+theorem, evaluated combinatorially per quadruple instead of through a global
+complex. Evaluating it per subset is precisely what makes complete deletion
+within the subset possible, which is what makes the gap confound avoidable rather
+than merely reducible.
+
+The two expensive hypotheses held back from the funnel are closed with it. The
+residual filtration (F4) addresses a baseline problem that is not the failure
+here. The quartet-margin complex (F5) would use per-subset complete deletion and
+so would not inherit finding 6 — but it adds information only about how
+violations *overlap*, and the certificate already captures the quadruple-level
+signal that the global construction was missing. F5 is therefore demoted from
+"the justified pivot" to "optional and speculative", and §3.3 of the directions
+document is marked accordingly.
+
+One honest limit on all of this: three seeds, one generative model, 64 taxa, and
+the saturated cell's null is degenerate in every variant, so that column carries
+no calibration and its 3/3 is the binary "a cycle appeared". The two conclusions
+that do not depend on that cell are F1's refutation and the single-recombinant
+miss, and those are the two the decision rests on.
+
+Raw output: [`data/reticulata_phase2/filtration.json`](../data/reticulata_phase2/filtration.json)
+and [`scale.json`](../data/reticulata_phase2/scale.json).

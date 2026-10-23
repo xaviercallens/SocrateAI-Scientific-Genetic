@@ -167,6 +167,7 @@
 //! should not be described as one.
 
 pub mod align;
+pub mod bitcount;
 pub mod certificate;
 pub mod distance;
 pub mod emit_lean;
@@ -181,6 +182,7 @@ pub use align::{
     project_to_reference, read_fasta, reference_anchored_alignment, FastaRecord, PairAlignment,
     ReferenceAnchored, Scoring,
 };
+pub use bitcount::BitAlignment;
 pub use certificate::{Certificate, CertificateReport, FourPointDefect};
 pub use distance::{DistanceMatrix, DistanceModel};
 pub use exact::{CountCertificate, ExactDistances, Ratio};

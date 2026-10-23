@@ -1,0 +1,151 @@
+{
+  "experiment": "how does the certificate's floor grow with taxon count?",
+  "how_to_read_this": "A floor that grows with taxon count is the defect. Whether it MATTERS is the separation column: if the mosaic margin grows at least as fast as the floor, the growth shifts both numbers and detection at a fixed taxon count is unaffected -- but margins still cannot be compared BETWEEN taxon counts, and a threshold calibrated at one size does not transfer to another.",
+  "implementation_check": {
+    "bit_margin": "10/4000",
+    "bit_parallel_seconds": 0.232673734,
+    "byte_margin": "10/4000",
+    "byte_seconds": 4.925654921,
+    "margins_agree": true,
+    "quadruples": 35960,
+    "speedup": 21.169793583146774,
+    "taxa_timed": 32,
+    "why": "The bit-parallel counter is an optimisation, and an optimisation that disagrees with the obvious implementation is a silent wrong answer. The byte path is the specification."
+  },
+  "parameters": {
+    "alignment_length": 4000,
+    "exhaustive": "every quadruple examined; the search refuses to sample",
+    "mu_per_generation": 0.004,
+    "relaxed_clock_spread": 1.0,
+    "seeds": 3
+  },
+  "rungs": [
+    {
+      "clonal_relaxed_floor_exact": [
+        "7/4000",
+        "5/4000",
+        "2/4000"
+      ],
+      "clonal_strict_floor": [
+        0.00175,
+        0.00125,
+        0.0015
+      ],
+      "clonal_strict_floor_exact": [
+        "7/4000",
+        "5/4000",
+        "6/4000"
+      ],
+      "clonal_violating_fraction": [
+        0.6972527472527472,
+        0.6241758241758242,
+        0.6478021978021978
+      ],
+      "generations": 4,
+      "mosaic_margin": [
+        0.034,
+        0.028,
+        0.031
+      ],
+      "mosaic_margin_exact": [
+        "136/4000",
+        "112/4000",
+        "124/4000"
+      ],
+      "one_recombinant_above_floor": "3/3",
+      "one_recombinant_margin_exact": [
+        "60/4000",
+        "52/4000",
+        "53/4000"
+      ],
+      "quadruples": 1820,
+      "taxa": 16,
+      "worst_seed_separation_over_strict_floor": 19.42857142857143
+    },
+    {
+      "clonal_relaxed_floor_exact": [
+        "11/4000",
+        "18/4000",
+        "8/4000"
+      ],
+      "clonal_strict_floor": [
+        0.0025,
+        0.00225,
+        0.0025
+      ],
+      "clonal_strict_floor_exact": [
+        "10/4000",
+        "9/4000",
+        "10/4000"
+      ],
+      "clonal_violating_fraction": [
+        0.7575639599555061,
+        0.7596218020022247,
+        0.7491935483870967
+      ],
+      "generations": 5,
+      "mosaic_margin": [
+        0.037,
+        0.0385,
+        0.027
+      ],
+      "mosaic_margin_exact": [
+        "148/4000",
+        "154/4000",
+        "108/4000"
+      ],
+      "one_recombinant_above_floor": "3/3",
+      "one_recombinant_margin_exact": [
+        "60/4000",
+        "67/4000",
+        "98/4000"
+      ],
+      "quadruples": 35960,
+      "taxa": 32,
+      "worst_seed_separation_over_strict_floor": 10.799999999999999
+    },
+    {
+      "clonal_relaxed_floor_exact": [
+        "28/4000",
+        "35/4000",
+        "13/4000"
+      ],
+      "clonal_strict_floor": [
+        0.00425,
+        0.004,
+        0.0035
+      ],
+      "clonal_strict_floor_exact": [
+        "17/4000",
+        "16/4000",
+        "14/4000"
+      ],
+      "clonal_violating_fraction": [
+        0.8197712850343734,
+        0.8269607287653296,
+        0.8168895268313565
+      ],
+      "generations": 6,
+      "mosaic_margin": [
+        0.039,
+        0.037,
+        0.0415
+      ],
+      "mosaic_margin_exact": [
+        "156/4000",
+        "148/4000",
+        "166/4000"
+      ],
+      "one_recombinant_above_floor": "3/3",
+      "one_recombinant_margin_exact": [
+        "89/4000",
+        "82/4000",
+        "83/4000"
+      ],
+      "quadruples": 635376,
+      "taxa": 64,
+      "worst_seed_separation_over_strict_floor": 9.176470588235293
+    }
+  ],
+  "why": "The statistic is a maximum over subsets, so its null level rises with the number of subsets examined and margins are not comparable across population sizes. That defect was previously argued from two data points; arguing from two points is how this project has twice talked itself into an incommensurable comparison, so it is measured across a range here."
+}
