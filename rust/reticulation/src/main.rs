@@ -5249,15 +5249,23 @@ fn run_split_real(args: &[String]) -> Result<bool, String> {
                 },
                 "informative_splits": system.informative_splits,
                 "certified_splits": system.certified_count,
-                // How close the non-certified splits came. A conjunction over
-                // hundreds of quadruples dies on a single dissent, so this says
-                // whether the method is wrong about the splits or merely too
-                // strict to ever certify one at this taxon count.
-                "max_conjunction_length": system.max_conjunction_length,
-                "closest_miss_failing_conjuncts": system.closest_miss_failures,
-                "closest_miss_splits": system.closest_miss_splits,
-                "closest_miss_conjunction_length": system.closest_miss_conjuncts,
-                "failure_histogram_failures_to_splits": system.failure_histogram,
+                // How close the non-certified splits came UNDER THE STRICT
+                // CONJUNCTION. These must come from `strict`, not from the
+                // calibrated system: once `k` exceptions are allowed, every
+                // split that failed by at most `k` is certified, so the closest
+                // remaining miss is necessarily greater than `k` and says
+                // nothing about how strictness alone behaves. A conjunction over
+                // hundreds of quadruples dies on a single dissent, so this is
+                // what distinguishes "wrong about the splits" from "too strict
+                // to ever certify one at this taxon count".
+                "max_conjunction_length": strict.max_conjunction_length,
+                "strict_closest_miss_failing_conjuncts": strict.closest_miss_failures,
+                "strict_closest_miss_splits": strict.closest_miss_splits,
+                "strict_closest_miss_conjunction_length": strict.closest_miss_conjuncts,
+                "strict_failure_histogram": strict.failure_histogram,
+                // The same under the calibrated budget, where by construction
+                // every remaining miss exceeds `k`.
+                "calibrated_closest_miss_failing_conjuncts": system.closest_miss_failures,
                 "tree_internal_splits_if_a_tree": aln.len().saturating_sub(3),
                 "pairwise_compatible": system.pairwise_compatible,
                 "reads_as": if system.pairwise_compatible { "tree" } else { "non-tree" },

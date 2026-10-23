@@ -1,0 +1,632 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{cmap}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage[margin=1.0in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{booktabs,array,tabularx}
+\usepackage[svgnames]{xcolor}
+\usepackage{listings}
+\usepackage[obeyspaces,spaces]{url}
+\usepackage[colorlinks=true,linkcolor=DarkBlue,citecolor=DarkBlue,urlcolor=DarkBlue]{hyperref}
+
+\urlstyle{tt}
+\def\UrlFont{\ttfamily\upshape}
+\renewcommand{\arraystretch}{1.3}
+\setlength{\tabcolsep}{5pt}
+
+\sloppy
+\setlength{\emergencystretch}{4em}
+\hfuzz=4.0pt
+\vfuzz=4.0pt
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}[section]
+
+\lstdefinestyle{lean}{
+  basicstyle=\ttfamily\footnotesize, breaklines=true, frame=single,
+  framesep=4pt, xleftmargin=4pt,
+  literate={≤}{{$\leq$}}1 {∀}{{$\forall$}}1 {→}{{$\to$}}1 {↔}{{$\leftrightarrow$}}1
+           {ℚ}{{$\mathbb{Q}$}}1 {α}{{$\alpha$}}1 {¬}{{$\neg$}}1 {·}{{$\cdot$}}1
+           {∩}{{$\cap$}}1 {∅}{{$\emptyset$}}1 {∨}{{$\vee$}}1,
+}
+\lstset{style=lean}
+
+\title{\textbf{A Proved Lift That Does Not Transfer:\\
+Split-Level Certificates of Non-Tree-Likeness,\\
+and Three Mechanisms of Failure}}
+\author{Xavier Callens\\
+\small SocrateAI Scientific Research \& Formal Verification Laboratory\\
+\small Formal artifact: \texttt{ANSE.GeneticaReticulataTree} (Lean 4)}
+\date{Edition 1, 23 October 2026. \textbf{Not peer reviewed.}}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+A quartet certificate refutes the four-point condition on four sequences with an
+exact integer comparison a proof kernel can recheck. It names four sequences;
+what a biologist reads is a \emph{split}, one group of sequences against
+another. We promote the certificate to that level and report both halves of the
+result honestly.
+
+The formal half succeeds. Because complete deletion gives every quadruple its own
+denominator, the Bandelt--Dress isolation index --- a \emph{minimum} over
+straddling quadruples --- is not available without an incommensurable
+comparison, so we define the split certificate as a \emph{logical conjunction} of
+per-quadruple integer comparisons instead. We then prove that two certified
+\emph{incompatible} splits force a four-point violation, with the witness
+quadruple \emph{constructed} from the four side-intersections rather than
+searched for (four theorems; the Lean module is 27/27 declarations with no
+\texttt{sorry} and no axioms beyond \{\texttt{propext},
+\texttt{Classical.choice}, \texttt{Quot.sound}\}).
+
+The empirical half fails, and the failures are the contribution. Reaching a
+working simulated demonstration (20/20 specificity, 15/15 sensitivity across
+seven populations at five seeds) required three negative controls to fail first:
+the criterion had no noise floor and fired on a two-count margin in two thousand
+where an exact tree forces equality; no constant floor can separate, because
+saturation retains exactly $n-3$ splits at a floor $64\times$ the one that erases
+every other dataset; and the matched null was never matched, because a
+relaxed-clock simulator's divergence at fixed mutation rate has a coefficient of
+variation near $50\%$ spanning $10$--$28\times$, so matching it \emph{in
+expectation} is ill-posed however carefully implemented. Rejection sampling on
+each replicate's \emph{realised} divergence repairs it.
+
+The demonstration then does not transfer. At sixteen taxa on real viral
+populations the strict conjunction certifies $0$, $2$ and $4$ splits where a tree
+has $13$: every population reads as a tree, so its single agreement with a
+tree-like prior is vacuous. The mechanism is measured, not inferred --- conjuncts
+for a balanced split number $\binom{n/2}{2}^2$, which is $36$ at $n=8$ but $784$
+at $n=16$, and the closest-missing splits failed by \emph{one} conjunct out of
+$91$. An exception budget calibrated against the matched null recovers power and
+does not separate: all three populations, including the only tree-like control,
+stop reading as trees at a smaller budget than a genuine tree does. Any threshold
+between $13$ and $24$ would classify all three correctly, which on three
+populations with one negative control is fitting a cutoff to the answer, so we
+choose none.
+
+We conclude that the binding constraint is not the statistic but the alignment
+admissibility gate, which leaves three of ten populations usable with a single
+negative control. One negative control cannot separate ``this method
+false-positives'' from ``that population's prior is wrong.'' The next step for
+this line is more admissible negative controls, not another statistic.
+\end{abstract}
+
+\section{Introduction and what is new}\label{sec:intro}
+
+The four-point condition~\cite{buneman} is the tree-level null for a distance on
+a finite set: a metric is a tree metric exactly when, for all $a,b,c,e$,
+\begin{equation}\label{eq:fourpoint}
+  d(a,b) + d(c,e) \;\le\; \max\bigl(d(a,c)+d(b,e),\; d(a,e)+d(b,c)\bigr).
+\end{equation}
+A \emph{quartet certificate} is four sequences, their six pairwise counts, and
+the one common denominator those counts share under complete deletion within the
+quadruple, such that \eqref{eq:fourpoint} fails as an integer comparison. Prior
+work established such certificates, measured the cost of the alignment step that
+produces the columns, and showed that a certificate's margin is exactly twice one
+Bandelt--Dress isolation index, so that a certificate \emph{is} the
+split-decomposition condition for a split system to fail to be a tree at the
+level of four taxa~\cite{paperf}.
+
+That identity invites an obvious promotion. A quadruple is not a biological
+object; a \emph{split} is. This paper asks whether the certificate lifts, and
+reports three things that are new:
+
+\begin{enumerate}
+\item \textbf{A definition forced by exactness} (\S\ref{sec:conjunction}). The
+isolation index of a split is a minimum over the quadruples straddling it. Under
+complete deletion within the subset each such quadruple has a different
+denominator, so that minimum compares incommensurable quantities. Defining the
+split certificate as a \emph{conjunction} of per-quadruple integer comparisons
+avoids this entirely and needs no common metric.
+\item \textbf{A lift theorem} (\S\ref{sec:lift}). Two certified incompatible
+splits force a four-point violation, and the witness quadruple is constructed
+from the four side-intersections rather than searched for. Four machine-checked
+theorems, one of which proves a claim earlier editions of~\cite{paperf} asserted
+without proof.
+\item \textbf{A measured non-transfer} (\S\S\ref{sec:nontransfer}--\ref{sec:three}).
+The method works on one simulated grid and has no power at the taxon count real
+data has. We give the scaling law responsible, the near-miss distribution that
+distinguishes ``too strict'' from ``wrong,'' and the reason three populations
+cannot settle the question.
+\end{enumerate}
+
+Along the way \S\ref{sec:nullmatching} reports a methodological finding with
+scope beyond this paper: a matched null calibrated on the \emph{mean} of a
+nuisance parameter is not matched when the nuisance has a heavy-tailed realised
+distribution, and we give the measurement that detects this.
+
+\section{A conjunction, not a minimum}\label{sec:conjunction}
+
+Write a quadruple's three pairing sums, over its own common columns, as $s_1 \le
+s_2 \le s_3$. Each of the three splits of the quadruple carries a Bandelt--Dress
+isolation index~\cite{bandeltdress}
+\begin{equation}\label{eq:iso}
+  \alpha(A|B) \;=\; \tfrac12 \min_{a,a' \in A,\; b,b' \in B}
+    \max\{\,0,\; \mathrm{cross}_1 - \mathrm{own},\; \mathrm{cross}_2 - \mathrm{own}\,\},
+\end{equation}
+which on a single quadruple reduces to
+$\tfrac12\max\bigl(0, \max(\mathrm{cross}_1,\mathrm{cross}_2) - \mathrm{own}\bigr)$,
+and whose three values are therefore $\tfrac12(s_3-s_1)$, $\tfrac12(s_3-s_2)$ and
+$0$. A split system is displayed by a tree exactly when it is pairwise
+compatible~\cite{semplesteel}, so a split system containing two incompatible
+splits of positive index is the classical statement of non-tree-likeness.
+
+The minimum in~\eqref{eq:iso} is the obstruction. Complete deletion
+\emph{within the subset} gives each straddling quadruple its own set of columns
+at which all four sequences carry a definite base, and hence its own
+denominator. Minimising a margin across quadruples with different denominators
+compares quantities that are not commensurable, and no choice of common
+denominator is available that does not reintroduce the columns complete deletion
+was there to remove.
+
+\begin{definition}[Split certificate]\label{def:split}
+Let $\theta$ be a non-negative rational. The split $A|B$ is \emph{certified at
+floor $\theta$} when, for \textbf{every} quadruple $\{a,a',b,b'\}$ with $a,a' \in
+A$ and $b,b' \in B$, the split's own pairing sum lies strictly below the larger
+crossing sum by more than $\theta$ times that quadruple's own denominator:
+\[
+  \bigl(\max(\mathrm{cross}_1,\mathrm{cross}_2) - \mathrm{own}\bigr) \cdot \theta_{\mathrm{den}}
+  \;>\; \theta_{\mathrm{num}} \cdot \mathrm{common}.
+\]
+\end{definition}
+
+Every conjunct is an integer comparison over its own denominator; nothing is
+averaged and no common metric is required. The split-level statement inherits its
+exactness from the quadruple level rather than paying for it. A split isolating a
+single taxon has no straddling quadruple, so an unguarded conjunction over its
+quadruples would be vacuously true; such splits carry no evidence and are
+excluded.
+
+\section{The lift theorem}\label{sec:lift}
+
+Two splits are \emph{incompatible} when all four of $A \cap C$, $A \cap D$, $B
+\cap C$, $B \cap D$ are non-empty. Choosing one taxon from each gives a quadruple
+on which the two splits induce two \emph{different} pairings.
+
+\begin{theorem}[Two certified pairings force the third strictly largest]
+\label{thm:lift}
+Let $p$ and $q$ be the pairing sums of two different splits of a quadruple and
+$r$ the third. If $p < \max(q,r)$ and $q < \max(p,r)$, then $\max(p,q) < r$, and
+consequently $r \not\le \max(p,q)$: the four-point condition fails on that
+quadruple.
+\end{theorem}
+
+\begin{proof}
+By $\max(p,q) < r \iff p<r \wedge q<r$ it suffices to establish both. From
+$p < \max(q,r)$ either $p<q$ or $p<r$; from $q < \max(p,r)$ either $q<p$ or
+$q<r$. The case $p<q$ with $q<p$ is impossible. If $p<q$ and $q<r$ then $p<r$ by
+transitivity and both hold. If $p<r$ and $q<p$ then $q<r$ and both hold. If $p<r$
+and $q<r$ both hold directly.
+\end{proof}
+
+\begin{corollary}
+If two incompatible splits are both certified, then the four-point condition
+fails on the quadruple obtained by taking one taxon from each of the four
+side-intersections. The witness is \emph{constructed}, not searched for.
+\end{corollary}
+
+So a population-level claim --- two groupings both certified, which no tree can
+display together --- forces a quadruple-level certificate that a kernel can
+recheck. The following are machine-checked in
+\texttt{ANSE.GeneticaReticulataTree}:
+
+\begin{center}\footnotesize
+\begin{tabular}{@{}ll@{}}
+\toprule
+declaration & content \\
+\midrule
+\texttt{third\_pairing\_strictly\_largest\_of\_two\_certified}
+  & Theorem~\ref{thm:lift} \\
+\texttt{fourPoint\_violated\_of\_two\_certified}
+  & the same, as a four-point violation \\
+\texttt{fourSet\_splits\_pairwise\_incompatible}
+  & no two of a four-set's three splits are compatible \\
+\texttt{splitsCompatible\_self}
+  & a split never crosses itself \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The module compiles 27 of 27 declarations with no \texttt{sorry} and no axioms
+beyond $\{\texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}\}$,
+checked by compiling and then reading \texttt{\#print axioms} for every
+declaration, because \texttt{sorry} and a smuggled axiom both exit zero.
+\texttt{fourSet\_splits\_pairwise\_incompatible} supplies a claim that editions~5
+and~9 of~\cite{paperf,textbook} asserted in prose without proof.
+
+\begin{remark}
+Theorem~\ref{thm:lift} uses no tree, no complex and no metric space --- only
+three rationals. That is why the quantity survives per-subset evaluation, where a
+complex built over a global distance matrix cannot restrict to a subset without
+reintroducing the deleted columns.
+\end{remark}
+
+\section{The simulated demonstration, and the three controls that failed first}
+\label{sec:simulated}
+
+Seven populations at five seeds, each $2000$ columns: a clonal strict-clock tree
+(D1), a clonal relaxed clock (D2), one planted recombinant under each clock
+(D3, D4), reciprocal mosaics (D5), gap blocks (D6), and a saturated population
+(D7). D3, D4 and D5 carry reticulation; the rest do not and are the controls. We
+report the three control failures because each located something the original
+question did not.
+
+\subsection{The criterion had no noise floor}\label{sec:nofloor}
+
+With $\theta = 0$, Definition~\ref{def:split} is $\mathrm{own} <
+\max(\mathrm{cross})$, and the negative control failed $0$ of $5$: the clonal
+strict-clock population certified $8$ splits where its tree has $5$, and $6$ of
+the resulting pairs were incompatible. The first exhibit shows why. Its pairing
+sums were $[66, 110, 112]$ over a denominator of $2000$ --- and on an \emph{exact}
+tree metric the two crossing sums are \textbf{equal}. Their observed difference
+is sampling noise of order $\sqrt{L}$, and the sign of that noise is what the
+criterion was reading: the split with $110$ was certified on a two-count margin
+in two thousand.
+
+\begin{remark}
+A pre-registered prediction also failed to be a test. It asked whether a planted
+recombinant was implicated, accepting it either in a witness quadruple or
+anywhere in the incompatible pair's splits --- and a split's two sides cover
+\emph{every} taxon, so the second disjunct is true whenever any incompatible pair
+exists. Only the witness quadruple, four taxa of nine, carries information. The
+forced form recorded a pass; the repaired form is what \S\ref{sec:rejection}
+reports.
+\end{remark}
+
+\subsection{No constant floor can separate}\label{sec:noconstant}
+
+Sweeping $\theta$ over ten values, no floor separates the reticulate populations
+from the controls. Tree-readings per five seeds, where a tree-reading is correct
+for D1, D2, D6, D7 and a miss for D3, D4, D5:
+
+\begin{center}\footnotesize
+\begin{tabular}{@{}rccccccc@{}}
+\toprule
+$\theta$ & D1 & D2 & D6 & D7 & D3 & D4 & D5 \\
+\midrule
+$0.00100$ & 5/5 & 5/5 & 1/5 & 1/5 & 0/5 & 0/5 & 0/5 \\
+$0.00400$ & 5/5 & 5/5 & 5/5 & 3/5 & 2/5 & 2/5 & 0/5 \\
+$0.01600$ & 5/5 & 5/5 & 5/5 & 5/5 & 5/5 & 5/5 & 5/5 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The saturated population retains exactly $n-3 = 5$ certified splits at
+$\theta = 0.064$, sixty-four times the floor that erases every other dataset,
+because saturation inflates margins \emph{in rate terms}. A single global rate is
+the wrong functional form.
+
+\subsection{The matched null was never matched}\label{sec:nullmatching}
+
+Calibrating the floor per population against a clonal null matched on divergence
+fixed specificity but reported a null whose divergence missed the population's by
+$77\%$, and only on the two relaxed-clock datasets. Two defects compounded.
+
+First, the tuner bisected a \emph{single realisation}. The relaxed-clock
+simulator draws its per-branch rate multipliers from the same pseudorandom stream
+as its mutations, and the mutation step consumes a number of draws that depends
+on the rate; changing the rate therefore shifts the stream and changes every
+downstream multiplier. A single realisation's divergence is consequently a
+chaotic, non-monotone function of the rate, and bisecting it wanders rather than
+converging. The strict-clock simulator has nothing downstream of its mutations,
+which is exactly why only relaxed-clock nulls were affected.
+
+Averaging the objective over five seeds barely helped --- worst relative error
+$147.5\%$ against $143.7\%$ --- so we measured the assumption underneath. At
+\emph{fixed} rate, over $200$ realisations:
+
+\begin{center}\footnotesize
+\begin{tabular}{@{}rrrrr@{}}
+\toprule
+rate & mean divergence & CV & min & max/min \\
+\midrule
+$0.001$ & $0.00658$ & $57.6\%$ & $0.00088$ & $28.4\times$ \\
+$0.004$ & $0.02677$ & $49.1\%$ & $0.00521$ & $13.6\times$ \\
+$0.016$ & $0.09299$ & $48.9\%$ & $0.02272$ & $10.1\times$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Each lineage's rate is its parent's times $\exp(\sigma u)$, so rate multipliers
+\emph{compound} across generations and their log-variance grows with depth. The
+distributions at rates $0.001$ and $0.004$ overlap heavily. This is the second
+and deeper defect: the floor is a \textbf{maximum} over replicates, so when the
+realised divergences of those replicates differ by up to $28\times$, the maximum
+is set by whichever replicate drew a fast-rate tree. The null was inflated, hence
+conservative, but not matched.
+
+\begin{remark}[A finding with scope beyond this paper]
+Matching a null on the \emph{mean} of a nuisance parameter is not matching it
+when the nuisance has a heavy-tailed realised distribution, and averaging more
+replicates does not repair this: averaging shrinks the standard error of the
+\emph{tuning}, not the spread of the \emph{replicates} the statistic is computed
+on. The diagnostic is cheap and we recommend it generally --- measure the
+across-realisation coefficient of variation of the quantity being matched, and if
+it is comparable to the range being matched over, expectation-matching is
+ill-posed.
+\end{remark}
+
+\subsection{Rejection sampling on the realised nuisance}\label{sec:rejection}
+
+A replicate counts only if \emph{its own} realised divergence is within $10\%$ of
+the population's. With that, four pre-registered predictions hold at full count:
+every non-reticulate population reads as a tree ($20/20$); every reticulate
+population does not ($15/15$); the reticulate ones still certify something, so an
+empty system cannot masquerade as a verdict ($15/15$); and a planted recombinant
+appears in a witness quadruple ($15/15$).
+
+\begin{center}\footnotesize
+\begin{tabular}{@{}llrrcrr@{}}
+\toprule
+dataset & reticulate & floor & certified & $n-3$ & trees & acceptance \\
+\midrule
+D1 clonal, strict clock & no & $0.00170$ & $\mathbf{5.0}$ & 5 & 5/5 & $72.5\%$ \\
+D2 clonal, relaxed clock & no & $0.00120$ & $4.4$ & 5 & 5/5 & $17.1\%$ \\
+D6 gap blocks & no & $0.00339$ & $4.0$ & 5 & 5/5 & $52.5\%$ \\
+D7 saturated & no & $\mathbf{0.04000}$ & $\mathbf{5.0}$ & 5 & 5/5 & $100.0\%$ \\
+D3 one recombinant & \textbf{yes} & $0.00160$ & $9.0$ & 6 & 0/5 & $54.7\%$ \\
+D4 relaxed + recombinant & \textbf{yes} & $0.00190$ & $7.4$ & 6 & 0/5 & $15.5\%$ \\
+D5 reciprocal mosaics & \textbf{yes} & $0.00170$ & $10.6$ & 7 & 0/5 & $51.5\%$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+D1 and D7 recover exactly $n-3 = 5$ certified splits, their true internal split
+count, with no incompatible pairs; D7's floor is $23\times$ D1's, which is the
+divergence dependence no constant rate could express. Acceptance rates are
+reported because they matter: a population that cannot be matched receives no
+floor and no verdict rather than a floor from an unmatched null. Across all
+$350$ dataset--seed--floor combinations, every constructed witness really
+violates the four-point condition.
+
+\section{Non-transfer at sixteen taxa}\label{sec:nontransfer}
+
+The simulated grid has $8$--$10$ taxa. Real viral populations, filtered by
+pre-registered quality criteria and aligned to a chosen reference, have $16$. The
+same pipeline that produced the quartet results of~\cite{paperf} --- the same
+reference-anchored alignment, the same two references, and the same
+\emph{measured} admissibility threshold above which a population is reported
+blocked rather than interpreted --- admits three of ten populations.
+
+\subsection{Making the computation possible}
+
+Certifying every split of $16$ taxa requires about $39.7$ million straddling
+quadruple evaluations. There are only $\binom{16}{4} = 1820$ distinct quadruples,
+each reused about $21\,800$ times, so we precompute their counts once (about
+$1.3 \times 10^7$ column comparisons) and the rest are table lookups; done
+directly it is about $2.8 \times 10^{11}$. The table must identify which of the
+three canonical pairing sums a split induces, which it does by asking whom the
+smallest index is paired with --- index arithmetic that is easy to get subtly
+wrong and invisible in aggregate output, so it is checked exhaustively against
+directly computed counts for every quadruple and every $2{+}2$ split, and the
+refactor is confirmed to reproduce the simulated artifact exactly.
+
+\subsection{Zero power}
+
+A $16$-taxon tree has $n - 3 = 13$ internal splits.
+
+\begin{center}\footnotesize
+\begin{tabular}{@{}llrl@{}}
+\toprule
+population & prior & certified splits & reads as \\
+\midrule
+Coxsackievirus A6 & reticulate & $\mathbf{0}$ / 32751 & tree \\
+Hepatitis B & reticulate & $\mathbf{2}$ / 32751 & tree \\
+JC polyomavirus & tree-like & $\mathbf{4}$ / 32751 & tree \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Every population reads as a tree. The single agreement with a tree-like prior is
+therefore \emph{vacuous}: a method that always answers ``tree'' agrees with every
+tree-like prior for no reason, and reporting $1/3$ here would be reporting an
+artefact of having no power.
+
+\subsection{The mechanism, measured}
+
+Definition~\ref{def:split} requires every straddling quadruple to clear the
+floor, and the number of conjuncts for a split with $k$ taxa on one side is
+$\binom{k}{2}\binom{n-k}{2}$, maximised at $\binom{n/2}{2}^2$: \textbf{$36$ at
+$n = 8$, but $784$ at $n = 16$}. A conjunction over hundreds of noisy comparisons
+dies on a single dissent.
+
+The near-miss distribution separates ``the method is wrong about which splits
+exist'' from ``the method is too strict to certify one,'' and these demand
+opposite conclusions:
+
+\begin{center}\footnotesize
+\begin{tabular}{@{}lrr@{}}
+\toprule
+population & closest miss & conjunction length \\
+\midrule
+Coxsackievirus A6 & \textbf{1} failing conjunct & 91 \\
+Hepatitis B & 2 failing conjuncts & 91 \\
+JC polyomavirus & 11 failing conjuncts & 234 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+One dissenting quadruple out of ninety-one. The rule is not wrong about the
+splits; it is too strict to certify one at this conjunction length, and it
+succeeded on the simulated grid only because eight taxa made the requirement
+roughly twenty times weaker. We had stated the simulated scope as ``one parameter
+grid, $8$--$10$ taxa'' and treated that as adequate; it named parameters without
+identifying which one the method's difficulty scales in, and taxon count was that
+one.
+
+\section{An exception budget, and why three populations cannot settle it}
+\label{sec:three}
+
+Allowing at most $k$ dissenting conjuncts keeps the condition \emph{exact and
+countable} --- ``at most $k$ of these integer comparisons fail'' is as checkable
+as ``none does'' --- so it is a weaker claim, not a vaguer one. What it must never
+be is a chosen number. We calibrate $k$ as the largest value at which
+\emph{every} matched null replicate still reads as a tree: one step beyond, a
+genuine clonal tree at the population's own divergence would be called
+reticulate. This gives $k = 23$, with the null first breaking at $24$.
+
+That recovers power and produces a false positive: Coxsackievirus A6 certifies
+$8$ splits and reads as a non-tree (correct), Hepatitis B certifies $18$ and
+reads as a non-tree (correct), and JC polyomavirus certifies $6$ and reads as a
+\textbf{non-tree}, which its prior says is wrong.
+
+A threshold invites fitting, so we replace it with a comparison carrying no
+cutoff: the budget at which the population stops reading as a tree, against the
+budget at which its \emph{own} matched null does.
+
+\begin{center}\footnotesize
+\begin{tabular}{@{}llrrr@{}}
+\toprule
+population & prior & population breaks at & null breaks at & difference \\
+\midrule
+Hepatitis B & reticulate & 3 & 24 & $-21$ \\
+Coxsackievirus A6 & reticulate & 9 & 24 & $-15$ \\
+JC polyomavirus & \textbf{tree-like} & 13 & 24 & $\mathbf{-11}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+All three break earlier than a tree, \emph{including the negative control}. The
+ordering is in the right direction --- the reticulate populations break earliest,
+the tree-like one is intermediate, a genuine tree latest --- but the statistic
+does not separate. Any threshold between $13$ and $24$ would classify all three
+correctly, and selecting such a threshold from three populations with one
+negative control is fitting a cutoff to the answer. We select none and report the
+comparison as it stands. Both alignment references agree on every verdict, so
+none of this is an alignment artefact.
+
+\begin{remark}
+One negative control cannot distinguish ``this method has a false-positive
+problem'' from ``this population's tree-like prior is wrong.'' These priors are
+priors: \cite{paperf} already records that one of the negative-control families
+has documented within-type recombination~\cite{murahwa}, and a prior drawn from a
+literature consensus is not a label. With a single control the two explanations
+are observationally identical, and no additional statistic computed on the same
+three populations can separate them.
+\end{remark}
+
+\section{Related work}\label{sec:related}
+
+Split decomposition~\cite{bandeltdress} decomposes a metric into a totally
+split-decomposable part and a split-prime residue, and the isolation index
+of~\eqref{eq:iso} is its central quantity; the splits-equivalence theorem
+relating pairwise compatibility to displayability by a tree is
+standard~\cite{semplesteel}. Our contribution at this level is not the index but
+the observation that complete deletion within the subset makes its defining
+minimum incommensurable, and that a conjunction recovers an exact substitute.
+
+Statistics for non-tree-likeness computed by aggregating over quadruples include
+$\delta$ plots~\cite{deltaplots}, the pairwise homoplasy index~\cite{bruen}, and
+quartet-based summary tests for introgression~\cite{frankelane}. These average or
+count; the certificate exhibits. The distinction is the point of the programme
+rather than a claim of superior power, and~\cite{paperf} reports the quartet
+certificate tying the pairwise homoplasy index on power under matched nulls.
+
+The relationship between split decomposability and the topology of
+Vietoris--Rips complexes is actively studied: Gómez~\cite{gomez} investigates
+Vietoris--Rips complexes of split-decomposable spaces, motivated by the fact that
+totally decomposable spaces generalise metric trees and are therefore attractive
+candidates for efficiently computable persistent homology. We note this because a
+companion result closed a distance-magnitude Rips filtration on measured grounds
+for this task, and that closure concerned a specific implementation --- a global
+complex cannot use per-subset complete deletion, and a magnitude-driven
+filtration tracks divergence rather than the index a tree forces to zero --- and
+not the mathematical direction, which~\cite{gomez} shows to be live. We have read
+only the abstract of~\cite{gomez} and cite it for that framing alone.
+
+\section{Limitations}\label{sec:limits}
+
+The formal content of \S\ref{sec:lift} is proved and the empirical content is
+one simulated grid. Specifically:
+
+\begin{itemize}
+\item \textbf{The lift is unvalidated on real data.} It works at $8$--$10$
+simulated taxa and does not transfer to $16$ real taxa. The strict form has no
+power there and the calibrated form cannot be shown to separate.
+\item \textbf{Three populations, one negative control.} This cannot establish
+specificity, and we do not claim it does. The admissibility gate is what limits
+the sample, not the availability of sequences.
+\item \textbf{Theorem~\ref{thm:lift} is about three rationals.} It says nothing
+about whether a certified split corresponds to a biological event; that inference
+remains the reader's, informed by the exhibited sequences.
+\item \textbf{The exception budget weakens the claim.} ``At most $k$ conjuncts
+fail'' is exact but is a weaker statement than the strict conjunction, and its
+calibration depends on the matched null being correctly matched --- which
+\S\ref{sec:nullmatching} shows is a non-trivial requirement that an earlier
+version of this apparatus did not meet.
+\item \textbf{Priors are not labels.} The literature expectations used as ground
+truth are consensus readings, one of which is known to be weak.
+\end{itemize}
+
+What would settle it is more admissible negative controls --- by a better
+alignment step whose error is measured at the loads real data presents, or by
+pre-aligned data of independent provenance --- and not another statistic computed
+on these three populations.
+
+\section{Reproduction}\label{sec:repro}
+
+All numbers in this paper are produced by committed code and stored artifacts,
+and no result is hand-entered. The Lean module is verified by compiling and
+reading \texttt{\#print axioms} for every declaration. The simulated experiment,
+the parameter sweeps, the nuisance-variability measurement and the real-data run
+are separate subcommands writing JSON artifacts; the refactor that made the
+$16$-taxon computation possible is confirmed behaviour-preserving against the
+committed simulated artifact. The accompanying software release records the test
+counts, the clippy warning count, and the guard outputs for the edition that
+produced these figures.
+
+\begin{thebibliography}{99}
+
+\bibitem{buneman} Buneman P (1971/1974). The recovery of trees from measures of
+dissimilarity. In \emph{Mathematics in the Archaeological and Historical
+Sciences}, Edinburgh University Press, 387--395; and: A note on the metric
+properties of trees. \emph{Journal of Combinatorial Theory} B 17, 48--50.
+
+\bibitem{bandeltdress} Bandelt H-J, Dress AWM (1992). A canonical decomposition
+theory for metrics on a finite set. \emph{Advances in Mathematics} 92(1),
+47--105. \url{https://doi.org/10.1016/0001-8708(92)90061-O}
+
+\bibitem{semplesteel} Semple C, Steel M (2003). \emph{Phylogenetics}. Oxford
+University Press.
+
+\bibitem{deltaplots} Holland BR, Huber KT, Dress A, Moulton V (2002). $\delta$
+plots: a tool for analyzing phylogenetic distance data. \emph{Molecular Biology
+and Evolution} 19(12), 2051--2059.
+
+\bibitem{bruen} Bruen TC, Philippe H, Bryant D (2006). A simple and robust
+statistical test for detecting the presence of recombination. \emph{Genetics}
+172(4), 2665--2681.
+
+\bibitem{frankelane} Frankel LE, An\'e C (2023). Summary tests of introgression
+are highly sensitive to rate variation across lineages. \emph{Systematic
+Biology} 72(5), 1057--1069.
+
+\bibitem{murahwa} Murahwa AT, \emph{et al.}\ (2020). Recombination between
+high-risk human papillomaviruses and non-human primate papillomaviruses:
+evidence of ancient host switching. \emph{Virus Evolution} 6(2), veaa073.
+
+\bibitem{gomez} G\'omez M (2024). Vietoris--Rips complexes of split-decomposable
+spaces. arXiv:2403.15655. \url{https://arxiv.org/abs/2403.15655}
+
+\bibitem{paperf} Callens X (2026). Proof-carrying detection of reticulate
+evolution: a tree-level null, the measured cost of the alignment step, and the
+Gromov hinge of Buneman's converse. Edition 7. Zenodo.
+\url{https://doi.org/10.5281/zenodo.23602595}
+
+\bibitem{textbook} Callens X (2026). \emph{Formal Genetics: Proof, Computation
+and Verified Reasoning in Mathematical Genetics and Biophysics}. Edition 11.
+Zenodo. \url{https://doi.org/10.5281/zenodo.23602616}
+
+\end{thebibliography}
+
+\end{document}
