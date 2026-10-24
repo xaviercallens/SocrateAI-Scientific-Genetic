@@ -5773,6 +5773,65 @@ fn run_reference_sweep(args: &[String]) -> Result<bool, String> {
     Ok(true)
 }
 
+/// Complete-deletion quartet certificates on an arbitrary profile matrix.
+///
+/// `fasta` exists already but routes through `DistanceMatrix::from_alignment`,
+/// which uses PAIRWISE deletion: each pair gets its own denominator, and the
+/// resulting four numbers are not commensurable. The certificates this
+/// programme trusts use complete deletion *within the quadruple*, so all six
+/// counts share one denominator. This exposes that path for any aligned matrix,
+/// which is what makes the machinery reusable outside nucleotide data.
+///
+/// The motivating case is `docs/RETICULEAN_PROPOSAL.md`: a candidate program's
+/// behavioural profile over a probe battery is a four-state sequence with a gap
+/// character -- correct / incorrect / raised / timed-out, and `-` where a probe
+/// is inadmissible -- so a `programs x probes` matrix is an alignment, and a
+/// certificate on it is evidence that two program lineages recombined. Nothing
+/// here is specific to biology; the input is any matrix over a small alphabet
+/// where some cells are missing.
+fn run_profiles(args: &[String]) -> Result<bool, String> {
+    use reticulation::subset::{find_quartet_certificates, quartet_distribution, Alignment};
+
+    let path = args
+        .iter()
+        .skip(1)
+        .find(|a| !a.starts_with("--"))
+        .ok_or("usage: reticulation profiles <FILE.fasta> [--top K] [--max-quadruples N]")?;
+    let top: usize = parse_flag(args, "--top", 5);
+    let max_quadruples: usize = parse_flag(args, "--max-quadruples", 2_000_000);
+
+    let text = std::fs::read_to_string(path).map_err(|e| format!("{path}: {e}"))?;
+    let records = reticulation::align::read_fasta(&text)?;
+    let labels: Vec<String> = records.iter().map(|r| r.label.clone()).collect();
+    let rows: Vec<Vec<u8>> = records.iter().map(|r| r.sequence.clone()).collect();
+    let aln = Alignment::new(labels, rows)?;
+
+    let search = find_quartet_certificates(&aln, top, max_quadruples)?;
+    if !search.all_validated {
+        return Err(format!("{path}: a certificate failed revalidation"));
+    }
+    let distribution = quartet_distribution(&aln, max_quadruples)?;
+
+    let report = serde_json::json!({
+        "input": path,
+        "members": aln.len(),
+        "sites": aln.width(),
+        "deletion_policy": "complete deletion within each quadruple: all six counts over one denominator",
+        "quadruples_examined": search.examined,
+        "violating_quadruples": search.violating,
+        "certificates_found": search.certificates.len(),
+        "all_certificates_revalidated": search.all_validated,
+        "top_certificates": search.certificates,
+        "quartet_distribution": distribution,
+        "how_to_read_this": "A violating quadruple refutes the four-point condition on those four members with an exact integer comparison. On a population whose variation is mutation from single parents the lineage is a TREE, so violations should be at the noise floor; violations well above a matched mutation-only floor are evidence that lineages recombined. The floor is not supplied here -- see LL.md G3/G4: match the null on the realised nuisance and show the floor converged before reading any of these counts as a result.",
+    });
+    println!(
+        "{}",
+        serde_json::to_string_pretty(&report).map_err(|e| e.to_string())?
+    );
+    Ok(true)
+}
+
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().skip(1).collect();
     let result = match args.first().map(String::as_str) {
@@ -5782,6 +5841,7 @@ fn main() -> ExitCode {
         Some("saturation") => run_saturation(&args),
         Some("verify-tree") => run_verify_tree(&args),
         Some("fasta") => run_fasta(&args),
+        Some("profiles") => run_profiles(&args),
         Some("align-error") => run_align_error(&args),
         Some("real-data") => run_real_data(&args),
         Some("breakpoint") => run_breakpoint(&args),
