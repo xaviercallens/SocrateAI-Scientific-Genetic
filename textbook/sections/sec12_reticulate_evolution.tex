@@ -460,8 +460,16 @@ JC polyomavirus, accession & tree-like & $4/5108$ & $5/5121$ & below \\
 \end{center}
 
 Three populations, three agreements with the prior, and the two alignment
-references agree on the verdict in all three. The floors in this table are
-corrected: edition~9 and edition~10 tuned each matched null by bisecting a
+references agree on the verdict in all three. Each floor in this table is the
+maximum over \emph{five} null replicates, and a maximum can only grow with the
+replicate count: at twenty-five replicates the Hepatitis~B floor doubles and has
+not converged, so its $4.50\times$ is about $2.25\times$ against a converged
+floor. No verdict changes, but the column reports ``the floor five replicates
+happened to produce'' rather than ``the floor a tree produces''. Verdicts are
+also now decided on an exact integer comparison of differing-site counts before
+any ratio is formed, because a margin and a floor can carry the same count over
+different denominators --- which a ratio reads as ``exceeds'' while no excess site
+has been observed. The floors in this table are corrected in a further way: edition~9 and edition~10 tuned each matched null by bisecting a
 \emph{single} realisation of a quantity that is chaotic in the mutation rate, and
 then took the floor as a maximum over replicates whose realised divergences
 differed by up to an order of magnitude. Such a null is not matched. Re-deciding

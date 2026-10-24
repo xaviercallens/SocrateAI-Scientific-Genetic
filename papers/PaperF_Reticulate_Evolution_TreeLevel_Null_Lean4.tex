@@ -47,17 +47,19 @@ and the Gromov Hinge of Buneman's Converse}}
 \small SocrateAI Scientific Research \& Formal Verification Laboratory\\
 \small Formal artifacts: \texttt{ANSE.GeneticaReticulata},
 \texttt{ANSE.GeneticaReticulataTree} (Lean 4)}
-\date{Edition 7, 23 October 2026. \textbf{Corrects the matched-null floors of
-editions~5 and~6.} Those floors were tuned by bisecting a single realisation of
-a chaotic objective and then taken as a maximum over replicates whose realised
-divergences differed by up to an order of magnitude, so the null was never
-matched (\S\ref{sec:real}). Re-deciding against a null matched per replicate
-leaves all three verdicts and the 3/3 literature agreement intact, but moves two
-numbers in opposite directions: Coxsackievirus A6 clears $2.75\times$ rather
-than $1.24\times$, and the JC polyomavirus margin is four-fifths of its floor
-rather than a sixth. Edition~6's isolation-index correction stands.
+\date{Edition 8, 24 October 2026. \textbf{Corrects the matched-null floors
+again, in a second way.} Edition~7 matched each null replicate on its realised
+divergence, which was necessary and remains correct, but every edition has taken
+the floor as the maximum over only \emph{five} replicates. A maximum is an order
+statistic that can only grow with the replicate count: at twenty-five replicates
+the Hepatitis~B floor \textbf{doubles} and has not converged, so its reported
+$4.50\times$ is about $2.25\times$ against a converged floor
+(\S\ref{sec:real}). No verdict changes. A second defect is also fixed: a margin
+and a floor with the \emph{same} differing-site count over different
+denominators was being read as ``exceeds'' because it is true of the rationals,
+and verdicts are now decided on an exact integer comparison first. Edition~7's
+rejection sampling and edition~6's isolation-index correction both stand.
 \textbf{Not peer reviewed.}}
-
 \begin{document}
 \maketitle
 
@@ -895,9 +897,30 @@ JC polyomavirus, accession order & tree-like & $4/5108$ & $5/5121$ & \textbf{bel
 \end{tabular}
 \end{table}
 
-Three populations, three agreements with the prior. The JC polyomavirus row is
-the one that could most easily have embarrassed the method and did not --- but by
-a far narrower margin than editions~5 and~6 reported. Against a null matched
+Three populations, three agreements with the prior. Two cautions about the
+floor column belong here, because both were found after edition~7 went out.
+
+First, each floor is the maximum over \emph{five} null replicates, and a maximum
+can only grow with the replicate count. Measured at twenty-five replicates, the
+Coxsackievirus floor grows by $1.07\times$, the JC polyomavirus floor not at all,
+and the \textbf{Hepatitis~B floor by $2.00\times$ --- and it was still rising}.
+So the figures in this column are not ``the floor a tree produces'' but ``the
+floor five replicates happened to produce'', and Hepatitis~B's $4.50\times$ is
+about $2.25\times$ against a converged floor. Every above-floor verdict survives
+that correction; only the apparent strength was overstated.
+
+Second, a margin and a floor can carry the \emph{same} differing-site count over
+different denominators, which a ratio test reads as ``exceeds'' while no excess
+site has been observed at all. Verdicts are now decided on an exact integer
+comparison of the counts first --- fewer than the floor is below, equal is
+\emph{unresolved}, more is above --- and only then on the rate. Under a different
+reference rule the JC polyomavirus margin is exactly this case, $4/5108$ against
+a floor of $4/5123$, and is now correctly reported as unresolved rather than as a
+detection.
+
+The JC polyomavirus row is the one that could most easily have embarrassed the
+method and did not --- but by a far narrower margin than editions~5 and~6
+reported. Against a null matched
 \emph{per replicate} on realised divergence, its margin is \textbf{four-fifths}
 of the floor a tree produces at matched width and divergence, not the sixth those
 editions claimed. The verdict is unchanged and still correct; the published

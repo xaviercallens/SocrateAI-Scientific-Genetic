@@ -37,7 +37,7 @@ from typing import Any, Dict, List
 HERE = Path(__file__).resolve().parents[1]
 REPO = HERE.parents[2]
 ZENODO = "https://zenodo.org/api"
-RECEIPT = HERE / "data" / "zenodo_paper_f_edition7_receipt.json"
+RECEIPT = HERE / "data" / "zenodo_paper_f_edition8_receipt.json"
 STEM = "PaperF_Reticulate_Evolution_TreeLevel_Null_Lean4"
 
 TITLE = (
@@ -47,185 +47,49 @@ TITLE = (
 )
 
 DESCRIPTION = """
-<p><strong>Not peer reviewed.</strong> This repository once described work as
-&ldquo;5-round Opus peer reviewed&rdquo; on the basis of a function that made no
-model call; that description was withdrawn and no equivalent claim is made here.</p>
+<p><strong>CORRECTION: THE FLOORS WERE MAXIMA OVER ONLY FIVE REPLICATES.</strong>
+Every previous edition took each matched-null floor as the maximum over five null
+replicates. A maximum is an order statistic that can only grow with the replicate
+count, so five is not a neutral choice. Measured at twenty-five replicates the
+Coxsackievirus floor grows by 1.07&times;, the JC polyomavirus floor not at all,
+and the <strong>Hepatitis B floor by 2.00&times; &mdash; and it was still
+rising</strong>. The published floor column therefore reports &ldquo;the floor
+five replicates happened to produce&rdquo;, not &ldquo;the floor a tree
+produces&rdquo;, and Hepatitis B's 4.50&times; is about 2.25&times; against a
+converged floor. <em>No verdict changes</em>; only the apparent strength was
+overstated.</p>
 
-<p>Tests for recombination are normally calibrated against a permutation
-ensemble. This paper develops one calibrated against a <em>theorem</em>, reports
-the two ways its own first version was wrong, and gives the measurement we
-believe is new.</p>
+<p><strong>A second correction: an integer artifact.</strong> A margin and a floor
+can carry the <em>same</em> differing-site count over different denominators
+&mdash; for instance 4/5108 against 4/5123, where the population's alignment is
+fifteen columns shorter than the null's. A ratio test calls that &ldquo;exceeds&rdquo;
+because it is true of the rationals, while no excess differing site has been
+observed at all. Verdicts are now decided on an exact integer comparison of the
+counts first &mdash; fewer than the floor is below, equal is <em>unresolved</em>,
+more is above &mdash; and only then on the rate. That guard needed fixing twice:
+written as &ldquo;margin &le; floor&rdquo; it collapsed &ldquo;below&rdquo; and
+&ldquo;equal&rdquo; into one verdict and so erased a correct negative-control
+result.</p>
 
-<p><strong>The null is a theorem.</strong> A strict molecular clock on a clonal
-genealogy makes expected p-distances ultrametric, and an ultrametric admits no
-unfilled Vietoris&ndash;Rips cycle at any scale, so three sequences violating the
-strong triangle inequality are a <em>certificate</em> rather than a surprise
-relative to shuffles. The inference rule is formalised in Lean&nbsp;4, and emitted
-certificates embed the aligned rows so the kernel recomputes every count itself.</p>
+<p><strong>Also new: the admissibility gate was measuring our reference choice.</strong>
+Of the seven populations this method refuses, five pass the gap clause and fail
+only the insertion-rate clause &mdash; and insertions &ldquo;dropped&rdquo; are
+content absent from the <em>reference</em>, which projection necessarily
+discards. Anchoring on the longest sequence rather than the 6-mer centroid, a
+rule computable from the raw FASTA that consults no margin and no verdict,
+doubles the usable sample from three populations to six; one population's
+insertion rate falls by a factor of 440 on the change of reference alone. The
+three populations admissible under both rules keep their verdicts under both, so
+the verdict is not reference-sensitive once the integer artifact above is
+removed. This does <em>not</em> solve the programme's real problem: the two newly
+admissible tree-like populations are both HPV-52, whose prior is the weakest in
+the set by this paper's own account, and the clean negative control (rabies)
+remains refused under both rules. The usable sample grew; the evidential sample
+did not.</p>
 
-<p><strong>That statistic is nonetheless the wrong one.</strong> On a clonal tree
-with a relaxed clock and <em>no reticulation whatever</em>, divergence-matched so
-only the clock differs, the ultrametric margin exceeds every single-recombinant
-margin; at 32 leaves min(no reticulation) = 99/4000 &gt; 79/4000 = max(one
-recombinant) at every seed. The four-point condition encodes <em>tree</em> without
-<em>clock</em>; we prove in Lean that every symmetric ultrametric satisfies it, and
-the quartet margin on the same data does not move.</p>
-
-<p><strong>The main empirical contribution is about the alignment step.</strong>
-Running the test on real data required writing an aligner, which puts a step on
-the trust surface that no downstream proof covers. Measured on simulated
-populations with no reticulation and a known true alignment, reference-anchored
-alignment manufactures 0 of 9100 four-point violations at a 0.4% gap load and
-1600 of 9100 at 8.2%. We found no published benchmark that varies alignment
-quality as an independent variable, so we believe this is the first direct
-measurement of a mechanism the field already asserts &mdash; confirmatory but
-novel. Read as an admissibility threshold it refuses 7 of 10 real viral
-populations; the 3 that pass agree with a literature prior fixed in advance, and
-the two certificates clearing their matched floor are kernel-accepted with both
-corrupted twins rejected.</p>
-
-<p><strong>Two corrections to our own apparatus are reported as results.</strong>
-The band-edge test by which the aligner had been certified is not a soundness
-certificate and had really failed &mdash; a pair scoring 16555 against an unbanded
-optimum of 17275 with the band edge never touched. Certifying every alignment
-against the unbanded optimum dropped the figure above from 4876 to 1600: two
-thirds of the headline was an uncertified step inside the measuring apparatus,
-inflating the result in the favourable direction. Separately, the reported
-statistic is a maximum over subsets where the established treelikeness tests are
-averages; run seed-paired against the hard null, the maximum separates 16.57x
-against 5.07x for mean delta_q and 1.22x for the proportion of violating
-quadruples.</p>
-
-<p><strong>CORRECTION TO THE MATCHED-NULL FLOORS.</strong> The previous
-edition's matched-null floors were not matched. Each was tuned by bisecting a
-<em>single</em> realisation of a quantity that is chaotic in the mutation rate
-&mdash; the simulator draws its per-branch rate multipliers from the same random
-stream as its mutations, so changing the rate shifts every downstream multiplier
-&mdash; and the floor was then taken as a <em>maximum</em> over replicates whose
-realised divergences differed by up to an order of magnitude. Measured, the
-published nulls missed their populations' divergence by &minus;49%, +11% and
-&minus;12%; at fixed rate the simulator's divergence has a coefficient of
-variation near 50%, spanning 10&ndash;28&times; between extremes, so matching
-such a null <em>in expectation</em> is ill-posed however carefully it is
-implemented.</p>
-
-<p><strong>Re-deciding against a null matched per replicate</strong> &mdash; each
-replicate accepted only if its own realised divergence is within 10% of the
-population's &mdash; leaves <em>every verdict and the 3/3 literature agreement
-intact</em>, but moves two numbers in opposite directions. Coxsackievirus A6
-clears <strong>2.75&times;</strong> its floor rather than 1.24&times;, so the
-previous edition understated its own evidence. And the JC polyomavirus margin is
-<strong>four-fifths</strong> of its floor rather than the sixth previously
-reported: still correctly below, but a far closer call than published. Hepatitis
-B is unchanged at 4.50&times; with an identical rational floor. Two defects acted
-in opposite directions here &mdash; a non-converging bisection misses either way,
-while over-dispersion always inflates a maximum &mdash; so the net direction was
-a measurement, not an argument, and a prediction made before re-running it was
-wrong.</p>
-
-<p><strong>CORRECTION.</strong> The previous edition defined the
-Bandelt&ndash;Dress isolation index as half the <em>minimum</em> of a quadruple's
-two crossing pairing sums minus its own. That is not the isolation index: the
-definition takes the <em>maximum</em>, clamped below at zero. The two forms agree
-on a tree metric, where the crossing sums are equal, and differ exactly where the
-four-point condition fails &mdash; so the error was invisible on precisely the
-data where the condition holds, and the property used to choose between them (that
-the index is an internal edge length on a tree) is satisfied by both and so
-decided nothing. The previous edition is superseded.</p>
-
-<p><strong>The corrected statement is stronger.</strong> For sorted pairing sums
-s1 &le; s2 &le; s3 the three splits' indices are (s3&minus;s1)/2, (s3&minus;s2)/2
-and 0, so the certificate's margin is twice <em>one</em> index &mdash; the middle
-one &mdash; and the four-point condition is exactly its vanishing. The reading is
-the payoff: a tree metric has exactly <em>one</em> split with positive index, a
-certificate makes a second positive, and any two distinct splits of a four-set are
-incompatible. So a quartet certificate <em>is</em> the split-decomposition
-condition for a split system to fail to be a tree, not an analogue of it &mdash;
-checked as an identity, with quadruples carrying two positive indices and
-quadruples violating the four-point condition both numbering 47,802 across the
-grid. The measurement that followed survives unchanged: the supported-split index
-is identical to five decimal places on a clonal population and on both reticulate
-populations built from it, so it is blind to the reticulation and tracks
-divergence instead. The supported index carries the tree; the index a tree forces
-to zero carries the reticulation.</p>
-
-<p><strong>What edition 5 claimed, now corrected.</strong> Edition 4 closed the topological line;
-this edition replaces that closure with a proved identification of what the
-certificate was already measuring. Classical phylogenetic combinatorics assigns
-each split of a quadruple a Bandelt&ndash;Dress isolation index, and between the
-two non-minimal splits that index gap is exactly half the pairing-sum gap &mdash;
-so <strong>the certificate's margin is twice an isolation-index gap</strong>, and
-the four-point condition on a quadruple is precisely the non-positivity of that
-gap. Both are machine-checked, and neither proof needs a tree, a complex or a
-metric space, only three rationals, which is why the quantity survives being
-computed one subset at a time where a global complex cannot. The identity is also
-checked against the data on 75,500 quadruples with zero failures, using indices
-computed from the per-split definition rather than from sorted sums. And
-measuring the split decomposition's own headline quantity locates the signal: the
-largest supported-split index is identical to five decimal places on the clonal
-population and on both reticulate populations built from it &mdash; blind to the
-reticulation, tracking divergence instead. The supported index carries the tree;
-the gap carries the reticulation; the certificate measures the gap. That is also
-a retrospective explanation of edition 4's topological failure, since a distance
-filtration is driven by the magnitudes that track divergence.</p>
-
-<p><strong>What edition 4 added.</strong> The topological line is closed on measured
-grounds, and the maximum statistic's defect is measured across taxon counts
-rather than argued from two points. Bit-parallel subset counting (21.6&times;
-measured, verified against the byte implementation by property test) made
-sixty-four taxa affordable; the clonal floor roughly doubles from sixteen to
-sixty-four taxa while the signal stays flat, so separation halves from
-19.4&times; to 9.2&times; &mdash; detection at a fixed size survives, but a
-threshold calibrated at one size does not transfer. A filtration funnel then
-tested three hypotheses against the topological statistic's failure, with the
-criterion fixed in advance, and <em>none met it</em>: saturation correction is
-refuted (it makes the false positive worse), global complete deletion removes the
-gap false positive entirely and confirms it was the missing-data confound
-reappearing as topology, and the miss of a single recombinant survives all four
-variants while the certificate detects that population at every seed. The
-global-distance-matrix construction is therefore closed: it cannot use per-subset
-complete deletion, and it misses what the certificate catches.</p>
-
-<p><strong>What edition 3 added.</strong> A published-breakpoint test, and the
-resolution limit it reveals. Two SARS-CoV-2 triads whose recombinants are
-<em>named</em> by the Pango designation process with published breakpoint
-intervals, taken already aligned from Nextstrain's open release &mdash; so this
-project's aligner is not involved. The pre-registered prediction, that the
-dominant pairing separates the two <em>parent</em> lineages, held on one
-population (6 of 10 certificates) and failed on the other (0 of 10). Both margins
-are 2 and 4 <em>sites</em> on populations differing by roughly 17 and 38 sites
-genome-wide, and one matched null produced no violating quadruple at all, so the
-conclusion is about applicability: recombinants between recently-diverged
-lineages sit <strong>below this method's resolution</strong>, and the tension is
-structural &mdash; the datasets with the best ground truth are the least
-divergent. Edition 3 also corrects edition 2's comparison table, which judged
-this method against a mismatched null and so understated its specificity; and it
-reports a persistent-homology experiment that cannot answer its own question,
-its null having produced no cycle in 495 of 495 replicates. Both failures taught
-one rule, now computed in the output rather than asserted: check that a null
-varies before believing a p-value derived from it.</p>
-
-<p><strong>What edition 2 added.</strong> The head-to-head edition 1 listed as its
-chief limitation has been run, against the one incumbent whose null also assumes
-no clock. On the five populations where both tests can be measured <em>they agree
-exactly</em>: both specific on the strict-clock and the relaxed-clock null, both
-detecting all three reticulate populations at every seed. The incumbent is not
-beaten on power, so the paper's claims are revised &mdash; the case rests on an
-exhibitable witness and on the absence of a permutation null, not on power. Two
-asymmetries are reported, one each way: the incumbent needs no recalibration when
-divergence changes, and it returns no measurement at all on gap-blocked data.</p>
-
-<p><strong>A new theorem.</strong> The hinge of Buneman's converse, which this
-programme had only cited, is proved: a symmetric dissimilarity satisfies the
-four-point condition if and only if its Gromov product satisfies the max
-inequality at every root. We found no formalisation of tree metrics, splits or
-Buneman's theorem in Lean, Isabelle or Coq. All Lean declarations compile with
-zero sorry and no axioms beyond {propext, Classical.choice, Quot.sound}.</p>
-
-<p><strong>Bundle.</strong> The PDF and LaTeX source, the Lean&nbsp;4 modules, and
-the raw JSON output and data provenance behind every number, so the claims can be
-checked or disputed without trusting this description. Repository:
-<a href="https://github.com/xaviercallens/SocrateAI-Scientific-Genetic">SocrateAI-Scientific-Genetic</a>.</p>
+<p>Edition 7's per-replicate rejection sampling and edition 6's isolation-index
+correction both stand. All figures are produced by committed code and stored
+artifacts; none is hand-entered. <strong>Not peer reviewed.</strong></p>
 """.strip()
 
 KEYWORDS = [
@@ -409,7 +273,7 @@ def main() -> int:
     parser.add_argument(
         "--new-version-of",
         type=int,
-        default=23594789,
+        default=23602595,
         help=(
             "deposit as a new version of this published record id, which is the "
             "only correct way to publish a corrected edition; 0 creates a fresh "
@@ -447,7 +311,7 @@ def main() -> int:
             "keywords": KEYWORDS,
             "license": "cc-by-4.0",
             "access_right": "open",
-            "version": "edition-7",
+            "version": "edition-8",
             "language": "eng",
             "related_identifiers": [
                 {
@@ -527,7 +391,7 @@ def main() -> int:
         "state": published.get("state"),
         "submitted": published.get("submitted"),
         "title": TITLE,
-        "version": "edition-7",
+        "version": "edition-8",
         "files_uploaded": uploaded,
         "peer_reviewed": False,
         "note": (

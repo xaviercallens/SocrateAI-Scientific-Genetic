@@ -38,178 +38,57 @@ from typing import Any, Dict, List
 HERE = Path(__file__).resolve().parents[1]
 REPO = HERE.parents[2]
 ZENODO = "https://zenodo.org/api"
-RECEIPT = HERE / "data" / "zenodo_textbook_edition11_receipt.json"
+RECEIPT = HERE / "data" / "zenodo_textbook_edition12_receipt.json"
 
 TITLE = (
     "Formal Genetics: Proof, Computation and Evidence in Molecular Biology "
-    "(Edition 11)"
+    "(Edition 12)"
 )
 
 DESCRIPTION = """
-<p><strong>A student textbook in twelve sections.</strong> Each section develops
-one piece of molecular genetics three times over: as a mathematical argument the
-reader works through by hand, as a theorem checked by the Lean&nbsp;4 kernel, and
-as a number produced by a solver or by analysis of a real dataset. Every section
-closes with an <em>epistemic ledger</em> separating what was measured, what was
-assumed, and what was proved.</p>
+<p><strong>CORRECTION: THE FLOORS WERE MAXIMA OVER ONLY FIVE REPLICATES.</strong>
+Every previous edition took each matched-null floor as the maximum over five null
+replicates. A maximum is an order statistic that can only grow with the replicate
+count, so five is not a neutral choice. Measured at twenty-five replicates the
+Coxsackievirus floor grows by 1.07&times;, the JC polyomavirus floor not at all,
+and the <strong>Hepatitis B floor by 2.00&times; &mdash; and it was still
+rising</strong>. The published floor column therefore reports &ldquo;the floor
+five replicates happened to produce&rdquo;, not &ldquo;the floor a tree
+produces&rdquo;, and Hepatitis B's 4.50&times; is about 2.25&times; against a
+converged floor. <em>No verdict changes</em>; only the apparent strength was
+overstated.</p>
 
-<p><strong>This book has NOT been peer reviewed.</strong> It has had an internal
-review, which is described in its reproducibility appendix and is not a
-substitute. An earlier edition of this repository described work as
-&ldquo;5-round Opus peer reviewed&rdquo; on the basis of a function that made no
-model call; that description was withdrawn, and the appendix documents the
-withdrawal rather than quietly dropping it.</p>
+<p><strong>A second correction: an integer artifact.</strong> A margin and a floor
+can carry the <em>same</em> differing-site count over different denominators
+&mdash; for instance 4/5108 against 4/5123, where the population's alignment is
+fifteen columns shorter than the null's. A ratio test calls that &ldquo;exceeds&rdquo;
+because it is true of the rationals, while no excess differing site has been
+observed at all. Verdicts are now decided on an exact integer comparison of the
+counts first &mdash; fewer than the floor is below, equal is <em>unresolved</em>,
+more is above &mdash; and only then on the rate. That guard needed fixing twice:
+written as &ldquo;margin &le; floor&rdquo; it collapsed &ldquo;below&rdquo; and
+&ldquo;equal&rdquo; into one verdict and so erased a correct negative-control
+result.</p>
 
-<p><strong>The organising case is a refutation.</strong> An earlier edition of
-this material taught that the cancer-associated polymerase variant
-<em>POLE</em>&nbsp;p.Pro286Arg acts by removing proofreading stages. Section&nbsp;3
-proves a no-go theorem showing no model of that kind reproduces the measured
-phenotype, and Section&nbsp;4 gives the measurement that breaks it by a factor of
-52. The mechanism is retracted in these pages rather than defended.</p>
+<p><strong>Also new: the admissibility gate was measuring our reference choice.</strong>
+Of the seven populations this method refuses, five pass the gap clause and fail
+only the insertion-rate clause &mdash; and insertions &ldquo;dropped&rdquo; are
+content absent from the <em>reference</em>, which projection necessarily
+discards. Anchoring on the longest sequence rather than the 6-mer centroid, a
+rule computable from the raw FASTA that consults no margin and no verdict,
+doubles the usable sample from three populations to six; one population's
+insertion rate falls by a factor of 440 on the change of reference alone. The
+three populations admissible under both rules keep their verdicts under both, so
+the verdict is not reference-sensitive once the integer artifact above is
+removed. This does <em>not</em> solve the programme's real problem: the two newly
+admissible tree-like populations are both HPV-52, whose prior is the weakest in
+the set by this paper's own account, and the clean negative control (rabies)
+remains refused under both rules. The usable sample grew; the evidential sample
+did not.</p>
 
-<p><strong>New in edition 5 &mdash; Section 12, Reticulate Evolution.</strong>
-Section&nbsp;8 measured the topology of a single DNA sequence embedded by the chaos
-game, and Section&nbsp;11 reported the negative result that followed. Section&nbsp;12
-replaces that test rather than only reporting its failure. Moving from one
-sequence to a <em>population</em> makes the null a theorem &mdash; a strict
-molecular clock on a clonal genealogy admits no unfilled cycle &mdash; so a
-violation becomes a certificate a kernel can check rather than a p-value against
-shuffles. The section then refutes its own first statistic: a clonal population
-with a relaxed clock and no recombination whatever violates the clock-level
-condition <em>more</em> strongly than a real recombinant does, so the tree-level
-four-point condition must carry the method, and a machine-checked proof that the
-two conditions nest is what licenses reading the difference between them. It
-closes on ten real viral populations, seven of which are reported blocked because
-a measured control shows the aligner alone would have produced the answer.</p>
-
-<p><strong>CORRECTION TO THE MATCHED-NULL FLOORS.</strong> The previous
-edition's matched-null floors were not matched. Each was tuned by bisecting a
-<em>single</em> realisation of a quantity that is chaotic in the mutation rate
-&mdash; the simulator draws its per-branch rate multipliers from the same random
-stream as its mutations, so changing the rate shifts every downstream multiplier
-&mdash; and the floor was then taken as a <em>maximum</em> over replicates whose
-realised divergences differed by up to an order of magnitude. Measured, the
-published nulls missed their populations' divergence by &minus;49%, +11% and
-&minus;12%; at fixed rate the simulator's divergence has a coefficient of
-variation near 50%, spanning 10&ndash;28&times; between extremes, so matching
-such a null <em>in expectation</em> is ill-posed however carefully it is
-implemented.</p>
-
-<p><strong>Re-deciding against a null matched per replicate</strong> &mdash; each
-replicate accepted only if its own realised divergence is within 10% of the
-population's &mdash; leaves <em>every verdict and the 3/3 literature agreement
-intact</em>, but moves two numbers in opposite directions. Coxsackievirus A6
-clears <strong>2.75&times;</strong> its floor rather than 1.24&times;, so the
-previous edition understated its own evidence. And the JC polyomavirus margin is
-<strong>four-fifths</strong> of its floor rather than the sixth previously
-reported: still correctly below, but a far closer call than published. Hepatitis
-B is unchanged at 4.50&times; with an identical rational floor. Two defects acted
-in opposite directions here &mdash; a non-converging bisection misses either way,
-while over-dispersion always inflates a maximum &mdash; so the net direction was
-a measurement, not an argument, and a prediction made before re-running it was
-wrong.</p>
-
-<p><strong>CORRECTION.</strong> The previous edition defined the
-Bandelt&ndash;Dress isolation index as half the <em>minimum</em> of a quadruple's
-two crossing pairing sums minus its own. That is not the isolation index: the
-definition takes the <em>maximum</em>, clamped below at zero. The two forms agree
-on a tree metric, where the crossing sums are equal, and differ exactly where the
-four-point condition fails &mdash; so the error was invisible on precisely the
-data where the condition holds, and the property used to choose between them (that
-the index is an internal edge length on a tree) is satisfied by both and so
-decided nothing. The previous edition is superseded.</p>
-
-<p><strong>The corrected statement is stronger.</strong> For sorted pairing sums
-s1 &le; s2 &le; s3 the three splits' indices are (s3&minus;s1)/2, (s3&minus;s2)/2
-and 0, so the certificate's margin is twice <em>one</em> index &mdash; the middle
-one &mdash; and the four-point condition is exactly its vanishing. The reading is
-the payoff: a tree metric has exactly <em>one</em> split with positive index, a
-certificate makes a second positive, and any two distinct splits of a four-set are
-incompatible. So a quartet certificate <em>is</em> the split-decomposition
-condition for a split system to fail to be a tree, not an analogue of it &mdash;
-checked as an identity, with quadruples carrying two positive indices and
-quadruples violating the four-point condition both numbering 47,802 across the
-grid. The measurement that followed survives unchanged: the supported-split index
-is identical to five decimal places on a clonal population and on both reticulate
-populations built from it, so it is blind to the reticulation and tracks
-divergence instead. The supported index carries the tree; the index a tree forces
-to zero carries the reticulation.</p>
-
-<p><strong>What edition 9 claimed, now corrected.</strong> The closure of Section&nbsp;12's
-topological line is replaced by a positive statement about what the certificate
-was already measuring. Phylogenetic combinatorics assigns each split of a
-quadruple a Bandelt&ndash;Dress isolation index &mdash; on a tree metric, the
-supported split's index is the internal edge's length &mdash; and between the two
-non-minimal splits that index gap is exactly half the pairing-sum gap. So the
-certificate's margin <em>is</em> twice an isolation-index gap, and the four-point
-condition is precisely the non-positivity of that gap; both are machine-checked,
-and neither proof needs a tree, a complex or a metric space. Measuring the split
-decomposition's own headline quantity then shows where the signal is not: the
-largest supported-split index is identical to five decimal places on the clonal
-population and on both reticulate populations built from it, tracking divergence
-instead. The supported index carries the tree; the gap carries the
-reticulation.</p>
-
-<p><strong>What edition 8 added.</strong> Section&nbsp;12's ledger now records the
-closure of its topological line on measured grounds. Re-run at sixty-four taxa,
-the persistent-homology statistic fires on the two populations containing no
-reticulation &mdash; gap-blocked and saturated &mdash; while missing a single
-recombinant entirely, and no cheap filtration change fixes it: correcting for
-saturation makes it worse, and restricting to globally comparable columns removes
-the gap false positive completely (confirming it was the missing-data confound
-reappearing as topology) but leaves the miss. The section's topological content
-is therefore the certificate itself, the same theorem evaluated per quadruple,
-which is what makes complete deletion within the subset available at all.</p>
-
-<p><strong>What edition 7 added.</strong> Section&nbsp;12's comparison table is
-corrected &mdash; the earlier edition judged this book's own statistic against a
-mismatched null and so understated its specificity &mdash; and its ledger now
-reports two results found since, both against the section's own interest: a
-published-breakpoint test on SARS-CoV-2 recombinants that held on one population
-and failed on another, with margins of two and four <em>sites</em> that cannot
-carry a verdict; and a persistent-homology experiment that is inconclusive
-because its null produced no cycle in 495 of 495 replicates. The lesson both
-taught is in the ledger: check that a null varies before believing a p-value
-derived from it.</p>
-
-<p><strong>What edition 6 added.</strong> Section&nbsp;12 now contains the
-comparison it previously listed as missing: against the established test that
-shares its no-clock null, the pairwise homoplasy index. On the five populations
-where both can be measured <em>the two agree exactly</em> &mdash; both specific on
-the strict-clock and the relaxed-clock null, both detecting all three reticulate
-populations at every seed. The incumbent is not beaten on power, so the case for
-a certificate is made for its discipline and its exhibitable witness instead, and
-the section says so.</p>
-
-<p><strong>What edition 5 corrected in its own apparatus.</strong> A review of the
-surrounding literature, run after the work was done, found four errors in it and
-they are fixed in the open: the band-edge test used to certify the aligner was
-not a certificate and had really failed on this project's own data, which
-inflated a headline count threefold; Buneman's theorem is restated with its
-actual hypotheses (a nonnegative dissimilarity map, not a metric, because the
-triangle inequality is a consequence of the four-point condition); a negative
-control was demoted because recombination in that family is documented rather
-than merely unexcluded; and the simulator's indel parameters are labelled chosen
-rather than calibrated, no published viral indel rate having been found.</p>
-
-<p><strong>Contents.</strong> Reading a proof about a cell &middot; kinetic
-proofreading &middot; a no-go theorem &middot; the POLE refutation &middot;
-mismatch repair &middot; mutation accumulation &middot; variant landscapes
-&middot; topological genomics &middot; DNA topology &middot; from model to clinic
-&middot; gaps closed &middot; reticulate evolution. With worked examples,
-exercises and solutions, a reproducibility appendix naming the command behind
-every number, a research-directions appendix, and an annotated reference list in
-which three entries are marked <em>no verified DOI</em> rather than given a
-plausible-looking string.</p>
-
-<p><strong>Bundle.</strong> The PDF, the complete LaTeX sources and build script,
-the Lean&nbsp;4 modules behind Section&nbsp;12's theorems, and the raw JSON output
-and data provenance behind its numbers &mdash; so that the claims can be checked
-or disputed without trusting this description of them.</p>
-
-<p>Repository:
-<a href="https://github.com/xaviercallens/SocrateAI-Scientific-Genetic">SocrateAI-Scientific-Genetic</a>,
-release v1.8.0.</p>
+<p>Edition 7's per-replicate rejection sampling and edition 6's isolation-index
+correction both stand. All figures are produced by committed code and stored
+artifacts; none is hand-entered. <strong>Not peer reviewed.</strong></p>
 """.strip()
 
 KEYWORDS = [
@@ -404,7 +283,7 @@ def main() -> int:
     parser.add_argument(
         "--new-version-of",
         type=int,
-        default=23594794,
+        default=23602616,
         help=(
             "deposit as a new version of this published record id, which is the "
             "only correct way to publish a corrected edition; 0 creates a fresh "
@@ -442,7 +321,7 @@ def main() -> int:
             "keywords": KEYWORDS,
             "license": "cc-by-4.0",
             "access_right": "open",
-            "version": "edition-11",
+            "version": "edition-12",
             "language": "eng",
             "related_identifiers": [
                 {
@@ -522,7 +401,7 @@ def main() -> int:
         "state": published.get("state"),
         "submitted": published.get("submitted"),
         "title": TITLE,
-        "version": "edition-11",
+        "version": "edition-12",
         "files_uploaded": uploaded,
         "peer_reviewed": False,
         "note": (
