@@ -2589,9 +2589,14 @@ fn matched_floor(
     // The accepted replicates themselves, so a threshold can be calibrated on
     // the same populations that set the floor rather than on fresh draws.
     let mut kept: Vec<reticulation::simulate::Population> = Vec::new();
-    let max_attempts = seeds * 2_000 + 2_000;
+    let mut per_replicate: Vec<Option<(i64, i64)>> = Vec::new();
+    // Draw more replicates than the floor uses. The extras never change the
+    // published floor -- that stays the maximum over the first `seeds` -- but
+    // they reveal whether that maximum had converged.
+    let target = seeds.saturating_mul(5).max(seeds);
+    let max_attempts = target * 2_000 + 2_000;
     let mut seed = 0u64;
-    while accepted < seeds && attempts < max_attempts {
+    while accepted < target && attempts < max_attempts {
         seed += 1;
         attempts += 1;
         let pop = build(mu, seed);
@@ -2601,11 +2606,31 @@ fn matched_floor(
         }
         accepted += 1;
         realised_sum += realised;
+        // Only the first `seeds` replicates set the published floor; the rest
+        // exist to show whether it had converged.
+        let counts_toward_floor = accepted <= seeds;
         let aln = Alignment::new(pop.labels.clone(), pop.sequences.clone())?;
         kept.push(pop.clone());
         let search = find_quartet_certificates(&aln, 1, max_quadruples)?;
         violating_total += search.violating;
-        if let Some(margin) = search.certificates.first().map(|c| c.margin()) {
+        // This replicate's own worst margin. The floor is the maximum over
+        // replicates, so it is a sampled extreme with its own variability, and
+        // a verdict that rests on a margin inside that variability is not a
+        // verdict. Keeping the per-replicate values is what makes the
+        // variability measurable instead of invisible.
+        per_replicate.push(
+            search
+                .certificates
+                .first()
+                .map(|c| c.margin())
+                .map(|m| (m.num, m.den)),
+        );
+        if let Some(margin) = search
+            .certificates
+            .first()
+            .map(|c| c.margin())
+            .filter(|_| counts_toward_floor)
+        {
             let better = match best {
                 None => true,
                 Some(current) => margin
@@ -2630,8 +2655,9 @@ fn matched_floor(
             f64::NAN
         },
         violating_total,
-        matched: accepted == seeds,
+        matched: accepted >= seeds,
         replicates: kept,
+        per_replicate_floor: per_replicate,
     })
 }
 
@@ -2654,6 +2680,10 @@ struct MatchedFloor {
     /// The accepted replicates, each within tolerance of the population's
     /// realised divergence and carrying no reticulation by construction.
     replicates: Vec<reticulation::simulate::Population>,
+    /// Each accepted replicate's own worst four-point margin, as `(num, den)`.
+    /// The floor is the maximum of these, so their spread is the floor's
+    /// sampling variability.
+    per_replicate_floor: Vec<Option<(i64, i64)>>,
 }
 
 /// Run the four-point test on real viral populations.
@@ -2669,7 +2699,103 @@ struct MatchedFloor {
 /// the report says whether the verdict moved. Every margin is compared against
 /// a floor from a simulated tree at matched length, matched divergence and
 /// matched gap load, because a margin on its own is not a statistic.
+/// Rank candidate references under the named rule.
+///
+/// `longest` is the default (see `align::length_ranking`). `centroid` is the
+/// rule that produced the published figures and is retained so they remain
+/// reproducible, not because it is preferred.
+/// Has the matched floor converged, or would more replicates raise it?
+///
+/// The floor is the MAXIMUM of the worst margins of `k` null replicates, so a
+/// margin clearing it narrowly may be clearing an underestimate: with more
+/// replicates the maximum can only grow. The published pipeline reported a
+/// boolean, so a margin clearing its floor by 0.3% read exactly like one
+/// clearing it by 450%.
+///
+/// Two earlier attempts at this band were wrong, and both errors are recorded
+/// because they are instructive. The first took the gap between the largest and
+/// second-largest per-replicate margin: with small integer counts replicates
+/// frequently tie, so the gap was exactly zero and a zero band declared every
+/// verdict resolved -- manufacturing the confidence it was meant to withhold.
+/// The second bootstrapped the maximum by resampling the observed margins,
+/// which by construction cannot exceed the observed maximum, so it measured
+/// only how much LOWER the floor might have been. Neither answers the question
+/// that matters.
+///
+/// This measures it directly: draw more replicates than the floor uses and
+/// report the running maximum. If the floor at the published replicate count
+/// sits below the floor more replicates reveal, it is an underestimate by
+/// exactly that much, and a margin inside the gap is UNRESOLVED.
+#[derive(Debug, Clone, serde::Serialize)]
+struct FloorConvergence {
+    floor_at_published: f64,
+    published_replicates: usize,
+    /// The floor a larger replicate count produces; it can only be >= the above.
+    floor_at_extended: f64,
+    extended_replicates: usize,
+    growth_factor: f64,
+    /// The running maximum after each accepted replicate, so a reader can see
+    /// whether it had stopped rising.
+    running_maximum: Vec<f64>,
+    /// True when the final third of the replicates raised the maximum at all:
+    /// the floor was still climbing when sampling stopped.
+    still_rising: bool,
+}
+
+fn floor_convergence(
+    per_replicate: &[Option<(i64, i64)>],
+    published_replicates: usize,
+) -> Option<FloorConvergence> {
+    if per_replicate.len() <= published_replicates || published_replicates == 0 {
+        return None;
+    }
+    let rates: Vec<f64> = per_replicate
+        .iter()
+        .map(|o| {
+            o.map(|(n, d)| if d > 0 { n as f64 / d as f64 } else { 0.0 })
+                .unwrap_or(0.0)
+        })
+        .collect();
+    let mut running = Vec::with_capacity(rates.len());
+    let mut best = f64::NEG_INFINITY;
+    for r in &rates {
+        best = best.max(*r);
+        running.push(best);
+    }
+    let at_published = running[published_replicates - 1];
+    let at_extended = *running.last().expect("non-empty");
+    let two_thirds = (rates.len() * 2) / 3;
+    let still_rising = at_extended > running[two_thirds.max(1) - 1];
+    Some(FloorConvergence {
+        floor_at_published: at_published,
+        published_replicates,
+        floor_at_extended: at_extended,
+        extended_replicates: rates.len(),
+        growth_factor: if at_published > 0.0 { at_extended / at_published } else { f64::NAN },
+        running_maximum: running,
+        still_rising,
+    })
+}
+
+fn reference_ranking(
+    rule: &str,
+    raw: &[Vec<u8>],
+) -> Result<Vec<usize>, String> {
+    match rule {
+        "longest" => Ok(reticulation::align::length_ranking(raw)),
+        "centroid" => Ok(reticulation::align::centroid_ranking(raw)),
+        other => Err(format!(
+            "--reference-rule must be `longest` or `centroid`, got `{other}`"
+        )),
+    }
+}
+
 fn run_real_data(args: &[String]) -> Result<bool, String> {
+    // Which sequence anchors the alignment. `longest` retains the most content
+    // and so drops the fewest insertions; `centroid` reproduces the published
+    // figures. The rule is fixed before any alignment and reads no verdict.
+    let reference_rule: String =
+        parse_flag(args, "--reference-rule", "longest".to_string());
     // A null replicate counts toward the floor only if its own realised
     // divergence is within this of the population's. Matching in expectation is
     // not matching: see `matched_floor`.
@@ -2781,6 +2907,19 @@ fn run_real_data(args: &[String]) -> Result<bool, String> {
         /// False when the null could not be matched, in which case the floor
         /// comparisons above are withheld rather than reported.
         matched_floor_is_matched: Option<bool>,
+        /// Margin divided by floor. Reported because a boolean hides the
+        /// difference between clearing by 0.3% and clearing by 450%.
+        margin_over_floor: Option<f64>,
+        /// Whether more replicates would raise the floor.
+        floor_convergence: Option<FloorConvergence>,
+        /// Whether the margin exceeds the floor in COUNT, not merely as a
+        /// rational. Equal counts over different denominators are not evidence.
+        margin_numerator_exceeds_floor_numerator: Option<bool>,
+        /// Violating quadruples across the accepted null replicates. Zero would
+        /// mean the null could not vary, so no floor is readable from it.
+        null_violating_quadruples: Option<usize>,
+        verdict_resolved: Option<bool>,
+        verdict: Option<String>,
         exceeds_matched_floor: Option<bool>,
         exceeds_twice_matched_floor: Option<bool>,
     }
@@ -2818,6 +2957,12 @@ fn run_real_data(args: &[String]) -> Result<bool, String> {
                 matched_floor_accepted: None,
                 matched_floor_attempts: None,
                 matched_floor_is_matched: None,
+                margin_over_floor: None,
+                floor_convergence: None,
+                margin_numerator_exceeds_floor_numerator: None,
+                null_violating_quadruples: None,
+                verdict_resolved: None,
+                verdict: None,
             exceeds_matched_floor: None,
             exceeds_twice_matched_floor: None,
         };
@@ -2826,7 +2971,7 @@ fn run_real_data(args: &[String]) -> Result<bool, String> {
             results.push(entry);
             continue;
         }
-        let ranking = centroid_ranking(&raw);
+        let ranking = reference_ranking(&reference_rule, &raw)?;
         let mut blocked: Option<String> = None;
         for (role, reference) in [("primary", ranking[0]), ("sensitivity", ranking[1])] {
             let anchored = match reference_anchored_alignment(
@@ -2953,6 +3098,71 @@ fn run_real_data(args: &[String]) -> Result<bool, String> {
         entry.matched_floor_accepted = Some(matched.accepted);
         entry.matched_floor_attempts = Some(matched.attempts);
         entry.matched_floor_is_matched = Some(matched.matched);
+        // The ratio, not just the boolean: a margin clearing its floor by 0.3%
+        // and one clearing it by 450% are not the same evidence, and the
+        // published pipeline reported them identically.
+        let floor_rate = matched
+            .floor
+            .map(|r| r.num as f64 / r.den.max(1) as f64);
+        let margin_rate = observed.map(|m| m.num as f64 / m.den.max(1) as f64);
+        let ratio = match (margin_rate, floor_rate) {
+            (Some(m), Some(f)) if f > 0.0 => Some(m / f),
+            _ => None,
+        };
+        entry.margin_over_floor = ratio;
+        // The floor is the maximum over replicates, so it carries the sampling
+        // variability of an order statistic. A margin inside that band has not
+        // been shown to exceed anything.
+        let convergence = floor_convergence(&matched.per_replicate_floor, seeds as usize);
+        // An integer guard, before any ratio is formed. If the margin's
+        // NUMERATOR does not exceed the floor's, there is no excess differing
+        // site -- the two are the same count over slightly different
+        // denominators, and the population's alignment being a few columns
+        // shorter than the null's is not evidence of reticulation. JC
+        // polyomavirus showed exactly this: margin 4/5108 against floor 4/5123,
+        // which a ratio test calls "exceeds" because it is true of the
+        // rationals while being scientifically empty.
+        // Three cases, not two. A margin BELOW the floor in count is a genuine
+        // negative and must keep saying so; a margin EQUAL to the floor in count
+        // is unresolved, since the apparent excess is only the denominators
+        // differing. Lumping the two together erased the programme's one correct
+        // negative-control result, so they are separated here.
+        let equal_count_as_floor = match (observed, matched.floor) {
+            (Some(m), Some(f)) => m.num == f.num,
+            _ => false,
+        };
+        entry.margin_numerator_exceeds_floor_numerator = match (observed, matched.floor) {
+            (Some(m), Some(f)) => Some(m.num > f.num),
+            _ => None,
+        };
+        entry.verdict = match (margin_rate, floor_rate, convergence.as_ref()) {
+            _ if equal_count_as_floor => Some(
+                "UNRESOLVED: the margin is the SAME differing-site count as the floor, over a different denominator; no excess site was observed".to_string(),
+            ),
+            (Some(m), Some(f), Some(conv)) => Some(if m <= f {
+                "below the floor".to_string()
+            } else if m <= conv.floor_at_extended {
+                "UNRESOLVED: clears the floor at the published replicate count but not the higher floor more replicates reveal".to_string()
+            } else {
+                "above the floor, including the higher floor more replicates reveal".to_string()
+            }),
+            (Some(m), Some(f), None) => Some(if m <= f {
+                "below the floor".to_string()
+            } else {
+                "above the floor; convergence not measured".to_string()
+            }),
+            _ => None,
+        };
+        entry.verdict_resolved = match (margin_rate, convergence.as_ref()) {
+            _ if equal_count_as_floor => Some(false),
+            (Some(m), Some(conv)) => Some(m > conv.floor_at_extended),
+            _ => None,
+        };
+        entry.floor_convergence = convergence;
+        // Violating quadruples summed over the accepted replicates. Zero means
+        // the null never varied, which is the degenerate case a floor cannot be
+        // read against -- so it is reported rather than discarded.
+        entry.null_violating_quadruples = Some(matched.violating_total);
         // A floor from an unmatched null decides nothing, so the comparison is
         // withheld rather than reported.
         entry.exceeds_matched_floor = if matched.matched {
@@ -5020,7 +5230,12 @@ fn run_split_system(args: &[String]) -> Result<bool, String> {
 /// BLOCKED rather than interpreted. The floor is the same matched-null floor,
 /// now matched per replicate on realised divergence.
 fn run_split_real(args: &[String]) -> Result<bool, String> {
-    use reticulation::align::{centroid_ranking, reference_anchored_alignment, Scoring};
+    // Which sequence anchors the alignment. `longest` retains the most content
+    // and so drops the fewest insertions; `centroid` reproduces the published
+    // figures. The rule is fixed before any alignment and reads no verdict.
+    let reference_rule: String =
+        parse_flag(args, "--reference-rule", "longest".to_string());
+    use reticulation::align::{reference_anchored_alignment, Scoring};
     use reticulation::splits::{split_system_at, split_system_with, Exceptions, Floor};
     use reticulation::subset::Alignment;
 
@@ -5108,7 +5323,7 @@ fn run_split_real(args: &[String]) -> Result<bool, String> {
             continue;
         }
 
-        let ranking = centroid_ranking(&raw);
+        let ranking = reference_ranking(&reference_rule, &raw)?;
         let mut per_reference: Vec<serde_json::Value> = Vec::new();
         let mut blocked: Option<String> = None;
         for (role, reference) in [("primary", ranking[0]), ("sensitivity", ranking[1])] {
@@ -5348,6 +5563,216 @@ fn run_split_real(args: &[String]) -> Result<bool, String> {
     Ok(true)
 }
 
+/// Which clause of the admissibility gate binds, and whether it is a property of
+/// the data or of the reference we happened to choose.
+///
+/// Paper G names the admissibility gate as the binding constraint on this
+/// programme: it leaves three of ten populations usable and only one of them is
+/// a negative control. That claim was made without reporting WHICH clause binds.
+/// It turns out five of the seven blocked populations pass the gap clause and
+/// fail only the insertion-rate clause, by factors between 1.7 and 4.4 -- and
+/// four of those five are tree-like, which is exactly the control the programme
+/// is short of.
+///
+/// "Insertions dropped" counts content present in a sequence but absent from the
+/// REFERENCE, which reference-anchored projection necessarily discards. That is
+/// a property of the chosen reference, not of the data's intrinsic alignability,
+/// and the current choice is the 6-mer centroid -- the most typical sequence,
+/// which is not the same thing as the sequence that retains the most content.
+///
+/// This sweeps every candidate reference and reports admissibility quantities
+/// only: gap fraction, insertion rate, width and reference length. It reads no
+/// margin, no certificate and no verdict, so it cannot select a reference to
+/// obtain an answer. That blindness is the whole reason the sweep is admissible.
+fn run_reference_sweep(args: &[String]) -> Result<bool, String> {
+    use reticulation::align::{centroid_ranking, reference_anchored_alignment, Scoring};
+
+    let dir: String = parse_flag(
+        args,
+        "--populations",
+        "../../data/reticulata_phase3/populations".to_string(),
+    );
+    let band: usize = parse_flag(args, "--band", 64);
+    let max_band: usize = parse_flag(args, "--max-band", 4096);
+    let max_gap_admissible: f64 = parse_flag(args, "--max-gap-fraction", 0.0039);
+    let max_insertion_rate: f64 = parse_flag(args, "--max-insertion-rate", 0.0008);
+
+    let path = std::path::Path::new(&dir);
+    let mut fastas: Vec<std::path::PathBuf> = std::fs::read_dir(path)
+        .map_err(|e| format!("--populations {dir}: {e}"))?
+        .filter_map(Result::ok)
+        .map(|entry| entry.path())
+        .filter(|p| p.extension().and_then(|s| s.to_str()) == Some("fasta"))
+        .collect();
+    fastas.sort();
+
+    let scoring = Scoring::default();
+    let mut rows: Vec<serde_json::Value> = Vec::new();
+    let mut recovered = 0usize;
+    let mut already = 0usize;
+
+    for fasta in &fastas {
+        let stem = fasta
+            .file_stem()
+            .and_then(|s| s.to_str())
+            .unwrap_or("")
+            .to_string();
+        let text = std::fs::read_to_string(fasta).map_err(|e| format!("{}: {e}", fasta.display()))?;
+        let records = reticulation::align::read_fasta(&text)?;
+        let labels: Vec<String> = records.iter().map(|r| r.label.clone()).collect();
+        let raw: Vec<Vec<u8>> = records.iter().map(|r| r.sequence.clone()).collect();
+        if raw.len() < 4 {
+            continue;
+        }
+        let ranking = centroid_ranking(&raw);
+        let centroid = ranking[0];
+        let longest = (0..raw.len())
+            .max_by_key(|&i| raw[i].len())
+            .ok_or("empty population")?;
+
+        // Stage one: an UNCERTIFIED screen over every reference. Certification
+        // widens the band until the banded score equals the unbanded optimum,
+        // which is O(nm) per pair and made a sweep over all references
+        // infeasible (it timed out at fifty minutes). The screen is therefore
+        // labelled as a screen: it ranks references by the admissibility
+        // quantities a fixed band produces, and the winner is then certified in
+        // stage two. A screen is not a verdict and nothing downstream uses its
+        // numbers.
+        let mut candidates: Vec<serde_json::Value> = Vec::new();
+        let mut best: Option<(f64, usize)> = None;
+        let mut any_admissible = false;
+        for reference in 0..raw.len() {
+            let anchored = match reference_anchored_alignment(
+                &labels, &raw, reference, &scoring, band, max_band, false,
+            ) {
+                Ok(v) => v,
+                Err(error) => {
+                    candidates.push(serde_json::json!({
+                        "reference": reference,
+                        "error": error,
+                    }));
+                    continue;
+                }
+            };
+            let gaps = anchored.gap_fraction();
+            let insertions: usize = anchored.insertions_dropped.iter().sum();
+            let rate = insertions as f64 / (anchored.width * anchored.rows.len()).max(1) as f64;
+            let admissible = gaps <= max_gap_admissible && rate <= max_insertion_rate;
+            if admissible {
+                any_admissible = true;
+            }
+            if best.map(|(r, _)| rate < r).unwrap_or(true) {
+                best = Some((rate, reference));
+            }
+            candidates.push(serde_json::json!({
+                "reference": reference,
+                "reference_length": raw[reference].len(),
+                "is_centroid": reference == centroid,
+                "is_longest": reference == longest,
+                "width": anchored.width,
+                "gap_fraction": gaps,
+                "insertion_rate_per_site": rate,
+                "insertions_dropped": insertions,
+                "gap_clause_passes": gaps <= max_gap_admissible,
+                "insertion_clause_passes": rate <= max_insertion_rate,
+                "admissible": admissible,
+            }));
+        }
+
+        let at = |idx: usize| -> Option<&serde_json::Value> {
+            candidates
+                .iter()
+                .find(|c| c.get("reference").and_then(|v| v.as_u64()) == Some(idx as u64))
+        };
+        let centroid_admissible = at(centroid)
+            .and_then(|c| c.get("admissible"))
+            .and_then(|v| v.as_bool())
+            .unwrap_or(false);
+        if centroid_admissible {
+            already += 1;
+        } else if any_admissible {
+            recovered += 1;
+        }
+
+        // Stage two: certify the screen's winner, because an uncertified band
+        // can report an alignment that is not optimal and therefore an
+        // insertion count that is not the one the real pipeline would see.
+        let certified_best = match best {
+            Some((_, reference)) => {
+                match reference_anchored_alignment(
+                    &labels, &raw, reference, &scoring, band, max_band, true,
+                ) {
+                    Ok(anchored) => {
+                        let gaps = anchored.gap_fraction();
+                        let insertions: usize = anchored.insertions_dropped.iter().sum();
+                        let rate = insertions as f64
+                            / (anchored.width * anchored.rows.len()).max(1) as f64;
+                        serde_json::json!({
+                            "reference": reference,
+                            "certified": true,
+                            "width": anchored.width,
+                            "gap_fraction": gaps,
+                            "insertion_rate_per_site": rate,
+                            "gap_clause_passes": gaps <= max_gap_admissible,
+                            "insertion_clause_passes": rate <= max_insertion_rate,
+                            "admissible": gaps <= max_gap_admissible
+                                && rate <= max_insertion_rate,
+                        })
+                    }
+                    Err(error) => serde_json::json!({
+                        "reference": reference, "certified": false, "error": error,
+                    }),
+                }
+            }
+            None => serde_json::Value::Null,
+        };
+
+        rows.push(serde_json::json!({
+            "file": stem,
+            "taxa": raw.len(),
+            "certified_best_reference": certified_best,
+            "raw_length_min": raw.iter().map(Vec::len).min(),
+            "raw_length_max": raw.iter().map(Vec::len).max(),
+            "centroid_reference": centroid,
+            "longest_reference": longest,
+            "centroid_is_longest": centroid == longest,
+            "centroid_admissible": centroid_admissible,
+            "some_reference_is_admissible": any_admissible,
+            "best_insertion_rate": best.map(|(r, _)| r),
+            "best_insertion_rate_reference": best.map(|(_, i)| i),
+            "admissible_reference_count": candidates
+                .iter()
+                .filter(|c| c.get("admissible").and_then(|v| v.as_bool()) == Some(true))
+                .count(),
+            "candidates": candidates,
+        }));
+    }
+
+    let report = serde_json::json!({
+        "experiment": "which clause of the admissibility gate binds, and whether it is a property of the data or of the reference chosen",
+        "why": "Paper G names the admissibility gate as this programme's binding constraint -- three of ten populations usable, one negative control -- without reporting which clause binds. Five of the seven blocked populations pass the gap clause and fail only the insertion-rate clause, by factors of 1.7 to 4.4, and four of those five are tree-like, which is the control the programme lacks.",
+        "what_insertions_dropped_means": "Content present in a sequence but absent from the REFERENCE, which reference-anchored projection necessarily discards. It is a property of the chosen reference, not of the data's intrinsic alignability. The current rule picks the 6-mer centroid: the most typical sequence, which is not the sequence that retains the most content.",
+        "two_stage_design": "Stage one screens every reference with a FIXED band and no certification, because certifying each one is O(nm) per pair and a full sweep timed out at fifty minutes. Stage two certifies the screen's winner, since an uncertified band can report a non-optimal alignment and hence an insertion count the real pipeline would not see. Only the stage-two number is comparable to the published gate.",
+        "why_this_sweep_is_not_dredging": "It reports admissibility quantities only -- gap fraction, insertion rate, width, reference length. It reads no margin, no certificate and no verdict, so it cannot select a reference in order to obtain an answer. Any change of reference rule it motivates must be stated mechanistically and applied to every population alike.",
+        "thresholds": {
+            "max_gap_fraction": max_gap_admissible,
+            "max_insertion_rate": max_insertion_rate,
+            "provenance": "measured, not chosen: the heaviest rung of the alignment-error ladder at which alignment error manufactured no four-point violation at any seed",
+        },
+        "summary": {
+            "populations": rows.len(),
+            "admissible_under_the_centroid_rule": already,
+            "blocked_by_centroid_but_admissible_under_some_reference": recovered,
+        },
+        "populations": rows,
+    });
+    println!(
+        "{}",
+        serde_json::to_string_pretty(&report).map_err(|e| e.to_string())?
+    );
+    Ok(true)
+}
+
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().skip(1).collect();
     let result = match args.first().map(String::as_str) {
@@ -5366,6 +5791,7 @@ fn main() -> ExitCode {
         Some("null-sweep") => run_null_sweep(&args),
         Some("split-system") => run_split_system(&args),
         Some("split-real") => run_split_real(&args),
+        Some("reference-sweep") => run_reference_sweep(&args),
         Some("tuning-bias") => run_tuning_bias(&args),
         _ => {
             eprintln!(

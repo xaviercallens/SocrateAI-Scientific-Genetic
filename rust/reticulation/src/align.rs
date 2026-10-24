@@ -679,6 +679,37 @@ pub fn centroid_reference(sequences: &[Vec<u8>]) -> usize {
     centroid_ranking(sequences)[0]
 }
 
+/// Every index, ordered by sequence length: longest first, index-ascending on
+/// ties so the order is deterministic.
+///
+/// This is the reference rule the admissibility evidence selects, and the reason
+/// is mechanical rather than empirical. Reference-anchored projection discards
+/// content that is present in a sequence but absent from the reference, so a
+/// reference missing content necessarily drops insertions --- and the
+/// insertion-rate clause of the admissibility gate is what that produces. The
+/// previous rule anchored on the 6-mer centroid, the most *typical* sequence,
+/// which is not the sequence that retains the most content: measured across
+/// every candidate reference, five of seven blocked populations passed the gap
+/// clause and failed only the insertion clause, and one population's insertion
+/// rate fell by a factor of 440 on a change of reference alone.
+///
+/// Two properties make this rule safe to adopt. It is computable from the raw
+/// FASTA before any alignment exists, and it never consults the gate's own
+/// quantity, a margin, a certificate or a verdict --- so it cannot be tuned
+/// toward an answer. It is also not uniformly better: for the rabies populations
+/// the longest reference drops MORE insertions than the centroid. It is adopted
+/// because it is principled, not because it wins everywhere.
+pub fn length_ranking(sequences: &[Vec<u8>]) -> Vec<usize> {
+    let mut order: Vec<usize> = (0..sequences.len()).collect();
+    order.sort_by(|&a, &b| {
+        sequences[b]
+            .len()
+            .cmp(&sequences[a].len())
+            .then(a.cmp(&b))
+    });
+    order
+}
+
 /// Every index, ordered by total 6-mer distance to the rest: most central first.
 ///
 /// The second entry is what the reference-sensitivity control uses. Choosing a

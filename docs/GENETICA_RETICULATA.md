@@ -1998,3 +1998,117 @@ validated instrument, and the split-level lift remains a proved theorem with a
 simulated demonstration.
 
 Raw output: [`split_real.json`](../data/reticulata_phase5/split_real.json).
+
+## 20. Attacking the binding constraint: the gate was measuring our reference choice
+
+Paper G named the admissibility gate as this programme's binding constraint —
+three of ten populations usable, one negative control — and said the next step
+was more admissible controls rather than another statistic. That claim was made
+without reporting *which clause* of the gate binds. This section reports it, acts
+on it, and finds two defects in how verdicts were being decided.
+
+### 20.1 The insertion clause binds, and it is reference-dependent
+
+The gate has two clauses, both measured from the alignment-error ladder: gap
+fraction ≤ 0.0039 and insertion rate ≤ 0.0008. Of the seven blocked populations,
+**five pass the gap clause and fail only the insertion clause**, by factors
+between 1.7× and 4.4× — and four of those five are tree-like, which is exactly
+the control the programme lacks.
+
+"Insertions dropped" counts content present in a sequence but absent from the
+**reference**, which reference-anchored projection necessarily discards. That is
+a property of the chosen reference, not of the data's intrinsic alignability. The
+rule in use anchored on the 6-mer centroid: the most *typical* sequence, which is
+not the sequence that retains the most content.
+
+Sweeping every candidate reference and reporting admissibility quantities only —
+no margin, no certificate, no verdict, so the sweep cannot select a reference to
+obtain an answer — one population's insertion rate falls from 0.003543 to
+**0.000008**, a factor of **440**, on a change of reference alone.
+
+### 20.2 A mechanistic rule, not a fitted one
+
+Two candidate rules admit **exactly the same six of ten** populations: anchor on
+the longest sequence, or anchor on the sequence minimising dropped insertions.
+The longest-sequence rule is adopted because it is the more obviously innocent:
+computable from the raw FASTA before any alignment exists, never consulting the
+gate's own quantity or any verdict. It is also **not uniformly better** — for the
+rabies populations the longest reference drops *more* insertions than the
+centroid — and it is adopted because it is principled, not because it wins
+everywhere.
+
+| | centroid rule | longest rule |
+| :--- | --: | --: |
+| usable populations | 3 of 10 | **6 of 10** |
+| negative controls among them | 1 | 3 |
+
+### 20.3 Two defects in how verdicts were decided
+
+**An integer artifact.** The first run under the new rule appeared to flip JC
+polyomavirus from correctly-below to incorrectly-above. It had not. Its margin is
+identical under both rules; only the floor moved, from `5/5121` to `4/5123`, and
+the margin is `4/5108`. The margin and the floor are **the same differing-site
+count**, 4, over denominators that differ because the population's alignment is
+fifteen columns shorter than the null's. Comparing them as rationals makes
+`4/5108 > 4/5123` true and scientifically empty. Verdicts are now decided on an
+exact integer comparison first — fewer differing sites than the floor is *below*,
+equal is **unresolved**, more is *above* — and only then on the rate.
+
+That guard needed fixing twice. Written as `margin ≤ floor` it collapsed "below"
+and "equal" into one verdict and so reported JC polyomavirus as unresolved under
+the centroid rule, erasing the programme's only correct negative-control result.
+Three cases, not two.
+
+**The floors were underestimates.** The matched floor is the *maximum* over `k`
+null replicates, which is an order statistic that can only grow with `k`. Drawing
+twenty-five replicates instead of five, while keeping the published floor as the
+maximum over the first five:
+
+| population | published floor | growth at 25 replicates | still rising? |
+| :--- | --: | --: | :-- |
+| coxsackievirus A6, diversity | `121/7390` | **1.07×** | no |
+| hepatitis B, accession | `2/3182` | **2.00×** | **yes** |
+| JC polyomavirus, accession | `5/5121` | 1.00× | no |
+
+So the published floors are not "the floor a tree produces" but "the floor five
+replicates happened to produce", and for hepatitis B that is a factor of two too
+low and had not converged at twenty-five. **No verdict changes** — every
+above-floor verdict survives against the converged floor — but the reported
+*strength* was overstated: hepatitis B's 4.50× is about 2.25× against a converged
+floor.
+
+Reaching this measurement took three attempts, and the first two are recorded in
+the code because both failed in the same instructive way. Taking the gap between
+the largest and second-largest replicate margin gave exactly zero whenever two
+replicates tied, which with small integer counts is common — and a zero band
+declares every verdict resolved, manufacturing the confidence it was meant to
+withhold. Bootstrapping the maximum by resampling the observed margins cannot
+exceed the observed maximum by construction, so it measured only how much *lower*
+the floor might have been. **A variability estimate that cannot detect the thing
+it exists to detect is the same defect this document has had to label elsewhere,
+and it was produced here twice in a row.**
+
+### 20.4 What was gained, and what was not
+
+**Gained.** The usable sample doubles, from three populations to six. And the
+three populations admissible under both rules keep their verdicts under both —
+once the integer artifact is removed, the verdict is *not* reference-sensitive,
+which is a robustness result the two-nearby-references control could not have
+established.
+
+**Not gained: the negative control.** The two newly admissible tree-like
+populations are both hpv52, whose prior is the weakest in the set by this
+programme's own account — §12 records documented within-type recombination in
+papillomaviruses — and both read **above** their floor. That is either real signal
+or a false positive, and the prior cannot adjudicate. Rabies, the clean negative
+control candidate, remains blocked under **both** rules, failing the insertion
+clause at 1.7× and 2.2× under the centroid and worse under the longest rule.
+
+So Paper G's conclusion stands unchanged: **the programme still cannot establish
+specificity**, and what it needs is admissible *strong* negative controls. The
+usable sample grew; the evidential sample did not.
+
+Raw output: [`real_data.json`](../data/reticulata_phase3/real_data.json) (centroid,
+the published configuration),
+[`real_data_longest_reference.json`](../data/reticulata_phase3/real_data_longest_reference.json),
+[`reference_sweep.json`](../data/reticulata_phase3/reference_sweep.json).
