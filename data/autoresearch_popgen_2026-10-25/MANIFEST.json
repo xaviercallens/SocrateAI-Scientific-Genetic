@@ -1,0 +1,32 @@
+{
+ "source_repo": "github.com/xaviercallens/AutoevolveAI",
+ "source_branch": "worktree-openai-math-discovery",
+ "source_paths": [
+  "formal_cert/Autoresearch/PopGenFisher.lean",
+  "formal_cert/Autoresearch/PopGenWrightFisher.lean",
+  "formal_cert/Autoresearch/PopGenControls.lean",
+  "results/autoresearch/2026-10-25/{H11,H12}"
+ ],
+ "files": {
+  "data/autoresearch_popgen_2026-10-25/H11/NOTE.md": "371f8c43f44db7bca3054225941ec034a22474c068e62dd9e8039f46508b050e",
+  "data/autoresearch_popgen_2026-10-25/H11/compile_attempt1.json": "71a09940794c1af06dd96a04278f3f56496b23d7a24045a4a065364b5311dd86",
+  "data/autoresearch_popgen_2026-10-25/H11/compile_controls.json": "fff3afacf0f41e490f66c86b47397bae313ddd3c5fbeb2c1c9929f54ceefaea1",
+  "data/autoresearch_popgen_2026-10-25/H11/compile_fixed.json": "662147e4697e8eab2b4b893a713a81cd3cbf19c8f0f150c91ac18307ee86cd7c",
+  "data/autoresearch_popgen_2026-10-25/H11/compile_import_both.json": "bddc93c727729373a6d817faf033dce375f7f2c907cffebe9df92aeb973e36ec",
+  "data/autoresearch_popgen_2026-10-25/H11/result.json": "cdedc2eb53aa7bc6d4953133cdfac7049ca1dd3eacd3c3d9602bd05407bd2cc7",
+  "data/autoresearch_popgen_2026-10-25/H11/verification.md": "3a7c50db7690e1d2b015be9eef0961aee08ae43a466b399389808e17b0af7b43",
+  "data/autoresearch_popgen_2026-10-25/H12/NOTE.md": "bf964286ae09993ba769d1e76835d699802e0620a4648def92c8ba59ac7c02e4",
+  "data/autoresearch_popgen_2026-10-25/H12/compile_attempt1.json": "f83d4335420fb27882adc60e7261f127296095867aa7ee74c77fc96f6f3e0264",
+  "data/autoresearch_popgen_2026-10-25/H12/compile_fixed.json": "6a18fcf0127851c51007bb0cc689fef883d1c100e616fcb27c6ccb03c495786b",
+  "data/autoresearch_popgen_2026-10-25/H12/result.json": "c7a452ee3ecf51f765d4b128ad6753088df6d3aeb0a05ed4f6dff9e28d1c2b47",
+  "data/autoresearch_popgen_2026-10-25/H12/verification.md": "fb43a5ff5fddb2b67216990e970b68b96fbe1f3139f41dceadb4ee43d5becb87",
+  "data/autoresearch_popgen_2026-10-25/HANDOFF.md": "abeb3e333f4a0604f24d9e664132fd4639c79d49088c504685424ef118269147",
+  "data/autoresearch_popgen_2026-10-25/SUMMARY.md": "5d64be5e15954c7b60e218a603b2f1063f299520d470cb23e4106442d38cad9c",
+  "data/autoresearch_popgen_2026-10-25/preregistration.json": "1795a60b3f44d24dc35d2a477ea22575b036618d73381e33350e6888d0c8e743",
+  "data/autoresearch_popgen_2026-10-25/program.md": "852ac52c085414af9525d7388bde878aaffb68105bae8774451b16a0ca40ed6f",
+  "data/autoresearch_popgen_2026-10-25/results.tsv": "aedb48b9c633946a198d346070233c5be5bf81b3897d2d63ac3eff26f726ee11",
+  "formal/ANSE/AutoresearchPopGenControls.lean": "09ff2cca043c089552e5b2ff3d795a6056273a4f0e4d7d638590426fda7d3d21",
+  "formal/ANSE/AutoresearchPopGenFisher.lean": "1625d54caeee4472a324596ca4293217c5c2ca68bb842a860b58eb988aa7edc5",
+  "formal/ANSE/AutoresearchPopGenWrightFisher.lean": "9cac6b9d5d0c76be771d8b004777699c539ea384741f7483f362de5884a4e530"
+ }
+}

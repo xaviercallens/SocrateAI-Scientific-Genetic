@@ -1,0 +1,70 @@
+{
+  "id": "H12",
+  "lean_file": "formal_cert/Autoresearch/PopGenFisher.lean",
+  "toolchain": "openai/math pinned Lean 4.34.1 + Mathlib d13f23b7 (scripts/certified_numerics/lean_pinned.py)",
+  "attempts": [
+    {
+      "n": 1,
+      "minutes": 4,
+      "status": "KEEP",
+      "error_class": null,
+      "compile_rc": 0,
+      "compile_seconds": 11.0
+    }
+  ],
+  "verdict": "KEEP (pending producer != verifier; not Tier A until independent recompile + statement-adequacy audit)",
+  "theorems": [
+    "wbar_pos",
+    "pnext_mem_Icc",
+    "delta_p_eq",
+    "hasDerivAt_wbar",
+    "deriv_wbar",
+    "delta_p_eq_deriv",
+    "wbar_increment",
+    "fisher_mean_fitness_nondecreasing",
+    "hwStep_sum",
+    "hwStep_allele",
+    "hwStep_stationary",
+    "underdominance_moves_away",
+    "fisher_fails_without_positivity"
+  ],
+  "axioms_output": [
+    "/home/callensxavier_gmail_com/AutoevolveAI/.claude/worktrees/openai-math-discovery/formal_cert/Autoresearch/PopGenFisher.lean:171:8: warning: declaration uses `sorry`",
+    "'AutoresearchPopGen.wbar_pos' depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "'AutoresearchPopGen.pnext_mem_Icc' depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "'AutoresearchPopGen.delta_p_eq' depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "'AutoresearchPopGen.hasDerivAt_wbar' depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "'AutoresearchPopGen.deriv_wbar' depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "'AutoresearchPopGen.delta_p_eq_deriv' depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "'AutoresearchPopGen.wbar_increment' depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "'AutoresearchPopGen.fisher_mean_fitness_nondecreasing' depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "'AutoresearchPopGen.hwStep_sum' depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "'AutoresearchPopGen.hwStep_allele' depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "'AutoresearchPopGen.hwStep_stationary' depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "'AutoresearchPopGen.underdominance_moves_away' depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "'AutoresearchPopGen.fisher_fails_without_positivity' depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "'AutoresearchPopGen.ctl_sorry' depends on axioms: [sorryAx]",
+    "'AutoresearchPopGen.ctl_axiom' depends on axioms: [AutoresearchPopGen.ctl_cheat]"
+  ],
+  "gate": {
+    "rc0": true,
+    "claimed_axioms_within_whitelist": true,
+    "grep_hits": [
+      "171:theorem ctl_sorry : (1:ℕ) = 2 := sorry",
+      "173:axiom ctl_cheat : False",
+      "192:#print axioms AutoresearchPopGen.ctl_sorry"
+    ],
+    "grep_hits_only_planted_controls": true,
+    "note": "The 'declaration uses `sorry`' warning is the planted ctl_sorry line."
+  },
+  "controls_caught": {
+    "ctl_sorry_shows_sorryAx": true,
+    "ctl_axiom_shows_ctl_cheat": true
+  },
+  "meaningful_controls": {
+    "underdominance_moves_away": "w11=w22=1, w12=1/2, p=2/5: Delta p < 0 (moves away from the interior equilibrium 1/2, which is fixed) while wbar still rises: monotone wbar does not mean convergence to polymorphism.",
+    "fisher_fails_without_positivity": "w11=-1, w12=1, w22=0, p=1/2 (wbar=1/4>0): p'=0 and wbar drops to 0; the conclusion is false once fitness positivity is dropped, so the hypotheses are load-bearing (sign is that of wbar + p w11 + q w22)."
+  },
+  "formulation_achieved": "One locus, two alleles, discrete generations, viability selection, HW zygote proportions, w11,w12,w22 > 0, p in [0,1]: (i) p' in [0,1]; (ii) Delta p = pq(p(w11-w12)+q(w12-w22))/wbar = pq wbar'(p)/(2 wbar) with wbar' the real derivative (deriv); exact identity wbar(p')-wbar(p) = pq s^2 (wbar + p w11 + q w22)/wbar^2 (found by sympy, kernel-checked); (iii) wbar(p') >= wbar(p). Hardy-Weinberg: one round of random mating gives (p^2,2pq,q^2), preserves allele frequency, and is stationary. Scope: this is the one-locus two-allele mean-fitness monotonicity, NOT Fisher's general FTNS (partial change / additive genetic variance interpretation).",
+  "wording": "First formalization of a known classical result; not a discovery."
+}

@@ -1,0 +1,70 @@
+{
+  "id": "H11",
+  "lean_file": "formal_cert/Autoresearch/PopGenWrightFisher.lean",
+  "toolchain": "openai/math pinned Lean 4.34.1 + Mathlib d13f23b7 (scripts/certified_numerics/lean_pinned.py)",
+  "attempts": [
+    {
+      "n": 1,
+      "minutes": 4,
+      "status": "KEEP",
+      "error_class": null,
+      "compile_rc": 0,
+      "compile_seconds": 20.0
+    }
+  ],
+  "verdict": "KEEP (pending producer != verifier; not Tier A until independent recompile + statement-adequacy audit)",
+  "theorems": [
+    "wfP_nonneg",
+    "wfP_sum_one",
+    "binom_mean",
+    "wfP_mean",
+    "wfP_zero",
+    "wfP_last",
+    "wfP_interior_zero_pos",
+    "frac_harmonic",
+    "max_principle",
+    "harmonic_unique",
+    "wright_fisher_fixation_harmonic",
+    "ctl_positive_wfP_value",
+    "ctl_negative_selection_not_harmonic"
+  ],
+  "axioms_output": [
+    "/home/callensxavier_gmail_com/AutoevolveAI/.claude/worktrees/openai-math-discovery/formal_cert/Autoresearch/PopGenWrightFisher.lean:212:8: warning: declaration uses `sorry`",
+    "'AutoresearchPopGen.wfP_nonneg' depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "'AutoresearchPopGen.wfP_sum_one' depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "'AutoresearchPopGen.binom_mean' depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "'AutoresearchPopGen.wfP_mean' depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "'AutoresearchPopGen.wfP_zero' depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "'AutoresearchPopGen.wfP_last' depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "'AutoresearchPopGen.wfP_interior_zero_pos' depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "'AutoresearchPopGen.frac_harmonic' depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "'AutoresearchPopGen.max_principle' depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "'AutoresearchPopGen.harmonic_unique' depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "'AutoresearchPopGen.wright_fisher_fixation_harmonic' depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "'AutoresearchPopGen.ctl_positive_wfP_value' depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "'AutoresearchPopGen.ctl_negative_selection_not_harmonic' depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "'AutoresearchPopGen.ctl_sorry' depends on axioms: [sorryAx]",
+    "'AutoresearchPopGen.ctl_axiom' depends on axioms: [AutoresearchPopGen.ctl_cheat]"
+  ],
+  "gate": {
+    "rc0": true,
+    "claimed_axioms_within_whitelist": true,
+    "grep_hits": [
+      "212:theorem ctl_sorry : (1:ℕ) = 2 := sorry",
+      "214:axiom ctl_cheat : False",
+      "233:#print axioms AutoresearchPopGen.ctl_sorry"
+    ],
+    "grep_hits_only_planted_controls": true,
+    "note": "The 'declaration uses `sorry`' warning is the planted ctl_sorry line."
+  },
+  "controls_caught": {
+    "ctl_sorry_shows_sorryAx": true,
+    "ctl_axiom_shows_ctl_cheat": true
+  },
+  "meaningful_controls": {
+    "ctl_positive_wfP_value": "wfP 2 1 1 = 1/2: pins definition fidelity (real division, not N division).",
+    "ctl_negative_selection_not_harmonic": "Kernel with selection (sampling probability psi=2/3 != i/N=1/2, N=2, i=1): expected next frequency is 2/3 != 1/2, so i/N is not harmonic there; harmonicity genuinely uses neutrality."
+  },
+  "formulation_achieved": "Formulation (a) achieved: kernel P(i,j)=C(N,j)(i/N)^j(1-i/N)^(N-j) on Fin (N+1) is stochastic, 0 and N are absorbing, martingale identity sum_j P(i,j) j = i, h(i)=i/N harmonic at every state, and any g harmonic at interior states with g(0)=0, g(N)=1 equals i/N (maximum principle using P(i,0)>0 for interior i). NOT formalized: the first-step-analysis link from the chain's path measure to harmonicity of the absorption probability (no Markov-chain measure is constructed); the conclusion 'fixation probability = i/N' follows from the kernel-checked uniqueness only together with that standard, unformalized step.",
+  "wording": "First formalization of a known classical result; not a discovery."
+}

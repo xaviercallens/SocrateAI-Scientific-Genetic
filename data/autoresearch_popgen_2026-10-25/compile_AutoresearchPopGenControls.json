@@ -1,0 +1,7 @@
+{
+  "file": "/home/callensxavier_gmail_com/SocrateAI-Scientific-Genetic-pr/formal/ANSE/AutoresearchPopGenControls.lean",
+  "module": null,
+  "rc": 0,
+  "seconds": 2.1,
+  "output": "/home/callensxavier_gmail_com/SocrateAI-Scientific-Genetic-pr/formal/ANSE/AutoresearchPopGenControls.lean:5:8: warning: declaration uses `sorry`\n'AutoresearchPopGenControls.ctl_sorry' depends on axioms: [sorryAx]\n'AutoresearchPopGenControls.ctl_axiom' depends on axioms: [AutoresearchPopGenControls.ctl_cheat]\n"
+}
