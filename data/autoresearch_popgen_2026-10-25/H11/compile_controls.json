@@ -1,0 +1,7 @@
+{
+  "file": "/home/callensxavier_gmail_com/AutoevolveAI/.claude/worktrees/openai-math-discovery/formal_cert/Autoresearch/PopGenControls.lean",
+  "module": null,
+  "rc": 0,
+  "seconds": 1.0,
+  "output": "/home/callensxavier_gmail_com/AutoevolveAI/.claude/worktrees/openai-math-discovery/formal_cert/Autoresearch/PopGenControls.lean:5:8: warning: declaration uses `sorry`\n'AutoresearchPopGenControls.ctl_sorry' depends on axioms: [sorryAx]\n'AutoresearchPopGenControls.ctl_axiom' depends on axioms: [AutoresearchPopGenControls.ctl_cheat]\n"
+}

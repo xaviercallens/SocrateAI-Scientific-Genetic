@@ -1,0 +1,14 @@
+id	attempt	started	minutes	status	metric	note
+H12	1	2026-10-25T07:15Z	4	KEEP	rc=0;axioms_ok=True;controls_caught=True	first formalization of known result; pending producer!=verifier; verified ACCEPT_WITH_CORRECTIONS: mean-fitness monotonicity (not general FTNS)
+H11	1	2026-10-25T07:18Z	4	KEEP	rc=0;axioms_ok=True;controls_caught=True	first formalization of known result; pending producer!=verifier; verified ACCEPT_WITH_CORRECTIONS: formulation (a) harmonic characterisation only
+H1	1	2026-10-25T07:15Z	4	KEEP	rc0+axioms_ok+controls_caught+grep_clean	dipolar_admissible, triangular_dipolar_optimal; neg ctl h_not_admissible; verified ACCEPT_WITH_CORRECTIONS
+H1b	1	2026-10-25T07:15Z	4	KEEP	rc0+axioms_ok+controls_caught+grep_clean	latticeEnergy_dipolar_lt_top via g<=d^2 t^-3/2 and RieszFinite s=3; verified ACCEPT_WITH_CORRECTIONS
+H9	1	2026-10-25T07:15Z	9	AUDIT_DONE	verdict=FAITHFUL_WITH_CAVEATS	(C) matches Fefferman line by line; (D) matches errata-corrected text (periodic pressure); statement audit only, proof not rebuilt; Lean implication proof not attempted
+H2	1	2026-10-25T07:23Z	11	KEEP	rc0+axioms_ok+controls_caught+grep_clean	yukawa_admissible (e^-kr/r in plane), triangular_yukawa_optimal, latticeEnergy_yukawa_lt_top; reusable admissible_mul, phi_admissible, admissible_congr; verified ACCEPT
+H3	1	2026-10-25T07:15Z	35	KEEP(TierC)	proof_checked+numerics(2.1e-21)+neg_controls_fire	Keldysh CM in r^2 via explicit Gaussian mixture; shorter Route B via DLMF 11.5.2; raw lattice energy infinite (1/r tail) -> theorem reads inf<=inf; jellium not covered; producer only
+H6	1	2026-10-25T07:41Z	7	KEEP	rc0+axioms_ok+controls_caught+grep_clean+defs_checked_vs_recorded	product rule, tensor powers 3-2^{1-r}, sup_ge_three (C*>=3), w4 5/2 in kernel; wrong rule refuted; producer only; verified ACCEPT
+H13	2	2026-10-25T08:30Z	5	KEEP	rc0+axioms_ok+controls_caught+grep_clean	d7_count_unique, tadpole_pair_unique (4,16), local_distribution_unique (SO(8)^4); attempt 1 DISCARD (disk-2 IO starvation, never elaborated); integer arithmetic on LeanMaster constants; verified ACCEPT_WITH_CORRECTIONS (2a+b=24 is a sum rule, not a tadpole)
+H8	1	2026-10-25T07:40Z	45	DISCARD	infra_io_starvation	never elaborated (disk-2 gcloud rsync)
+H8	2	2026-10-25T08:25Z	43	DISCARD	infra_io_starvation	never elaborated
+H8	3	2026-10-25T09:05Z	12	KEEP(out-of-protocol infra retry)	rc0+axioms_ok+controls_caught+grep_clean	sBog_le_sqrt, sBog_sq_eq_iff (equality iff k=k*), feynman_sBog_exact; short corollary of owner DualLength lemmas; verified ACCEPT_WITH_CORRECTIONS (Bijl-Feynman by construction)
+H7	1	2026-10-25T09:20Z	17	KEEP	rc0+axioms_ok+controls_caught+grep_clean	enstrophy_bound 2DOmega<=H3+(2E)^{3/2} (sigma=3, all N), enstrophy_le, neg ctl drop_cubic_term_fails; direct specialization of owner dispersive_norm_le; H3 conservation along flow not in Lean; producer only (not independently verified)
