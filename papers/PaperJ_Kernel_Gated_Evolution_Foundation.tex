@@ -35,7 +35,7 @@ Arbitrated by a Proof Kernel}\\[0.6em]
 \large Foundation paper and Rust reference implementation}
 \author{Xavier Callens\\
 \small SocrateAI Scientific Research \& Formal Verification Laboratory}
-\date{Edition 3, 25 October 2026. \textbf{Not peer reviewed.}}
+\date{Edition 4, 25 October 2026. \textbf{Not peer reviewed.}}
 
 \begin{document}
 \maketitle
@@ -451,6 +451,62 @@ L6 & 0.000 & 0.000 & 0.000 & 135216 \\
 \end{center}
 
 At matched work lifetime learning is ahead on 2 of 4 rungs (L3, L5) and level or behind on 2 (L4, L6). The full Verlet target remains unsolved by every arm at this budget. Lifetime learning is therefore the default the reference implementation should run with where it leads at matched cost, and the comparison above is the evidence for where that is.
+
+\section{Population-genetic foundations, proved (H11, H12)}\label{sec:popgen}
+
+Two classical results bear directly on a mutation-and-selection engine, and both
+are now proved in Lean over $\mathbb{Q}$ in
+\texttt{formal/ANSE/AlixPopulationGenetics.lean}: eleven declarations, zero
+\texttt{sorry}, every axiom on the whitelist, gated through the same
+\texttt{\#print axioms} discipline as the rest of the paper. Each is stated at the
+scope an internal review required, and no wider.
+
+\paragraph{H12: selection never lowers mean fitness --- one locus, two alleles,
+haploid.} With allele frequency $p$, positive constant fitnesses $w_1, w_2$ and
+mean fitness $\bar w = p w_1 + (1-p)w_2$, one round of selection sends $p$ to
+$p w_1/\bar w$, and
+\[
+  \bar w' - \bar w \;=\; \frac{p(1-p)(w_1-w_2)^2}{\bar w} \;\ge\; 0
+\]
+(\texttt{aurelia\_mean\_fitness\_increment},
+\texttt{aurelia\_mean\_fitness\_nondecreasing}). This is \emph{not} Fisher's
+general fundamental theorem, which concerns additive genetic variance in
+arbitrary systems; it is the one-locus two-allele haploid case, exactly. The
+numerator is precisely the population's fitness variance,
+$p(1-p)(w_1-w_2)^2 = p(w_1-\bar w)^2 + (1-p)(w_2-\bar w)^2$
+(\texttt{kal\_increment\_is\_variance}), so the result reads: a round of selection
+raises mean fitness by $\operatorname{Var}(w)/\bar w$. Selection's progress is
+proportional to the variance present, and stops when it is gone.
+
+\paragraph{H11: $i/N$ is the harmonic solution for Wright--Fisher.} For any
+finite chain on $\{0,\dots,N\}$ whose interior states each reach state $0$ in one
+step with positive probability, a function with the mean-value property at
+interior states is determined by its two boundary values
+(\texttt{ilene\_harmonic\_le\_zero}, \texttt{ilene\_harmonic\_unique}): the proof
+is a maximum principle --- at an interior maximum the weighted deviations sum to
+zero and are all nonnegative, so the weight on state $0$ forces the maximum to
+equal the boundary value. Wright--Fisher satisfies the hypothesis, since from
+$i<N$ copies the next generation has none with probability $(1-i/N)^N>0$
+(\texttt{wfP\_pos\_zero}); its rows sum to one (\texttt{wfP\_row}); and $j/N$ has
+the mean-value property, by the binomial mean (\texttt{binomial\_mean},
+\texttt{ilene\_wf\_harmonic}). Hence any harmonic function with $h(0)=0$ and
+$h(N)=1$ is $i/N$ (\texttt{xav\_wf\_harmonic\_solution\_unique}). The further
+step identifying this function with the probability of fixation --- an
+absorption or optional-stopping argument --- is \emph{not} formalised here, and
+we do not claim it.
+
+\paragraph{What they mean for KGE.} H12 is the idealised reason a
+selection-only engine climbs at all, and its variance form gives a measurable
+prediction we register here and have not yet tested: \emph{runs that stall
+should be those whose population fitness variance has collapsed}, and an
+intervention that restores variance (fresh random immigrants, or sample points
+redrawn so that tied individuals separate) should rescue them at a rate
+proportional to the variance restored. H11 supplies the neutral baseline for
+the same question: in a neutral population of size $N$ a single lineage takes
+over with probability $1/N$ (given the fixation step), so drift alone cannot be
+counted on to carry a population of $40$ across a plateau. Both point at the
+same lever --- maintaining fitness variance --- which is the population-level
+complement of the lifetime learning in \S\ref{sec:baldwin}.
 
 \section{Benchmark on Hugging Face datasets}\label{sec:hub}
 
