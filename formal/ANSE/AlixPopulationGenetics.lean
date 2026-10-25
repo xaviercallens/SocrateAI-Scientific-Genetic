@@ -207,8 +207,93 @@ theorem xav_wf_harmonic_solution_unique (n : ℕ) (h : Fin (n + 2) → ℚ)
   · rw [hN]; simp only [Fin.val_last]; push_cast
     exact (div_self (by positivity)).symm
 
+/-! ## Toward fixation: a finite-horizon bound, with no limit taken
+
+The step from "i/N is harmonic" to "i/N is the fixation probability" needs an
+absorption limit. Half of it needs none. If `h` has the mean-value property at
+EVERY state (boundaries included, as `j/N` does for Wright–Fisher), then the
+expected value of `h` is conserved by every step, so after any number of
+generations it is still `h i`. Because `h ≥ 0` and `h N = 1`, the mass sitting
+on state `N` can never exceed it: the probability of having fixed by time `t` is
+at most `i/N`, for every `t`. -/
+
+/-- One step of the chain acting on a distribution over states. -/
+def stepDist {n : ℕ} (P : Fin (n + 1) → Fin (n + 1) → ℚ) (μ : Fin (n + 1) → ℚ) :
+    Fin (n + 1) → ℚ :=
+  fun j => ∑ i, μ i * P i j
+
+/-- A harmonic function's expectation is conserved by one step. -/
+theorem alix_expectation_step {n : ℕ} (P : Fin (n + 1) → Fin (n + 1) → ℚ) (h μ : Fin (n + 1) → ℚ)
+    (hh : ∀ i, h i = ∑ j, P i j * h j) :
+    ∑ j, stepDist P μ j * h j = ∑ i, μ i * h i := by
+  unfold stepDist
+  calc ∑ j, (∑ i, μ i * P i j) * h j
+      = ∑ j, ∑ i, μ i * (P i j * h j) := by
+        refine Finset.sum_congr rfl fun j _ => ?_
+        rw [Finset.sum_mul]; refine Finset.sum_congr rfl fun i _ => by ring
+    _ = ∑ i, ∑ j, μ i * (P i j * h j) := Finset.sum_comm
+    _ = ∑ i, μ i * h i := by
+        refine Finset.sum_congr rfl fun i _ => ?_
+        rw [← Finset.mul_sum, ← hh i]
+
+/-- ... and so by every number of steps. -/
+theorem alix_expectation_iterate {n : ℕ} (P : Fin (n + 1) → Fin (n + 1) → ℚ) (h μ : Fin (n + 1) → ℚ)
+    (hh : ∀ i, h i = ∑ j, P i j * h j) (t : ℕ) :
+    ∑ j, (stepDist P)^[t] μ j * h j = ∑ i, μ i * h i := by
+  induction t with
+  | zero => rfl
+  | succ t ih => rw [Function.iterate_succ_apply', alix_expectation_step P h _ hh, ih]
+
+/-- Steps of a nonnegative matrix keep a distribution nonnegative. -/
+theorem alix_iterate_nonneg {n : ℕ} (P : Fin (n + 1) → Fin (n + 1) → ℚ) (μ : Fin (n + 1) → ℚ)
+    (hP : ∀ i j, 0 ≤ P i j) (hμ : ∀ i, 0 ≤ μ i) (t : ℕ) :
+    ∀ j, 0 ≤ (stepDist P)^[t] μ j := by
+  induction t with
+  | zero => exact hμ
+  | succ t ih =>
+    intro j
+    rw [Function.iterate_succ_apply']
+    exact Finset.sum_nonneg fun i _ => mul_nonneg (ih i) (hP i j)
+
+/-- Wright–Fisher: `j/N` is harmonic at every state, boundaries included. -/
+theorem ilene_wf_harmonic_everywhere (n : ℕ) :
+    ∀ i : Fin (n + 2), (fun j : Fin (n + 2) => (j : ℚ) / (n + 1 : ℕ)) i
+      = ∑ j, wfP (n + 1) i j * (fun j : Fin (n + 2) => (j : ℚ) / (n + 1 : ℕ)) j :=
+  fun i => ilene_wf_harmonic n i
+
+/-- H11, toward fixation: starting from `i` copies in a Wright–Fisher population of
+`N = n+1`, the probability of having fixed by generation `t` is at most `i/N`,
+for every `t`. (The matching lower bound, as `t → ∞`, is the part that needs an
+absorption limit and is not formalised.) -/
+theorem xav_wf_fixation_by_time_le (n : ℕ) (i : Fin (n + 2)) (t : ℕ) :
+    (stepDist (wfP (n + 1)))^[t] (fun k => if k = i then 1 else 0) (Fin.last (n + 1))
+      ≤ (i : ℚ) / (n + 1 : ℕ) := by
+  set μt := (stepDist (wfP (n + 1)))^[t] (fun k => if k = i then 1 else 0)
+  have hcons := alix_expectation_iterate (wfP (n + 1)) (fun j : Fin (n + 2) => (j : ℚ) / (n + 1 : ℕ))
+    (fun k => if k = i then 1 else 0) (ilene_wf_harmonic_everywhere n) t
+  have hstart : ∑ k : Fin (n + 2), (if k = i then (1 : ℚ) else 0) * ((k : ℚ) / (n + 1 : ℕ))
+      = (i : ℚ) / (n + 1 : ℕ) := by
+    simp [ite_mul]
+  have hnn := alix_iterate_nonneg (wfP (n + 1)) (fun k => if k = i then 1 else 0)
+    (wfP_nonneg (n + 1)) (fun k => by split_ifs <;> norm_num) t
+  have hle : μt (Fin.last (n + 1)) * (((Fin.last (n + 1) : Fin (n + 2)) : ℚ) / (n + 1 : ℕ))
+      ≤ ∑ j, μt j * ((j : ℚ) / (n + 1 : ℕ)) :=
+    Finset.single_le_sum (f := fun j => μt j * ((j : ℚ) / (n + 1 : ℕ)))
+      (fun j _ => mul_nonneg (hnn j) (by positivity)) (Finset.mem_univ _)
+  have hone : (((Fin.last (n + 1) : Fin (n + 2)) : ℚ) / (n + 1 : ℕ)) = 1 := by
+    simp only [Fin.val_last]; push_cast; exact div_self (by positivity)
+  rw [hone, mul_one] at hle
+  have : ∑ j, μt j * ((j : ℚ) / (n + 1 : ℕ)) = (i : ℚ) / (n + 1 : ℕ) := by
+    rw [← hstart]; exact hcons
+  linarith
+
 end ANSE.Alix
 
+#print axioms ANSE.Alix.alix_expectation_step
+#print axioms ANSE.Alix.alix_expectation_iterate
+#print axioms ANSE.Alix.alix_iterate_nonneg
+#print axioms ANSE.Alix.ilene_wf_harmonic_everywhere
+#print axioms ANSE.Alix.xav_wf_fixation_by_time_le
 #print axioms ANSE.Alix.aurelia_mean_fitness_increment
 #print axioms ANSE.Alix.aurelia_mean_fitness_nondecreasing
 #print axioms ANSE.Alix.kal_increment_is_variance
