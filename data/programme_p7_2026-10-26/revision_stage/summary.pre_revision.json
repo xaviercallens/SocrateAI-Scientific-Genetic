@@ -1,0 +1,68 @@
+{
+ "Absorption": {
+  "rc": 0,
+  "seconds": 6.6,
+  "sha256": "86fb5168a6b1efe07b8d050689da88facba0350a798b49df72315d7c283c5f95",
+  "axiom_lines": 11
+ },
+ "WrightFisherFixation": {
+  "rc": 0,
+  "seconds": 5.6,
+  "sha256": "149a9328171a6347460e8b2b1294d8073df57e2d6a602cdacf5955a3203262b3",
+  "axiom_lines": 5
+ },
+ "MoranModel": {
+  "rc": 0,
+  "seconds": 6.6,
+  "sha256": "b0822dc0ee83505fdffbff00ae2140cfa190dee7c199ecefd156eea251da590f",
+  "axiom_lines": 16
+ },
+ "MoranFixation": {
+  "rc": 0,
+  "seconds": 5.5,
+  "sha256": "c49806ac8b14295ddebe032c69b97503e3a033d1cac503530948d72e8bdad8e5",
+  "axiom_lines": 8
+ },
+ "Price": {
+  "rc": 0,
+  "seconds": 6.5,
+  "sha256": "1309c57a7818da57c9e955764df28fb26fb83c930661bd7c8439994d4d07438f",
+  "axiom_lines": 21
+ },
+ "PopGenProgImportAll": {
+  "rc": 0,
+  "seconds": 5.4,
+  "sha256": "e26cdffa01ab893b92a542540e74f2be07525dd4964f82c3db468a2ec84f23ec",
+  "axiom_lines": 6
+ },
+ "PriceImportAll": {
+  "rc": 0,
+  "seconds": 5.6,
+  "sha256": "3e82333747ae4bddb921a4755df83ae27a3dba64b1d555c677ff814fe8f76947",
+  "axiom_lines": 4
+ },
+ "PopGenProgControls": {
+  "rc": 0,
+  "seconds": 5.3,
+  "sha256": "685cdd545b9cff73387d958242af254a6d3ffc987868bfa61d5b215b0988c9de",
+  "axiom_lines": 2
+ },
+ "PriceControls": {
+  "rc": 0,
+  "seconds": 5.3,
+  "sha256": "93bc16d08561f582560849efdd2cc3da493daf20fbf3a3993209c5f15168afc4",
+  "axiom_lines": 2
+ },
+ "FixationDataCert": {
+  "rc": 0,
+  "seconds": 6.8,
+  "sha256": "79ced614149be76577d4105434d6f4e65d346f40e46e54334237056dfb0ecc29",
+  "axiom_lines": 7
+ },
+ "FixationDataCertControls": {
+  "rc": 0,
+  "seconds": 9.3,
+  "sha256": "098c2ed751a65886a65e6d66ad4ea9d795c4fcce03c8e3ea4ae12344152f6f71",
+  "axiom_lines": 2
+ }
+}

@@ -1,0 +1,72 @@
+{
+ "title": "Fixation probabilities as absorption limits of matrix powers, kernel-checked: neutral Wright-Fisher, the Moran model with selection, the Price equation, and a fail-closed CVODE certificate",
+ "version": "v1",
+ "description": "<p>For a stochastic kernel P on {0,&hellip;,N} with absorbing ends we prove in Lean 4 that the n-step probability P<sup>n</sup>(i,N) converges to h(i), and P<sup>n</sup>(i,0) to 1&minus;h(i), whenever h is harmonic at the interior states with boundary values 0 and 1 and the one-step variance of h is positive at every interior state (a second-moment argument; uniqueness of h follows from uniqueness of limits). One theorem covers two models: neutral Wright&ndash;Fisher, P<sup>n</sup>(i,N) &rarr; i/N (closing a gap recorded in an earlier module, which proved only uniqueness of the harmonic function), and the Moran process with fitness r &gt; 0, P<sup>n</sup>(i,N) &rarr; S<sub>i</sub>/S<sub>N</sub> with S<sub>n</sub> = &sum;<sub>k&lt;n</sub> r<sup>&minus;k</sup>, i.e. (1&minus;r<sup>&minus;i</sup>)/(1&minus;r<sup>&minus;N</sup>) for r &ne; 1 and i/N for r = 1; the limit r &rarr; 1 of the closed form is proved as well. We also prove the Price equation for a finite population as an exact identity over any field and its haploid corollary &Delta;w&#772; = Var<sub>n</sub>(w)/w&#772; (constant type fitnesses, no transmission bias). Every claim is filed in an Elenchus claim ledger with tiers A (kernel-checked Lean), L (cited literature, pinned to a page), C (human argument, not machine-checked) and X (floating-point exploration, which never supports a claim).</p><p><b>Tier A</b> (Lean 4.34.1, Mathlib only; axioms within propext, Classical.choice, Quot.sound; planted sorry and planted-axiom controls caught; kernel-checked positive and negative controls, including a Markov kernel that is absorbing and has a harmonic function yet never absorbs). The statements are limits of the n-step matrix power defined by the Chapman&ndash;Kolmogorov recursion. <b>The identification of P<sup>n</sup>(i,N) with the probability of reaching N by time n for a path measure is the standard definition of the n-step law and is not formalised (Tier C).</b> The preregistered goal &lsquo;Fisher&rsquo;s theorem in the Price/Ewens partial-change reading&rsquo; was <b>not achieved</b>; only the haploid constant-fitness special case is proved. All results are classical textbook facts; no novelty or priority is claimed, and the novelty search was limited. Nothing depends on openai/math results (only Mathlib is used).</p><p><b>Tier X</b>: a new rusty-SUNDIALS crate (qf-popgen, not pushed) integrates the uniformised Kolmogorov equation with CVODE (BDF, exact Jacobian) behind a fail-closed absorption certificate (valid absorbing kernel, mass conservation, every component non-negative, decay of the interior mass, agreement with the target). 106 accepted runs (Moran N = 2&ndash;30, Wright&ndash;Fisher N = 10, 20) agree with the closed forms to at most 3.1e-10 and with scipy expm to at most 1.0e-13; 9 of 9 negative controls (flipped exponent, neutral value under selection, identity kernel, too-short horizon, corrupted row sum) are refused, and the smallest probability component seen in any accepted run is -4.6e-18. A small Lean module checks the arithmetic of the decimal literals against the exact closed form; it does not certify CVODE.</p><p>Status: the Lean files were compiled by their producer agents, re-compiled at the paper stage by the same AI pipeline, and then recompiled from source in a separate build directory by an independent AI auditor with its own axiom audit and planted controls (verdict ACCEPT_WITH_CORRECTIONS, no blocking issue; the audit and the list of corrections applied are in the paper directory as AUDIT.md and REVISION.md). The auditor is an AI of the same model family as the producer, so this is not a human audit: no human has audited the statements or the hand proofs. The Elenchus ledger gate reports 0 blocking findings and 14 flags (exit code 1), one for each Tier A row whose statement adequacy no human has audited. The work was produced by AI agents (Claude) under the author's direction; the author is responsible for the content. Not peer reviewed.</p>",
+ "keywords": [
+  "Lean 4",
+  "formal verification",
+  "fixation probability",
+  "Wright-Fisher model",
+  "Moran process",
+  "absorbing Markov chain",
+  "Price equation",
+  "population genetics",
+  "CVODE",
+  "rusty-SUNDIALS",
+  "epistemic tiers",
+  "AI-assisted research"
+ ],
+ "notes": "Preprint v1 (2026-10-25), revised after an independent AI audit (AUDIT.md, ACCEPT_WITH_CORRECTIONS; changes in REVISION.md). Lean (AutoevolveAI worktree openai-math-discovery, formal_cert/Programmes/PopGen/, uncommitted on base 9d24574; toolchain Lean 4.34.1, Mathlib d13f23b723b8a846827a245b89c10fc7d3f11612): Absorption.lean sha256 86fb5168a6b1efe07b8d050689da88facba0350a798b49df72315d7c283c5f95; WrightFisherFixation.lean 149a9328171a6347460e8b2b1294d8073df57e2d6a602cdacf5955a3203262b3; MoranModel.lean b0822dc0ee83505fdffbff00ae2140cfa190dee7c199ecefd156eea251da590f; MoranFixation.lean c49806ac8b14295ddebe032c69b97503e3a033d1cac503530948d72e8bdad8e5; Price.lean 1309c57a7818da57c9e955764df28fb26fb83c930661bd7c8439994d4d07438f; FixationDataCert.lean 87dea63cf4bd64920edd8285113cd34c13b8e9e636e39a4b713196dd0c38ddab (revised after the audit: a doc comment only; the audited pre-revision text had sha256 79ced614149be76577d4105434d6f4e65d346f40e46e54334237056dfb0ecc29); controls (planted, never imported): PopGenProgControls.lean 685cdd545b9cff73387d958242af254a6d3ffc987868bfa61d5b215b0988c9de, PriceControls.lean 93bc16d08561f582560849efdd2cc3da493daf20fbf3a3993209c5f15168afc4, FixationDataCertControls.lean 098c2ed751a65886a65e6d66ad4ea9d795c4fcce03c8e3ea4ae12344152f6f71. Imports the earlier module Autoresearch/PopGenWrightFisher.lean (H11, sha256 9cac6b9d5d0c76be771d8b004777699c539ea384741f7483f362de5884a4e530, separate-AI-verifier ACCEPT_WITH_CORRECTIONS). Numerics: rusty-SUNDIALS branch physics/p7-fixation-2026-10-25, commit cda9a9057ec16820f2e16b560cc0e63cf7eb05b9 (crate crates/qf-popgen; adds the componentwise non-negativity check after the audit), parent 2b716c58fc7175798ad54dd9363938a3df37d9b0 (the commit the audit examined), base 7630f7e (origin/main); not pushed at the time of writing. Gate (36 ledger rows incl. PG-X-0009, the independent AI recompile): 0 blocking findings, 14 LEDGER_UNAUDITED_TIER_A flags, exit code 1 (ledger/gate_output.txt); the audit fields stay null because no human has audited. Literature pinned via alphaXiv: Keller and Ugurlu arXiv:2403.12598v2; Marion arXiv:2506.18616v5; LaGatta arXiv:2202.10289v4; Baez arXiv:2107.05610v3. Moran (1958) and Price (1970, 1972) were not read (cited as listed in those papers). Producer, paper-stage recompiler and author are AI agent instances; an independent AI auditor (same model family) recompiled the Lean modules from source and reproduced the CVODE results (AUDIT.md); no human has reviewed the work. The related Zenodo DOIs 10.5281/zenodo.23646103/05/07/11/17 are reserved companion deposits and resolve only once those are published.",
+ "related_identifiers": [
+  {
+   "identifier": "10.5281/zenodo.23646103",
+   "relation": "references",
+   "scheme": "doi"
+  },
+  {
+   "identifier": "10.5281/zenodo.23646105",
+   "relation": "references",
+   "scheme": "doi"
+  },
+  {
+   "identifier": "10.5281/zenodo.23646107",
+   "relation": "references",
+   "scheme": "doi"
+  },
+  {
+   "identifier": "10.5281/zenodo.23646111",
+   "relation": "references",
+   "scheme": "doi"
+  },
+  {
+   "identifier": "10.5281/zenodo.23646117",
+   "relation": "references",
+   "scheme": "doi"
+  },
+  {
+   "identifier": "10.5281/zenodo.23295142",
+   "relation": "references",
+   "scheme": "doi"
+  },
+  {
+   "identifier": "arXiv:2403.12598",
+   "relation": "references",
+   "scheme": "arxiv"
+  },
+  {
+   "identifier": "arXiv:2506.18616",
+   "relation": "references",
+   "scheme": "arxiv"
+  },
+  {
+   "identifier": "arXiv:2202.10289",
+   "relation": "references",
+   "scheme": "arxiv"
+  },
+  {
+   "identifier": "arXiv:2107.05610",
+   "relation": "references",
+   "scheme": "arxiv"
+  }
+ ]
+}

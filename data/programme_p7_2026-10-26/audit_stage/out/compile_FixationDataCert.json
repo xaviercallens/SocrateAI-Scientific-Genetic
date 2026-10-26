@@ -1,0 +1,9 @@
+{
+ "tag": "compile_FixationDataCert",
+ "file": "/home/callensxavier_gmail_com/AutoevolveAI/.claude/worktrees/openai-math-discovery/formal_cert/Programmes/PopGen/FixationDataCert.lean",
+ "module": null,
+ "rc": 0,
+ "seconds": 5.8,
+ "sha256": "79ced614149be76577d4105434d6f4e65d346f40e46e54334237056dfb0ecc29",
+ "output": "'ProgPopGenCert.cert_N2_r2_i1' depends on axioms: [propext, Classical.choice, Quot.sound]\n'ProgPopGenCert.cert_N3_r2_i1' depends on axioms: [propext, Classical.choice, Quot.sound]\n'ProgPopGenCert.cert_N3_r2_i2' depends on axioms: [propext, Classical.choice, Quot.sound]\n'ProgPopGenCert.cert_N10_r1p5_i1' depends on axioms: [propext, Classical.choice, Quot.sound]\n'ProgPopGenCert.cert_N10_r1p5_i5' depends on axioms: [propext, Classical.choice, Quot.sound]\n'ProgPopGenCert.cert_N10_neutral_i3' depends on axioms: [propext, Classical.choice, Quot.sound]\n'ProgPopGenCert.ctl_neg_wrong_literal' depends on axioms: [propext, Classical.choice, Quot.sound]\n"
+}

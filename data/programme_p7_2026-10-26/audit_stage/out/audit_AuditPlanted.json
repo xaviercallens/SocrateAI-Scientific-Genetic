@@ -1,0 +1,9 @@
+{
+ "tag": "audit_AuditPlanted",
+ "file": "/home/callensxavier_gmail_com/programmes-2026-10-25/P7/audit/src/AuditPlanted.lean",
+ "module": null,
+ "rc": 0,
+ "seconds": 5.3,
+ "sha256": "158e49ecb801a2b263bec671c99469b2140b98994eb5693a367269e74d2bbfe9",
+ "output": "/home/callensxavier_gmail_com/programmes-2026-10-25/P7/audit/src/AuditPlanted.lean:11:8: warning: declaration uses `sorry`\n/home/callensxavier_gmail_com/programmes-2026-10-25/P7/audit/src/AuditPlanted.lean:23:8: warning: declaration uses `sorry`\n'P7AuditPlanted.audit_sorry' depends on axioms: [propext, sorryAx, Classical.choice, Quot.sound]\n'P7AuditPlanted.audit_axiom' depends on axioms: [propext, Classical.choice, P7AuditPlanted.audit_cheat, Quot.sound]\n'P7AuditPlanted.audit_uses_hidden' depends on axioms: [propext, sorryAx, Classical.choice, Quot.sound]\n"
+}

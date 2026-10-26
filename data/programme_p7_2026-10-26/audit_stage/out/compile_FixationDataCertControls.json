@@ -1,0 +1,9 @@
+{
+ "tag": "compile_FixationDataCertControls",
+ "file": "/home/callensxavier_gmail_com/AutoevolveAI/.claude/worktrees/openai-math-discovery/formal_cert/Programmes/PopGen/FixationDataCertControls.lean",
+ "module": null,
+ "rc": 0,
+ "seconds": 5.3,
+ "sha256": "098c2ed751a65886a65e6d66ad4ea9d795c4fcce03c8e3ea4ae12344152f6f71",
+ "output": "/home/callensxavier_gmail_com/AutoevolveAI/.claude/worktrees/openai-math-discovery/formal_cert/Programmes/PopGen/FixationDataCertControls.lean:15:8: warning: declaration uses `sorry`\n'ProgPopGenCertControls.ctl_sorry' depends on axioms: [propext, sorryAx, Classical.choice, Quot.sound]\n'ProgPopGenCertControls.ctl_axiom' depends on axioms: [propext,\n Classical.choice,\n ProgPopGenCertControls.ctl_cheat,\n Quot.sound]\n"
+}

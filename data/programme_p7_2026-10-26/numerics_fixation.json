@@ -1,0 +1,159 @@
+{
+  "tier": "X",
+  "note": "cross-check only; claims rest on the Lean kernel",
+  "wf_N2_P2_1_2": "3/8",
+  "moran_N3_r2_exact": [
+    "0",
+    "4/7",
+    "6/7",
+    "1"
+  ],
+  "moran_N10_r3_2_exact_equals_closed": true,
+  "moran_N10_r3_2_exact_equals_flipped": false,
+  "matrix_power_runs": [
+    {
+      "model": "WF",
+      "r": null,
+      "N": 10,
+      "i": 1,
+      "n_steps": 4096,
+      "PnN": "0.1",
+      "formula": "0.1",
+      "abs_err": "2.917e-62",
+      "interior_mass": "1.8163e-188"
+    },
+    {
+      "model": "WF",
+      "r": null,
+      "N": 10,
+      "i": 3,
+      "n_steps": 4096,
+      "PnN": "0.3",
+      "formula": "0.3",
+      "abs_err": "1.9447e-61",
+      "interior_mass": "4.238e-188"
+    },
+    {
+      "model": "WF",
+      "r": null,
+      "N": 10,
+      "i": 7,
+      "n_steps": 4096,
+      "PnN": "0.7",
+      "formula": "0.7",
+      "abs_err": "0.0",
+      "interior_mass": "4.238e-188"
+    },
+    {
+      "model": "Moran",
+      "r": 1.5,
+      "N": 10,
+      "i": 1,
+      "n_steps": 4096,
+      "PnN": "0.33921585523481258078",
+      "formula": "0.33921585523481258078",
+      "abs_err": "2.3176e-50",
+      "interior_mass": "2.5586e-50",
+      "neg_flipped_abs_diff": "0.33039",
+      "neg_neutral_abs_diff": "0.23922"
+    },
+    {
+      "model": "Moran",
+      "r": 1.5,
+      "N": 10,
+      "i": 3,
+      "n_steps": 4096,
+      "PnN": "0.71612236105127100388",
+      "formula": "0.71612236105127100388",
+      "abs_err": "3.6398e-50",
+      "interior_mass": "4.0184e-50",
+      "neg_flipped_abs_diff": "0.67421",
+      "neg_neutral_abs_diff": "0.41612"
+    },
+    {
+      "model": "Moran",
+      "r": 1.5,
+      "N": 10,
+      "i": 7,
+      "n_steps": 4096,
+      "PnN": "0.95808703145196036191",
+      "formula": "0.95808703145196036191",
+      "abs_err": "1.8227e-50",
+      "interior_mass": "2.0123e-50",
+      "neg_flipped_abs_diff": "0.67421",
+      "neg_neutral_abs_diff": "0.25809"
+    },
+    {
+      "model": "Moran",
+      "r": 0.8,
+      "N": 10,
+      "i": 1,
+      "n_steps": 4096,
+      "PnN": "0.030072562400417847829",
+      "formula": "0.030072562400417847829",
+      "abs_err": "5.2087e-42",
+      "interior_mass": "2.28e-41",
+      "neg_flipped_abs_diff": "0.19399",
+      "neg_neutral_abs_diff": "0.069927"
+    },
+    {
+      "model": "Moran",
+      "r": 0.8,
+      "N": 10,
+      "i": 3,
+      "n_steps": 4096,
+      "PnN": "0.11465164415159304485",
+      "formula": "0.11465164415159304485",
+      "abs_err": "1.4596e-41",
+      "interior_mass": "6.389e-41",
+      "neg_flipped_abs_diff": "0.43205",
+      "neg_neutral_abs_diff": "0.18535"
+    },
+    {
+      "model": "Moran",
+      "r": 0.8,
+      "N": 10,
+      "i": 7,
+      "n_steps": 4096,
+      "PnN": "0.45329835819438436104",
+      "formula": "0.45329835819438436104",
+      "abs_err": "2.1675e-41",
+      "interior_mass": "9.4878e-41",
+      "neg_flipped_abs_diff": "0.43205",
+      "neg_neutral_abs_diff": "0.2467"
+    },
+    {
+      "model": "Moran",
+      "r": 1.0,
+      "N": 10,
+      "i": 1,
+      "n_steps": 4096,
+      "PnN": "0.1",
+      "formula": "0.1",
+      "abs_err": "2.8312e-37",
+      "interior_mass": "5.6625e-37"
+    },
+    {
+      "model": "Moran",
+      "r": 1.0,
+      "N": 10,
+      "i": 3,
+      "n_steps": 4096,
+      "PnN": "0.3",
+      "formula": "0.3",
+      "abs_err": "6.6062e-37",
+      "interior_mass": "1.3212e-36"
+    },
+    {
+      "model": "Moran",
+      "r": 1.0,
+      "N": 10,
+      "i": 7,
+      "n_steps": 4096,
+      "PnN": "0.7",
+      "formula": "0.7",
+      "abs_err": "6.6062e-37",
+      "interior_mass": "1.3212e-36"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+ "tag": "build_WrightFisherFixation",
+ "file": "/home/callensxavier_gmail_com/AutoevolveAI/.claude/worktrees/openai-math-discovery/formal_cert/Programmes/PopGen/WrightFisherFixation.lean",
+ "module": "Programmes.PopGen.WrightFisherFixation",
+ "rc": 0,
+ "seconds": 6.0,
+ "sha256": "149a9328171a6347460e8b2b1294d8073df57e2d6a602cdacf5955a3203262b3",
+ "output": "'ProgPopGen.wf_absorbing' depends on axioms: [propext, Classical.choice, Quot.sound]\n'ProgPopGen.wf_var_pos' depends on axioms: [propext, Classical.choice, Quot.sound]\n'ProgPopGen.wright_fisher_fixation_limit' depends on axioms: [propext, Classical.choice, Quot.sound]\n'ProgPopGen.wright_fisher_fixation_mono' depends on axioms: [propext, Classical.choice, Quot.sound]\n'ProgPopGen.ctl_pos_wf_two_steps' depends on axioms: [propext, Classical.choice, Quot.sound]\n"
+}

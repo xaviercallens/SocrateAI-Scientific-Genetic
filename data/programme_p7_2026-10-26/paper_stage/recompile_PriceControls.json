@@ -1,0 +1,7 @@
+{
+  "file": "/home/callensxavier_gmail_com/AutoevolveAI/.claude/worktrees/openai-math-discovery/formal_cert/Programmes/PopGen/PriceControls.lean",
+  "module": null,
+  "rc": 0,
+  "seconds": 5.3,
+  "output": "/home/callensxavier_gmail_com/AutoevolveAI/.claude/worktrees/openai-math-discovery/formal_cert/Programmes/PopGen/PriceControls.lean:17:8: warning: declaration uses `sorry`\n'ProgPopGenPriceControls.ctl_sorry' depends on axioms: [propext, sorryAx, Classical.choice, Quot.sound]\n'ProgPopGenPriceControls.ctl_axiom' depends on axioms: [propext,\n Classical.choice,\n ProgPopGenPriceControls.ctl_cheat,\n Quot.sound]\n"
+}

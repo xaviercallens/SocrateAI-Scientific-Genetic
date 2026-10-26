@@ -1,0 +1,9 @@
+{
+ "tag": "build_MoranFixation",
+ "file": "/home/callensxavier_gmail_com/AutoevolveAI/.claude/worktrees/openai-math-discovery/formal_cert/Programmes/PopGen/MoranFixation.lean",
+ "module": "Programmes.PopGen.MoranFixation",
+ "rc": 0,
+ "seconds": 5.7,
+ "sha256": "c49806ac8b14295ddebe032c69b97503e3a033d1cac503530948d72e8bdad8e5",
+ "output": "'ProgPopGen.moran_absorbing' depends on axioms: [propext, Classical.choice, Quot.sound]\n'ProgPopGen.moran_interiorHarmonic' depends on axioms: [propext, Classical.choice, Quot.sound]\n'ProgPopGen.moran_var_pos' depends on axioms: [propext, Classical.choice, Quot.sound]\n'ProgPopGen.moran_fixation_limit' depends on axioms: [propext, Classical.choice, Quot.sound]\n'ProgPopGen.moran_fixation_limit_closed' depends on axioms: [propext, Classical.choice, Quot.sound]\n'ProgPopGen.moran_fixation_limit_neutral' depends on axioms: [propext, Classical.choice, Quot.sound]\n'ProgPopGen.moran_fixation_unique' depends on axioms: [propext, Classical.choice, Quot.sound]\n'ProgPopGen.ctl_neg_wrong_limits' depends on axioms: [propext, Classical.choice, Quot.sound]\n"
+}

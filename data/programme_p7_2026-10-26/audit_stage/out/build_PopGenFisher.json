@@ -1,0 +1,9 @@
+{
+ "tag": "build_PopGenFisher",
+ "file": "/home/callensxavier_gmail_com/AutoevolveAI/.claude/worktrees/openai-math-discovery/formal_cert/Autoresearch/PopGenFisher.lean",
+ "module": "Autoresearch.PopGenFisher",
+ "rc": 0,
+ "seconds": 7.1,
+ "sha256": "1625d54caeee4472a324596ca4293217c5c2ca68bb842a860b58eb988aa7edc5",
+ "output": "'AutoresearchPopGen.wbar_pos' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AutoresearchPopGen.pnext_mem_Icc' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AutoresearchPopGen.delta_p_eq' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AutoresearchPopGen.hasDerivAt_wbar' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AutoresearchPopGen.deriv_wbar' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AutoresearchPopGen.delta_p_eq_deriv' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AutoresearchPopGen.wbar_increment' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AutoresearchPopGen.fisher_mean_fitness_nondecreasing' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AutoresearchPopGen.hwStep_sum' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AutoresearchPopGen.hwStep_allele' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AutoresearchPopGen.hwStep_stationary' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AutoresearchPopGen.underdominance_moves_away' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AutoresearchPopGen.fisher_fails_without_positivity' depends on axioms: [propext, Classical.choice, Quot.sound]\n"
+}
