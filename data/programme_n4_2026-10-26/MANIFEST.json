@@ -1,0 +1,28 @@
+{
+ "source_repo": "github.com/xaviercallens/AutoevolveAI",
+ "source_branch": "worktree-openai-math-discovery",
+ "lean_module_root": "formal/ (Programmes.EvoGraph.*, depends on Programmes.PopGen.* from PR #2)",
+ "files": {
+  "formal/Programmes/EvoGraph/BirthDeath.lean": "51383b6af304fe540ed963fa18fa2f2955f18f0a1ec6edbec2f88a7b5719647f",
+  "formal/Programmes/EvoGraph/EvoGraphImportAll.lean": "7750097280b7c983670360d23f72d71c6002a40af1039d96a04713d92e6b0b0f",
+  "formal/Programmes/EvoGraph/EvoGraphPlantedControls.lean": "d3c875ee01fac100d70a2953de76a7d619a5296f8e7e842a6fcdb95df4b905d8",
+  "formal/Programmes/EvoGraph/Examples.lean": "7156a702948565b0c85ded7d39735c6142e8e8f3fa345ed3f92e9d0bf6b13162",
+  "formal/Programmes/EvoGraph/Transport.lean": "71babd503d7ee936a0746d2a710681a021a865463935154bad0b37129089e457",
+  "data/programme_n4_2026-10-26/ISOTHERMAL.md": "a6ffe26ef77241c1e6d94595bffe6eeb4eef0bf7f2f0c6d0fc2cc3980d132225",
+  "data/programme_n4_2026-10-26/STATEMENT_LOCK.json": "475c3c97fa18ef0b379ca1fadcdcd3c3063be05e06e3186722e52fc2226b9fa9",
+  "data/programme_n4_2026-10-26/compile_BirthDeath.json": "ec908650365fb72423b7a83bc9b652d505942891effcdaa4212dfa80776a64e1",
+  "data/programme_n4_2026-10-26/compile_Examples.json": "3f9af7a57ac6a836c8d7710e76e50ef85ce3eea2ed80b7198c5b661a7555bc3e",
+  "data/programme_n4_2026-10-26/compile_ImportAll.json": "b184fe0e0867906bdb5fb62460eab0c6fe3a08d332cbdaa4df789368868b33ee",
+  "data/programme_n4_2026-10-26/compile_PlantedControls.json": "578cc72893d7f053f39e2c55546eaf636fcda149078f1ac70f1a5aa47560888b",
+  "data/programme_n4_2026-10-26/compile_Transport.json": "01ae5082f63f1661c7987180714a8d68928946b44388ba952eb7ae18529865c6",
+  "data/programme_n4_2026-10-26/numerics_evograph.json": "2564529fd5c823eb0433776f573512e91225be45eee2ba88cde0e70a659be9dc",
+  "data/programme_n4_2026-10-26/numerics_evograph.py": "34936c5bad2aa2841564a2da9c9c536ee9ecd096d80f949d4da1bf9ff103a71f",
+  "data/programme_n4_2026-10-26/result.json": "77c0aef4aff31ab5ebbbf09e726d7c3f50142649de831827dc4fb3c3e994568e",
+  "papers/programme_n4_isothermal/main.pdf": "6db79de55aec102eacf7a4fc81f296515e9163dd56f2f2daf0bbde7d90960d93",
+  "papers/programme_n4_isothermal/main.tex": "0f8f262f961ffe0d9c0f9a1582da15dda91ab134a7edff37df38f96aa3431061",
+  "papers/programme_n4_isothermal/AUDIT.md": "5dd281d62a30875aafd50895ad53a337f997454ee82946fee64dee14dea2a0b9",
+  "papers/programme_n4_isothermal/REVISION.md": "7b219608e8c2342a533beb6039b021145ecf77d40f3c486faea07ccbef5dde5d",
+  "papers/programme_n4_isothermal/publication_meta.json": "1faae7df7f9beff03073aa2b5afb02f2e63bdeffe51872e4184934c51962a5a7",
+  "papers/programme_n4_isothermal/zenodo_doi.txt": "ff7a7238cbcd136fd94aa75f4b7a53cc2c8ee7afd4e7ee21ac7fe6f269703163"
+ }
+}

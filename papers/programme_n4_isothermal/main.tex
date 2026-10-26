@@ -1,0 +1,259 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{url}
+\usepackage{microtype}
+\usepackage{caption}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage[hidelinks]{hyperref}
+\makeatletter\g@addto@macro{\UrlBreaks}{\do\_\do\.\do\/}\makeatother
+\emergencystretch=3em
+\tolerance=2000
+\lstset{basicstyle=\ttfamily\scriptsize,columns=fullflexible,keepspaces=true,breaklines=true,
+  frame=single,framesep=3pt,xleftmargin=4pt,xrightmargin=4pt,upquote=true,aboveskip=4pt,belowskip=2pt,
+  keywordstyle=\bfseries,morekeywords={theorem,lemma,def,noncomputable,abbrev,structure,where,fun,Prop,axiom},
+  escapeinside={(*@}{@*)}}
+\captionsetup{font=small}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\tier}[1]{\textsf{[#1]}}
+\newcommand{\lean}[1]{\texttt{#1}}
+\newcommand{\cardS}{|S|}
+\newcommand{\rhoF}{\rho_n}
+\makeatletter\newcommand{\tabinput}[1]{\@@input #1 }\makeatother
+
+\title{The isothermal theorem of evolutionary graph theory for birth--death updating,\\
+kernel-checked in Lean~4: Moran fixation on strongly connected isothermal graphs\\
+and its stationary-selection generalization}
+\author{Xavier Callens (SocrateAI Lab)\thanks{AI-assistance disclosure: this preprint, its Lean files, its code and its ledger were produced by AI agents (Claude, Anthropic) under the author's direction. The author is responsible for the content. No human expert has reviewed it.}}
+\date{Preprint v1, 2026-10-26}
+\hypersetup{pdftitle={The isothermal theorem of evolutionary graph theory for birth-death updating, kernel-checked in Lean 4},
+  pdfauthor={Xavier Callens}}
+
+\begin{document}
+\maketitle
+\begin{center}\small doi:10.5281/zenodo.23660071 \quad (not peer reviewed)\end{center}
+
+\begin{center}\small Not peer reviewed. DOI assigned at deposit. Depends on doi:10.5281/zenodo.23653850 (P7).\end{center}
+
+\noindent\textbf{AI-assistance disclosure and review status.} This preprint, its Lean code, its Python code and its claim ledger were
+produced by AI agents (Claude, Anthropic) under the author's direction. The author is responsible for the content. The Lean files
+were compiled by their producer agent and re-compiled at the paper stage by the same AI pipeline (same toolchain, same machine class, rc~0,
+identical \texttt{\#print axioms} lines). An independent adversarial AI auditor (producer${}\neq{}$verifier; not a human) then recompiled the EvoGraph modules and the reused P7 modules from source into its own olean directory,
+re-ran \texttt{\#print axioms}, ran a \texttt{leanchecker} kernel replay (rc~0, with a \texttt{debug.skipKernelTC} forgery control rejected), recomputed the star and 4-cycle values with an independent exact-rational script, and checked both cited sources;
+verdict ACCEPT\_WITH\_CORRECTIONS (\texttt{papers/p3\_isothermal\_theorem/AUDIT.md}; statement lock \texttt{results/proposal3/2026-10-26/N4/STATEMENT\_LOCK.json}). \textbf{There has been no human audit.}
+The imported P7 modules have their own, separate status
+(stated in the P7 preprint). Read every Tier~A tag below as ``kernel-checked; statement adequacy not audited by a human''.
+
+\begin{abstract}
+We prove in Lean~4 (Mathlib) the isothermal theorem of evolutionary graph theory for birth--death updating in the \emph{sufficiency} direction.
+Nodes $1,\dots,n$ carry a row-stochastic replacement matrix $W$; mutants have fitness $r>0$, residents fitness $1$; at each step a node is chosen to
+reproduce with probability proportional to its fitness (times a selection weight $\mu_i>0$) and its offspring replaces node $j$ with probability $W_{ij}$.
+If $W$ is doubly stochastic (isothermal) and strongly connected and $\mu\equiv1$, then from every initial mutant set $S$ the $t$-step probability of
+reaching the all-mutant configuration converges to the Moran value $\rho_n(|S|)=(1-r^{-|S|})/(1-r^{-n})$ ($|S|/n$ if $r=1$); for a single mutant at any node this is
+$(1-r^{-1})/(1-r^{-n})$. More generally the same limit holds whenever $\mu W=\mu$ (stationary selection) and every proper non-empty set has an edge leaving it.
+\textbf{Preregistration deviation.} The preregistered wording ``the number of mutants is a birth--death chain with ratio $r$'' is \emph{false} as a Markov statement;
+a kernel-checked counterexample on the isothermal 4-cycle shows that the one-step increase probability is not a function of the number of mutants
+($1/3$ versus $2/3$ at $r=2$). What is true and proved is the \emph{per-configuration forward bias} $P^{+}(S)=r\,P^{-}(S)$, from which $S\mapsto\rho_n(|S|)$ is
+harmonic for the configuration chain; the absorption limit is obtained from P7's kernel-checked absorption theorem by transport to the configuration space.
+\textbf{Tier~A} (Lean 4.34.1, Mathlib; axioms within \lean{propext}, \lean{Classical.choice}, \lean{Quot.sound}, together with a \lean{leanchecker} kernel replay and a grep for \lean{skipKernelTC}/\lean{addDecl}/\lean{native\_decide}/\lean{implemented\_by}, both by an independent AI auditor; planted \lean{sorry} and planted-axiom controls caught;
+positive and negative controls kernel-checked: well-mixed lumping, stationary star $4/7$, star $n=3$ with limits $5/12$, $2/3$, $7/12\neq 4/7$, identity graph disconnected).
+\textbf{Not proved:} the converse (Moran for all $r\Rightarrow$ isothermal), death--birth updating, non-row-stochastic weights, a path-measure formulation,
+star values for $n\ge4$ (exact-rational numerics only, Tier~X). The theorem is known (Lieberman--Hauert--Nowak 2005; Pattni et al.\ 2015; Keller--U\u{g}urlu 2024); no novelty is
+claimed for the mathematics, and we are not aware of an earlier machine-checked formalization (no systematic search was done).
+\end{abstract}
+
+\paragraph{Tiers.} \tier{A}: kernel-checked Lean with axioms within the allowlist, \emph{and} a kernel replay (\texttt{leanchecker}) of the modules, \emph{and} a grep finding no \texttt{debug.skipKernelTC}/\texttt{addDecl}/\texttt{native\_decide}/\texttt{implemented\_by}; planted controls caught. (\texttt{\#print axioms} alone can be fooled: a theorem added under \texttt{debug.skipKernelTC} lists only whitelisted axioms.) \tier{L}: a cited source, quoted in the ledger
+(prose as extracted, pinned to arXiv version and page). \tier{C}: an argument or human proof that is not machine-checked. \tier{X}: computation (here exact-rational scripts) that never supports a claim.
+Identifiers such as \texttt{EG-A-0007} refer to \texttt{ledger/ledger.json} (Section~\ref{sec:ledger}). A Tier~A tag attaches to the Lean statement, never to its biological gloss.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Preregistration deviation}\label{sec:dev}
+\noindent\fbox{\parbox{0.96\linewidth}{\small
+\textbf{Preregistered (2026-10-26, item N4):} ``prove that if the graph is isothermal \dots{} \emph{the number of mutants is a birth--death chain with the Moran ratio $r$}, hence fixation
+probability $(1-r^{-1})/(1-r^{-N})$ for a single random mutant, reusing P7's kernel-checked Moran fixation''.\\[2pt]
+\textbf{What happened.} The fixation conclusion is proved (for every initial configuration, a single mutant at any node, a uniformly random single mutant, and $r=1$).
+The clause in italics is \textbf{false} for the Markov chain that includes ``nothing happens'' steps, and it was \emph{not} formalized. Kernel-checked \lean{cycle4\_not\_lumpable}:
+on the isothermal 4-cycle ($W_{i,i\pm1}=\tfrac12$, no self-loops), $r=2$, the configurations $\{0,1\}$ and $\{0,2\}$ both have two mutants, but
+$P^{+}(\{0,1\})=\tfrac13$ and $P^{+}(\{0,2\})=\tfrac23$ \tier{A, EG-A-0010}. So the count's transition probabilities are not functions of the count.
+What is proved instead is $P^{+}(S)=r\,P^{-}(S)$ \emph{for every configuration $S$} (\lean{forward\_bias}, \tier{A, EG-A-0003}); both of those configurations have forward bias exactly $2$.\\[2pt]
+\textbf{Literature.} Keller and U\u{g}urlu state that Lieberman--Hauert--Nowak's argument projects the configuration chain onto the mutant count, treats it as a birth--death process, and that ``the projection does not need to be Markovian''
+(arXiv:2403.12598v2, abstract; similarly p.~4) \tier{L, EG-L-0001}. The valid route is per-configuration forward bias, as in Pattni et al.\ (arXiv:1505.06021v1) Lemma~1 \tier{L, EG-L-0003}:
+constant forward bias is equivalent to the Moran fixation probabilities, and its proof lumps the \emph{holding-removed jump chain}, which \emph{is} lumpable onto the count (on the 4-cycle,
+$P^{+}/(P^{+}+P^{-})=\tfrac23$ at both configurations; the holding probabilities are $\tfrac12$ and $0$) \tier{C, EG-C-0003}. We do \emph{not} claim that the count is non-Markov from every initial law: \lean{cycle4\_not\_lumpable} refutes strong lumpability only \tier{C, EG-C-0001}.}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Model and Lean definitions}\label{sec:model}
+Let $V=\{1,\dots,n\}$ (\lean{Fin n}), $n>0$. A \emph{replacement matrix} $W\in[0,\infty)^{V\times V}$ is \emph{row-stochastic} ($\sum_jW_{ij}=1$; self-loops $W_{ii}>0$ are allowed),
+\emph{isothermal} if moreover $\sum_iW_{ij}=1$ for all $j$ (every in-temperature and out-temperature is $1$; equivalently doubly stochastic \tier{L, EG-L-0002}; the equivalence of ``equal temperatures'' with column sums $1$ holds \emph{because} $W$ is row-stochastic, Keller--U\u{g}urlu p.~7), and \emph{strongly connected}
+if for all $a,b$ there is a path $a=x_0,\dots,x_m=b$, $m\ge1$, with $W_{x_kx_{k+1}}>0$. A \emph{state} is the set $S\subseteq V$ of mutant nodes. Mutants have fitness $r>0$, residents $1$; $f_S(i)=r$ if $i\in S$ and $1$ otherwise.
+With selection weights $\mu_i>0$ and $F(S)=\sum_k\mu_kf_S(k)$, one step is: node $i$ is chosen with probability $\mu_if_S(i)/F(S)$; independently its offspring replaces node $j$ with probability $W_{ij}$; the new state is
+$S\cup\{j\}$ if $i\in S$ and $S\setminus\{j\}$ if $i\notin S$. This is \emph{birth--death} updating with fitness at birth; $\mu\equiv1$ is the Lieberman--Hauert--Nowak process.
+The chain has $2^n$ states, with $\emptyset$ and $V$ absorbing. Listing~\ref{lst:model} gives the definitions verbatim from \texttt{BirthDeath.lean}; $P^{+}$ and $P^{-}$ (\lean{upP}, \lean{downP}) are the total probabilities that $|S|$ increases, respectively decreases, by one.
+
+\lstinputlisting[caption={Definitions (\texttt{BirthDeath.lean}, verbatim up to glyph rendering; the glyphs for the reals, membership and the neighbourhood filter are rendered as LaTeX symbols).},label=lst:model]{gen/model.lst}
+
+\paragraph{Reused from P7 (doi:10.5281/zenodo.23653850).} \lean{ProgPopGen.moranFix n r k}$=\rhoF(k)=S_k/S_n$ with $S_k=\sum_{m<k}r^{-m}$ (so $\rhoF(k)=(1-r^{-k})/(1-r^{-n})$ for $r\neq1$ and $k/n$ for $r=1$), its step lemma $\rhoF(k+1)-\rhoF(k)=r^{-k}/S_n$,
+the boundary values $\rhoF(0)=0$, $\rhoF(n)=1$, and \lean{ProgPopGen.fixation\_limit}. They are used unchanged (sha256 of \texttt{Absorption.lean} and \texttt{MoranModel.lean} in Table~\ref{tab:src}); nothing is re-proved \tier{C, EG-C-0008}.
+
+\paragraph{Bridge to probability (Tier~C, EG-C-0004).} $P^t(S,V)$ is the $t$-step transition probability of the configuration chain (Chapman--Kolmogorov recursion \lean{sPow}); since $V$ is absorbing it equals $\mathbb P_S(T_V\le t)$, consistent with the kernel-checked monotonicity \lean{bd\_fixation\_mono}, so its limit is the probability of ever reaching $V$. This identification is standard and is not a Lean statement; no path space is built.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Step-by-step human proof, with the Lean statement beside each step}\label{sec:human}
+This section is for a strong undergraduate. Each step states a fact, proves it by hand \tier{C, EG-C-0002}, and names the Lean declaration that checks the matching statement \tier{A}.
+Throughout, $W$ is row-stochastic, $\mu>0$, $r>0$, $n>0$, and for a set $S$ write $\mathrm{out}(S)=\sum_{i\in S}\sum_{j\notin S}\mu_iW_{ij}$ and $\mathrm{in}(S)=\sum_{i\notin S}\sum_{j\in S}\mu_iW_{ij}$.
+
+\paragraph{Step 1: the chain is stochastic with two absorbing states \tier{A, EG-A-0002}.} \emph{Claim:} the coefficients $c(S,i,j)=\mu_if_S(i)W_{ij}/F(S)\ge0$ sum to $1$ over $(i,j)$, so the kernel $K(S,T)=\sum_{i,j}c(S,i,j)\,[\mathrm{upd}(S,i,j)=T]$ has unit row sums; $\mathrm{upd}(\emptyset,i,j)=\emptyset$ and $\mathrm{upd}(V,i,j)=V$ give absorption. \emph{Proof:} $\sum_j W_{ij}=1$ and $\sum_i\mu_if_S(i)=F(S)$. The Lean statement is \lean{bd\_absorbing}: \lean{TwoAbsorbing (bdK mu W r) $\emptyset$ univ}.
+
+\paragraph{Step 2: moves of the count are cuts \tier{A, EG-A-0002}.} \emph{Claim:} $P^{+}(S)=r\,\mathrm{out}(S)/F(S)$ and $P^{-}(S)=\mathrm{in}(S)/F(S)$. \emph{Proof:} the count rises by one exactly when a mutant $i\in S$ reproduces onto a resident $j\notin S$ (weight $\mu_i\,r\,W_{ij}/F$); it falls by one exactly when a resident $i\notin S$ reproduces onto a mutant $j\in S$ (weight $\mu_i\cdot1\cdot W_{ij}/F$); in the other two cases the state does not change ($\mathrm{upd}(S,i,j)=S$).
+Lean: \lean{up\_eq}, \lean{down\_eq}.
+
+\lstinputlisting[caption={Steps 1--3: moves are cuts, and the forward bias (\texttt{BirthDeath.lean}).},label=lst:fb]{gen/fb.lst}
+
+\paragraph{Step 3: cut balance and the per-configuration forward bias \tier{A, EG-A-0003}.} \emph{Claim:} if $\mu$ is stationary, $\sum_i\mu_iW_{ij}=\mu_j$ for all $j$, then $\mathrm{out}(S)=\mathrm{in}(S)$ for every $S$, hence $P^{+}(S)=r\,P^{-}(S)$ for every configuration $S$. \emph{Proof:}
+$\sum_{i\in S}\sum_{j}\mu_iW_{ij}=\mu(S)$ by $\sum_jW_{ij}=1$, and $\sum_{j\in S}\sum_i\mu_iW_{ij}=\mu(S)$ by stationarity. Both double sums contain the common part $\sum_{i\in S}\sum_{j\in S}\mu_iW_{ij}$; subtracting it leaves $\mathrm{out}(S)=\mathrm{in}(S)$. Then $P^{+}/P^{-}=r\,\mathrm{out}/\mathrm{in}=r$ (when $\mathrm{in}(S)>0$; the identity $P^{+}=rP^{-}$ holds without division).
+For the isothermal case, $\mu\equiv1$ and column sums $1$ are exactly stationarity. Lean: \lean{flow\_balance}, \lean{cut\_balance}, \lean{forward\_bias}. This is the content of ``constant forward bias'' in Pattni et al.\ \tier{L, EG-L-0003}, and of the ratio $p^{-}/p^{+}=1/r$ in Keller--U\u{g}urlu Theorem~3.2 (stationary $\mu$ is the only choice making the ratio constant) \tier{L, EG-L-0002}.
+
+\paragraph{Step 4: $h(S)=\rhoF(|S|)$ is harmonic on configurations \tier{A, EG-A-0004}.} \emph{Claim:} for every $S\neq\emptyset$, $\sum_TK(S,T)\,h(T)=h(S)$ (stationary $\mu$). \emph{Proof:} let $k=|S|\ge1$. The count changes by $+1$ with probability $P^{+}(S)$ and by $-1$ with probability $P^{-}(S)$, otherwise $h$ is unchanged. By P7's step lemma, $h$ rises by $\Delta^{+}=r^{-k}/S_n$ on a $+1$ move and falls by $\Delta^{-}=r^{-(k-1)}/S_n=r\cdot r^{-k}/S_n$ on a $-1$ move. Hence
+\[
+\mathbb E[h(S')-h(S)]=P^{+}\Delta^{+}-P^{-}\Delta^{-}=\frac{r^{-k}}{S_n}\bigl(P^{+}(S)-r\,P^{-}(S)\bigr)=0
+\]
+by Step~3. (The Lean proof does this term by term: each $(i,j)$ contributes $\mu_iW_{ij}/F\cdot(r^{-(k-1)}/S_n)\,(\mathbf 1_{i\in S}-\mathbf 1_{j\in S})$, and the total vanishes by \lean{flow\_balance}.) Note that this uses \emph{only} the forward bias; it never asserts that the count is Markov.
+Lean: \lean{moranFix\_card\_harmonic}. \emph{Variance:} if some edge $i\in S\to j\notin S$ has $\mu_iW_{ij}>0$ then the one-step variance of $h$ at $S$ is positive, since that move has positive probability and changes $h$ by $\Delta^{+}\neq0$ (\lean{moranFix\_card\_var\_pos}).
+
+\lstinputlisting[caption={Step 4: harmonicity and variance (\texttt{BirthDeath.lean}).},label=lst:harm]{gen/harm.lst}
+
+\paragraph{Step 5: absorption limit by transport of P7 \tier{A, EG-A-0001}.} \emph{Claim:} a stochastic kernel on a finite set with two absorbing points $\mathrm{bot}\neq\mathrm{top}$, a function $h$ harmonic elsewhere with $h(\mathrm{bot})=0$, $h(\mathrm{top})=1$ and positive one-step variance elsewhere satisfies $P^t(s,\mathrm{top})\to h(s)$ and $P^t(s,\mathrm{bot})\to1-h(s)$.
+\emph{Sketch (P7's argument):} harmonicity gives $P^th=h$ for all $t$ (martingale identity). Let $I_t(s)$ be the mass of $P^t(s,\cdot)$ on non-absorbing states. Expanding $\sum_u P^t(s,u)\,(h(X_{t+1})-h(u))^2$ and telescoping gives $\sum_{t<N}\sum_uP^t(s,u)v(u)\le\max_uh(u)^2$ ($=1$ here, since $0\le\rhoF\le1$) with $v$ the one-step variance, so $\sum_tI_t(s)\le1/\min v<\infty$ and $I_t(s)\to0$. Then $h(s)=P^t(s,\mathrm{top})+\sum_{u\ \mathrm{interior}}P^t(s,u)h(u)$ and the interior part is at most $I_t(s)\to0$, so $P^t(s,\mathrm{top})\to h(s)$.
+P7 proves this for kernels on $\{0,\dots,N\}$ (\lean{ProgPopGen.fixation\_limit}); \lean{two\_absorbing\_limit} transports it to any finite state type $\sigma$ by conjugating with an enumeration $\sigma\simeq\mathrm{Fin}(M{+}1)$ sending $\emptyset\mapsto0$ and $V\mapsto M$, and applies P7's theorem verbatim.
+
+\lstinputlisting[caption={Step 5: the transported absorption limit (\texttt{Transport.lean}).},label=lst:tr]{gen/transport.lst}
+
+\paragraph{Step 6: strong connectivity gives cut positivity \tier{A, EG-A-0005}.} \emph{Claim:} if $W$ is strongly connected and $\mu>0$, every proper non-empty $S$ has an edge $i\in S\to j\notin S$ with $\mu_iW_{ij}>0$. \emph{Proof:} pick $a\in S$, $b\notin S$ and a positive path $a=x_0,\dots,x_m=b$; let $\ell$ be the least index with $x_{\ell+1}\notin S$ (it exists since $x_0\in S$, $x_m\notin S$); then $x_\ell\in S$. The edge $x_\ell\to x_{\ell+1}$ leaves $S$. Lean: \lean{cutPositive\_of\_strongly\_connected} (by induction on the \lean{TransGen} derivation). Only this direction is proved.
+
+\lstinputlisting[caption={Step 6 (\texttt{BirthDeath.lean}).},label=lst:conn]{gen/conn.lst}
+
+\paragraph{Step 7: the theorems \tier{A, EG-A-0006, EG-A-0007}.} Steps 1, 3, 4, 5, 6 give \lean{stationary\_fixation}: if $\mu W=\mu$, $\mu>0$ and cuts are positive then $P^t(S,V)\to\rhoF(|S|)$ and $P^t(S,\emptyset)\to1-\rhoF(|S|)$ for \emph{every} $S$. Taking $\mu\equiv1$ and $W$ doubly stochastic and strongly connected gives \lean{isothermal\_fixation}. For $S=\{v\}$ one gets $(1-r^{-1})/(1-r^{-n})$ for every node $v$ ($r\ne1$), and for $r=1$ the limit is $|S|/n$; averaging the $n$ single-mutant limits gives the uniform-start statement. Monotonicity of $P^t(S,V)$ in $t$ (\lean{bd\_fixation\_mono}) is the bridge remark above.
+
+\lstinputlisting[caption={Step 7: the main theorems (\texttt{BirthDeath.lean}).},label=lst:main]{gen/main.lst}
+
+\paragraph{Step 8: why the count does not lump \tier{A, EG-A-0010; C, EG-C-0003}.} On the 4-cycle with $r=2$: for $S=\{0,1\}$, $\mathrm{out}=\mathrm{in}=1$ (edges $0\to3$ and $1\to2$ of weight $\tfrac12$ each), $F=2\cdot2+2\cdot1=6$, so $P^{+}=2\cdot1/6=\tfrac13$, $P^{-}=\tfrac16$; for $S=\{0,2\}$, $\mathrm{out}=\mathrm{in}=2$ and $P^{+}=\tfrac23$, $P^{-}=\tfrac13$. The \emph{ratio} is $2$ in both cases (Step~3), but the \emph{rates} differ, so $|S_t|$ is not a birth--death chain with fixed rates. Conditional on a move, both configurations step up with probability $\tfrac23$; this is why Pattni et al.'s jump-chain lumping works. The proof above never lumps.
+
+\lstinputlisting[caption={Controls on the 4-cycle and on the identity graph (\texttt{Examples.lean}).},label=lst:cyc]{gen/ctl_cyc.lst}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Controls}\label{sec:controls}
+All controls use $r=2$ and $\mu\equiv1$ unless stated. The Lean ones are theorems in \texttt{Examples.lean} and are evaluated directly, not through the limit theorem they test (except where noted). Table~\ref{tab:ctl} summarizes.
+
+\begin{table}[ht]\centering\small
+\begin{tabular}{p{0.30\linewidth}p{0.40\linewidth}p{0.20\linewidth}}
+\toprule
+control & result & tier\\
+\midrule
+well-mixed $W=J/n$ (positive) & $P^{+}(S)=\mathrm{moranUp}\,n\,r\,|S|$, $P^{-}(S)=\mathrm{moranDown}\,n\,r\,|S|$ for all $n,S$; $n=3$: limit $4/7$ & A, EG-A-0008\\
+star $n=3$, stationary $\mu=(\tfrac12,\tfrac14,\tfrac14)$ (positive) & centre mutant: limit $4/7$ & A, EG-A-0008\\
+star $n=3$, $\mu\equiv1$ (negative) & centre temperature $2$; $P^{+}(\{0\})=P^{-}(\{0\})=\tfrac12$ (ratio $1\neq2$); limits $5/12$ (centre), $2/3$ (leaf), $7/12$ (uniform start), each $\neq4/7$ & A, EG-A-0009\\
+4-cycle (non-lumpability) & $P^{+}=\tfrac13,\tfrac23$ at the two 2-mutant configurations; bias $2$ at both & A, EG-A-0010\\
+identity $W=I$ on $2$ nodes (negative) & doubly stochastic but not strongly connected: $P^t(\{0\},V)=0$ for all $t$, no convergence to $\rho_2(1)=2/3$ & A, EG-A-0010\\
+planted \lean{sorry}, planted axiom (twice) & each states a false claim; \lean{\#print axioms} reports \lean{sorryAx}, resp.\ \lean{ctl\_cheat}: CAUGHT & A, EG-A-0011\\
+exact-rational numerics, $W_H$ ($n=3,4$), 4-cycle, random doubly stochastic $4\times4$ & Moran value $4/7$, $8/15$ from every start & X, EG-X-0001\\
+star $n=4$ (negative) & $392/1265$ (centre), $168/253$ (leaf), mean $728/1265\neq8/15$; \emph{not} kernel-checked & X, EG-X-0001\\
+random non-doubly-stochastic $4\times4$ & differs from $8/15$ & X, EG-X-0001\\
+\bottomrule
+\end{tabular}
+\caption{Controls. Star: centre $0$, $W_{0j}=\tfrac12$, $W_{j0}=1$ ($n=3$).}\label{tab:ctl}
+\end{table}
+
+The star values $5/12,2/3,2/3$ come from a harmonic table $(0,\tfrac5{12},\tfrac23,\tfrac23,\tfrac56,\tfrac56,\tfrac{14}{15},1)$ over the $2^3$ configurations, fed through the \emph{same} transported P7 machinery, and the independent Python script returns the same table \tier{X, EG-X-0001}. The star $n=3$, $r=2$ value $7/12>4/7$ is one data point; it does not show that the star amplifies selection for all $r$. The $n=4$ star values are exact rationals from an unverified script; result files label them Tier~C, and we file them as Tier~X because no proof backs them. Re-running the script reproduced its stored output.
+
+\lstinputlisting[caption={Positive and negative controls (\texttt{Examples.lean}); first the well-mixed and stationary-star positives, then the star negatives.},label=lst:ctlpos]{gen/ctl_pos.lst}
+\lstinputlisting[label=lst:ctlstar]{gen/ctl_star.lst}
+\lstinputlisting[caption={Planted controls (\texttt{EvoGraphPlantedControls.lean}, imported by nothing); each states a false claim.},label=lst:planted]{gen/ctl_planted.lst}
+
+\paragraph{Verbatim axiom transcripts.} \texttt{gen/axioms\_claimed.txt} (23 lines from \texttt{EvoGraphImportAll.lean}, rc~0) all read ``depends on axioms: [propext, Classical.choice, Quot.sound]''. For the planted file (\texttt{gen/axioms\_planted.txt}, rc~0):
+\begin{lstlisting}[basicstyle=\ttfamily\tiny]
+'EvoGraphControls.ctl_sorry' depends on axioms: [propext, sorryAx, Classical.choice, Quot.sound]
+'EvoGraphControls.ctl_axiom' depends on axioms: [propext, Classical.choice, EvoGraphControls.ctl_cheat, Quot.sound]
+'EvoGraphControls.ctl_axiom_lumpable' depends on axioms: [propext, Classical.choice, EvoGraphControls.ctl_cheat, Quot.sound]
+\end{lstlisting}
+Both files compile with exit code $0$, so exit status is not the gate. The gate is the axiom list \emph{together with} a kernel replay (\texttt{leanchecker}) of the modules and a grep for \texttt{debug.skipKernelTC}/\texttt{addDecl}/\texttt{native\_decide}/\texttt{implemented\_by}; the independent audit ran all three (\texttt{AUDIT.md}). The axiom list alone is not sufficient: a declaration added under \texttt{set\_option debug.skipKernelTC true} reports only the whitelisted axioms, and the auditor demonstrated this on an N4 statement, where \texttt{leanchecker} nevertheless rejected it (rc~1).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Relation to the literature}\label{sec:lit}
+\begin{itemize}\setlength\itemsep{1pt}
+\item \textbf{Lieberman, Hauert and Nowak (2005).} The isothermal theorem is from \cite{LHN}: Nature 433(7023):312--316, doi:10.1038/nature03204 \tier{L, EG-L-0004}. \emph{We did not read this paper}; the bibliographic data are from Keller--U\u{g}urlu's reference list and an IDEAS/RePEc record, and what we say about its argument is second-hand.
+\item \textbf{Pattni, Broom, Rychta\v{r} and Silvers (2015).} \cite{PBRS}, arXiv:1505.06021v1 (22 May 2015; we did not verify a journal version). Lemma~1 (p.~11): constant forward bias $\iff$ Moran fixation probabilities, proved through lumping of the jump chain; Proposition~2 (p.~6; identified with the isothermal theorem of \cite{LHN} in \S3.1, p.~7): for birth--death with fitness-proportional birth, $W$ is $\rho$-equivalent to Moran for all $r$ iff $f_R(W)$ is a circulation, i.e.\ doubly stochastic for right-stochastic $W$; they note this is the isothermal theorem of \cite{LHN} \tier{L, EG-L-0003}. Their Proposition~2 is an equivalence; we formalize only the sufficiency direction.
+\item \textbf{Keller and U\u{g}urlu (2024).} \cite{KU}, arXiv:2403.12598v2: the projection onto the count is not Markov in general (abstract; p.~4; p.~7), a martingale proof with $r^{-M_k}$ and optional stopping, and Theorem~3.1 for stationary selection ($\pi W=\pi$) \tier{L, EG-L-0001, EG-L-0002}. Our \lean{stationary\_fixation} has the same hypotheses and conclusion (up to the normalisation of $\mu$), proved in Lean in the $t$-step-kernel sense of P7. Their abstract names the venue of \cite{LHN} ``Nature Communications''; their reference list gives \emph{Nature}.
+\item \textbf{Our reading} \tier{C, EG-C-0005}. Keller--U\u{g}urlu write that the isothermal theorem ``remains unproven till today''; given Pattni et al.'s Lemma~1, which predates them and whose proof lumps the jump chain, we do not endorse that phrase. The gap they identify is in the projection of the chain \emph{with holding}. The Lean proof uses Pattni et al.'s hypothesis (per-configuration forward bias) but then proceeds by harmonicity of $\rhoF(|S|)$ on configurations and P7's absorption limit, which is closer in spirit to the Keller--U\u{g}urlu martingale than to jump-chain lumping.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Biological relevance (Tier C; interpretation only)}\label{sec:bio}
+\tier{C, EG-C-0006} In evolutionary graph theory the replacement digraph encodes population structure, and structure is compared with the well-mixed Moran process \cite{PBRS}. The theorem says: under birth--death updating with fitness-proportional birth, a replacement structure that is balanced (doubly stochastic) and strongly connected does \emph{not} change the fixation probability of a mutant of relative fitness $r$, wherever it arises. Hence, within this model, a structure that amplifies or suppresses selection must break the balance; the star control (an unbalanced graph that differs from the Moran value at $r=2$, $n=3$) is an instance of the contrapositive at one parameter value only. Structured populations such as tissues, in which cells replace neighbouring cells, are the usual motivation for such models; we make no tissue-specific claim, use no tissue data, and the model omits mutation, death--birth or other updating rules, changing structure, and frequency dependence. A Lean theorem about a finite Markov chain does not certify that any real population follows it.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Scope and limitations}\label{sec:limits}
+\begin{itemize}\setlength\itemsep{1pt}
+\item \textbf{Sufficiency only.} Proved: isothermal and strongly connected $\Rightarrow$ Moran fixation. The converse (Moran for all $r\Rightarrow$ isothermal; Pattni et al.\ Prop.~2, (b)$\Rightarrow$(a)) is not formalized. The converse of Step~6 (cut positivity $\Rightarrow$ strong connectivity) is likewise only prose and not needed.
+\item \textbf{Birth--death only.} Fitness acts at birth; death--birth, link and the other dynamics of \cite{PBRS} are not formalized. Weights are row-stochastic; general non-negative weights reduce to this case through Pattni et al.'s map $f_R$ (their eq.~(3)), which is not formalized.
+\item \textbf{Limit of the $t$-step kernel.} ``Fixation probability'' means $\lim_t P^t(S,V)$ as in P7 (Tier~C bridge above); no measure on path space.
+\item \textbf{Exact star values for $n=3$ only}; $n=4$ star numbers are Tier~X.
+\item \textbf{Count process.} Not claimed Markov; also not claimed non-Markov for every initial law (only strong non-lumpability is proved).
+\item \textbf{Controls cover few points.} Each negative control is a single $(n,r)$ instance ($r=2$, $n\le4$).
+\item \textbf{Independent AI audit, no human audit.} See the disclosure. An independent adversarial AI auditor (not a human) recompiled the modules into its own olean directory, re-ran \lean{\#print axioms}, ran a \lean{leanchecker} kernel replay (rc~0; a \lean{debug.skipKernelTC} forgery control was rejected), recomputed the star and 4-cycle values with its own exact-rational script, and checked the cited sources; verdict ACCEPT\_WITH\_CORRECTIONS (\texttt{AUDIT.md}, \texttt{STATEMENT\_LOCK.json}). It also judged that \lean{upP}, \lean{downP}, \lean{bdK} model the Lieberman--Hauert--Nowak birth--death process. No human has audited statement adequacy, so the ledger audit fields stay null.
+\item \textbf{Novelty.} None claimed; the search for earlier proof-assistant formalizations was not systematic. Moran (1958) and Kemeny--Snell (1960) were not read (cited as listed in \cite{KU}, \cite{PBRS}).
+\item Lean deprecation warnings (\lean{if\_true}, \lean{if\_false}) appear in the compile transcripts; there are no errors.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Reproducibility}\label{sec:repro}
+\begin{itemize}\setlength\itemsep{1pt}
+\item \textbf{Lean.} \texttt{formal\_cert/Programmes/EvoGraph/} of the AutoevolveAI worktree \texttt{openai-math-discovery} (committed in \texttt{8ff5912}); pinned Lean 4.34.1 and Mathlib \texttt{d13f23b7}. Compile from the repository root: \texttt{taskset -c 4,5 .venv/bin/python -I scripts/certified\_numerics/lean\_pinned.py compile FILE --json-out OUT [--olean MODULE]}. Order: \texttt{Programmes/PopGen/Absorption.lean}, \texttt{Programmes/PopGen/MoranModel.lean}, then Transport, BirthDeath, Examples, each with \texttt{--olean Programmes.<Dir>.<Name>} (without it later files cannot import earlier ones); then the import-all and planted files (no \texttt{--olean}). Oleans go to \texttt{formal\_cert/.olean\_out}, which is hard-coded in \texttt{lean\_pinned.py} (the independent audit overrode it in a wrapper). Producer transcripts: \texttt{results/proposal3/2026-10-26/N4/compile\_*.json}; paper-stage recompile (same pipeline, \texttt{module: null}, so it reused the producer's oleans for the imports): \texttt{paper\_stage/recompile\_*.json}.
+\item \textbf{Kernel replay.} \texttt{leanchecker} on the modules \url{Programmes.PopGen.Absorption}, \url{Programmes.PopGen.MoranModel}, \url{Programmes.EvoGraph.Transport}, \url{Programmes.EvoGraph.BirthDeath}, \url{Programmes.EvoGraph.Examples} with the same \texttt{LEAN\_PATH} returned rc~0 in the independent audit; its negative control (a \texttt{debug.skipKernelTC} forgery, \texttt{AuditForged}) returned rc~1. The replay was not \texttt{--fresh}: Mathlib and core were loaded from the pinned build, not replayed.
+\item \textbf{Numerics.} \texttt{results/proposal3/2026-10-26/N4/numerics\_evograph.py} (Python \texttt{Fractions}; writes \texttt{numerics\_evograph.json}).
+\item \textbf{Listings.} \texttt{gen/gen\_listings.py} extracts the displayed statements from the hashed sources (proofs elided). \textbf{Build.} \texttt{build\_pdf.py}.
+\item \textbf{Dependencies.} P7 \cite{P7}: \texttt{Programmes/PopGen/Absorption.lean} and \texttt{MoranModel.lean}, unchanged.
+\end{itemize}
+\begin{table}[ht]\centering\scriptsize
+\begin{tabular}{llcc}
+\toprule
+file & sha256 (first 16 hex) & rc & seconds\\
+\midrule
+\tabinput{gen/sources.tex}
+\bottomrule
+\end{tabular}
+\caption{Sources and producer compiles (full hashes in \texttt{ledger/evidence/}).}\label{tab:src}
+\end{table}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Ledger and gate}\label{sec:ledger}
+The ledger has 26 rows: 11 Tier~A, 4 Tier~L, 9 Tier~C, 2 Tier~X; each has a content-addressed evidence blob. Tier~A rows depend only on Tier~A rows. The Elenchus gate (\texttt{tools/ledger.py ledger.json --evidence-dir evidence}, run by \texttt{ledger/run\_gate.py}) reports \textbf{0 blocking findings and 11 flags, exit code 1}: each flag is \texttt{LEDGER\_UNAUDITED\_TIER\_A}, one per Tier~A row, because no person has audited statement adequacy (verbatim output in \texttt{ledger/gate\_output.txt}). Exit code 1 is the expected outcome while the audit fields are null; it is not hidden.
+\begin{table}[ht]\centering\scriptsize
+\begin{tabular}{lp{0.78\linewidth}}
+\toprule
+rows & content\\
+\midrule
+EG-A-0001..0003 & transported absorption limit; chain is stochastic and absorbing, cut formulas; cut balance and forward bias\\
+EG-A-0004..0007 & harmonicity and variance; strong connectivity $\Rightarrow$ cut positivity; stationary selection; isothermal theorem and corollaries\\
+EG-A-0008..0011 & positive controls; star negatives; 4-cycle and identity negatives; planted controls caught\\
+EG-L-0001..0004 & Keller--U\u{g}urlu claim; their Thm 3.1/3.2; Pattni et al.\ Lemma 1 / Prop.~2; LHN bibliographic data\\
+EG-C-0001..0009 & preregistration deviation; human proof; jump-chain lumping; bridge; reading of the literature; biology; scope; P7 dependency; review status\\
+EG-X-0001..0002 & exact-rational numerics; same-pipeline recompile\\
+\bottomrule
+\end{tabular}
+\caption{Ledger rows.}\label{tab:ledger}
+\end{table}
+
+\begin{thebibliography}{99}\small
+\bibitem{LHN} E.~Lieberman, C.~Hauert and M.~A.~Nowak, Evolutionary dynamics on graphs, \emph{Nature} \textbf{433}(7023) (2005) 312--316, doi:10.1038/nature03204. \emph{Not read; bibliographic data from \cite{KU} (p.~18) and an IDEAS/RePEc record.}
+\bibitem{PBRS} K.~Pattni, M.~Broom, J.~Rychta\v{r} and L.~J.~Silvers, Evolutionary graph theory revisited: general dynamics and the Moran process, arXiv:1505.06021v1 [q-bio.PE], 22 May 2015 (Lemma~1 p.~11, Prop.~2 p.~6, identified with the isothermal theorem of LHN in \S3.1 p.~7; no journal version verified).
+\bibitem{KU} P.~Keller and M.~U\u{g}urlu, Fixation probability in Moran-like Processes on graphs, arXiv:2403.12598v2 [math.PR], 11~Sep.\ 2024 (abstract; pp.\ 4, 7, 9, 10, 18; source typos not copied).
+\bibitem{P7} X.~Callens, Fixation probabilities as absorption limits of matrix powers, kernel-checked: neutral Wright--Fisher, the Moran model with selection, the Price equation, and a fail-closed CVODE certificate, preprint v1, 2026-10-25, doi:10.5281/zenodo.23653850.
+\bibitem{Mor} P.~A.~P.~Moran, Random processes in genetics, \emph{Math.\ Proc.\ Cambridge Philos.\ Soc.} \textbf{54} (1958) 60--71. \emph{As cited in \cite{KU}; not read.}
+\bibitem{KS} J.~G.~Kemeny and J.~L.~Snell, \emph{Finite Markov Chains}, Van Nostrand, 1960 (Theorem 6.3.2, p.~124). \emph{As cited in \cite{PBRS}; not read.}
+\end{thebibliography}
+\end{document}

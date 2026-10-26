@@ -1,0 +1,199 @@
+{
+  "r": "2",
+  "cases": [
+    {
+      "name": "complete_with_loops_WH_n3",
+      "n": 3,
+      "r": "2",
+      "col_sums": [
+        "1",
+        "1",
+        "1"
+      ],
+      "mu_stationary": true,
+      "single_mutant_fixation": {
+        "0": "4/7",
+        "1": "4/7",
+        "2": "4/7"
+      },
+      "uniform_single_average": "4/7",
+      "moran_value_k1": "4/7",
+      "every_configuration_equals_moran": true,
+      "forward_bias_r_everywhere": true
+    },
+    {
+      "name": "complete_with_loops_WH_n4",
+      "n": 4,
+      "r": "2",
+      "col_sums": [
+        "1",
+        "1",
+        "1",
+        "1"
+      ],
+      "mu_stationary": true,
+      "single_mutant_fixation": {
+        "0": "8/15",
+        "1": "8/15",
+        "2": "8/15",
+        "3": "8/15"
+      },
+      "uniform_single_average": "8/15",
+      "moran_value_k1": "8/15",
+      "every_configuration_equals_moran": true,
+      "forward_bias_r_everywhere": true
+    },
+    {
+      "name": "cycle4",
+      "n": 4,
+      "r": "2",
+      "col_sums": [
+        "1",
+        "1",
+        "1",
+        "1"
+      ],
+      "mu_stationary": true,
+      "single_mutant_fixation": {
+        "0": "8/15",
+        "1": "8/15",
+        "2": "8/15",
+        "3": "8/15"
+      },
+      "uniform_single_average": "8/15",
+      "moran_value_k1": "8/15",
+      "every_configuration_equals_moran": true,
+      "forward_bias_r_everywhere": true
+    },
+    {
+      "name": "random_doubly_stochastic_n4",
+      "n": 4,
+      "r": "2",
+      "col_sums": [
+        "1",
+        "1",
+        "1",
+        "1"
+      ],
+      "mu_stationary": true,
+      "single_mutant_fixation": {
+        "0": "8/15",
+        "1": "8/15",
+        "2": "8/15",
+        "3": "8/15"
+      },
+      "uniform_single_average": "8/15",
+      "moran_value_k1": "8/15",
+      "every_configuration_equals_moran": true,
+      "forward_bias_r_everywhere": true
+    },
+    {
+      "name": "star_n3_NEG",
+      "n": 3,
+      "r": "2",
+      "col_sums": [
+        "2",
+        "1/2",
+        "1/2"
+      ],
+      "mu_stationary": false,
+      "single_mutant_fixation": {
+        "0": "5/12",
+        "1": "2/3",
+        "2": "2/3"
+      },
+      "uniform_single_average": "7/12",
+      "moran_value_k1": "4/7",
+      "every_configuration_equals_moran": false,
+      "forward_bias_r_everywhere": false
+    },
+    {
+      "name": "star_n4_NEG",
+      "n": 4,
+      "r": "2",
+      "col_sums": [
+        "3",
+        "1/3",
+        "1/3",
+        "1/3"
+      ],
+      "mu_stationary": false,
+      "single_mutant_fixation": {
+        "0": "392/1265",
+        "1": "168/253",
+        "2": "168/253",
+        "3": "168/253"
+      },
+      "uniform_single_average": "728/1265",
+      "moran_value_k1": "8/15",
+      "every_configuration_equals_moran": false,
+      "forward_bias_r_everywhere": false
+    },
+    {
+      "name": "random_row_stochastic_n4_NEG",
+      "n": 4,
+      "r": "2",
+      "col_sums": [
+        "739/1045",
+        "6097/5225",
+        "10083/10450",
+        "1103/950"
+      ],
+      "mu_stationary": false,
+      "single_mutant_fixation": {
+        "0": "42995904505290600632330566416211682821279861297205280/65982920584632507268458570113534441551865702587369721",
+        "1": "1287117768717064715305213531679352565532558983800352491/2705299743969932798006801374654912103626493806082158561",
+        "2": "1396605910430254956991663860068636137938182136503654800/2705299743969932798006801374654912103626493806082158561",
+        "3": "5108351341296521425409065083967758535371500513704108425/10821198975879731192027205498619648414505975224328634244"
+      },
+      "uniform_single_average": "22894574396753458618298787543218429331944362247661803509/43284795903518924768108821994478593658023900897314536976",
+      "moran_value_k1": "8/15",
+      "every_configuration_equals_moran": false,
+      "forward_bias_r_everywhere": false
+    },
+    {
+      "name": "star_n3_stationary_selection",
+      "n": 3,
+      "r": "2",
+      "col_sums": [
+        "2",
+        "1/2",
+        "1/2"
+      ],
+      "mu_stationary": true,
+      "single_mutant_fixation": {
+        "0": "4/7",
+        "1": "4/7",
+        "2": "4/7"
+      },
+      "uniform_single_average": "4/7",
+      "moran_value_k1": "4/7",
+      "every_configuration_equals_moran": true,
+      "forward_bias_r_everywhere": true
+    }
+  ],
+  "star_n3_table": {
+    "empty": "0",
+    "0": "5/12",
+    "1": "2/3",
+    "2": "2/3",
+    "0,1": "5/6",
+    "0,2": "5/6",
+    "1,2": "14/15",
+    "0,1,2": "1"
+  },
+  "cycle4_up_down_two_mutants": {
+    "0,1": [
+      "1/3",
+      "1/6"
+    ],
+    "0,2": [
+      "2/3",
+      "1/3"
+    ]
+  },
+  "star_n3_center_bias": [
+    "1/2",
+    "1/2"
+  ]
+}

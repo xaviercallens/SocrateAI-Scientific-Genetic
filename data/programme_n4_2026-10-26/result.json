@@ -1,0 +1,65 @@
+{
+  "item": "N4",
+  "title": "Isothermal theorem of evolutionary graph theory (Lieberman-Hauert-Nowak 2005) in Lean 4",
+  "status": "PROVED_TIER_A_PRODUCER_UNAUDITED",
+  "verdict_vs_prereg": "Fixation statement proved (any initial configuration, single mutant at any node, uniform single mutant, neutral case). The preregistered phrase 'the number of mutants performs a birth-death chain' is false as a Markov statement (kernel-checked counterexample cycle4_not_lumpable); proved instead the per-configuration forward bias P+(S) = r P-(S) and harmonicity of moranFix n r |S| on configurations.",
+  "prior": 0.5,
+  "lean_stack": "pinned Lean 4.34.1 + Mathlib d13f23b7 via scripts/certified_numerics/lean_pinned.py",
+  "axioms_claimed": ["propext", "Classical.choice", "Quot.sound"],
+  "main_theorems": {
+    "EvoGraph.isothermal_fixation": "0<n, 0<r, Isothermal W (row and column sums 1, W>=0), StronglyConnected W => Tendsto (t => sPow (bdK 1 W r) t S univ) atTop (nhds (moranFix n r |S|))",
+    "EvoGraph.isothermal_fixation_single": "r != 1 => single mutant at any v: limit (1 - r^-1)/(1 - r^-n)",
+    "EvoGraph.isothermal_fixation_neutral": "r = 1 => limit |S|/n",
+    "EvoGraph.isothermal_fixation_uniform": "r != 1 => (1/n) sum_v sPow t {v} univ -> (1 - r^-1)/(1 - r^-n)",
+    "EvoGraph.stationary_fixation": "stationary selection mu W = mu, mu>0, cut positive => same Moran limit (Keller-Ugurlu 2024 Thm 3.1), and P^t(S, empty) -> 1 - moranFix",
+    "EvoGraph.forward_bias": "stationary mu => upP S = r * downP S for every configuration S",
+    "EvoGraph.bd_fixation_mono": "sPow (bdK mu W r) t S univ <= sPow (bdK mu W r) (t+1) S univ (limit = probability of ever fixing)",
+    "EvoGraph.two_absorbing_limit": "P7 ProgPopGen.fixation_limit transported to any finite state space with two absorbing states (by conjugation, not re-proved)"
+  },
+  "reuse_of_P7": ["ProgPopGen.fixation_limit", "ProgPopGen.kPow", "ProgPopGen.AbsorbingChain", "ProgPopGen.moranFix", "ProgPopGen.moranFix_step", "ProgPopGen.moranFix_closed", "ProgPopGen.moranFix_neutral", "ProgPopGen.moranFix_last", "ProgPopGen.geomS_pos", "ProgPopGen.moranUp", "ProgPopGen.moranDown", "ProgPopGen.moran_den_pos"],
+  "controls": {
+    "positive": {
+      "wellMixed_up/down": "W_H = J/n: upP = moranUp n r |S|, downP = moranDown n r |S| for all n, S (exact lumping onto P7 Moran chain)",
+      "wellMixed3_fixation": "W_H, n=3, r=2: limit 4/7",
+      "starStationary_fixation": "star n=3 with stationary mu=(1/2,1/4,1/4): limit from centre 4/7"
+    },
+    "negative": {
+      "star_not_isothermal": "centre temperature 2",
+      "star_bias": "upP {0} = downP {0} = 1/2, ratio 1 != 2",
+      "star_fixation_centre": "5/12",
+      "star_fixation_leaf": "2/3",
+      "star_fixation_uniform": "7/12",
+      "star_ne_moran": "5/12, 7/12, 2/3 each != 4/7",
+      "cycle4_not_lumpable": "isothermal 4-cycle: upP {0,1} = 1/3, upP {0,2} = 2/3 at equal count 2 (count not strongly lumpable; holding chain); forward bias r holds at both",
+      "identity_no_fixation": "W = I isothermal, not connected: sPow t {0} univ = 0 for all t, no convergence to moranFix 2 2 1"
+    },
+    "planted_caught": {
+      "EvoGraphControls.ctl_sorry": "[propext, sorryAx, Classical.choice, Quot.sound]",
+      "EvoGraphControls.ctl_axiom": "[propext, Classical.choice, EvoGraphControls.ctl_cheat, Quot.sound]",
+      "EvoGraphControls.ctl_axiom_lumpable": "[propext, Classical.choice, EvoGraphControls.ctl_cheat, Quot.sound]"
+    },
+    "numerics": "numerics_evograph.json (exact rationals): Moran on W_H n=3,4, cycle4, random doubly stochastic n=4; differs on star n=3 (avg 7/12), star n=4 (avg 728/1265 vs 8/15), random row-stochastic; star+stationary mu = 4/7; cycle4 (up,down) at {0,1} = (1/3,1/6), at {0,2} = (2/3,1/3)"
+  },
+  "not_proved": [
+    "converse (Moran for all r => isothermal)",
+    "count process Markov (false)",
+    "cut positivity => strong connectivity (only the used direction strongly connected => cut positive is proved)",
+    "death-birth and other dynamics",
+    "exact star values for n >= 4 (numerics only, Tier C)",
+    "measure-theoretic path-space formulation (limits are n-step kernel limits, as in P7)"
+  ],
+  "literature": ["Lieberman, Hauert, Nowak, Nature 433 (2005) 312-316", "Pattni, Broom, Rychtar, Silvers arXiv:1505.06021 (Prop. 2, Lemma 1)", "Keller, Ugurlu arXiv:2403.12598 (projection not Markov; martingale proof; Thm 3.1)"],
+  "compile_records": ["compile_Transport.json", "compile_BirthDeath.json", "compile_Examples.json", "compile_ImportAll.json", "compile_PlantedControls.json"],
+  "sha256": {
+    "formal_cert/Programmes/EvoGraph/Transport.lean": "71babd503d7ee936a0746d2a710681a021a865463935154bad0b37129089e457",
+    "formal_cert/Programmes/EvoGraph/BirthDeath.lean": "51383b6af304fe540ed963fa18fa2f2955f18f0a1ec6edbec2f88a7b5719647f",
+    "formal_cert/Programmes/EvoGraph/Examples.lean": "7156a702948565b0c85ded7d39735c6142e8e8f3fa345ed3f92e9d0bf6b13162",
+    "formal_cert/Programmes/EvoGraph/EvoGraphImportAll.lean": "7750097280b7c983670360d23f72d71c6002a40af1039d96a04713d92e6b0b0f",
+    "formal_cert/Programmes/EvoGraph/EvoGraphPlantedControls.lean": "d3c875ee01fac100d70a2953de76a7d619a5296f8e7e842a6fcdb95df4b905d8",
+    "formal_cert/Programmes/PopGen/Absorption.lean (P7, unmodified)": "86fb5168a6b1efe07b8d050689da88facba0350a798b49df72315d7c283c5f95",
+    "formal_cert/Programmes/PopGen/MoranModel.lean (P7, unmodified)": "b0822dc0ee83505fdffbff00ae2140cfa190dee7c199ecefd156eea251da590f",
+    "numerics_evograph.py": "34936c5bad2aa2841564a2da9c9c536ee9ecd096d80f949d4da1bf9ff103a71f",
+    "numerics_evograph.json": "2564529fd5c823eb0433776f573512e91225be45eee2ba88cde0e70a659be9dc"
+  },
+  "audit": "pending (producer != verifier)"
+}

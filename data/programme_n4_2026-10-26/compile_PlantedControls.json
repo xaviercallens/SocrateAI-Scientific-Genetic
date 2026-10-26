@@ -1,0 +1,7 @@
+{
+  "file": "/home/callensxavier_gmail_com/AutoevolveAI/.claude/worktrees/openai-math-discovery/formal_cert/Programmes/EvoGraph/EvoGraphPlantedControls.lean",
+  "module": null,
+  "rc": 0,
+  "seconds": 6.9,
+  "output": "/home/callensxavier_gmail_com/AutoevolveAI/.claude/worktrees/openai-math-discovery/formal_cert/Programmes/EvoGraph/EvoGraphPlantedControls.lean:20:8: warning: declaration uses `sorry`\n'EvoGraphControls.ctl_sorry' depends on axioms: [propext, sorryAx, Classical.choice, Quot.sound]\n'EvoGraphControls.ctl_axiom' depends on axioms: [propext, Classical.choice, EvoGraphControls.ctl_cheat, Quot.sound]\n'EvoGraphControls.ctl_axiom_lumpable' depends on axioms: [propext,\n Classical.choice,\n EvoGraphControls.ctl_cheat,\n Quot.sound]\n"
+}
