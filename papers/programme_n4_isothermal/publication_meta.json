@@ -1,0 +1,41 @@
+{
+ "title": "The isothermal theorem of evolutionary graph theory for birth-death updating, kernel-checked in Lean 4: Moran fixation on strongly connected isothermal graphs and its stationary-selection generalization",
+ "version": "v1",
+ "description": "<p>We prove in Lean 4 (Mathlib) the <b>sufficiency</b> direction of the isothermal theorem of evolutionary graph theory for birth&ndash;death updating. A population sits on the nodes of a row-stochastic replacement matrix W; mutants have fitness r &gt; 0, residents 1; a node is chosen to reproduce with probability proportional to its fitness (times a selection weight &mu;<sub>i</sub> &gt; 0) and its offspring replaces node j with probability W<sub>ij</sub>. If W is doubly stochastic (isothermal) and strongly connected and &mu; &equiv; 1, then from every initial mutant set S the t-step probability of reaching the all-mutant configuration converges to the Moran value (1 &minus; r<sup>&minus;|S|</sup>)/(1 &minus; r<sup>&minus;n</sup>) (|S|/n if r = 1); for a single mutant at any node this is (1 &minus; r<sup>&minus;1</sup>)/(1 &minus; r<sup>&minus;n</sup>). The same limit is proved whenever &mu;W = &mu; (stationary selection) and every proper non-empty set has an outgoing edge.</p><p><b>Preregistration deviation.</b> The preregistered wording &lsquo;the number of mutants is a birth&ndash;death chain with ratio r&rsquo; is false as a Markov statement for the chain with holding. A kernel-checked counterexample on the isothermal 4-cycle (r = 2) shows that two configurations with two mutants each have increase probabilities 1/3 and 2/3. What is proved instead is the per-configuration forward bias P<sup>+</sup>(S) = r P<sup>&minus;</sup>(S), from which S &#8614; &rho;<sub>n</sub>(|S|) is harmonic for the configuration chain; the absorption limit follows from the kernel-checked absorption theorem of the earlier preprint doi:10.5281/zenodo.23653850 (P7), transported to the configuration space. Keller and U&#287;urlu (arXiv:2403.12598) state that the count of the Lieberman&ndash;Hauert&ndash;Nowak argument need not be Markovian; the per-configuration forward-bias route is that of Pattni, Broom, Rychta&#345; and Silvers (arXiv:1505.06021, Lemma 1). Both citations were read through alphaXiv; Lieberman, Hauert and Nowak (Nature 433:312&ndash;316, 2005) was not read.</p><p><b>Tier A</b> (Lean 4.34.1, Mathlib; axioms within propext, Classical.choice, Quot.sound, together with a kernel replay (leanchecker) by an independent auditor and a grep for skipKernelTC/addDecl/native_decide/implemented_by, because #print axioms alone can be fooled by debug.skipKernelTC; planted sorry and planted-axiom controls caught). Kernel-checked controls: the complete graph lumps exactly onto the Moran chain; the star with stationary selection gives 4/7; the star with n = 3, r = 2 gives 5/12 (centre), 2/3 (leaf), 7/12 (uniform start), none equal to 4/7; the 4-cycle is not lumpable; the identity matrix (doubly stochastic but disconnected) never fixes. <b>Not proved:</b> the converse (Moran for all r implies isothermal), death&ndash;birth or other updating rules, non-row-stochastic weights, a path-measure formulation (&lsquo;fixation probability&rsquo; means the limit of the t-step kernel), and exact star values for n &ge; 4 (exact-rational Python numerics only, Tier X). No novelty is claimed for the mathematics (known results of 2005, 2015 and 2024); we are not aware of an earlier machine-checked formalization, but no systematic search was made. Biological relevance (amplifiers and suppressors of selection, structured tissues) is stated as interpretation only (Tier C); no biological data are used.</p><p><b>Status.</b> The Lean files were compiled by their producer AI agent and re-compiled at the paper stage by the same AI pipeline. An independent adversarial AI auditor (producer != verifier; not a human) then recompiled the EvoGraph and reused P7 modules from source into its own olean directory, re-ran #print axioms, ran a leanchecker kernel replay (rc 0, with a debug.skipKernelTC forgery control rejected), recomputed the star and 4-cycle values with an independent exact-rational script, and checked both cited sources; verdict ACCEPT_WITH_CORRECTIONS (papers/p3_isothermal_theorem/AUDIT.md; statement lock results/proposal3/2026-10-26/N4/STATEMENT_LOCK.json). There has been no human audit. The Elenchus ledger gate reports 0 blocking findings and 11 flags (exit code 1), one for each Tier A row whose statement adequacy no human has audited. Produced by AI agents (Claude) under the author's direction; the author is responsible for the content. Not peer reviewed.</p>",
+ "keywords": [
+  "Lean 4",
+  "formal verification",
+  "evolutionary graph theory",
+  "isothermal theorem",
+  "Moran process",
+  "fixation probability",
+  "birth-death updating",
+  "absorbing Markov chain",
+  "amplifiers of selection",
+  "epistemic tiers",
+  "AI-assisted research"
+ ],
+ "notes": "Preprint v1 (2026-10-26). Independently AI-audited (ACCEPT_WITH_CORRECTIONS, papers/p3_isothermal_theorem/AUDIT.md; statement lock results/proposal3/2026-10-26/N4/STATEMENT_LOCK.json); no human audit. Lean: AutoevolveAI worktree openai-math-discovery, formal_cert/Programmes/EvoGraph/ committed in 8ff5912; toolchain Lean 4.34.1, Mathlib d13f23b723b8a846827a245b89c10fc7d3f11612. sha256: Transport.lean 71babd503d7ee936a0746d2a710681a021a865463935154bad0b37129089e457; BirthDeath.lean 51383b6af304fe540ed963fa18fa2f2955f18f0a1ec6edbec2f88a7b5719647f; Examples.lean 7156a702948565b0c85ded7d39735c6142e8e8f3fa345ed3f92e9d0bf6b13162; EvoGraphImportAll.lean 7750097280b7c983670360d23f72d71c6002a40af1039d96a04713d92e6b0b0f; EvoGraphPlantedControls.lean (planted, never imported) d3c875ee01fac100d70a2953de76a7d619a5296f8e7e842a6fcdb95df4b905d8. Reuses unchanged P7 modules Programmes/PopGen/Absorption.lean 86fb5168a6b1efe07b8d050689da88facba0350a798b49df72315d7c283c5f95 and MoranModel.lean b0822dc0ee83505fdffbff00ae2140cfa190dee7c199ecefd156eea251da590f (P7: doi:10.5281/zenodo.23653850). Gate (26 ledger rows: 11 A, 4 L, 9 C, 2 X): 0 blocking findings, 11 LEDGER_UNAUDITED_TIER_A flags, exit code 1 (ledger/gate_output.txt); audit fields null because no human has audited (the independent audit was by an AI). Literature read via alphaXiv: Keller and Ugurlu arXiv:2403.12598v2 (abstract, pp. 4, 7, 9, 10, 18); Pattni et al. arXiv:1505.06021v1 (Lemma 1 p. 11, Prop. 2 p. 6, pp. 12-14). Lieberman-Hauert-Nowak 2005 not read (bibliographic data from the Keller-Ugurlu reference list and an IDEAS/RePEc record); Moran 1958 and Kemeny-Snell 1960 not read. Pattni et al. cited as arXiv v1, no journal version verified. The preregistered item is results/proposal3/2026-10-26/preregistration.json (N4); the deviation is stated in Section 1 of the paper. Exact-rational numerics (results/proposal3/2026-10-26/N4/numerics_evograph.py) are Tier X; star n = 4 values are not kernel-checked. The paper DOI is assigned at deposit.",
+ "related_identifiers": [
+  {
+   "identifier": "10.5281/zenodo.23653850",
+   "relation": "references",
+   "scheme": "doi"
+  },
+  {
+   "identifier": "arXiv:2403.12598",
+   "relation": "references",
+   "scheme": "arxiv"
+  },
+  {
+   "identifier": "arXiv:1505.06021",
+   "relation": "references",
+   "scheme": "arxiv"
+  },
+  {
+   "identifier": "10.1038/nature03204",
+   "relation": "references",
+   "scheme": "doi"
+  }
+ ]
+}

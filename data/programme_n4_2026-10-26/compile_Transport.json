@@ -1,0 +1,7 @@
+{
+  "file": "/home/callensxavier_gmail_com/AutoevolveAI/.claude/worktrees/openai-math-discovery/formal_cert/Programmes/EvoGraph/Transport.lean",
+  "module": "Programmes.EvoGraph.Transport",
+  "rc": 0,
+  "seconds": 5.7,
+  "output": "'EvoGraph.sPow_top_mono' depends on axioms: [propext, Classical.choice, Quot.sound]\n'EvoGraph.exists_equiv_fin' depends on axioms: [propext, Classical.choice, Quot.sound]\n'EvoGraph.kPow_conj' depends on axioms: [propext, Classical.choice, Quot.sound]\n'EvoGraph.two_absorbing_limit' depends on axioms: [propext, Classical.choice, Quot.sound]\n"
+}
