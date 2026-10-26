@@ -1,0 +1,7 @@
+{
+  "file": "/home/callensxavier_gmail_com/AutoevolveAI/.claude/worktrees/openai-math-discovery/formal_cert/Programmes/PopGen/PriceImportAll.lean",
+  "module": null,
+  "rc": 0,
+  "seconds": 5.6,
+  "output": "'ProgPopGenPriceCheck.instance_four_types' depends on axioms: [propext, Classical.choice, Quot.sound]\n'ProgPopGen.Price.price_equation' depends on axioms: [propext, Classical.choice, Quot.sound]\n'ProgPopGen.wright_fisher_fixation_limit' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AutoresearchPopGen.fisher_mean_fitness_nondecreasing' depends on axioms: [propext, Classical.choice, Quot.sound]\n"
+}

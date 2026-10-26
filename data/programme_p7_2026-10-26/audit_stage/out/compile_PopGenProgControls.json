@@ -1,0 +1,9 @@
+{
+ "tag": "compile_PopGenProgControls",
+ "file": "/home/callensxavier_gmail_com/AutoevolveAI/.claude/worktrees/openai-math-discovery/formal_cert/Programmes/PopGen/PopGenProgControls.lean",
+ "module": null,
+ "rc": 0,
+ "seconds": 5.5,
+ "sha256": "685cdd545b9cff73387d958242af254a6d3ffc987868bfa61d5b215b0988c9de",
+ "output": "/home/callensxavier_gmail_com/AutoevolveAI/.claude/worktrees/openai-math-discovery/formal_cert/Programmes/PopGen/PopGenProgControls.lean:17:8: warning: declaration uses `sorry`\n'ProgPopGenControls.ctl_sorry' depends on axioms: [propext, sorryAx, Classical.choice, Quot.sound]\n'ProgPopGenControls.ctl_axiom' depends on axioms: [propext, Classical.choice, ProgPopGenControls.ctl_cheat, Quot.sound]\n"
+}

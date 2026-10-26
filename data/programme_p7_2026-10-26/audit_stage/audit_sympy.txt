@@ -1,0 +1,10 @@
+p - r q = 0
+stay identity residual = 0
+KU p+ vs moranUp residual = 0
+KU p- vs moranDown residual = 0
+first-step residual = 0
+Price scalar residual = 0
+Cov raw form residual = 0
+limit r->1 1 3 1/3 expected 1/3
+limit r->1 2 5 2/5 expected 2/5
+limit r->1 7 10 7/10 expected 7/10

@@ -1,0 +1,30 @@
+{
+ "tier": "X",
+ "note": "never supports a claim",
+ "pos_three_types": {
+  "lhs": "-13/36",
+  "rhs": "-13/36",
+  "equal": true
+ },
+ "neg_transmission_bias": {
+  "delta_wbar": "-1/2",
+  "var_over_wbar": "1/6",
+  "equal": false,
+  "price_lhs": "-3/4",
+  "price_rhs": "-3/4",
+  "price_equal": true
+ },
+ "neg_missing_wbar": {
+  "delta_wbar": "1/6",
+  "var_over_wbar": "1/6",
+  "var": "1/4",
+  "delta_equals_var_over_wbar": true,
+  "delta_equals_var": false
+ },
+ "random_exact": {
+  "trials": 500,
+  "price_equal": 500,
+  "fisher_equal": 500
+ },
+ "float64_worst_abs_residual": 1.4210854715202004e-14
+}

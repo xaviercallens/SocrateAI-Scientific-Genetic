@@ -1,0 +1,7 @@
+{
+  "file": "/home/callensxavier_gmail_com/SocrateAI-Scientific-Genetic-pr/formal/ANSE/AlixPopulationGenetics.lean",
+  "module": null,
+  "rc": 0,
+  "seconds": 4.1,
+  "output": "'ANSE.Alix.aurelia_mean_fitness_increment' depends on axioms: [propext, Classical.choice, Quot.sound]\n'ANSE.Alix.aurelia_mean_fitness_nondecreasing' depends on axioms: [propext, Classical.choice, Quot.sound]\n'ANSE.Alix.kal_increment_is_variance' depends on axioms: [propext, Classical.choice, Quot.sound]\n'ANSE.Alix.ilene_harmonic_le_zero' depends on axioms: [propext, Classical.choice, Quot.sound]\n'ANSE.Alix.ilene_harmonic_unique' depends on axioms: [propext, Classical.choice, Quot.sound]\n'ANSE.Alix.wfP_nonneg' depends on axioms: [propext, Classical.choice, Quot.sound]\n'ANSE.Alix.wfP_row' depends on axioms: [propext, Classical.choice, Quot.sound]\n'ANSE.Alix.wfP_pos_zero' depends on axioms: [propext, Classical.choice, Quot.sound]\n'ANSE.Alix.binomial_mean' depends on axioms: [propext, Classical.choice, Quot.sound]\n'ANSE.Alix.ilene_wf_harmonic' depends on axioms: [propext, Classical.choice, Quot.sound]\n'ANSE.Alix.xav_wf_harmonic_solution_unique' depends on axioms: [propext, Classical.choice, Quot.sound]\n"
+}

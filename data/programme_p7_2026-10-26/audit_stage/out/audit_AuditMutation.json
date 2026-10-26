@@ -1,0 +1,9 @@
+{
+ "tag": "audit_AuditMutation",
+ "file": "/home/callensxavier_gmail_com/programmes-2026-10-25/P7/audit/src/AuditMutation.lean",
+ "module": null,
+ "rc": 1,
+ "seconds": 5.3,
+ "sha256": "2c482463b39b788ceaba7e6a609ebb1a81a5201a9f377986cb0b92f0ef54b79e",
+ "output": "/home/callensxavier_gmail_com/programmes-2026-10-25/P7/audit/src/AuditMutation.lean:10:54: error: unsolved goals\n\u22a2 False\n"
+}

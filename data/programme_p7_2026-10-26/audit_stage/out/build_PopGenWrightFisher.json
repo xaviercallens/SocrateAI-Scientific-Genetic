@@ -1,0 +1,9 @@
+{
+ "tag": "build_PopGenWrightFisher",
+ "file": "/home/callensxavier_gmail_com/AutoevolveAI/.claude/worktrees/openai-math-discovery/formal_cert/Autoresearch/PopGenWrightFisher.lean",
+ "module": "Autoresearch.PopGenWrightFisher",
+ "rc": 0,
+ "seconds": 6.4,
+ "sha256": "9cac6b9d5d0c76be771d8b004777699c539ea384741f7483f362de5884a4e530",
+ "output": "'AutoresearchPopGen.wfP_nonneg' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AutoresearchPopGen.wfP_sum_one' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AutoresearchPopGen.binom_mean' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AutoresearchPopGen.wfP_mean' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AutoresearchPopGen.wfP_zero' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AutoresearchPopGen.wfP_last' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AutoresearchPopGen.wfP_interior_zero_pos' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AutoresearchPopGen.frac_harmonic' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AutoresearchPopGen.max_principle' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AutoresearchPopGen.harmonic_unique' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AutoresearchPopGen.wright_fisher_fixation_harmonic' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AutoresearchPopGen.ctl_positive_wfP_value' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AutoresearchPopGen.ctl_negative_selection_not_harmonic' depends on axioms: [propext, Classical.choice, Quot.sound]\n"
+}

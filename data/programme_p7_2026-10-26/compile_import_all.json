@@ -1,0 +1,7 @@
+{
+  "file": "/home/callensxavier_gmail_com/AutoevolveAI/.claude/worktrees/openai-math-discovery/formal_cert/Programmes/PopGen/PopGenProgImportAll.lean",
+  "module": null,
+  "rc": 0,
+  "seconds": 11.1,
+  "output": "'ProgPopGenCheck.nonvacuous_moran_chain' depends on axioms: [propext, Classical.choice, Quot.sound]\n'ProgPopGenCheck.nonvacuous_wf_chain' depends on axioms: [propext, Classical.choice, Quot.sound]\n'ProgPopGenCheck.instance_wf_N3' depends on axioms: [propext, Classical.choice, Quot.sound]\n'ProgPopGenCheck.instance_moran_N10' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AutoresearchPopGen.harmonic_unique' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AutoresearchPopGen.fisher_mean_fitness_nondecreasing' depends on axioms: [propext, Classical.choice, Quot.sound]\n"
+}

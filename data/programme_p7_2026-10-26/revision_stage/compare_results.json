@@ -1,0 +1,9 @@
+{
+ "rows": 115,
+ "fields_differing_other_than_min_component": {
+  "r|1.5->None": 1
+ },
+ "min_component_min": -4.564256924014986e-18,
+ "min_component_max": 1.0352650261293885e-11,
+ "n_with_min_component": 106
+}
